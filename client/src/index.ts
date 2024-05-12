@@ -1,7 +1,10 @@
-import { AUTO, Scene, Types, Game } from "phaser";
-import { Client, Room, SchemaSerializer } from "colyseus.js";
+import { AUTO, Scene, Types, Game, GameObjects } from "phaser";
+import { Client, Room } from "colyseus.js";
 
 export class GameScene extends Scene {
+  currentPlayer?: Types.Physics.Arcade.ImageWithDynamicBody;
+  remoteRef?: GameObjects.Rectangle;
+
   // local input cache
   inputPayload = { 
     left: false,
@@ -35,18 +38,40 @@ export class GameScene extends Scene {
     // TODO: is it possible to import the player Scheme so we can be type safe?
     this.room?.state.players.onAdd((player: any, sessionId: string) => {
       const entity = this.physics.add.image(player.x, player.y, 'necro');
+      entity.width = 50;
+      entity.height = 114;
       entity.displayWidth = 50;
       entity.displayHeight = 114;
 
       this.playerEntities[sessionId] = entity
 
-      player.onChange(() => {
-        entity.x = player.x;
-        entity.y = player.y;
-      })
+      if (sessionId === this.room?.sessionId) {
+        // sessionId matches, this is the current player
+        this.currentPlayer = entity;
 
-      /* How to listen to individual properties: */
-      // player.listen("x", (newX, prevX) => console.log(newX, prevX));
+        // remoteRef is for debugging purposes
+        this.remoteRef = this.add.rectangle(0, 0, entity.width, entity.height);
+        this.remoteRef.setStrokeStyle(1, 0xAA5555)
+
+        player.onChange(() => {
+          if (!this.remoteRef) return;
+          this.remoteRef.x = player.x;
+          this.remoteRef.y = player.y;
+        })
+
+      } else {
+        player.onChange(() => {
+          // LERP during render loop instead of updating immediately
+          entity.setData('serverX', player.x);
+          entity.setData('serverY', player.y);
+          /*
+          entity.x = player.x;
+          entity.y = player.y;
+          */
+          /* How to listen to individual properties: */
+          // player.listen("x", (newX, prevX) => console.log(newX, prevX));
+        })
+      }
     })
 
     this.room?.state.players.onRemove((player: any, sessionId: string) => {
@@ -59,10 +84,21 @@ export class GameScene extends Scene {
     })
   }
 
-  update(time: number, delta: number): void {
-    if (!this.room) return;
+  fixedUpdate(time: number, delta: number) {
+    if (!this.room || !this.currentPlayer) return;
 
     // TODO: send cursor position data here
+
+    for (let sessionId in this.playerEntities) {
+      // skip interpolation for current player
+      if (sessionId === this.room.sessionId) continue;
+
+      const entity = this.playerEntities[sessionId];
+      const { serverX, serverY } = entity.data.values;
+
+      entity.x = Phaser.Math.Linear(entity.x, serverX, 0.1);
+      entity.y = Phaser.Math.Linear(entity.y, serverY, 0.1);
+    }
 
     // send input to server
     this.inputPayload = {
@@ -71,8 +107,35 @@ export class GameScene extends Scene {
       up: this.cursorKeys?.up.isDown || false,
       down: this.cursorKeys?.down.isDown || false,
     }
-
     this.room.send(0, this.inputPayload);
+
+
+    const velocity = 2;
+
+    if (this.inputPayload.left) {
+      this.currentPlayer.x -= velocity;
+    } else if (this.inputPayload.right) {
+      this.currentPlayer.x += velocity;
+    }
+
+    if (this.inputPayload.up) {
+      this.currentPlayer.y -= velocity;
+    } else if (this.inputPayload.down) {
+      this.currentPlayer.y += velocity;
+    }
+  }
+
+  elapsedTime = 0;
+  fixedTimeStep = 1000 / 60;
+
+  update(time: number, delta: number): void {
+    if (!this.room || !this.currentPlayer) return;
+
+    this.elapsedTime += delta;
+    while (this.elapsedTime >= this.fixedTimeStep) {
+      this.elapsedTime -= this.fixedTimeStep;
+      this.fixedUpdate(time, this.fixedTimeStep);
+    }
   }
 }
 
