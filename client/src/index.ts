@@ -1,4 +1,4 @@
-import { AUTO, Scene, Types, Game, GameObjects } from "phaser";
+import { AUTO, Scene, Types, Game, GameObjects, Input } from "phaser";
 import { Client, Room } from "colyseus.js";
 
 export class GameScene extends Scene {
@@ -11,12 +11,15 @@ export class GameScene extends Scene {
     right: false,
     up: false,
     down: false,
+    mouseX: 0,
+    mouseY: 0,
   }
 
   cursorKeys?: Types.Input.Keyboard.CursorKeys;
 
   preload() {
     this.load.image('necro', 'necro.png');
+    this.load.image('skele', 'skele.png');
     this.cursorKeys = this.input.keyboard?.createCursorKeys();
   }
 
@@ -24,6 +27,7 @@ export class GameScene extends Scene {
   room?: Room;
 
   playerEntities: {[sessionId: string]: any} = {};
+  playerType: "necro" | "town" = "necro";
 
   async create() {
     console.log('joining room...');
@@ -43,7 +47,15 @@ export class GameScene extends Scene {
       entity.displayWidth = 50;
       entity.displayHeight = 114;
 
+      if (Object.keys(this.playerEntities).length > 0) this.playerType = "town";
       this.playerEntities[sessionId] = entity
+
+      if (this.playerType === "necro") {
+        // spawn skeletons
+        const minion = this.physics.add.image(200, 300, 'skele');
+        minion.displayWidth = 40;
+        minion.displayHeight = 60;
+      }
 
       if (sessionId === this.room?.sessionId) {
         // sessionId matches, this is the current player
@@ -106,6 +118,8 @@ export class GameScene extends Scene {
       right: this.cursorKeys?.right.isDown || false,
       up: this.cursorKeys?.up.isDown || false,
       down: this.cursorKeys?.down.isDown || false,
+      mouseX: this.input.mousePointer.x,
+      mouseY: this.input.mousePointer.y,
     }
     this.room.send(0, this.inputPayload);
 
@@ -147,7 +161,7 @@ const config: Types.Core.GameConfig = {
   backgroundColor: '#eee',
   parent: 'necro',
   physics: { default: "arcade" },
-  scene: [ GameScene ]
+  scene: [ GameScene ],
 }
 
 // instantiate game
