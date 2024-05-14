@@ -6,21 +6,21 @@ export class GameScene extends Scene {
   remoteRef?: GameObjects.Rectangle;
 
   // local input cache
-  inputPayload = { 
+  inputPayload: { left: boolean, right: boolean, up: boolean, down: boolean, mouseX?: number, mouseY?: number } = { 
     left: false,
     right: false,
     up: false,
     down: false,
-    mouseX: 0,
-    mouseY: 0,
   }
 
   cursorKeys?: Types.Input.Keyboard.CursorKeys;
+  // pointer?: Input.Pointer;
 
   preload() {
     this.load.image('necro', 'necro.png');
     this.load.image('skele', 'skele.png');
     this.cursorKeys = this.input.keyboard?.createCursorKeys();
+    // this.pointer = this.input.mousePointer;
   }
 
   client = new Client("ws://localhost:2567");
@@ -28,6 +28,8 @@ export class GameScene extends Scene {
 
   playerEntities: {[sessionId: string]: any} = {};
   playerType: "necro" | "town" = "necro";
+
+  minions: any[] = [];
 
   async create() {
     console.log('joining room...');
@@ -39,6 +41,20 @@ export class GameScene extends Scene {
       console.error(e);
     }
 
+    this.room?.state.minions.onAdd((minion: any, sessionId: string) => {
+      const entity = this.physics.add.image(minion.x, minion.y, 'skele');
+      entity.width = 40;
+      entity.height = 60;
+      entity.displayWidth = 40;
+      entity.displayHeight = 60;
+
+      this.minions.push(entity);
+      minion.onChange(() => {
+        entity.setData('serverX', minion.x);
+        entity.setData('serverY', minion.y);
+      })
+    });
+
     // TODO: is it possible to import the player Scheme so we can be type safe?
     this.room?.state.players.onAdd((player: any, sessionId: string) => {
       const entity = this.physics.add.image(player.x, player.y, 'necro');
@@ -47,15 +63,19 @@ export class GameScene extends Scene {
       entity.displayWidth = 50;
       entity.displayHeight = 114;
 
-      if (Object.keys(this.playerEntities).length > 0) this.playerType = "town";
+      entity.type = player.type;
+
       this.playerEntities[sessionId] = entity
 
+      /*
+      if (Object.keys(this.playerEntities).length > 0) this.playerType = "town";
       if (this.playerType === "necro") {
         // spawn skeletons
         const minion = this.physics.add.image(200, 300, 'skele');
         minion.displayWidth = 40;
         minion.displayHeight = 60;
       }
+      */
 
       if (sessionId === this.room?.sessionId) {
         // sessionId matches, this is the current player
@@ -101,6 +121,15 @@ export class GameScene extends Scene {
 
     // TODO: send cursor position data here
 
+    for (let minion in this.minions) {
+      const entity = this.minions[minion];
+
+      const { serverX, serverY } = entity.data.values;
+
+      entity.x = Phaser.Math.Linear(entity.x, serverX, 0.1);
+      entity.y = Phaser.Math.Linear(entity.y, serverY, 0.1);
+    }
+
     for (let sessionId in this.playerEntities) {
       // skip interpolation for current player
       if (sessionId === this.room.sessionId) continue;
@@ -112,14 +141,21 @@ export class GameScene extends Scene {
       entity.y = Phaser.Math.Linear(entity.y, serverY, 0.1);
     }
 
+    let mouseInputs = {}
+    if (this.currentPlayer.type === "necro") {
+      mouseInputs = {
+        mouseX: this.input.mousePointer.x,
+        mouseY: this.input.mousePointer.y,
+      }
+    }
+
     // send input to server
     this.inputPayload = {
       left: this.cursorKeys?.left.isDown || false,
       right: this.cursorKeys?.right.isDown || false,
       up: this.cursorKeys?.up.isDown || false,
       down: this.cursorKeys?.down.isDown || false,
-      mouseX: this.input.mousePointer.x,
-      mouseY: this.input.mousePointer.y,
+      ...mouseInputs
     }
     this.room.send(0, this.inputPayload);
 
