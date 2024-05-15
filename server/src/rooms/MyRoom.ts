@@ -84,8 +84,8 @@ export class MyRoom extends Room<MyRoomState> {
     console.log(client.sessionId, "joined!");
 
     // TODO: create shared constant for client/server map/screen sizes
-    const mapWidth = 800;
-    const mapHeight = 600;
+    const mapWidth = 1024;
+    const mapHeight = 768;
 
     // create player instance
     const player = new Player();
