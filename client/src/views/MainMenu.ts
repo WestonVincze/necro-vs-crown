@@ -3,17 +3,14 @@ const MainMenuScreen = () => `
   <div.
     <h1>NECRO</h1>
 
-    <div id="content">
-      PLAY GAME
-    </div>
-
-    <div>
-      <button id="start_game_btn">Start Game</button>
-    </div>
+    <button id="start_game_btn">Start Game</button>
   </div>
 `
+interface MainMenuProps {
+  startGame: () => void;
+}
 
-export const MainMenu = () => {
+export const MainMenu = ({ startGame }: MainMenuProps) => {
   const overlay = document.querySelector('#overlay');
   if (!overlay) {
     console.error("overlay container not found.");
@@ -24,6 +21,7 @@ export const MainMenu = () => {
   overlay.innerHTML = MainMenuScreen();
 
   const handleStartGame = () => {
+    startGame();
     overlay.classList.remove('show');
   }
 

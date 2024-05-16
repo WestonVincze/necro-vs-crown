@@ -1,4 +1,5 @@
 import { Scene } from "phaser";
+import { MainMenu } from "../views/MainMenu";
 
 export class MainMenuScene extends Scene {
   constructor() {
@@ -6,10 +7,6 @@ export class MainMenuScene extends Scene {
   }
 
   create() {
-    console.log("MAIN MENU TIME");
-
-    this.input.once('pointerdown', () => {
-      this.scene.start("GameScene")
-    })
+    MainMenu({ startGame: () => this.scene.start("GameScene") });
   }
 }
