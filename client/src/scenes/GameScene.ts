@@ -26,11 +26,16 @@ export class GameScene extends Scene {
     // this.pointer = this.input.mousePointer;
   }
 
+  init (data: { player: "necro" | "crown" }) {
+    console.log(data.player);
+    this.playerType = data.player;
+  }
+
   client = new Client("ws://localhost:2567");
   room?: Room;
 
   playerEntities: {[sessionId: string]: any} = {};
-  playerType: "necro" | "town" = "necro";
+  playerType?: "necro" | "crown";
 
   minions: any[] = [];
 
@@ -38,7 +43,7 @@ export class GameScene extends Scene {
     console.log('joining room...');
 
     try {
-      this.room = await this.client.joinOrCreate("my_room");
+      this.room = await this.client.joinOrCreate("my_room", { playerType: this.playerType });
       console.log("Joined Successfully!")
     } catch (e) {
       console.error(e);
@@ -60,6 +65,7 @@ export class GameScene extends Scene {
 
     // TODO: is it possible to import the player Scheme so we can be type safe?
     this.room?.state.players.onAdd((player: any, sessionId: string) => {
+      if (player.type === "crown") return;
       const entity = this.physics.add.image(player.x, player.y, 'necro');
       entity.width = 50;
       entity.height = 114;
@@ -150,18 +156,17 @@ export class GameScene extends Scene {
         mouseX: this.input.mousePointer.x,
         mouseY: this.input.mousePointer.y,
       }
-    }
 
-    // send input to server
-    this.inputPayload = {
-      left: this.cursorKeys?.left.isDown || false,
-      right: this.cursorKeys?.right.isDown || false,
-      up: this.cursorKeys?.up.isDown || false,
-      down: this.cursorKeys?.down.isDown || false,
-      ...mouseInputs
+      // send input to server
+      this.inputPayload = {
+        left: this.cursorKeys?.left.isDown || false,
+        right: this.cursorKeys?.right.isDown || false,
+        up: this.cursorKeys?.up.isDown || false,
+        down: this.cursorKeys?.down.isDown || false,
+        ...mouseInputs
+      }
+      this.room.send(0, this.inputPayload);
     }
-    this.room.send(0, this.inputPayload);
-
 
     const velocity = 2;
 

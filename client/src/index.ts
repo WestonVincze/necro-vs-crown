@@ -9,7 +9,7 @@ const config: Types.Core.GameConfig = {
   width: 1024,
   height: 768,
   backgroundColor: '#eee',
-  parent: 'necro',
+  parent: 'game_container',
   physics: { default: "arcade" },
   scene: [ MainMenuScene, GameScene ],
 }

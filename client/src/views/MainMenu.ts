@@ -1,13 +1,14 @@
 
 const MainMenuScreen = () => `
-  <div.
+  <div>
     <h1>NECRO</h1>
 
-    <button id="start_game_btn">Start Game</button>
+    <button id="start_as_necro">Join as Necro</button>
+    <button id="start_as_crown">Join as Crown</button>
   </div>
 `
 interface MainMenuProps {
-  startGame: () => void;
+  startGame: (player: string) => void;
 }
 
 export const MainMenu = ({ startGame }: MainMenuProps) => {
@@ -20,11 +21,13 @@ export const MainMenu = ({ startGame }: MainMenuProps) => {
   overlay.classList.add("show");
   overlay.innerHTML = MainMenuScreen();
 
-  const handleStartGame = () => {
-    startGame();
+  const handleStartGame = (player: string) => {
+    startGame(player);
     overlay.classList.remove('show');
   }
 
-  const startButton = document.querySelector('#start_game_btn');
-  startButton?.addEventListener('click', handleStartGame);
+  const startAsNecro = document.querySelector('#start_as_necro');
+  const startAsCrown = document.querySelector('#start_as_crown');
+  startAsNecro?.addEventListener('click', () => handleStartGame("necro"));
+  startAsCrown?.addEventListener('click', () => handleStartGame("crown"));
 }

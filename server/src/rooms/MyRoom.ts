@@ -1,5 +1,5 @@
 import { Room, Client } from "@colyseus/core";
-import { Minion, MyRoomState, Player } from "./schema/MyRoomState";
+import { Crown, Minion, MyRoomState, Necro, Player } from "./schema/MyRoomState";
 
 export const calculateFollowForce = (target: { x: number, y: number }, self: { x: number, y: number }) => {
   const followForce = { x: 0, y: 0 };
@@ -28,6 +28,7 @@ export class MyRoom extends Room<MyRoomState> {
     this.state.players.forEach(player => {
       let input: any;
 
+      if (player.type === "crown") return;
       while (input = player.inputQueue.shift()) {
         if (input.left) {
           player.x -= velocity;
@@ -87,22 +88,25 @@ export class MyRoom extends Room<MyRoomState> {
     const mapWidth = 1024;
     const mapHeight = 768;
 
+    let player;
     // create player instance
-    const player = new Player();
+    if (options.playerType === "necro") {
+      player = new Necro();
+      // place player at random position
+      player.x = (Math.random() * mapWidth);
+      player.y = (Math.random() * mapHeight);
 
-    // place player at random position
-    player.x = (Math.random() * mapWidth);
-    player.y = (Math.random() * mapHeight);
-    player.type = this.state.players.size === 0 ? "necro" : "town";
 
+      // place minion at random position
+      const minion = new Minion();
+      minion.x = (Math.random() * mapWidth);
+      minion.y = (Math.random() * mapHeight);
+      this.state.minions.set(client.sessionId, minion);
+    } else if (options.playerType === "crown") {
+      player = new Crown();
+    }
+    player.type = options.playerType;
     this.state.players.set(client.sessionId, player);
-
-    if (player.type === "town") return;
-    // place minion at random position
-    const minion = new Minion();
-    minion.x = (Math.random() * mapWidth);
-    minion.y = (Math.random() * mapHeight);
-    this.state.minions.set(client.sessionId, minion);
   }
 
   onLeave (client: Client, consented: boolean) {

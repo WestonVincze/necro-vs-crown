@@ -1,10 +1,17 @@
 import { MapSchema, Schema, type } from "@colyseus/schema";
 
 export class Player extends Schema {
-  @type("string") type: "necro" | "town";
+  inputQueue: any[] = [];
+}
+
+export class Necro extends Player {
+  @type("string") type: "necro";
   @type("number") x: number;
   @type("number") y: number;
-  inputQueue: any[] = [];
+}
+
+export class Crown extends Player {
+  @type("string") type: "crown";
 }
 
 export class Minion extends Schema {
@@ -13,6 +20,6 @@ export class Minion extends Schema {
 }
 
 export class MyRoomState extends Schema {
-  @type({ map: Player }) players = new MapSchema<Player>();
+  @type({ map: Player }) players = new MapSchema<Necro | Crown>();
   @type({ map: Minion }) minions = new MapSchema<Minion>();
 }

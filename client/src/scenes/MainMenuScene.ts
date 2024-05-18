@@ -7,6 +7,6 @@ export class MainMenuScene extends Scene {
   }
 
   create() {
-    MainMenu({ startGame: () => this.scene.start("GameScene") });
+    MainMenu({ startGame: (player: string) => this.scene.start("GameScene", { player }) });
   }
 }
