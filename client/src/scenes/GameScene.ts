@@ -47,7 +47,7 @@ export class GameScene extends Scene {
       console.log("Joined Successfully!")
       if (this.playerType === "crown") { 
         // show card UI
-        this.input.keyboard?.on('keydown-W', () => this.room?.send(1))
+        this.input.keyboard?.on('keydown-ONE', () => this.room?.send(1))
       }
     } catch (e) {
       console.error(e);

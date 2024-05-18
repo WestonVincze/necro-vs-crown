@@ -78,11 +78,13 @@ export class MyRoom extends Room<MyRoomState> {
       player.inputQueue.push(input);
     })
 
+    let enemyCount = 0;
     this.onMessage(1, (client) => {
       const enemy = new Enemy();
       enemy.x = (Math.random() * mapWidth);
       enemy.y = (Math.random() * mapHeight);
-      this.state.enemies.set(client.sessionId, enemy);
+      this.state.enemies.set(enemyCount.toString(), enemy);
+      enemyCount++;
     })
 
     this.onMessage("type", (client, message) => {
