@@ -1,5 +1,9 @@
 import { Room, Client } from "@colyseus/core";
-import { Crown, Minion, MyRoomState, Necro, Player } from "./schema/MyRoomState";
+import { Crown, Enemy, Minion, MyRoomState, Necro, Player } from "./schema/MyRoomState";
+
+// TODO: create shared constant for client/server map/screen sizes
+const mapWidth = 1024;
+const mapHeight = 768;
 
 export const calculateFollowForce = (target: { x: number, y: number }, self: { x: number, y: number }) => {
   const followForce = { x: 0, y: 0 };
@@ -74,6 +78,13 @@ export class MyRoom extends Room<MyRoomState> {
       player.inputQueue.push(input);
     })
 
+    this.onMessage(1, (client) => {
+      const enemy = new Enemy();
+      enemy.x = (Math.random() * mapWidth);
+      enemy.y = (Math.random() * mapHeight);
+      this.state.enemies.set(client.sessionId, enemy);
+    })
+
     this.onMessage("type", (client, message) => {
       //
       // handle "type" message
@@ -84,9 +95,6 @@ export class MyRoom extends Room<MyRoomState> {
   onJoin (client: Client, options: any) {
     console.log(client.sessionId, "joined!");
 
-    // TODO: create shared constant for client/server map/screen sizes
-    const mapWidth = 1024;
-    const mapHeight = 768;
 
     let player;
     // create player instance

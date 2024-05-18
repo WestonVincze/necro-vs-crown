@@ -22,12 +22,12 @@ export class GameScene extends Scene {
   preload() {
     this.load.image('necro', 'necro.png');
     this.load.image('skele', 'skele.png');
+    this.load.image('guard', 'guard.png');
     this.cursorKeys = this.input.keyboard?.createCursorKeys();
     // this.pointer = this.input.mousePointer;
   }
 
   init (data: { player: "necro" | "crown" }) {
-    console.log(data.player);
     this.playerType = data.player;
   }
 
@@ -45,6 +45,10 @@ export class GameScene extends Scene {
     try {
       this.room = await this.client.joinOrCreate("my_room", { playerType: this.playerType });
       console.log("Joined Successfully!")
+      if (this.playerType === "crown") { 
+        // show card UI
+        this.input.keyboard?.on('keydown-W', () => this.room?.send(1))
+      }
     } catch (e) {
       console.error(e);
     }
@@ -63,55 +67,62 @@ export class GameScene extends Scene {
       })
     });
 
+    this.room?.state.enemies.onAdd((enemy: any, sessionId: string) => {
+      const entity = this.physics.add.image(enemy.x, enemy.y, 'guard');
+      entity.width = 50;
+      entity.height = 110;
+      entity.displayWidth = 50;
+      entity.displayHeight = 100;
+
+      this.minions.push(entity);
+      enemy.onChange(() => {
+        entity.setData('serverX', enemy.x);
+        entity.setData('serverY', enemy.y);
+      })
+    });
+
     // TODO: is it possible to import the player Scheme so we can be type safe?
     this.room?.state.players.onAdd((player: any, sessionId: string) => {
-      if (player.type === "crown") return;
-      const entity = this.physics.add.image(player.x, player.y, 'necro');
-      entity.width = 50;
-      entity.height = 114;
-      entity.displayWidth = 50;
-      entity.displayHeight = 114;
-
-      entity.type = player.type;
-
-      this.playerEntities[sessionId] = entity
-
-      /*
-      if (Object.keys(this.playerEntities).length > 0) this.playerType = "town";
-      if (this.playerType === "necro") {
-        // spawn skeletons
-        const minion = this.physics.add.image(200, 300, 'skele');
-        minion.displayWidth = 40;
-        minion.displayHeight = 60;
-      }
-      */
-
-      if (sessionId === this.room?.sessionId) {
-        // sessionId matches, this is the current player
-        this.currentPlayer = entity;
-
-        // remoteRef is for debugging purposes
-        this.remoteRef = this.add.rectangle(0, 0, entity.width, entity.height);
-        this.remoteRef.setStrokeStyle(1, 0xAA5555)
-
-        player.onChange(() => {
-          if (!this.remoteRef) return;
-          this.remoteRef.x = player.x;
-          this.remoteRef.y = player.y;
-        })
-
+      if (player.type === "crown") { 
+        // show card UI
+        return;
+        this.input.keyboard?.on('keydown-W', () => this.room?.send(1))
       } else {
-        player.onChange(() => {
-          // LERP during render loop instead of updating immediately
-          entity.setData('serverX', player.x);
-          entity.setData('serverY', player.y);
-          /*
-          entity.x = player.x;
-          entity.y = player.y;
-          */
-          /* How to listen to individual properties: */
-          // player.listen("x", (newX, prevX) => console.log(newX, prevX));
-        })
+        const entity = this.physics.add.image(player.x, player.y, 'necro');
+        entity.width = 50;
+        entity.height = 114;
+        entity.displayWidth = 50;
+        entity.displayHeight = 114;
+
+        this.playerEntities[sessionId] = entity
+
+        if (sessionId === this.room?.sessionId) {
+          // sessionId matches, this is the current player
+          this.currentPlayer = entity;
+
+          // remoteRef is for debugging purposes
+          this.remoteRef = this.add.rectangle(0, 0, entity.width, entity.height);
+          this.remoteRef.setStrokeStyle(1, 0xAA5555)
+
+          player.onChange(() => {
+            if (!this.remoteRef) return;
+            this.remoteRef.x = player.x;
+            this.remoteRef.y = player.y;
+          })
+
+        } else {
+          player.onChange(() => {
+            // LERP during render loop instead of updating immediately
+            entity.setData('serverX', player.x);
+            entity.setData('serverY', player.y);
+            /*
+            entity.x = player.x;
+            entity.y = player.y;
+            */
+            /* How to listen to individual properties: */
+            // player.listen("x", (newX, prevX) => console.log(newX, prevX));
+          })
+        }
       }
     })
 
@@ -151,7 +162,7 @@ export class GameScene extends Scene {
     }
 
     let mouseInputs = {}
-    if (this.currentPlayer.type === "necro") {
+    if (this.playerType === "necro") {
       mouseInputs = {
         mouseX: this.input.mousePointer.x,
         mouseY: this.input.mousePointer.y,

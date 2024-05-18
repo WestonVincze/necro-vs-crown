@@ -9,6 +9,17 @@
 <body>
   <script src="./src/index.ts" type="module"></script>
   <style>
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+    #game_container {
+      margin: 5% auto;
+      width: 1024;
+      height: 768;
+      position: relative;
+    }
     #overlay.show {
       display: block;
     }
@@ -33,6 +44,11 @@
       display: none;
     }
   </style>
-  <div id="overlay"></div>
+
+  <div id="game_container">
+    <div id="overlay"></div>
+    <div id="UI"></div>
+  </div>
+
 </body>
 </html>

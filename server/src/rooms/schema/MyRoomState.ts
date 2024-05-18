@@ -19,7 +19,13 @@ export class Minion extends Schema {
   @type("number") y: number;
 }
 
+export class Enemy extends Schema {
+  @type("number") x: number;
+  @type("number") y: number;
+}
+
 export class MyRoomState extends Schema {
   @type({ map: Player }) players = new MapSchema<Necro | Crown>();
   @type({ map: Minion }) minions = new MapSchema<Minion>();
+  @type({ map: Enemy }) enemies= new MapSchema<Enemy>();
 }
