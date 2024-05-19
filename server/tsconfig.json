@@ -11,7 +11,13 @@
     "experimentalDecorators": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    "baseUrl": "./src/",
+    "paths": {
+      "@/*": ["./*"],
+      "@/rooms": ["./rooms"],
+      "@/shared/*": ["../../shared/*"]
+    }
   },
   "include": [
     "src"
