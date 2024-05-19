@@ -137,10 +137,9 @@ export class GameScene extends Scene {
   }
 
   fixedUpdate(time: number, delta: number) {
-    if (!this.room || !this.currentPlayer) return;
+    if (!this.room) return;
 
     // TODO: send cursor position data here
-
     for (let minion in this.minions) {
       const entity = this.minions[minion];
 
@@ -181,6 +180,8 @@ export class GameScene extends Scene {
 
     const velocity = 2;
 
+    if (!this.currentPlayer) return;
+
     if (this.inputPayload.left) {
       this.currentPlayer.x -= velocity;
     } else if (this.inputPayload.right) {
@@ -198,7 +199,7 @@ export class GameScene extends Scene {
   fixedTimeStep = 1000 / 60;
 
   update(time: number, delta: number): void {
-    if (!this.room || !this.currentPlayer) return;
+    if (!this.room) return;
 
     this.elapsedTime += delta;
     while (this.elapsedTime >= this.fixedTimeStep) {
