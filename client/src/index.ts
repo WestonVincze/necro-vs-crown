@@ -1,6 +1,14 @@
 import { AUTO, Types, Game } from "phaser";
 import { GameScene } from "./scenes/GameScene";
 import { MainMenuScene } from "./scenes/MainMenuScene";
+import App from "./App.svelte";
+
+const app = new App({
+  target: document.getElementById('svelte') as HTMLElement,
+  props: {
+    score: 0
+  }
+})
 
 
 // game config

@@ -17,7 +17,8 @@
       "@/*": ["./*"],
       "@/rooms": ["./rooms"],
       "@/shared/*": ["../../shared/*"]
-    }
+    },
+    "typeRoots": ["../../shared/types"]
   },
   "include": [
     "src"
