@@ -1,4 +1,4 @@
-import { Scene, Types, GameObjects } from "phaser";
+import { Scene, type Types, GameObjects } from "phaser";
 import { Client, Room } from "colyseus.js";
 
 export class GameScene extends Scene {
@@ -17,7 +17,6 @@ export class GameScene extends Scene {
   }
 
   cursorKeys?: Types.Input.Keyboard.CursorKeys;
-  // pointer?: Input.Pointer;
 
   preload() {
     this.load.image('necro', 'necro.png');
@@ -29,6 +28,7 @@ export class GameScene extends Scene {
 
   init (data: { player: "necro" | "crown" }) {
     this.playerType = data.player;
+    // load the corresponding UI
   }
 
   client = new Client("ws://localhost:2567");
@@ -37,7 +37,7 @@ export class GameScene extends Scene {
   playerEntities: {[sessionId: string]: any} = {};
   playerType?: "necro" | "crown";
 
-  minions: any[] = [];
+  units: any[] = [];
 
   async create() {
     console.log('joining room...');
@@ -60,7 +60,7 @@ export class GameScene extends Scene {
       entity.displayWidth = 40;
       entity.displayHeight = 60;
 
-      this.minions.push(entity);
+      this.units.push(entity);
       minion.onChange(() => {
         entity.setData('serverX', minion.x);
         entity.setData('serverY', minion.y);
@@ -74,7 +74,7 @@ export class GameScene extends Scene {
       entity.displayWidth = 50;
       entity.displayHeight = 100;
 
-      this.minions.push(entity);
+      this.units.push(entity);
       enemy.onChange(() => {
         entity.setData('serverX', enemy.x);
         entity.setData('serverY', enemy.y);
@@ -140,8 +140,8 @@ export class GameScene extends Scene {
     if (!this.room) return;
 
     // TODO: send cursor position data here
-    for (let minion in this.minions) {
-      const entity = this.minions[minion];
+    for (let minion in this.units) {
+      const entity = this.units[minion];
 
       const { serverX, serverY } = entity.data.values;
 

@@ -4,6 +4,11 @@ export class Player extends Schema {
   inputQueue: any[] = [];
 }
 
+export class Unit extends Schema {
+  @type("number") x: number;
+  @type("number") y: number;
+}
+
 export class Necro extends Player {
   @type("string") type: "necro";
   @type("number") x: number;
@@ -14,18 +19,8 @@ export class Crown extends Player {
   @type("string") type: "crown";
 }
 
-export class Minion extends Schema {
-  @type("number") x: number;
-  @type("number") y: number;
-}
-
-export class Enemy extends Schema {
-  @type("number") x: number;
-  @type("number") y: number;
-}
-
 export class MyRoomState extends Schema {
   @type({ map: Player }) players = new MapSchema<Necro | Crown>();
-  @type({ map: Minion }) minions = new MapSchema<Minion>();
-  @type({ map: Enemy }) enemies= new MapSchema<Enemy>();
+  @type({ map: Unit }) minions = new MapSchema<Unit>();
+  @type({ map: Unit }) enemies = new MapSchema<Unit>();
 }
