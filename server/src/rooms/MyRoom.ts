@@ -1,5 +1,6 @@
 import { Room, Client } from "@colyseus/core";
-import { Crown, Enemy, Minion, MyRoomState, Necro, Player } from "./schema/MyRoomState";
+import { Crown, MyRoomState, Necro, Unit } from "./schema/MyRoomState";
+import { ThisIsATest } from "@/shared/test";
 
 // TODO: create shared constant for client/server map/screen sizes
 const mapWidth = 1024;
@@ -80,7 +81,7 @@ export class MyRoom extends Room<MyRoomState> {
 
     let enemyCount = 0;
     this.onMessage(1, (client) => {
-      const enemy = new Enemy();
+      const enemy = new Unit();
       enemy.x = (Math.random() * mapWidth);
       enemy.y = (Math.random() * mapHeight);
       this.state.enemies.set(enemyCount.toString(), enemy);
@@ -97,7 +98,6 @@ export class MyRoom extends Room<MyRoomState> {
   onJoin (client: Client, options: any) {
     console.log(client.sessionId, "joined!");
 
-
     let player;
     // create player instance
     if (options.playerType === "necro") {
@@ -108,7 +108,7 @@ export class MyRoom extends Room<MyRoomState> {
 
 
       // place minion at random position
-      const minion = new Minion();
+      const minion = new Unit();
       minion.x = (Math.random() * mapWidth);
       minion.y = (Math.random() * mapHeight);
       this.state.minions.set(client.sessionId, minion);
