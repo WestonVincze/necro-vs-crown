@@ -8,7 +8,7 @@ const config: Types.Core.GameConfig = {
   width: 1024,
   height: 768,
   backgroundColor: '#eee',
-  parent: 'game_container',
+  parent: 'game-container',
   physics: { default: "arcade" },
   scene: [ MainMenuScene, GameScene ],
 }

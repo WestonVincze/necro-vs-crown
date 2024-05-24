@@ -1,12 +1,15 @@
 <script lang="ts">
+  import { Card } from "$components/Card";
 
-  export let play: (player: string) => void;
+
+  export let playAs: (player: "necro" | "crown") => void;
 
 </script>
 
 <div>
-  <h1>NECRO</h1>
+  <h1>NECRO vs CROWN</h1>
 
-  <button on:click={() => play("necro")}>Join as Necro</button>
-  <button on:click={() => play("crown")}>Join as Crown</button>
+  <button on:click={() => playAs("necro")}>Join as Necro</button>
+  <button on:click={() => playAs("crown")}>Join as Crown</button>
+  <Card color="red" />
 </div>
