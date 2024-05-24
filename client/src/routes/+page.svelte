@@ -5,3 +5,11 @@
 <div id="app">
   <Game />
 </div>
+
+<style>
+  :global(*) {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+  }
+</style>
