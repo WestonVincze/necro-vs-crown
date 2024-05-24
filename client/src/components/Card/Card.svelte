@@ -37,8 +37,9 @@
 
 <div class="container">
   <div class="banner">
-    <CoinPurse value={5} />
-    <Banner />
+    <Banner name="Guard">
+      <CoinPurse value={5} />
+    </Banner>
     <!-- cost -->
     <!-- name -->
     <!-- type -->

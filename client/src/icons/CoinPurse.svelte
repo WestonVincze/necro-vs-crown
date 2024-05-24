@@ -2,7 +2,7 @@
   export let value: number;
 </script>
 
-<svg width="28" height="34" viewBox="0 0 28 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="28" height="34" viewBox="0 0 28 34" xmlns="http://www.w3.org/2000/svg">
   <path fill="#91562D" d="
     M21.0877 2.91679
     C19.9405 3.3577 18.9373 4.10661 18.1884 5.08105
@@ -33,5 +33,5 @@
       C11.0033 2.82624 11.0576 3.19163 11.3165 3.38349
       C12.1175 3.88763 13.0547 4.13211 13.9999 4.08352
       Z" />
-  <text x="55%" y="55%" text-anchor="end" dominant-baseline="middle" font-size="16px" font-weight=600 color="black">{value}</text>
+  <text x="50%" y="60%" text-anchor="middle" dominant-baseline="middle" font-size="20px">{value}</text>
 </svg>
