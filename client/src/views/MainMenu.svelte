@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Card } from "$components/Card";
-
+  import { Token } from "$components/Token";
 
   export let playAs: (player: "necro" | "crown") => void;
 
@@ -12,4 +12,5 @@
   <button on:click={() => playAs("necro")}>Join as Necro</button>
   <button on:click={() => playAs("crown")}>Join as Crown</button>
   <Card color="red" />
+  <Token cost={5} unitID="guard" />
 </div>

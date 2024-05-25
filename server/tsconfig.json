@@ -14,9 +14,8 @@
     "useDefineForClassFields": false,
     "baseUrl": "./src/",
     "paths": {
-      "@/*": ["./*"],
-      "@/rooms": ["./rooms"],
-      "@/shared/*": ["../../shared/*"]
+      "$rooms": ["./rooms"],
+      "$shared/*": ["../../shared/*"]
     },
     "typeRoots": ["../../shared/types"]
   },
