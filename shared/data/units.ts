@@ -1,8 +1,10 @@
+import type { UnitData } from "../types"
+
 export const enemyData: Record<string, UnitData> = {
   peasant: {
     name: "peasant",
     type: "enemy",
-    url: "/static/peasant.png",
+    url: "peasant.png",
     width: 45,
     height: 110,
     expReward: 8,
@@ -24,7 +26,7 @@ export const enemyData: Record<string, UnitData> = {
   guard: {
     name: "guard",
     type: "enemy",
-    url: "/static/guard.png",
+    url: "guard.png",
     width: 50,
     height: 110,
     expReward: 12,
@@ -49,7 +51,7 @@ export const enemyData: Record<string, UnitData> = {
   paladin: {
     name: "paladin",
     type: "enemy",
-    url: "/static/paladin.png",
+    url: "paladin.png",
     width: 60,
     height: 110,
     expReward: 25,
@@ -74,7 +76,7 @@ export const enemyData: Record<string, UnitData> = {
   doppelsoldner: {
     name: "doppelsoldner",
     type: "enemy",
-    url: "/static/doppelsoldner.png",
+    url: "doppelsoldner.png",
     width: 60,
     height: 120,
     expReward: 30,
@@ -99,7 +101,7 @@ export const enemyData: Record<string, UnitData> = {
   archer: {
     name: "archer",
     type: "enemy",
-    url: "/static/archer.png",
+    url: "archer.png",
     width: 60,
     height: 110,
     expReward: 30,
@@ -128,7 +130,7 @@ export const minionData: Record<string, UnitData> = {
   skeleton: {
     name: "skeleton",
     type: "minion",
-    url: "/static/skele.png",
+    url: "skele.png",
     width: 40,
     height: 60,
     stats: {
@@ -150,7 +152,7 @@ export const playerData: Record<string, UnitData> = {
   naked: {
     name: "naked",
     type: "player",
-    url: "/static/necro.png",
+    url: "necro.png",
     width: 50,
     height: 114,
     stats: {
@@ -172,6 +174,7 @@ export const units = {
 }
 
 // TODO: where should this stat modifying logic actually go?
+/* definitely not here...
 const checkForStat = (unit, stat) => {
   if (!units[unit].stats.hasOwnProperty(stat)) {
     console.error(`Stat ${stat} not found on unit ${unit}.`);
@@ -193,3 +196,4 @@ export const addToStat = (unit, stat, value) => {
   const newValue = units[unit].stats[stat] + value;
   units[unit].stats[stat] = Math.round(newValue * 100) / 100;
 }
+*/

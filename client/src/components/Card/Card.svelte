@@ -1,7 +1,7 @@
 <script lang="ts">
   import Skill from "$icons/Skill.svelte";
   import Banner from "$icons/Banner.svelte";
-    import CoinPurse from "$icons/CoinPurse.svelte";
+  import CoinPurse from "$icons/CoinPurse.svelte";
   export let color: string;
   const stats = [
     "15",
@@ -117,5 +117,4 @@
     height: 200px;
     max-width: 100%;
   }
-
 </style>
