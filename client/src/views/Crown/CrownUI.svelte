@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Token } from "$components/Token";
   import CoinPurse from "$icons/CoinPurse.svelte";
+  import { hand } from "$game/Crown";
 </script>
 
 <div class="UI">
@@ -9,10 +10,9 @@
       <CoinPurse value={10} />
     </div>
     <div class="tokens">
-      <Token cost={5} unitID="guard" />
-      <Token cost={5} unitID="guard" />
-      <Token cost={5} unitID="guard" />
-      <Token cost={5} unitID="guard" />
+      {#each $hand as card}
+        <Token cost={5} unitID={card.UnitID} />
+      {/each}
     </div>
   </div>
 </div>

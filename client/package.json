@@ -23,6 +23,7 @@
 	"type": "module",
 	"dependencies": {
 		"colyseus.js": "^0.15.19",
-		"phaser": "^3.80.1"
+		"phaser": "^3.80.1",
+		"rxjs": "^7.8.1"
 	}
 }

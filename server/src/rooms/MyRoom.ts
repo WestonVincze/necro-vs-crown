@@ -1,6 +1,6 @@
 import { Room, Client } from "@colyseus/core";
 import { Crown, MyRoomState, Necro, Unit } from "./schema/MyRoomState";
-import { ThisIsATest } from "@/shared/test";
+
 
 // TODO: create shared constant for client/server map/screen sizes
 const mapWidth = 1024;
