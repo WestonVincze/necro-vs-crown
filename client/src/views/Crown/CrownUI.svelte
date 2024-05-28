@@ -1,14 +1,14 @@
 <script lang="ts">
   import { Token } from "$components/Token";
   import CoinPurse from "$icons/CoinPurse.svelte";
-  import { gameState$, drawCard, discardCard, addNewCards } from "$game/Crown";
-  import { interval, take, takeWhile } from "rxjs";
+  import { crownState$, playCard, drawCard, discardCard, addNewCards } from "$game/Crown";
+  import { interval, take } from "rxjs";
 
 
   /**
    * drawing cards should be managed in Cards.ts, but for now this simulates some animation so drawing is not instantaneous
   */
-  $: gameState$;
+  $: crownState$;
   interval(200).pipe(
     take(4)
   ).subscribe(() => drawCard())
@@ -17,16 +17,17 @@
 
 <div class="UI">
   <div class="actions">
+    <h2>debug buttons</h2>
     <button on:click={drawCard}>Draw Card</button>
     <button on:click={() => addNewCards([ { UnitID: "paladin", cost: 5 }])}>Draw Card</button>
   </div>
   <div class="bottom">
     <div class="coins">
-      <CoinPurse value={10} />
+      <CoinPurse value={$crownState$.coins} />
     </div>
     <div class="tokens">
-      {#each $gameState$.hand as card (card.id)}
-        <span class="card-wrapper" on:click={() => discardCard(card.id)} role="button" tabindex={0} on:keydown={(e) => e.key === "spacebar" && discardCard(card.id)}>
+      {#each $crownState$.hand as card (card.id)}
+        <span class="card-wrapper" class:not-playable={$crownState$.coins < card.cost} on:click={() => playCard(card.id)} role="button" tabindex={0} on:keydown={(e) => e.key === "spacebar" && discardCard(card.id)}>
           <Token cost={card.cost} unitID={card.UnitID} />
         </span>
       {/each}
@@ -47,15 +48,15 @@
     justify-content: center;
   }
 
-  .coins {
-    /* for now... */
-    display: none;
-  }
-
   .tokens {
     display: flex;
     flex-direction: row;
   }
+
+  .card-wrapper.not-playable{
+    opacity: 0.6;
+  }
+
   .card-wrapper:focus {
     outline: 1px solid red;
   }
