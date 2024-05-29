@@ -4,10 +4,20 @@
   export let unitID: string;
   import CoinPurse from "$icons/CoinPurse.svelte";
 
+  let selected = false;
+  let dragging = false;
+
   const test = units[unitID];
 </script>
 
-<div class="token">
+<div
+  class="token"
+  class:dragging
+  draggable={true}
+  on:dragstart={() => dragging = true }
+  on:dragend={() => dragging = false }
+  role="none"
+>
   <div class="cost">
     <CoinPurse value={cost} />
   </div>
@@ -19,8 +29,8 @@
     position: relative;
     border: 2px solid #555;
     border-radius: 5px;
-    width: 75px;
-    height: 130px;
+    width: 60px;
+    height: 100px;
     text-align: center;
     padding: 5px;
     margin: 15px;
@@ -28,6 +38,9 @@
   }
   .token:hover {
     cursor: pointer;
+  }
+  .token.dragging {
+    opacity: 0.4;
   }
 
   .token img {

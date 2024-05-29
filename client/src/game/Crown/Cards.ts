@@ -2,6 +2,7 @@ import { BehaviorSubject, Observable, interval, map, of, scan, startWith, tap } 
 
 const COIN_INCREMENT = 1;
 const MAX_COINS = 10;
+const MAX_HAND_SIZE = 4;
 
 /** generates random cards for testing purposes */
 const generateMockCards = (count: number) => {
@@ -12,7 +13,7 @@ const generateMockCards = (count: number) => {
     cards.push({
       id: i,
       UnitID: roll > 0.5 ? "guard" : "peasant",
-      cost: roll > 0.5 ? 5 : 3,
+      cost: roll > 0.5 ? 4 : 3,
     })
   }
   return cards;
@@ -30,12 +31,14 @@ type State = {
   deck: Card[],
   hand: Card[],
   discard: Card[],
+  selectedCard: Card | null,
 }
 
 type Action = {
-  type: "DRAW_CARD" | "PLAY_CARD" | "DISCARD_CARD" | "SHUFFLE_DECK" | "ADD_CARDS" | "ADD_COINS" | "REMOVE_COINS"
+  type: "DRAW_CARD" | "SELECT_CARD" | "PLAY_CARD" | "DISCARD_CARD" | "SHUFFLE_DECK" | "ADD_CARDS" | "ADD_COINS" | "REMOVE_COINS" 
   cardID?: number // if the action pertains to a specific card
   cards?: Card[]
+  callback?: () => void
 }
 
 const initialState: State = {
@@ -44,16 +47,19 @@ const initialState: State = {
   deck: [],
   hand: [],
   discard: [],
+  selectedCard: null,
 };
 
 const discardCardFromHand = (state: State, cardID: number): State | null => {
   const discardedCard = state.hand.find(card => card.id === cardID);
   if (!discardedCard) return null;
   const newHand = state.hand.filter(card => card.id !== cardID);
-  return { ...state, hand: newHand, discard: [...state.discard, discardedCard] };
+  return { ...state, selectedCard: state.selectedCard === discardedCard ? null : state.selectedCard, hand: newHand, discard: [...state.discard, discardedCard] };
 };
 
 const drawCardFromDeck = (state: State): State => {
+  if (state.hand.length >= MAX_HAND_SIZE) return state;
+
   if (state.deck.length === 0) {
     if (state.discard.length === 0) return state;
     const newDeck = shuffleCards(state.discard);
@@ -94,16 +100,18 @@ const updateState = (state: State, action: Action): State => {
     case "ADD_COINS":
       return { ...state, coins: Math.min(MAX_COINS, state.coins + COIN_INCREMENT)};
 
+    case "SELECT_CARD":
+      const card = state.hand.find(card => card.id === action.cardID) || null;
+      return { ...state, selectedCard: card }
+
     case "PLAY_CARD":
-      if (!action.cardID) return state;
+      if (state.selectedCard === null || state.selectedCard.cost > state.coins) return state;
 
-      const card = state.hand.find(card => card.id === action.cardID);
-      if (!card || card.cost > state.coins) return state;
+      const stateAfterDiscard = discardAndDrawCard(state, state.selectedCard.id!);
 
-      const stateAfterDiscard = discardAndDrawCard(state, action.cardID!);
-
-      return { ...stateAfterDiscard, coins: state.coins - card.cost }
-
+      action.callback?.();
+      return { ...stateAfterDiscard, coins: state.coins - state.selectedCard.cost }
+    
     default:
       return state;
   }
@@ -146,9 +154,13 @@ const addNewCards = (cards: Card[]) => {
   dispatchAction({ type: "ADD_CARDS", cards });
 };
 
-const playCard = (cardID?: number) => {
+const selectCard = (cardID?: number) => {
   if (!cardID) return;
-  dispatchAction({ type: "PLAY_CARD", cardID })
+  dispatchAction({ type: "SELECT_CARD", cardID })
+}
+
+const playCard = (callback?: () => void) => {
+  dispatchAction({ type: "PLAY_CARD", callback })
 }
 
 interval(1000).pipe(
@@ -157,4 +169,4 @@ interval(1000).pipe(
   tap(action => dispatchAction(action))
 ).subscribe();
 
-export { crownState$, drawCard, discardCard, addNewCards, playCard }
+export { crownState$, drawCard, discardCard, addNewCards, playCard, selectCard }

@@ -1,6 +1,11 @@
 import { Scene, type Types, GameObjects } from "phaser";
 import { Client, Room } from "colyseus.js";
+import { addNewCards, crownState$, playCard } from "$game/Crown";
+import { createMouseManager } from "../../input/MouseInputs";
+import { createKeyboardManager } from "../../input/KeyboardInputs";
+import { defineAction } from "../../input/Actions";
 
+// TODO: refactor Crown and Necro logic into separate classes or modules
 export class GameScene extends Scene {
   constructor() {
     super("GameScene");
@@ -17,11 +22,17 @@ export class GameScene extends Scene {
   }
 
   cursorKeys?: Types.Input.Keyboard.CursorKeys;
+  keyboardManager =  createKeyboardManager()
+  mouseManager = createMouseManager(document.getElementById("game-container") || document.documentElement)
 
   preload() {
     this.load.image('necro', 'necro.png');
     this.load.image('skele', 'skele.png');
+    this.load.image('peasant', 'peasant.png');
     this.load.image('guard', 'guard.png');
+    this.load.image('paladin', 'paladin.png');
+    this.load.image('doppelsoldner', 'doppelsoldner.png');
+    this.load.image('archer', 'archer.png');
     this.cursorKeys = this.input.keyboard?.createCursorKeys();
     // this.pointer = this.input.mousePointer;
   }
@@ -47,7 +58,31 @@ export class GameScene extends Scene {
       console.log("Joined Successfully!")
       if (this.playerType === "crown") { 
         // show card UI
-        this.input.keyboard?.on('keydown-ONE', () => this.room?.send(1))
+        defineAction({
+          name: 'mouseAction',
+          callback: (event) => {
+            const { selectedCard } = crownState$.value;
+            if (selectedCard === null) return;
+
+            const rect = document.getElementById("game-container")?.getBoundingClientRect();
+            if (!rect) return;
+
+            const { left, top } = rect;
+            const mouseEvent = event as MouseEvent | DragEvent
+
+            const xOffset = mouseEvent.x - left;
+            const yOffset = mouseEvent.y - top;
+
+            playCard(() => {
+              this.room?.send(1, {
+                unitID: selectedCard.UnitID,
+                xPos: xOffset,
+                yPos: yOffset
+              });
+            });
+          },
+          binding: { mouseEvents: ["mouseup", "dragend"] }
+        })
       }
     } catch (e) {
       console.error(e);
@@ -68,7 +103,7 @@ export class GameScene extends Scene {
     });
 
     this.room?.state.enemies.onAdd((enemy: any, sessionId: string) => {
-      const entity = this.physics.add.image(enemy.x, enemy.y, 'guard');
+      const entity = this.physics.add.image(enemy.x, enemy.y, enemy.unitID);
       entity.width = 50;
       entity.height = 110;
       entity.displayWidth = 50;
@@ -140,8 +175,8 @@ export class GameScene extends Scene {
     if (!this.room) return;
 
     // TODO: send cursor position data here
-    for (let minion in this.units) {
-      const entity = this.units[minion];
+    for (let unit in this.units) {
+      const entity = this.units[unit];
 
       const { serverX, serverY } = entity.data.values;
 
@@ -169,10 +204,10 @@ export class GameScene extends Scene {
 
       // send input to server
       this.inputPayload = {
-        left: this.cursorKeys?.left.isDown || false,
-        right: this.cursorKeys?.right.isDown || false,
-        up: this.cursorKeys?.up.isDown || false,
-        down: this.cursorKeys?.down.isDown || false,
+        left: this.keyboardManager.isKeyPressed("a"),
+        right: this.keyboardManager.isKeyPressed("d"),
+        up: this.keyboardManager.isKeyPressed("w"),
+        down: this.keyboardManager.isKeyPressed("s"),
         ...mouseInputs
       }
       this.room.send(0, this.inputPayload);

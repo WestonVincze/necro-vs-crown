@@ -5,6 +5,7 @@ export class Player extends Schema {
 }
 
 export class Unit extends Schema {
+  @type("string") unitID: string;
   @type("number") x: number;
   @type("number") y: number;
 }

@@ -80,10 +80,13 @@ export class MyRoom extends Room<MyRoomState> {
     })
 
     let enemyCount = 0;
-    this.onMessage(1, (client) => {
+    this.onMessage(1, (client, { unitID, xPos, yPos }) => {
+      // TODO: validate this action and verify the ID is legitimate
+      console.log(xPos, yPos)
       const enemy = new Unit();
-      enemy.x = (Math.random() * mapWidth);
-      enemy.y = (Math.random() * mapHeight);
+      enemy.unitID = unitID;
+      enemy.x = xPos;
+      enemy.y = yPos;
       this.state.enemies.set(enemyCount.toString(), enemy);
       enemyCount++;
     })
