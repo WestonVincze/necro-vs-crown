@@ -1,11 +1,12 @@
 import { Room, Client } from "@colyseus/core";
 import { Crown, MyRoomState, Necro, Unit } from "./schema/MyRoomState";
-
+import { followTarget } from "$shared/components/Movement"
 
 // TODO: create shared constant for client/server map/screen sizes
 const mapWidth = 1024;
 const mapHeight = 768;
 
+/*
 export const calculateFollowForce = (target: { x: number, y: number }, self: { x: number, y: number }) => {
   const followForce = { x: 0, y: 0 };
   const dx = target.x - self.x;
@@ -22,6 +23,7 @@ export const calculateFollowForce = (target: { x: number, y: number }, self: { x
 
   return followForce;
 }
+*/
 
 export class MyRoom extends Room<MyRoomState> {
   maxClients = 2;
@@ -32,8 +34,8 @@ export class MyRoom extends Room<MyRoomState> {
 
     this.state.players.forEach(player => {
       let input: any;
-
       if (player.type === "crown") return;
+
       while (input = player.inputQueue.shift()) {
         if (input.left) {
           player.x -= velocity;
@@ -50,11 +52,31 @@ export class MyRoom extends Room<MyRoomState> {
         }
 
         this.state.minions.forEach(minion => {
-          const force = calculateFollowForce({ x: input.mouseX, y: input.mouseY }, { x: minion.x, y: minion.y })
+          /*
+          const force = calculateFollowForce(
+            minion,
+            { x: input.mouseX, y: input.mouseY }
+          )
           minion.x += force.x;
           minion.y += force.y;
-        })
+          */
+          const options = {
+            followForce: 1,
+            separationForce: 2,
+            maxSpeed: 0.5,
+        }
+
+        followTarget(
+          minion,
+          { x: input.mouseX, y: input.mouseY },
+          this.state.allUnits,
+          0.5,
+          deltaTime,
+          options
+        )
+      })
       }
+
     })
   }
 
@@ -84,10 +106,10 @@ export class MyRoom extends Room<MyRoomState> {
       // TODO: validate this action and verify the ID is legitimate
       console.log(xPos, yPos)
       const enemy = new Unit();
-      enemy.unitID = unitID;
+      enemy.id = unitID;
       enemy.x = xPos;
       enemy.y = yPos;
-      this.state.enemies.set(enemyCount.toString(), enemy);
+      this.state.enemies.push(enemy);
       enemyCount++;
     })
 
@@ -114,7 +136,7 @@ export class MyRoom extends Room<MyRoomState> {
       const minion = new Unit();
       minion.x = (Math.random() * mapWidth);
       minion.y = (Math.random() * mapHeight);
-      this.state.minions.set(client.sessionId, minion);
+      this.state.minions.push(minion);
     } else if (options.playerType === "crown") {
       player = new Crown();
     }
