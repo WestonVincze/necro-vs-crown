@@ -1,0 +1,13 @@
+<!-- this SVG file is for editing purposes -->
+<svg width="36px" height="24px" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <path id="shape" d="M 0,5 l 5,-5 H 36 q -12,12 0,24 H 5 l -5 -5 z" fill="white" />
+    <clipPath id="clip">
+      <use href="#shape" />
+    </clipPath>
+  </defs>
+  <g transform="rotate(0 0 180)">
+    <use href="#shape" stroke="black" stroke-width="1" clip-path="url(#clip)" />
+    <text dx="18" dy="12" text-anchor="middle" dominant-baseline="middle" font-size="16px">12</text>
+  </g>
+</svg>
