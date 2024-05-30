@@ -1,0 +1,15 @@
+{
+  "name": "@necro-crown/shared",
+  "author": "Weston Vincze",
+  "dependencies": {
+    "typescript": "^5.4.5"
+  },
+  "description": "Shared Resources for NecroCrown",
+  "version": "0.0.1",
+  "main": "index.ts",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "ISC"
+}
