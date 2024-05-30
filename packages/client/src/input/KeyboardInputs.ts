@@ -37,9 +37,7 @@ const createKeyboardManager = (element: HTMLElement = document.documentElement) 
   }
 
   const onKeyUp = (key: string) => {
-    console.log(pressedKeys)
     pressedKeys.delete(key);
-    console.log(pressedKeys)
   }
 
   const isKeyPressed = (key: string): boolean => {

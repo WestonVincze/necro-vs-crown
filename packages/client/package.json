@@ -1,8 +1,8 @@
 {
 	"name": "@necro-crown/client",
+	"author": "Weston Vincze",
 	"version": "0.0.1",
 	"private": true,
-	"author": "Weston Vincze",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",

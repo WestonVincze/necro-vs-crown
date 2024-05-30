@@ -70,14 +70,14 @@ export class GameScene extends Scene {
             const { left, top } = rect;
             const mouseEvent = event as MouseEvent | DragEvent
 
-            const xOffset = mouseEvent.x - left;
-            const yOffset = mouseEvent.y - top;
+            const xPos = mouseEvent.x - left;
+            const yPos = mouseEvent.y - top;
 
             playCard(() => {
-              this.room?.send(1, {
-                unitID: selectedCard.UnitID,
-                xPos: xOffset,
-                yPos: yOffset
+              this.room?.send("add_crown_unit", {
+                name: selectedCard.UnitID,
+                xPos,
+                yPos
               });
             });
           },
@@ -103,11 +103,11 @@ export class GameScene extends Scene {
     });
 
     this.room?.state.enemies.onAdd((enemy: any, sessionId: string) => {
-      const entity = this.physics.add.image(enemy.x, enemy.y, enemy.unitID);
-      entity.width = 50;
-      entity.height = 110;
-      entity.displayWidth = 50;
-      entity.displayHeight = 100;
+      const entity = this.physics.add.image(enemy.x, enemy.y, enemy.name);
+      entity.width = enemy.width;
+      entity.height = enemy.height;
+      entity.displayWidth = enemy.width;
+      entity.displayHeight = enemy.height;
 
       this.units.push(entity);
       enemy.onChange(() => {
@@ -121,8 +121,24 @@ export class GameScene extends Scene {
       if (player.type === "crown") { 
         // show card UI
         return;
-        this.input.keyboard?.on('keydown-W', () => this.room?.send(1))
       } else {
+        defineAction({
+          name: "cursor_pos", 
+          callback: (event) => {
+            const rect = document.getElementById("game-container")?.getBoundingClientRect();
+            if (!rect) return;
+
+            const mouseEvent = event as MouseEvent;
+            const { left, top } = rect;
+
+            this.inputPayload.mouseX = mouseEvent.x - left;
+            this.inputPayload.mouseY = mouseEvent.y - top;
+          }, 
+          binding: {
+            mouseEvents: ["mousemove"]
+          }
+        })
+        this.input.on('pointermove', () => console.log('moving pointer'));
         const entity = this.physics.add.image(player.x, player.y, 'necro');
         entity.width = 50;
         entity.height = 114;
@@ -195,20 +211,15 @@ export class GameScene extends Scene {
       entity.y = Phaser.Math.Linear(entity.y, serverY, 0.1);
     }
 
-    let mouseInputs = {}
     if (this.playerType === "necro") {
-      mouseInputs = {
-        mouseX: this.input.mousePointer.x,
-        mouseY: this.input.mousePointer.y,
-      }
 
       // send input to server
       this.inputPayload = {
+        ...this.inputPayload,
         left: this.keyboardManager.isKeyPressed("a"),
         right: this.keyboardManager.isKeyPressed("d"),
         up: this.keyboardManager.isKeyPressed("w"),
         down: this.keyboardManager.isKeyPressed("s"),
-        ...mouseInputs
       }
       this.room.send(0, this.inputPayload);
     }

@@ -1,14 +1,6 @@
 import { normalizeForce } from '../../helpers';
+import { Unit, Vector2 } from '../../types';
 
-type Vector2 = { x: number, y: number }
-
-type Unit = {
-  id: string
-  width: number,
-  height: number,
-  vx?: number,
-  vy?: number,
-} & Vector2
 
 type followTargetOptions = {
   followForce?: number,
@@ -25,8 +17,8 @@ export const followTarget = async (
   delta: number,
   options?: followTargetOptions
 ) => {
-  // get the sprites from our swarm
-  // let { x: targetX, y: targetY } = target;
+  if (!self.vx) self.vx = 0;
+  if (!self.vy) self.vy = 0;
 
   const forces = {
     follow: { x: 0, y: 0 },
@@ -34,6 +26,7 @@ export const followTarget = async (
     cohesion: { x: 0, y: 0 },
     alignment: {x: 0, y: 0 },
   }
+
   if (options?.followForce && options.followForce > 0) {
     forces.follow = calculateFollowForce(self, target);
     forces.follow.x *= options.followForce;
@@ -110,7 +103,6 @@ const generateSymmetricKey = (index1, index2) => {
 }
 */
 
-// raycast at 4 points and if an overlap is detected apply separation force?
 const calculateSeparationForce = (
   self: Unit,
   allUnits: Unit[],
@@ -118,9 +110,8 @@ const calculateSeparationForce = (
 ) => {
   const separationForce = { x: 0, y: 0 };
 
-  // const index = flock.findIndex(s => s === sprite);
   allUnits.forEach((unit, i) => {
-    if (unit.id !== self.id) {
+    if (unit !== self) {
       const dx = unit.x - self.x;
       const dy = unit.y - self.y;
       let distance = dx * dx + dy * dy;

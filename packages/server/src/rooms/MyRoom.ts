@@ -1,29 +1,11 @@
 import { Room, Client } from "@colyseus/core";
 import { Crown, MyRoomState, Necro, Unit } from "./schema/MyRoomState";
-import { followTarget } from "@necro-crown/shared"
+import { CrownUnits, NecroUnits, followTarget } from "@necro-crown/shared"
+import { getClosestUnit } from "@necro-crown/shared/helpers";
 
 // TODO: create shared constant for client/server map/screen sizes
 const mapWidth = 1024;
 const mapHeight = 768;
-
-/*
-export const calculateFollowForce = (target: { x: number, y: number }, self: { x: number, y: number }) => {
-  const followForce = { x: 0, y: 0 };
-  const dx = target.x - self.x;
-  const dy = target.y - self.y;
-  const distance = Math.sqrt(dx * dx + dy * dy);
-
-  if (distance > 0) {
-    const directionX = dx / distance;
-    const directionY = dy / distance;
-
-    followForce.x = directionX;
-    followForce.y = directionY;
-  }
-
-  return followForce;
-}
-*/
 
 export class MyRoom extends Room<MyRoomState> {
   maxClients = 2;
@@ -31,6 +13,23 @@ export class MyRoom extends Room<MyRoomState> {
 
   fixedUpdate(deltaTime: number) {
     const velocity = 2;
+
+    this.state.enemies.forEach(enemy => {
+      const options = {
+        followForce: 1,
+        separationForce: 2,
+        maxSpeed: 1.5,
+      }
+
+      followTarget(
+        enemy,
+        getClosestUnit(enemy, this.state.minions.toArray()),
+        this.state.allUnits,
+        1.2,
+        deltaTime,
+        options
+      )
+    })
 
     this.state.players.forEach(player => {
       let input: any;
@@ -63,20 +62,19 @@ export class MyRoom extends Room<MyRoomState> {
           const options = {
             followForce: 1,
             separationForce: 2,
-            maxSpeed: 0.5,
-        }
+            maxSpeed: 1.5,
+          }
 
-        followTarget(
-          minion,
-          { x: input.mouseX, y: input.mouseY },
-          this.state.allUnits,
-          0.5,
-          deltaTime,
-          options
-        )
-      })
+          followTarget(
+            minion,
+            { x: input.mouseX, y: input.mouseY },
+            this.state.allUnits,
+            1.2,
+            deltaTime,
+            options
+          )
+        })
       }
-
     })
   }
 
@@ -102,13 +100,23 @@ export class MyRoom extends Room<MyRoomState> {
     })
 
     let enemyCount = 0;
-    this.onMessage(1, (client, { unitID, xPos, yPos }) => {
+    this.onMessage("add_crown_unit", (client, { name, xPos, yPos }) => {
       // TODO: validate this action and verify the ID is legitimate
       console.log(xPos, yPos)
+      const unitData = CrownUnits[name];
+      if (!unitData) {
+        console.log(`error, ${name} not found.`)
+        return;
+      }
       const enemy = new Unit();
-      enemy.id = unitID;
+      enemy.name = name;
       enemy.x = xPos;
       enemy.y = yPos;
+      enemy.width = unitData.width;
+      enemy.height = unitData.height;
+
+      console.log(enemy.x)
+
       this.state.enemies.push(enemy);
       enemyCount++;
     })
@@ -134,6 +142,12 @@ export class MyRoom extends Room<MyRoomState> {
 
       // place minion at random position
       const minion = new Unit();
+      const unitData = NecroUnits.skeleton;
+
+      minion.name = unitData.name;
+      minion.width = unitData.width;
+      minion.height = unitData.height;
+
       minion.x = (Math.random() * mapWidth);
       minion.y = (Math.random() * mapHeight);
       this.state.minions.push(minion);

@@ -1,6 +1,6 @@
-import { UnitData } from "../types"
+import { type UnitData } from "../types"
 
-export const enemyData: Record<string, UnitData> = {
+export const CrownUnits: Record<string, UnitData> = {
   peasant: {
     name: "peasant",
     type: "enemy",
@@ -125,75 +125,3 @@ export const enemyData: Record<string, UnitData> = {
     }
   }
 }
-
-export const minionData: Record<string, UnitData> = {
-  skeleton: {
-    name: "skeleton",
-    type: "minion",
-    url: "skele.png",
-    width: 40,
-    height: 60,
-    stats: {
-      maxHP: 8,
-      armor: 8,
-      maxHit: 2,
-      attackBonus: 4,
-      attackSpeed: 5,
-      attackRange: 20,
-      damageBonus: 0,
-      moveSpeed: 0.2,
-      maxSpeed: 1.5,
-      critChance: 5,
-      critDamage: 1.5,
-    },
-  }
-}
-export const playerData: Record<string, UnitData> = {
-  naked: {
-    name: "naked",
-    type: "player",
-    url: "necro.png",
-    width: 50,
-    height: 114,
-    stats: {
-      maxHP: 20,
-      armor: 10,
-      moveSpeed: 0.2,
-      maxSpeed: 2,
-      HPregeneration: 0.05,
-      castingSpeed: 0.5,
-      spellRadius: 50,
-    }
-  }
-}
-
-export const units = {
-  ...enemyData,
-  ...minionData,
-  ...playerData,
-}
-
-// TODO: where should this stat modifying logic actually go?
-/* definitely not here...
-const checkForStat = (unit, stat) => {
-  if (!units[unit].stats.hasOwnProperty(stat)) {
-    console.error(`Stat ${stat} not found on unit ${unit}.`);
-    return false;
-  }
-
-  return true;
-}
-
-export const setStat = (unit, stat, value) => {
-  if (!checkForStat(unit, stat)) return;
-
-  units[unit].stats[stat] = value;
-}
-
-export const addToStat = (unit, stat, value) => {
-  if (!checkForStat(unit, stat)) return;
-
-  const newValue = units[unit].stats[stat] + value;
-  units[unit].stats[stat] = Math.round(newValue * 100) / 100;
-}
-*/

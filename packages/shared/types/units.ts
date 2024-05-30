@@ -1,3 +1,13 @@
+export type Vector2 = { x: number, y: number }
+
+export type Unit = {
+  name: string
+  width: number,
+  height: number,
+  vx?: number,
+  vy?: number,
+} & Vector2
+
 export type UnitData = {
   name: string
   type: string

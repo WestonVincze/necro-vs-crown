@@ -1,7 +1,7 @@
 {
   "name": "@necro-crown/root",
   "version": "0.0.1",
-  "description": "Monorepo structure",
+  "description": "Necro Crown Monorepo",
   "author": "Weston Vincze",
   "scripts": {
     "start": "npm run server:start",

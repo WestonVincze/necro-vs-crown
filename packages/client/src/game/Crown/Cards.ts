@@ -1,3 +1,4 @@
+// TODO: move to server
 import { BehaviorSubject, Observable, interval, map, of, scan, startWith, tap } from "rxjs";
 
 const COIN_INCREMENT = 1;
@@ -21,7 +22,7 @@ const generateMockCards = (count: number) => {
 
 type Card = {
   id?: number,
-  UnitID: string,
+  UnitID: string, // TODO: change to name
   cost: number,
 }
 

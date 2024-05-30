@@ -1,8 +1,9 @@
 {
   "name": "@necro-crown/server",
+  "author": "Weston Vincze",
+  "description": "NecroCrown Colyseus Server",
   "private": true,
-  "version": "1.0.0",
-  "description": "npm init template for bootstrapping an empty Colyseus project",
+  "version": "0.0.1",
   "main": "build/index.js",
   "engines": {
     "node": ">= 16.13.0"
@@ -14,7 +15,6 @@
     "clean": "rimraf build",
     "test": "mocha -r tsx test/**_test.ts --exit --timeout 15000"
   },
-  "author": "",
   "license": "UNLICENSED",
   "bugs": {
     "url": "https://github.com/colyseus/create-colyseus/issues"
