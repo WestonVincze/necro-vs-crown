@@ -1,6 +1,6 @@
 import { Unit, Vector2 } from "./types";
 
-export const normalizeForce = ({ x , y }: { x: number, y: number }) => {
+export const normalizeForce = ({ x , y }: Vector2) => {
   if (x === 0 && y === 0) return { x, y };
 
   const magnitude = Math.sqrt(x * x + y * y);

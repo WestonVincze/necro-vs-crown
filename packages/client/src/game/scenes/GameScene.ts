@@ -138,7 +138,6 @@ export class GameScene extends Scene {
             mouseEvents: ["mousemove"]
           }
         })
-        this.input.on('pointermove', () => console.log('moving pointer'));
         const entity = this.physics.add.image(player.x, player.y, 'necro');
         entity.width = 50;
         entity.height = 114;

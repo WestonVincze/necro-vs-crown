@@ -1,7 +1,19 @@
 import { ArraySchema, MapSchema, Schema, type } from "@colyseus/schema";
 
+enum PlayerType {
+  Necro,
+  Crown
+}
+
 export class Player extends Schema {
+  /* constructor(public readonly id: string, private _ready: boolean, private readonly _type: PlayerType) {
+    super();
+  }*/
   inputQueue: any[] = [];
+
+  public isNecro(): boolean {
+    return true;
+  }
 }
 
 export class Unit extends Schema {

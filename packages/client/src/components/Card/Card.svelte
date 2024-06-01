@@ -71,6 +71,7 @@
 
   <div class="details">
     <!-- description -->
+    <Banner name="" width={190} height={80} offset={4} />
   </div>
 
   <div class="drops">
@@ -94,6 +95,10 @@
     position: absolute;
     left: -15px;
     top: 4px;
+  }
+
+  .details {
+    padding: 5px;
   }
 
   .body {

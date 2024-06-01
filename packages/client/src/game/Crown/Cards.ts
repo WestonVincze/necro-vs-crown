@@ -51,6 +51,11 @@ const initialState: State = {
   selectedCard: null,
 };
 
+/** Utility Functions */
+const shuffleCards = (cards: Card[]): Card[] => {
+  return cards.sort(() => Math.random() - 0.5);
+}
+
 const discardCardFromHand = (state: State, cardID: number): State | null => {
   const discardedCard = state.hand.find(card => card.id === cardID);
   if (!discardedCard) return null;
@@ -128,10 +133,6 @@ mockFetchCards().pipe(
   map(cards => ({ type: "ADD_CARDS", cards } as Action)),
   scan((state, action) => updateState(state, action), initialState),
 ).subscribe(state => crownState$.next(state));
-
-const shuffleCards = (cards: Card[]): Card[] => {
-  return cards.sort(() => Math.random() - 0.5);
-}
 
 // actions
 const dispatchAction = (action: Action) => {

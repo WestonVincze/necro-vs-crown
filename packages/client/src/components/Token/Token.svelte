@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { CrownUnits } from "@necro-crown/shared/data";
+  import { CrownUnits } from "@necro-crown/shared";
   export let cost: number;
   export let unitID: string;
   import CoinPurse from "$icons/CoinPurse.svelte";

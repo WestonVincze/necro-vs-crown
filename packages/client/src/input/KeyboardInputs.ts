@@ -1,4 +1,4 @@
-import { fromEvent, Observable, map, distinctUntilChanged, tap, distinct } from 'rxjs';
+import { fromEvent, Observable, map, distinctUntilChanged, tap, distinct, merge } from 'rxjs';
 import { actions } from './Actions';
 
 const createKeyboardManager = (element: HTMLElement = document.documentElement) => {
@@ -6,13 +6,17 @@ const createKeyboardManager = (element: HTMLElement = document.documentElement) 
 
   const keydown$: Observable<string> = fromEvent<KeyboardEvent>(element, 'keydown').pipe(
     map(event => event.key),
-    distinctUntilChanged()
+    // distinctUntilChanged()
   );
 
   const keyup$: Observable<string> = fromEvent<KeyboardEvent>(element, 'keyup').pipe(
     map(event => event.key),
-    distinctUntilChanged()
+    // distinctUntilChanged()
   );
+
+  const activeKeys$ = merge(keydown$, keyup$).pipe(
+    distinctUntilChanged()
+  )
 
   // TODO: merge keyDown and keyUp to prevent issues with "distinctUntilChanged"
   keydown$.subscribe(key => onKeyDown(key));
@@ -20,7 +24,6 @@ const createKeyboardManager = (element: HTMLElement = document.documentElement) 
 
   const onKeyDown = (key: string) => {
     pressedKeys.add(key);
-    console.log(pressedKeys);
     Object.values(actions).forEach(({ keys, keyCombinations, condition, callback }) => {
       if (keys && keys.includes(key) && (!condition || condition())) {
         callback();
