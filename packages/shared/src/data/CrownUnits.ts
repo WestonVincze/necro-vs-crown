@@ -1,9 +1,9 @@
-import { type UnitData } from "../types"
+import { type UnitData, CrownUnit, UnitType } from "../types"
 
-export const CrownUnits: Record<string, UnitData> = {
+export const CrownUnits: Record<CrownUnit, UnitData> = {
   peasant: {
     name: "peasant",
-    type: "enemy",
+    type: UnitType.Crown,
     url: "peasant.png",
     width: 45,
     height: 110,
@@ -25,7 +25,7 @@ export const CrownUnits: Record<string, UnitData> = {
   },
   guard: {
     name: "guard",
-    type: "enemy",
+    type: UnitType.Crown,
     url: "guard.png",
     width: 50,
     height: 110,
@@ -50,7 +50,7 @@ export const CrownUnits: Record<string, UnitData> = {
   },
   paladin: {
     name: "paladin",
-    type: "enemy",
+    type: UnitType.Crown,
     url: "paladin.png",
     width: 60,
     height: 110,
@@ -75,7 +75,7 @@ export const CrownUnits: Record<string, UnitData> = {
   },
   doppelsoldner: {
     name: "doppelsoldner",
-    type: "enemy",
+    type: UnitType.Crown,
     url: "doppelsoldner.png",
     width: 60,
     height: 120,
@@ -100,7 +100,7 @@ export const CrownUnits: Record<string, UnitData> = {
   },
   archer: {
     name: "archer",
-    type: "enemy",
+    type: UnitType.Crown,
     url: "archer.png",
     width: 60,
     height: 110,

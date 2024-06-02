@@ -43,9 +43,10 @@ export const getRandomElements = <T>(array: T[], count: number): T[] | boolean =
   return randomElements;
 }
 
-export const getClosestUnit = ({ x, y }: { x: number, y: number }, units: Unit[]): Unit => {
+/*
+export const getClosestUnit = ({ x, y }: { x: number, y: number }, units: Unit[]): Unit | null => {
   let closestDistanceSq = Infinity;
-  let closestUnit = null;
+  let closestUnit: Unit | null = null;
   units.forEach(unit => {
     const distance = (x - unit.x) ** 2 + (y - unit.y) ** 2;
     if (distance < closestDistanceSq) {
@@ -56,6 +57,7 @@ export const getClosestUnit = ({ x, y }: { x: number, y: number }, units: Unit[]
 
   return closestUnit;
 }
+*/
 
 // const getFirstUnitWithin = (position, range) => {}
 
