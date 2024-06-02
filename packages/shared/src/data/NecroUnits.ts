@@ -1,9 +1,9 @@
-import { type UnitData, NecroUnit, UnitType } from "../types"
+import { type UnitData, type NecroUnit, Faction } from "../types"
 
 export const NecroUnits: Record<NecroUnit, UnitData> = {
   skeleton: {
     name: "skeleton",
-    type: UnitType.Necro,
+    type: Faction.Necro,
     url: "skele.png",
     width: 40,
     height: 60,
@@ -23,7 +23,7 @@ export const NecroUnits: Record<NecroUnit, UnitData> = {
   },
   necromancer: {
     name: "necromancer",
-    type: UnitType.Necro,
+    type: Faction.Necro,
     url: "necro.png",
     width: 50,
     height: 114,

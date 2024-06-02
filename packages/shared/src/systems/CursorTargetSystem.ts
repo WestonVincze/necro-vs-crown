@@ -1,4 +1,4 @@
-import { IWorld, defineQuery } from 'bitecs';
+import { type IWorld, defineQuery } from 'bitecs';
 import { fromEvent, map, tap } from 'rxjs';
 import { Behavior, Behaviors, Target } from '../components';
 import { Necro } from '../components/Tags';

@@ -1,6 +1,6 @@
 export type Vector2 = { x: number, y: number }
 
-export enum UnitType {
+export enum Faction {
   Necro,
   Crown
 }
@@ -20,7 +20,7 @@ export type Unit = CrownUnit & NecroUnit;
 
 export type UnitData = {
   name: string,
-  type: UnitType,
+  type: Faction,
   url: string,
   width: number,
   height: number,

@@ -5,7 +5,7 @@ Extension of `Necro Cursor` (a.k.a `Necro`).
 [https://necro-cursor.vercel.app/](Play Necro)
 [https://github.com/WestonVincze/necro-cursor](View Source)
 
-Built with phaser, colyseus, svelte, rxjs, and love.
+Built with phaser, colyseus, svelte, bitecs, rxjs, and love.
 
 ## Packages
 
@@ -32,7 +32,6 @@ Contains utilities and types that are used in both client and server.
 - shared types
 - entity data
 - components (like Movement)
-
 
 ## Setting Up
 
@@ -63,4 +62,3 @@ npm run dev
 ```
 
 Open a browser (preferably chrome) and navigate to [http://localhost:7373]()
-

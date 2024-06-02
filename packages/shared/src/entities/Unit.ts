@@ -1,9 +1,9 @@
 import { IWorld, addComponent, addEntity } from "bitecs"
 import { Position, Sprite, Target, Velocity } from "../components";
 import { Armor, AttackRange, AttackSpeed, CritChance, CritDamage, DamageBonus, Health, HealthRegeneration, MaxHit, MaxMoveSpeed, MoveSpeed } from "../components/Stats";
-import { UnitType } from "../types";
+import { Faction } from "../types";
 
-export const createUnitEntity = (world: IWorld, type: UnitType) => {
+export const createUnitEntity = (world: IWorld, type: Faction) => {
   const eid = addEntity(world);
   addComponent(world, Position, eid);
   addComponent(world, Velocity, eid);
