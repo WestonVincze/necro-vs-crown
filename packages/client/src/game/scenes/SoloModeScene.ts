@@ -42,13 +42,6 @@ export class SoloModeScene extends Scene {
   }
 
   preload() {
-    this.load.image('Necro', 'necro.png');
-    this.load.image('Skele', 'skele.png');
-    this.load.image('Peasant', 'peasant.png');
-    this.load.image('Guard', 'guard.png');
-    this.load.image('Paladin', 'paladin.png');
-    this.load.image('Doppelsoldner', 'doppelsoldner.png');
-    this.load.image('Archer', 'archer.png');
   }
 
   create() {

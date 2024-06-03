@@ -27,13 +27,6 @@ export class GameScene extends Scene {
   mouseManager = createMouseManager(document.getElementById("game-container") || document.documentElement)
 
   preload() {
-    this.load.image('necro', 'necro.png');
-    this.load.image('skele', 'skele.png');
-    this.load.image('peasant', 'peasant.png');
-    this.load.image('guard', 'guard.png');
-    this.load.image('paladin', 'paladin.png');
-    this.load.image('doppelsoldner', 'doppelsoldner.png');
-    this.load.image('archer', 'archer.png');
     this.cursorKeys = this.input.keyboard?.createCursorKeys();
     // this.pointer = this.input.mousePointer;
   }
