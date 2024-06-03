@@ -17,7 +17,7 @@
     </div>
     <div>
       <h2>Play Solo</h2>
-      <button on:click={() => playSoloAs(Faction.Necro)}>Play as Crown</button>
+      <button on:click={() => playSoloAs(Faction.Necro)}>Play as Necro</button>
       <button on:click={() => playSoloAs(Faction.Crown)}>Play as Crown</button>
     </div>
   </div>

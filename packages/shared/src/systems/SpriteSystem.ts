@@ -2,6 +2,11 @@ import { GameObjects, Scene } from "phaser";
 import { Position, Sprite } from "../components";
 import { defineQuery, defineSystem, enterQuery, exitQuery } from "bitecs";
 
+/**
+ * 
+ * @param scene Reference to Phaser Scene
+ * @param textures Array of Texture asset names loaded in the Phaser scene - the ID's stored in Scene component should correlate to the array - e.g. ID of "0" represents the first element of the textures array
+ */
 export default function createSpriteSystem(scene: Scene, textures: string[]) {
   const spritesById = new Map<number, GameObjects.Sprite>();
 
@@ -47,5 +52,4 @@ export default function createSpriteSystem(scene: Scene, textures: string[]) {
 
     return world;
   })
-
 }

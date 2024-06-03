@@ -1,6 +1,7 @@
 import { AUTO, type Types, Game } from "phaser";
 import { GameScene } from "./scenes/GameScene";
 import { MainMenuScene } from "./scenes/MainMenuScene";
+import { SoloModeScene } from "./SoloModeScene";
 
 // game config
 const config: Types.Core.GameConfig = {
@@ -10,7 +11,7 @@ const config: Types.Core.GameConfig = {
   backgroundColor: '#eee',
   parent: 'game-container',
   physics: { default: "arcade" },
-  scene: [ MainMenuScene, GameScene ],
+  scene: [ MainMenuScene, GameScene, SoloModeScene ],
 }
 
 export const StartGame = (parent: string) => {

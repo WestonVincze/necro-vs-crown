@@ -1,4 +1,4 @@
-import { IWorld, addComponent, addEntity } from "bitecs"
+import { type IWorld, addComponent, addEntity } from "bitecs"
 import { Position, Sprite, Target, Velocity } from "../components";
 import { Armor, AttackRange, AttackSpeed, CritChance, CritDamage, DamageBonus, Health, HealthRegeneration, MaxHit, MaxMoveSpeed, MoveSpeed } from "../components/Stats";
 import { Faction } from "../types";
@@ -13,6 +13,7 @@ export const createUnitEntity = (world: IWorld, type: Faction) => {
   initializeStats(world, eid);
 
   // add tag?
+
   return eid;
 }
 
@@ -29,5 +30,4 @@ const initializeStats = (world: IWorld, eid: number) => {
   addComponent(world, CritChance, eid);
   addComponent(world, CritDamage, eid);
   addComponent(world, CritDamage, eid);
-
 }

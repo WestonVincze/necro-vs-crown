@@ -1,3 +1,4 @@
+export * from "./src/entities";
 export * from "./src/components";
 export * from "./src/systems";
 export * from "./src/data";
