@@ -1,5 +1,5 @@
 import { defineQuery, defineSystem } from "bitecs";
-import { Input, MaxMoveSpeed, MoveSpeed, Necro, Player, Velocity } from "../components";
+import { Input, MaxMoveSpeed, MoveSpeed, Necro, Player, Position, Velocity } from "../components";
 import { normalizeForce } from "../helpers";
 
 const FRICTION = 0.05;
@@ -11,7 +11,6 @@ export const createControlledMovementSystem = () => {
     const entities = controlledMovementQuery(world);
 
     for (let i = 0; i < entities.length; i++) {
-      console.log(i);
       const eid = entities[i];
       const x = Input.moveX[eid];
       const y = Input.moveY[eid];
@@ -39,8 +38,10 @@ export const createControlledMovementSystem = () => {
         Velocity.x[eid] *= scale;
         Velocity.y[eid] *= scale;
       }
-    }
 
+      Position.x[eid] += Velocity.x[eid];
+      Position.y[eid] += Velocity.y[eid];
+    }
     return world;
   })
 }

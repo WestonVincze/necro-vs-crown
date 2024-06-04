@@ -23,6 +23,7 @@ export class SoloModeScene extends Scene {
    * background
    */
 
+  private camera!: Phaser.Cameras.Scene2D.Camera;
   private cursors!: Types.Input.Keyboard.CursorKeys;
 
   // entity container (context)
@@ -40,12 +41,10 @@ export class SoloModeScene extends Scene {
     super("SoloModeScene");
   }
 
-  preload() {
-  }
-
   init() {
     // ensure input is enabled in config
     this.cursors = this.input.keyboard!.createCursorKeys();
+    this.camera = this.cameras.add();
   }
 
   create() {
@@ -74,8 +73,8 @@ export class SoloModeScene extends Scene {
     Sprite.texture[eid] = SpriteTexture.Necro;
     Position.x[eid] = 300;
     Position.y[eid] = 300;
-    MoveSpeed.current[eid] = 1;
-    MaxMoveSpeed.current[eid] = 2;
+    MoveSpeed.current[eid] = 1.2;
+    MaxMoveSpeed.current[eid] = 3;
 
     for (let i = 0; i < 0; i++) {
       const eid = createUnitEntity(this.world, Math.random() > 0.5 ? Faction.Crown : Faction.Necro);

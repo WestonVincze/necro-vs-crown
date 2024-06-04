@@ -1,5 +1,5 @@
 import { type IWorld, addComponent, addEntity } from "bitecs"
-import { Position, Sprite, Target, Velocity } from "../components";
+import { Crown, Necro, Position, Sprite, Target, Velocity } from "../components";
 import { Armor, AttackRange, AttackSpeed, CritChance, CritDamage, DamageBonus, Health, HealthRegeneration, MaxHit, MaxMoveSpeed, MoveSpeed } from "../components/Stats";
 import { Faction } from "../types";
 
@@ -13,6 +13,14 @@ export const createUnitEntity = (world: IWorld, type: Faction) => {
   initializeStats(world, eid);
 
   // add tag?
+  switch (type) {
+    case Faction.Crown:
+      addComponent(world, Crown, eid);
+      break;
+    case Faction.Necro:
+      addComponent(world, Necro, eid);
+      break;
+  }
 
   return eid;
 }
