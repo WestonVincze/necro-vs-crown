@@ -1,4 +1,4 @@
-import { Unit, Vector2 } from "./types";
+import type { Unit, Vector2 } from "./types";
 
 export const normalizeForce = ({ x , y }: Vector2) => {
   if (x === 0 && y === 0) return { x, y };

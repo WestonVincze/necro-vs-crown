@@ -1,5 +1,5 @@
-import { defineQuery, defineSystem } from "bitecs";
-import { Position, Velocity, Target } from "../components";
+import { Not, defineQuery, defineSystem } from "bitecs";
+import { Position, Velocity, Target, Player } from "../components";
 
 type Vector2 = { x: number, y: number };
 
@@ -34,7 +34,7 @@ const calculateFollowForce = (self: Vector2, target: Vector2) => {
 }
 
 export const createMovementSystem = () => {
-  const movementQuery = defineQuery([Position, Velocity, Target]);
+  const movementQuery = defineQuery([Position, Velocity, Target, Not(Player)]);
   const separationThreshold = 50;
 
   return defineSystem((world) => {

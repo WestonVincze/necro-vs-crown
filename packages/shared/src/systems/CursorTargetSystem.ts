@@ -3,6 +3,11 @@ import { fromEvent, map, tap } from 'rxjs';
 import { Behavior, Behaviors, Target } from '../components';
 import { Necro } from '../components/Tags';
 
+/**
+ * This pattern goes against the principles of how Systems should operate...
+ * Systems are intended to run every frame, not reactively
+ * 
+ */
 export const createCursorTargetSystem = () => {
   const canvas = document.getElementById('game-container') || document.documentElement;
 

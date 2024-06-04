@@ -22,28 +22,28 @@ export const Stat = { base: Types.i8, current: Types.i8 };
  */
 export const Health = defineComponent({ ...Stat, max: Types.i8 });
 
-export const Armor = defineComponent({ Stat });
+export const Armor = defineComponent(Stat);
 
-export const HealthRegeneration = defineComponent({ Stat });
+export const HealthRegeneration = defineComponent(Stat);
 
-export const MoveSpeed = defineComponent({ Stat });
+export const MoveSpeed = defineComponent(Stat);
 
-export const MaxMoveSpeed = defineComponent({ Stat });
+export const MaxMoveSpeed = defineComponent(Stat);
 
-export const AttackSpeed = defineComponent({ Stat });
+export const AttackSpeed = defineComponent(Stat);
 
-export const AttackRange = defineComponent({ Stat });
+export const AttackRange = defineComponent(Stat);
 
-export const MaxHit = defineComponent({ Stat });
+export const MaxHit = defineComponent(Stat);
 
-export const DamageBonus = defineComponent({ Stat });
+export const DamageBonus = defineComponent(Stat);
 
-export const CritChance = defineComponent({ Stat });
+export const CritChance = defineComponent(Stat);
 
-export const CritDamage = defineComponent({ Stat });
+export const CritDamage = defineComponent(Stat);
 
-export const CastingSpeed = defineComponent({ Stat });
+export const CastingSpeed = defineComponent(Stat);
 
-export const CastingRange = defineComponent({ Stat });
+export const CastingRange = defineComponent(Stat);
 
-export const AttackKnockback = defineComponent({ Stat });
+export const AttackKnockback = defineComponent(Stat);
