@@ -1,8 +1,7 @@
 import { addComponent, createWorld, hasComponent, type IWorld, type System } from "bitecs";
 import { Scene, type Types } from "phaser";
 import { filter, fromEvent } from "rxjs";
-import { Crown, Faction, Necro, Player, Position, Sprite, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, Target, Behavior, Behaviors } from "@necro-crown/shared";
-import createSpriteSystem from "@necro-crown/shared/src/systems/SpriteSystem";
+import { Crown, Faction, Necro, Player, Position, Sprite, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, Target, Behavior, Behaviors, Item, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory } from "@necro-crown/shared";
 
 export class SoloModeScene extends Scene {
   /**
@@ -23,6 +22,8 @@ export class SoloModeScene extends Scene {
   private targetingSystem!: System;
   private inputHandlerSystem!: System;
   private followTargetSystem!: System;
+  private itemEquipSystem!: System;
+  private collisionSystem!: System;
 
   constructor() {
     super("SoloModeScene");
@@ -56,6 +57,10 @@ export class SoloModeScene extends Scene {
     // create Necro player 
     const eid = createUnitEntity(this.world, "Necromancer");
     addComponent(this.world, Player, eid);
+    addComponent(this.world, Collider, eid);
+    addComponent(this.world, Inventory, eid);
+    Collider.layer[eid] = CollisionLayers.ITEM;
+    Collider.radius[eid] = 50;
     Position.x[eid] = 300;
     Position.y[eid] = 300;
 
@@ -74,24 +79,33 @@ export class SoloModeScene extends Scene {
       } 
     }
 
+    createItemEntity(this.world, 20, 50, 1);
+
     this.movementSystem = createMovementSystem();
     this.spriteSystem = createSpriteSystem(this);
     this.targetingSystem = createTargetingSystem();
     this.cursorTargetSystem = createCursorTargetSystem();
     this.inputHandlerSystem = createInputHandlerSystem(this.cursors);
     this.followTargetSystem = createFollowTargetSystem();
+    this.collisionSystem = createCollisionSystem();
+    this.itemEquipSystem = createItemEquipSystem();
 
+    /** REACTIVE SYSTEMS */
     this.cursorTargetSystem(this.world);
+    this.itemEquipSystem(this.world);
 
+    /** TICK SYSTEMS */
     setInterval(() => {
       this.targetingSystem(this.world);
     }, 200);
   }
 
+  /** UPDATE LOOP SYSTEMS */
   update(time: number, delta: number): void {
       this.inputHandlerSystem(this.world);
       this.followTargetSystem(this.world);
       this.movementSystem(this.world);
       this.spriteSystem(this.world);
+      this.collisionSystem(this.world);
   }
 }

@@ -20,7 +20,7 @@ const Textures = Object.keys(SpriteTexture)
  * @param scene Reference to Phaser Scene
  * @param textures Array of Texture asset names loaded in the Phaser scene - the ID's stored in Scene component should correlate to the array - e.g. ID of "0" represents the first element of the textures array
  */
-export default function createSpriteSystem(scene: Scene) {
+export const createSpriteSystem = (scene: Scene) => {
   const spritesById = new Map<number, GameObjects.Sprite>();
 
   const spriteQuery = defineQuery([Position, Sprite]);

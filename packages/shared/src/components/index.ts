@@ -5,5 +5,6 @@ export * from "./Sprite";
 export * from "./Behavior";
 export * from "./Tags";
 export * from "./Input";
-export * from "./Collider";
+export * from "./Colliders";
 export * from "./Stats";
+export * from "./Items";

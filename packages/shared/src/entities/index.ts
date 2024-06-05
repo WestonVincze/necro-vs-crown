@@ -8,3 +8,4 @@
  */
 
 export * from "./Unit";
+export * from "./Item";
