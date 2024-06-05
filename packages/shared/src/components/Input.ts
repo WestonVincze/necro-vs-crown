@@ -8,7 +8,7 @@ import { Types, defineComponent } from "bitecs";
 
 // boolean values
 export const Input = defineComponent({
-  moveX: Types.i8,
-  moveY: Types.i8,
+  moveX: Types.f32,
+  moveY: Types.f32,
   castingSpell: Types.ui8,
 });

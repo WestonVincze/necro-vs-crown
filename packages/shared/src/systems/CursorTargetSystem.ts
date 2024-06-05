@@ -11,9 +11,11 @@ import { Necro } from '../components/Tags';
 export const createCursorTargetSystem = () => {
   const canvas = document.getElementById('game-container') || document.documentElement;
 
+  const rect = canvas.getBoundingClientRect();
+
   const mouseClick$ = fromEvent<MouseEvent>(canvas, 'mousedown').pipe(
     tap(() => console.log("CLICKED")),
-    map((event) => ({ x: event.clientX, y: event.clientY })),
+    map((event) => ({ x: event.clientX - rect.left, y: event.clientY - rect.top })),
     tap(({ x, y }) => console.log(`${x} ${y}`)),
   );
 

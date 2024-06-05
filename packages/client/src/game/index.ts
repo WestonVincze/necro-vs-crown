@@ -8,6 +8,7 @@ const config: Types.Core.GameConfig = {
   height: 768,
   backgroundColor: '#eee',
   parent: 'game-container',
+  // fps: { smoothStep: true, limit: 60 },
   physics: { default: "arcade" },
   scene: [ PreloaderScene, MainMenuScene, GameScene, SoloModeScene ],
 }

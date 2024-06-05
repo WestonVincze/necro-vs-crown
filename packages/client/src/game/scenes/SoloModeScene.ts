@@ -1,7 +1,7 @@
 import { addComponent, createWorld, hasComponent, type IWorld, type System } from "bitecs";
 import { Scene, type Types } from "phaser";
 import { filter, fromEvent } from "rxjs";
-import { Input, Crown, Faction, Necro, Player, Position, Sprite, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createControlledMovementSystem, MoveSpeed, MaxMoveSpeed } from "@necro-crown/shared";
+import { Crown, Faction, Necro, Player, Position, Sprite, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, Target, Behavior, Behaviors } from "@necro-crown/shared";
 import createSpriteSystem from "@necro-crown/shared/src/systems/SpriteSystem";
 
 enum SpriteTexture {
@@ -30,12 +30,12 @@ export class SoloModeScene extends Scene {
   private world!: IWorld
 
   // system references
-  private controlledMovementSystem!: System;
   private movementSystem!: System;
   private spriteSystem!: System;
   private cursorTargetSystem!: System;
   private targetingSystem!: System;
   private inputHandlerSystem!: System;
+  private followTargetSystem!: System;
 
   constructor() {
     super("SoloModeScene");
@@ -68,16 +68,14 @@ export class SoloModeScene extends Scene {
 
     // create Necro player 
     const eid = createUnitEntity(this.world, Faction.Necro);
-    addComponent(this.world, Input, eid);
     addComponent(this.world, Player, eid);
     Sprite.texture[eid] = SpriteTexture.Necro;
     Position.x[eid] = 300;
     Position.y[eid] = 300;
-    MoveSpeed.current[eid] = 1.2;
-    MaxMoveSpeed.current[eid] = 3;
 
-    for (let i = 0; i < 0; i++) {
+    for (let i = 0; i < 10; i++) {
       const eid = createUnitEntity(this.world, Math.random() > 0.5 ? Faction.Crown : Faction.Necro);
+      addComponent(this.world, Target, eid);
       Position.x[eid] = Math.random() * 1024;
       Position.y[eid] = Math.random() * 1024;
       /*
@@ -85,19 +83,19 @@ export class SoloModeScene extends Scene {
       Target.y[eid] = Math.random() * 1200;
       */
       if (hasComponent(this.world, Necro, eid)) {
-        // addComponent(this.world, Behavior, eid);
-        // Behavior.type[eid] = Behaviors.FollowCursor;
+        addComponent(this.world, Behavior, eid);
+        Behavior.type[eid] = Behaviors.FollowCursor;
         Sprite.texture[eid] = SpriteTexture.Skele;
       } 
       if (hasComponent(this.world, Crown, eid)) Sprite.texture[eid] = SpriteTexture.Guard;
     }
 
-    this.controlledMovementSystem = createControlledMovementSystem();
     this.movementSystem = createMovementSystem();
     this.spriteSystem = createSpriteSystem(this, Textures)
     this.targetingSystem = createTargetingSystem();
     this.cursorTargetSystem = createCursorTargetSystem();
     this.inputHandlerSystem = createInputHandlerSystem(this.cursors);
+    this.followTargetSystem = createFollowTargetSystem();
 
     this.cursorTargetSystem(this.world);
 
@@ -107,9 +105,9 @@ export class SoloModeScene extends Scene {
   }
 
   update(time: number, delta: number): void {
-    this.inputHandlerSystem(this.world);
-    this.controlledMovementSystem(this.world);
-    this.movementSystem(this.world);
-    this.spriteSystem(this.world);
+      this.inputHandlerSystem(this.world);
+      this.followTargetSystem(this.world);
+      this.movementSystem(this.world);
+      this.spriteSystem(this.world);
   }
 }

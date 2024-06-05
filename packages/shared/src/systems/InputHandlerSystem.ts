@@ -10,7 +10,6 @@ export const createInputHandlerSystem = (cursors: Types.Input.Keyboard.CursorKey
 
     for (let i in entities) {
       const eid = entities[i];
-      console.log(Input.moveX[eid]);
 
       if (cursors.left.isDown) {
         Input.moveX[eid] = -1;

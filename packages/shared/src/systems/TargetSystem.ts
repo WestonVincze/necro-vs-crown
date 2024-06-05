@@ -1,6 +1,6 @@
-import { defineQuery, defineSystem, hasComponent } from "bitecs"
+import { Not, defineQuery, defineSystem, hasComponent } from "bitecs"
 import { Position, Target, Sprite, Behavior, Behaviors } from "../components";
-import { Crown, Necro } from "../components/Tags";
+import { Crown, Necro, Player } from "../components/Tags";
 
 export const createTargetingSystem = () => {
   const necroTargetQuery = defineQuery([Target, Position, Sprite, Necro, Behavior]);
@@ -11,16 +11,18 @@ export const createTargetingSystem = () => {
     const crownEntities = crownTargetQuery(world);
 
     const updateTargets = (sourceEntities: number[], targetEntities: number[]) => {
-      for (const sourceEid of sourceEntities) {
-        if (hasComponent(world, Behavior, sourceEid) && Behavior.type[sourceEid] === Behaviors.FollowCursor) return;
+      for (let i = 0; i < sourceEntities.length; i++) {// sourceEid of sourceEntities) {
 
         let closestDistance = Infinity;
         let closestTarget = { x: 0, y: 0 };
+        const eid = sourceEntities[i];
+        if (hasComponent(world, Behavior, eid) && Behavior.type[eid] === Behaviors.FollowCursor) return;
 
-        const sx = Position.x[sourceEid];
-        const sy = Position.y[sourceEid];
+        const sx = Position.x[eid];
+        const sy = Position.y[eid];
 
-        for (const targetEid of targetEntities) {
+        for (let j = 0; j < targetEntities.length; j++) { //targetEid of targetEntities) {
+          const targetEid = targetEntities[j];
           const tx = Position.x[targetEid];
           const ty = Position.y[targetEid];
           const dx = sx - tx;
@@ -29,12 +31,12 @@ export const createTargetingSystem = () => {
           const distance = (dx ** 2) + (dy ** 2);
 
           if (distance < closestDistance) {
-            closestDistance = distance;
             closestTarget = { x: tx, y: ty };
+            closestDistance = distance;
           }
         }
-        Target.x[sourceEid] = closestTarget.x;
-        Target.y[sourceEid] = closestTarget.y;
+        Target.x[eid] = closestTarget.x;
+        Target.y[eid] = closestTarget.y;
       }
     }
 
