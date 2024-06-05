@@ -6,20 +6,20 @@ export enum Faction {
 }
 
 export type CrownUnit =
-  "peasant"           |
-  "guard"             |
-  "paladin"           |
-  "doppelsoldner"     |
-  "archer"            ;
+  "Peasant"           |
+  "Guard"             |
+  "Paladin"           |
+  "Doppelsoldner"     |
+  "Archer"            ;
 
 export type NecroUnit =
-  "skeleton"          |
-  "necromancer"       ;
+  "Skeleton"          |
+  "Necromancer"       ;
 
-export type Unit = CrownUnit & NecroUnit;
+export type Unit = CrownUnit | NecroUnit;
 
 export type UnitData = {
-  name: string,
+  name: Unit,
   type: Faction,
   url: string,
   width: number,

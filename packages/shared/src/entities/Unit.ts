@@ -1,18 +1,26 @@
-import { type IWorld, addComponent, addEntity, hasComponent } from "bitecs"
+import { type IWorld, addComponent, addEntity } from "bitecs"
 import { Crown, Input, Necro, Position, Sprite, Velocity } from "../components";
 import { Armor, AttackRange, AttackSpeed, CritChance, CritDamage, DamageBonus, Health, HealthRegeneration, MaxHit, MaxMoveSpeed, MoveSpeed } from "../components/Stats";
-import { Faction } from "../types";
+import { Faction, type Unit, type UnitData } from "../types";
+import { AllUnits } from "../data";
+import { SpriteTexture } from "../systems";
 
-export const createUnitEntity = (world: IWorld, type: Faction) => {
+export const createUnitEntity = (world: IWorld, name: Unit) => {
   const eid = addEntity(world);
   addComponent(world, Input, eid);
   addComponent(world, Position, eid);
   addComponent(world, Velocity, eid);
+
+
+  const data = AllUnits[name];
+  initializeStats(world, eid, data);
+
   addComponent(world, Sprite, eid);
+  Sprite.texture[eid] = SpriteTexture[data.name as keyof typeof SpriteTexture];
+  Sprite.height[eid] = data.height;
+  Sprite.width[eid] = data.width;
 
-  initializeStats(world, eid);
-
-  switch (type) {
+  switch (data.type) {
     case Faction.Crown:
       addComponent(world, Crown, eid);
       break;
@@ -24,31 +32,69 @@ export const createUnitEntity = (world: IWorld, type: Faction) => {
   return eid;
 }
 
-// TODO: dynamically populate stats component based on UnitData
-// should values be initialized here as well?
-const initializeStats = (world: IWorld, eid: number) => {
+/**
+ * Dynamically initializes components with base and current values from `AllUnits`
+ */
+const initializeStats = (world: IWorld, eid: number, data: UnitData) => {
   addComponent(world, Health, eid);
-  addComponent(world, Armor, eid);
-  addComponent(world, HealthRegeneration, eid);
-  addComponent(world, MoveSpeed, eid);
-  addComponent(world, MaxMoveSpeed, eid);
-  addComponent(world, AttackSpeed, eid);
-  addComponent(world, AttackRange, eid);
-  addComponent(world, MaxHit, eid);
-  addComponent(world, DamageBonus, eid);
-  addComponent(world, CritChance, eid);
-  addComponent(world, CritDamage, eid);
+  Health.base[eid] = data.stats.maxHP;
+  Health.current[eid] = data.stats.maxHP;
 
-  // temporary hard coded values for testing
-  Health.current[eid] = 10;
-  Armor.current[eid] = 10;
-  HealthRegeneration.current[eid] = 0.2;
-  MoveSpeed.current[eid] = 1;
-  MaxMoveSpeed.current[eid] = 1.5;
-  AttackSpeed.current[eid] = 1;
-  AttackRange.current[eid] = 1;
-  MaxHit.current[eid] = 1;
-  DamageBonus.current[eid] = 1;
-  CritChance.current[eid] = 1;
-  CritDamage.current[eid] = 1;
+  addComponent(world, Armor, eid);
+  Armor.base[eid] = data.stats.armor;
+  Armor.current[eid] = data.stats.armor;
+
+  if (data.stats.HPregeneration) {
+    addComponent(world, HealthRegeneration, eid);
+    HealthRegeneration.base[eid] = data.stats.HPregeneration;
+    HealthRegeneration.current[eid] = data.stats.HPregeneration;
+  }
+
+  if (data.stats.moveSpeed) {
+    addComponent(world, MoveSpeed, eid);
+    MoveSpeed.base[eid] = data.stats.moveSpeed;
+    MoveSpeed.current[eid] = data.stats.moveSpeed;
+  }
+
+  if (data.stats.maxSpeed) {
+    addComponent(world, MaxMoveSpeed, eid);
+    MaxMoveSpeed.base[eid] = data.stats.maxSpeed;
+    MaxMoveSpeed.current[eid] = data.stats.maxSpeed;
+  }
+
+  if (data.stats.attackSpeed) {
+    addComponent(world, AttackSpeed, eid);
+    AttackSpeed.base[eid] = data.stats.attackSpeed;
+    AttackSpeed.current[eid] = data.stats.attackSpeed;
+  }
+
+  if (data.stats.attackRange) {
+    addComponent(world, AttackRange, eid);
+    AttackRange.base[eid] = data.stats.attackRange;
+    AttackRange.current[eid] = data.stats.attackRange;
+  }
+
+  if (data.stats.maxHit) {
+    addComponent(world, MaxHit, eid);
+    MaxHit.base[eid] = data.stats.maxHit;
+    MaxHit.current[eid] = data.stats.maxHit;
+  }
+
+  if (data.stats.damageBonus) {
+    addComponent(world, DamageBonus, eid);
+    DamageBonus.base[eid] = data.stats.damageBonus;
+    DamageBonus.current[eid] = data.stats.damageBonus;
+  }
+
+  if (data.stats.critChance) {
+    addComponent(world, CritChance, eid);
+    CritChance.base[eid] = data.stats.critChance;
+    CritChance.current[eid] = data.stats.critChance;
+  }
+
+  if (data.stats.critDamage) {
+    addComponent(world, CritDamage, eid);
+    CritDamage.base[eid] = data.stats.critDamage;
+    CritDamage.current[eid] = data.stats.critDamage;
+  }
 }

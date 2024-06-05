@@ -1,8 +1,8 @@
 import { type UnitData, type CrownUnit, Faction } from "../types"
 
 export const CrownUnits: Record<CrownUnit, UnitData> = {
-  peasant: {
-    name: "peasant",
+  Peasant: {
+    name: "Peasant",
     type: Faction.Crown,
     url: "peasant.png",
     width: 45,
@@ -23,8 +23,8 @@ export const CrownUnits: Record<CrownUnit, UnitData> = {
       always: ["bones"]
     }
   },
-  guard: {
-    name: "guard",
+  Guard: {
+    name: "Guard",
     type: Faction.Crown,
     url: "guard.png",
     width: 50,
@@ -48,8 +48,8 @@ export const CrownUnits: Record<CrownUnit, UnitData> = {
       common: ["med_helm"]
     }
   },
-  paladin: {
-    name: "paladin",
+  Paladin: {
+    name: "Paladin",
     type: Faction.Crown,
     url: "paladin.png",
     width: 60,
@@ -73,8 +73,8 @@ export const CrownUnits: Record<CrownUnit, UnitData> = {
       common: ["bucket_helm"]
     }
   },
-  doppelsoldner: {
-    name: "doppelsoldner",
+  Doppelsoldner: {
+    name: "Doppelsoldner",
     type: Faction.Crown,
     url: "doppelsoldner.png",
     width: 60,
@@ -98,8 +98,8 @@ export const CrownUnits: Record<CrownUnit, UnitData> = {
       common: ["great_sword"]
     }
   },
-  archer: {
-    name: "archer",
+  Archer: {
+    name: "Archer",
     type: Faction.Crown,
     url: "archer.png",
     width: 60,

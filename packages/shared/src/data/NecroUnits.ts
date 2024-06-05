@@ -1,8 +1,8 @@
 import { type UnitData, type NecroUnit, Faction } from "../types"
 
 export const NecroUnits: Record<NecroUnit, UnitData> = {
-  skeleton: {
-    name: "skeleton",
+  Skeleton: {
+    name: "Skeleton",
     type: Faction.Necro,
     url: "skele.png",
     width: 40,
@@ -21,8 +21,8 @@ export const NecroUnits: Record<NecroUnit, UnitData> = {
       critDamage: 1.5,
     },
   },
-  necromancer: {
-    name: "necromancer",
+  Necromancer: {
+    name: "Necromancer",
     type: Faction.Necro,
     url: "necro.png",
     width: 50,

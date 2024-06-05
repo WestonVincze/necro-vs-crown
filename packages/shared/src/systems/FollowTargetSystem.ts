@@ -32,7 +32,7 @@ const calculateFollowForce = (self: Vector2, target: Vector2): Vector2 => {
 }
 
 export const createFollowTargetSystem = () => {
-  const followTargetQuery = defineQuery([Position, Input, Velocity, Target, Not(Player)])
+  const followTargetQuery = defineQuery([Position, Input, Velocity, Target]);
 
   return defineSystem(world => {
     const entities = followTargetQuery(world);

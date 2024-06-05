@@ -4,19 +4,6 @@ import { filter, fromEvent } from "rxjs";
 import { Crown, Faction, Necro, Player, Position, Sprite, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, Target, Behavior, Behaviors } from "@necro-crown/shared";
 import createSpriteSystem from "@necro-crown/shared/src/systems/SpriteSystem";
 
-enum SpriteTexture {
-  Necro,
-  Skele,
-  Guard,
-  Paladin,
-  Archer,
-  Doppelsoldner,
-}
-
-const Textures = Object.keys(SpriteTexture)
-  .filter((key) => isNaN(Number(key)))
-  .map((key) => key as keyof typeof SpriteTexture);
-
 export class SoloModeScene extends Scene {
   /**
    * camera
@@ -67,14 +54,13 @@ export class SoloModeScene extends Scene {
     */
 
     // create Necro player 
-    const eid = createUnitEntity(this.world, Faction.Necro);
+    const eid = createUnitEntity(this.world, "Necromancer");
     addComponent(this.world, Player, eid);
-    Sprite.texture[eid] = SpriteTexture.Necro;
     Position.x[eid] = 300;
     Position.y[eid] = 300;
 
     for (let i = 0; i < 10; i++) {
-      const eid = createUnitEntity(this.world, Math.random() > 0.5 ? Faction.Crown : Faction.Necro);
+      const eid = createUnitEntity(this.world, Math.random() > 0.5 ? "Paladin" : "Skeleton");
       addComponent(this.world, Target, eid);
       Position.x[eid] = Math.random() * 1024;
       Position.y[eid] = Math.random() * 1024;
@@ -85,13 +71,11 @@ export class SoloModeScene extends Scene {
       if (hasComponent(this.world, Necro, eid)) {
         addComponent(this.world, Behavior, eid);
         Behavior.type[eid] = Behaviors.FollowCursor;
-        Sprite.texture[eid] = SpriteTexture.Skele;
       } 
-      if (hasComponent(this.world, Crown, eid)) Sprite.texture[eid] = SpriteTexture.Guard;
     }
 
     this.movementSystem = createMovementSystem();
-    this.spriteSystem = createSpriteSystem(this, Textures)
+    this.spriteSystem = createSpriteSystem(this);
     this.targetingSystem = createTargetingSystem();
     this.cursorTargetSystem = createCursorTargetSystem();
     this.inputHandlerSystem = createInputHandlerSystem(this.cursors);

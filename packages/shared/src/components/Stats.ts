@@ -7,6 +7,8 @@ import { Types, defineComponent } from "bitecs";
  * current: base + the current modifications (items, status effects, etc)
  */
 export const Stat = { base: Types.i8, current: Types.i8 };
+// TODO: refactor all stats to use whole numbers
+export const DecimalStat = { base: Types.f32, current: Types.f32 };
 
 /**
  * ALTERNATIVE APPROACH
@@ -24,11 +26,11 @@ export const Health = defineComponent({ ...Stat, max: Types.i8 });
 
 export const Armor = defineComponent(Stat);
 
-export const HealthRegeneration = defineComponent(Stat);
+export const HealthRegeneration = defineComponent(DecimalStat);
 
-export const MoveSpeed = defineComponent(Stat);
+export const MoveSpeed = defineComponent(DecimalStat);
 
-export const MaxMoveSpeed = defineComponent(Stat);
+export const MaxMoveSpeed = defineComponent(DecimalStat);
 
 export const AttackSpeed = defineComponent(Stat);
 
