@@ -1,4 +1,4 @@
-import { IWorld, addComponent, defineSystem, hasComponent, removeComponent, removeEntity } from 'bitecs';
+import { type IWorld, addComponent, defineSystem, hasComponent, removeComponent, removeEntity } from 'bitecs';
 import { Item, Equipped, Inventory } from '../components';
 
 import { collisionEvents } from './CollisionSystem';
@@ -37,7 +37,7 @@ const equipItem = (world: IWorld, entity: number, item: number) => {
   const itemId = Item.itemId[item];
 
   // Get item effects from the itemEffects map
-  const effects = itemEffects[itemId];
+  // const effects = itemEffects[itemId];
 
   Inventory.slot[entity] = itemId;
 
@@ -46,5 +46,6 @@ const equipItem = (world: IWorld, entity: number, item: number) => {
   Equipped.itemId[entity] = itemId;
 
   // Remove item from the world (and all components)
+
   removeEntity(world, item);
 }

@@ -1,7 +1,6 @@
 import { addComponent, createWorld, hasComponent, type IWorld, type System } from "bitecs";
 import { Scene, type Types } from "phaser";
-import { filter, fromEvent } from "rxjs";
-import { Crown, Faction, Necro, Player, Position, Sprite, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, Target, Behavior, Behaviors, Item, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory } from "@necro-crown/shared";
+import { Necro, Player, Position, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, Target, Behavior, Behaviors, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory } from "@necro-crown/shared";
 
 export class SoloModeScene extends Scene {
   /**
@@ -105,7 +104,7 @@ export class SoloModeScene extends Scene {
       this.inputHandlerSystem(this.world);
       this.followTargetSystem(this.world);
       this.movementSystem(this.world);
-      this.spriteSystem(this.world);
       this.collisionSystem(this.world);
+      this.spriteSystem(this.world);
   }
 }

@@ -62,6 +62,7 @@ export const createSpriteSystem = (scene: Scene) => {
     for (let i = 0; i < entitiesExited.length; i++) {
       const eid = entitiesExited[i];
 
+      spritesById.get(eid)?.destroy();
       spritesById.delete(eid);
     }
 

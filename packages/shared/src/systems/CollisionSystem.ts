@@ -1,5 +1,5 @@
-import { defineQuery, defineSystem } from 'bitecs';
-import { Position, Collider } from '../components';
+import { defineQuery, defineSystem, removeComponent, removeEntity } from 'bitecs';
+import { Position, Collider, Sprite } from '../components';
 import { Subject } from 'rxjs';
 
 // TODO: consider deferring collisions or tracking collisions to safeguard against multiple simultaneous collisions (like picking up an item) 
