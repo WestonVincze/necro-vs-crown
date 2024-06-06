@@ -1,6 +1,6 @@
 import { addComponent, createWorld, hasComponent, type IWorld, type System } from "bitecs";
 import { Scene, type Types } from "phaser";
-import { Necro, Player, Position, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, Target, Behavior, Behaviors, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory } from "@necro-crown/shared";
+import { Necro, Player, Position, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, Target, Behavior, Behaviors, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory, createBonesEntity } from "@necro-crown/shared";
 
 export class SoloModeScene extends Scene {
   /**
@@ -62,6 +62,8 @@ export class SoloModeScene extends Scene {
     Collider.radius[eid] = 50;
     Position.x[eid] = 300;
     Position.y[eid] = 300;
+
+    createBonesEntity(this.world, 500, 500);
 
     for (let i = 0; i < 10; i++) {
       const eid = createUnitEntity(this.world, Math.random() > 0.5 ? "Paladin" : "Skeleton");

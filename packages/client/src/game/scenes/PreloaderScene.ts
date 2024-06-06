@@ -1,3 +1,4 @@
+import { TextureNames } from "@necro-crown/shared/src/constants";
 import { Scene } from "phaser";
 
 export class PreloaderScene extends Scene {
@@ -7,7 +8,7 @@ export class PreloaderScene extends Scene {
   }
 
   preload() {
-    // Sprites
+    // UNITS
     this.load.image('Necro', 'necro.png');
     this.load.image('Skeleton', 'skele.png');
     this.load.image('Peasant', 'peasant.png');
@@ -15,6 +16,12 @@ export class PreloaderScene extends Scene {
     this.load.image('Paladin', 'paladin.png');
     this.load.image('Doppelsoldner', 'doppelsoldner.png');
     this.load.image('Archer', 'archer.png');
+
+    // OBJECTS
+    this.load.image('Bones', 'bones.png');
+
+    // ITEMS
+    this.load.image('GreatSword', 'great_sword.png');
   }
 
   create() {

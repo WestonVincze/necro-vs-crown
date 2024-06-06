@@ -8,3 +8,4 @@ export * from "./Input";
 export * from "./Colliders";
 export * from "./Stats";
 export * from "./Items";
+export * from "./Bones";

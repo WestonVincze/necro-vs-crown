@@ -1,24 +1,10 @@
 import { GameObjects, Scene } from "phaser";
 import { Position, Sprite } from "../components";
+import { TextureNames } from "../constants";
 import { defineQuery, defineSystem, enterQuery, exitQuery } from "bitecs";
 
-export enum SpriteTexture {
-  Necro,
-  Skeleton,
-  Guard,
-  Paladin,
-  Archer,
-  Doppelsoldner,
-}
-
-const Textures = Object.keys(SpriteTexture)
-  .filter((key) => isNaN(Number(key)))
-  .map((key) => key as keyof typeof SpriteTexture);
-
 /**
- * 
  * @param scene Reference to Phaser Scene
- * @param textures Array of Texture asset names loaded in the Phaser scene - the ID's stored in Scene component should correlate to the array - e.g. ID of "0" represents the first element of the textures array
  */
 export const createSpriteSystem = (scene: Scene) => {
   const spritesById = new Map<number, GameObjects.Sprite>();
@@ -33,7 +19,7 @@ export const createSpriteSystem = (scene: Scene) => {
     for (let i = 0; i < entitiesEntered.length; i++) {
       const eid = entitiesEntered[i];
       const textureId = Sprite.texture[eid];
-      const texture = Textures[textureId];
+      const texture = TextureNames[textureId];
       const width = Sprite.width[eid];
       const height = Sprite.height[eid];
 

@@ -3,7 +3,7 @@ import { Crown, Input, Necro, Position, Sprite, Velocity } from "../components";
 import { Armor, AttackRange, AttackSpeed, CritChance, CritDamage, DamageBonus, Health, HealthRegeneration, MaxHit, MaxMoveSpeed, MoveSpeed } from "../components/Stats";
 import { Faction, type Unit, type UnitData } from "../types";
 import { AllUnits } from "../data";
-import { SpriteTexture } from "../systems";
+import { SpriteTexture } from "../constants";
 
 export const createUnitEntity = (world: IWorld, name: Unit) => {
   const eid = addEntity(world);

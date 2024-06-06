@@ -11,6 +11,12 @@ export const createInputHandlerSystem = (cursors: Types.Input.Keyboard.CursorKey
     for (let i in entities) {
       const eid = entities[i];
 
+      // if space held, cast spell
+      // true
+      // Input.castingSpell[eid] = 1;
+      // false
+      // Input.castingSpell[eid] = 0;
+
       if (cursors.left.isDown) {
         Input.moveX[eid] = -1;
       } else if (cursors.right.isDown) {
