@@ -36,15 +36,13 @@ export class SoloModeScene extends Scene {
     this.world = createWorld();
 
     // create Necro player 
-    const eid = createUnitEntity(this.world, "Necromancer");
+    const eid = createUnitEntity(this.world, "Necromancer", 300, 300);
     addComponent(this.world, Player, eid);
     addComponent(this.world, Collider, eid);
     addComponent(this.world, Inventory, eid);
     addComponent(this.world, Spell, eid);
     Collider.layer[eid] = CollisionLayers.ITEM;
     Collider.radius[eid] = 50;
-    Position.x[eid] = 300;
-    Position.y[eid] = 300;
     Spell.state[eid] = SpellState.Ready;
 
     // create Bones entity (for testing)
@@ -52,10 +50,8 @@ export class SoloModeScene extends Scene {
 
     // create Crown entities (for testing)
     for (let i = 0; i < 10; i++) {
-      const eid = createUnitEntity(this.world, Math.random() > 0.5 ? "Paladin" : "Skeleton");
+      const eid = createUnitEntity(this.world, Math.random() > 0.5 ? "Paladin" : "Skeleton", Math.random() * 1024, Math.random() * 1024);
       addComponent(this.world, Target, eid);
-      Position.x[eid] = Math.random() * 1024;
-      Position.y[eid] = Math.random() * 1024;
       if (hasComponent(this.world, Necro, eid)) {
         addComponent(this.world, Behavior, eid);
         Behavior.type[eid] = Behaviors.FollowCursor;

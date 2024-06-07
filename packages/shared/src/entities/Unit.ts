@@ -5,12 +5,13 @@ import { Faction, type Unit, type UnitData } from "../types";
 import { AllUnits } from "../data";
 import { SpriteTexture } from "../constants";
 
-export const createUnitEntity = (world: IWorld, name: Unit) => {
+export const createUnitEntity = (world: IWorld, name: Unit, x: number, y: number) => {
   const eid = addEntity(world);
   addComponent(world, Input, eid);
   addComponent(world, Position, eid);
+  Position.x[eid] = x;
+  Position.y[eid] = y;
   addComponent(world, Velocity, eid);
-
 
   const data = AllUnits[name];
   initializeStats(world, eid, data);

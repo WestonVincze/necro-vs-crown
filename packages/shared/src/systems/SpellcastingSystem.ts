@@ -1,6 +1,7 @@
 import { addComponent, addEntity, defineQuery, defineSystem, enterQuery, exitQuery, removeEntity } from "bitecs";
-import { Spell, Input, SpellEffect, Position, SpellState } from "../components";
+import { Spell, Input, SpellEffect, Position, SpellState, Bones } from "../components";
 import { GameObjects, Scene } from "phaser";
+import { createUnitEntity } from "../entities";
 
 export const createSpellcastingSystem = () => {
   const spellcasterQuery = defineQuery([Input, Position, Spell]);
@@ -67,6 +68,9 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
   const onEnterQuery = enterQuery(spellEffectQuery);
   const onExitQuery = exitQuery(spellEffectQuery);
 
+  // TODO: avoid defining queries for every type of spell... this works for now though
+  const bonesQuery = defineQuery([Bones, Position]);
+
   return defineSystem(world => {
     const entitiesEntered = onEnterQuery(world);
     for (let i = 0; i < entitiesEntered.length; i++) {
@@ -122,6 +126,19 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
     for (let i = 0; i < entitiesExited.length; i++) {
       const eid = entitiesExited[i];
 
+      const boneEntities = bonesQuery(world);
+
+      for (const boneEntity of boneEntities) {
+        const dx = Position.x[eid] - Position.x[boneEntity];
+        const dy = Position.y[eid] - Position.y[boneEntity];
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < SpellEffect.size[eid] + 50) {
+          removeEntity(world, boneEntity);
+          createUnitEntity(world, "Skeleton", Position.x[eid], Position.y[eid]);
+        }
+      }
+
       const circle = circlesById.get(eid);
 
       if (!circle) {
@@ -135,7 +152,6 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
     }
     return world;
   })
-
 }
 
 export const createSpellFXSystem = () => {

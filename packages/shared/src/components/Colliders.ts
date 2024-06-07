@@ -5,7 +5,8 @@ export const CollisionLayers = {
   NECRO: 1 << 1,
   CROWN: 1 << 2,
   ITEM: 1 << 3,
-  WALL: 1 << 4
+  WALL: 1 << 4,
+  BONES: 1 << 5,
   // Add more layers as needed
 };
 
