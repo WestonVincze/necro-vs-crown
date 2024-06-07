@@ -2,8 +2,9 @@
 
 Extension of `Necro Cursor` (a.k.a `Necro`).
 
-[https://necro-cursor.vercel.app/](Play Necro)
-[https://github.com/WestonVincze/necro-cursor](View Source)
+[Play Original Necro](https://necro-cursor.vercel.app/)
+
+[View Source](https://github.com/WestonVincze/necro-cursor)
 
 Built with phaser, colyseus, svelte, bitecs, rxjs, and love.
 
