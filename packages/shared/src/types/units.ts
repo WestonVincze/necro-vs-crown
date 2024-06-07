@@ -1,6 +1,44 @@
 export type Vector2 = { x: number, y: number }
 
-export type Unit = {
+export enum Faction {
+  Necro,
+  Crown
+}
+
+export type CrownUnit =
+  "Peasant"           |
+  "Guard"             |
+  "Paladin"           |
+  "Doppelsoldner"     |
+  "Archer"            ;
+
+export type NecroUnit =
+  "Skeleton"          |
+  "Necromancer"       ;
+
+export type Unit = CrownUnit | NecroUnit;
+
+export type UnitData = {
+  name: Unit,
+  type: Faction,
+  url: string,
+  width: number,
+  height: number,
+  stats: Stats,
+  ranged?: boolean,
+  dropTable?: DropTable,
+  expReward?: number,
+}
+
+export type DropTable = {
+  always?: string[]
+  common?: string[]
+  rare?: string[]
+  legendary?: string[]
+}
+
+// @DEPRECATED 
+export type UnitOLD = {
   name: string
   width: number,
   height: number,
@@ -8,20 +46,7 @@ export type Unit = {
   vy?: number,
 } & Vector2
 
-export type UnitData = {
-  name: string
-  type: string
-  url: string
-  width: number
-  height: number
-  stats: Stats
-  ranged?: boolean
-  dropTable?: DropTable
-  expReward?: number,
-  hideUI?: number,
-  behavior?: () => void // no yet used
-}
-
+// @DEPRECATED 
 export type Stats = {
   maxHP: number 
   armor: number 
@@ -38,11 +63,4 @@ export type Stats = {
   castingSpeed?: number 
   spellRadius?: number // TODO: this should be spell data, not a stat
   knockback?: number 
-}
-
-export type DropTable = {
-  always?: string[]
-  common?: string[]
-  rare?: string[]
-  legendary?: string[]
 }

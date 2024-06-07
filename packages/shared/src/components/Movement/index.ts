@@ -1,1 +1,2 @@
+// @DEPRECATED
 export * from "./followTarget";

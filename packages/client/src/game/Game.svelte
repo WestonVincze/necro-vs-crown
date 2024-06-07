@@ -5,6 +5,7 @@
   import { StartGame } from ".";
   import MainMenu from "../views/MainMenu.svelte";
   import { CrownUI } from "../views/Crown";
+  import { Faction } from "@necro-crown/shared";
 
   let game: Game;
 
@@ -13,24 +14,32 @@
     console.log(game.scene.getScenes());
   })
 
-  const handlePlayAsPlayer= (player: "necro" | "crown") => {
+  const handlePlayMultiplayer = (player: Faction) => {
     game.scene.start("GameScene", { player })
     currentScene = "GameScene";
     currentPlayer = player;
   }
 
-  $: currentScene = "MainMenu";
-  let currentPlayer: "necro" | "crown" | null = null;
+  const handlePlaySolo = (player: Faction) => {
+    game.scene.start("SoloModeScene", { player });
+    currentScene = "SoloModeScene";
+    currentPlayer = player;
+  }
 
+  $: currentScene = "MainMenu";
+  let currentPlayer: Faction;
 </script>
 
 <div id="game-container">
   <div id="overlay">
     {#if currentScene === "MainMenu"}
-      <MainMenu playAs={handlePlayAsPlayer} />
+      <MainMenu
+        playMultiplayerAs={handlePlayMultiplayer}
+        playSoloAs={handlePlaySolo}
+      />
     {/if}
 
-    {#if currentPlayer === "crown"}
+    {#if currentPlayer === Faction.Crown}
       <CrownUI />
     {/if}
   </div>

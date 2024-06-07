@@ -2,12 +2,14 @@
   "name": "@necro-crown/shared",
   "author": "Weston Vincze",
   "dependencies": {
+    "bitecs": "^0.3.40",
+    "phaser": "^3.80.1",
+    "rxjs": "^7.8.1",
     "typescript": "^5.4.5"
   },
   "description": "Shared Resources for NecroCrown",
   "version": "0.0.1",
   "main": "index.ts",
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

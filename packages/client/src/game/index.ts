@@ -1,6 +1,5 @@
 import { AUTO, type Types, Game } from "phaser";
-import { GameScene } from "./scenes/GameScene";
-import { MainMenuScene } from "./scenes/MainMenuScene";
+import { GameScene, MainMenuScene, PreloaderScene, SoloModeScene } from "./scenes";
 
 // game config
 const config: Types.Core.GameConfig = {
@@ -9,8 +8,9 @@ const config: Types.Core.GameConfig = {
   height: 768,
   backgroundColor: '#eee',
   parent: 'game-container',
+  // fps: { smoothStep: true, limit: 60 },
   physics: { default: "arcade" },
-  scene: [ MainMenuScene, GameScene ],
+  scene: [ PreloaderScene, MainMenuScene, GameScene, SoloModeScene ],
 }
 
 export const StartGame = (parent: string) => {

@@ -4,6 +4,7 @@ import { addNewCards, crownState$, playCard } from "$game/Crown";
 import { createMouseManager } from "../../input/MouseInputs";
 import { createKeyboardManager } from "../../input/KeyboardInputs";
 import { defineAction } from "../../input/Actions";
+import { Faction } from "@necro-crown/shared";
 
 // TODO: refactor Crown and Necro logic into separate classes or modules
 export class GameScene extends Scene {
@@ -26,18 +27,11 @@ export class GameScene extends Scene {
   mouseManager = createMouseManager(document.getElementById("game-container") || document.documentElement)
 
   preload() {
-    this.load.image('necro', 'necro.png');
-    this.load.image('skele', 'skele.png');
-    this.load.image('peasant', 'peasant.png');
-    this.load.image('guard', 'guard.png');
-    this.load.image('paladin', 'paladin.png');
-    this.load.image('doppelsoldner', 'doppelsoldner.png');
-    this.load.image('archer', 'archer.png');
     this.cursorKeys = this.input.keyboard?.createCursorKeys();
     // this.pointer = this.input.mousePointer;
   }
 
-  init (data: { player: "necro" | "crown" }) {
+  init (data: { player: Faction }) {
     this.playerType = data.player;
     // load the corresponding UI
   }
@@ -46,7 +40,7 @@ export class GameScene extends Scene {
   room?: Room;
 
   playerEntities: {[sessionId: string]: any} = {};
-  playerType?: "necro" | "crown";
+  playerType!: Faction;
 
   units: any[] = [];
 
@@ -56,7 +50,7 @@ export class GameScene extends Scene {
     try {
       this.room = await this.client.joinOrCreate("my_room", { playerType: this.playerType });
       console.log("Joined Successfully!")
-      if (this.playerType === "crown") { 
+      if (this.playerType === Faction.Crown) { 
         // show card UI
         defineAction({
           name: 'mouseAction',
@@ -210,7 +204,7 @@ export class GameScene extends Scene {
       entity.y = Phaser.Math.Linear(entity.y, serverY, 0.1);
     }
 
-    if (this.playerType === "necro") {
+    if (this.playerType === Faction.Necro) {
 
       // send input to server
       this.inputPayload = {

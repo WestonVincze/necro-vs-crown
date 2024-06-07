@@ -1,6 +1,6 @@
 import { Room, Client } from "@colyseus/core";
 import { Crown, MyRoomState, Necro, Unit } from "./schema/MyRoomState";
-import { CrownUnits, NecroUnits, followTarget } from "@necro-crown/shared"
+import { CrownUnits, Faction, NecroUnits, UnitData, followTarget } from "@necro-crown/shared"
 import { getClosestUnit } from "@necro-crown/shared";
 
 // TODO: create shared constant for client/server map/screen sizes
@@ -102,7 +102,7 @@ export class MyRoom extends Room<MyRoomState> {
     let enemyCount = 0;
     this.onMessage("add_crown_unit", (client, { name, xPos, yPos }) => {
       // TODO: validate this action and verify the ID is legitimate
-      const unitData = CrownUnits[name];
+      const unitData = CrownUnits[name as Unit];
       if (!unitData) {
         console.log(`error, ${name} not found.`)
         return;
@@ -130,7 +130,7 @@ export class MyRoom extends Room<MyRoomState> {
 
     let player;
     // create player instance
-    if (options.playerType === "necro") {
+    if (options.playerType === Faction.Necro) {
       player = new Necro();
       // place player at random position
       player.x = (Math.random() * mapWidth);

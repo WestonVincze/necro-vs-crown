@@ -1,7 +1,6 @@
 import { normalizeForce } from '../../helpers';
 import { Unit, Vector2 } from '../../types';
 
-
 type followTargetOptions = {
   followForce?: number,
   separationForce?: number,
@@ -9,6 +8,7 @@ type followTargetOptions = {
   alignmentForce?: number,
   maxSpeed?: number
 }
+// @DEPRECATED
 export const followTarget = async (
   self: Unit,
   target: Vector2,
