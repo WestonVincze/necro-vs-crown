@@ -22,30 +22,34 @@ export const createMovementSystem = () => {
       const eid = entities[i];
       const x = Input.moveX[eid];
       const y = Input.moveY[eid];
+      const newVelocity = { x: Velocity.x[eid], y: Velocity.y[eid] };
 
       const force = normalizeForce({ x, y });
 
       // apply x force
       if (force.x === 0) {
-        Velocity.x[eid] += -Velocity.x[eid] * FRICTION; // * delta??
+        newVelocity.x += -newVelocity.x * FRICTION; // * delta??
       } else {
-        Velocity.x[eid] += force.x * MoveSpeed.current[eid];
+        newVelocity.x += force.x * MoveSpeed.current[eid];
       }
 
       // apply y force
       if (force.y === 0) {
-        Velocity.y[eid] += -Velocity.y[eid] * FRICTION; // * delta??
+        newVelocity.y += -newVelocity.y * FRICTION; // * delta??
       } else {
-        Velocity.y[eid] += force.y * MoveSpeed.current[eid];
+        newVelocity.y += force.y * MoveSpeed.current[eid];
       }
 
       // limit max speed
-      const magnitude = Math.sqrt(Velocity.x[eid] * Velocity.x[eid] + Velocity.y[eid] * Velocity.y[eid]);
+      const magnitude = Math.sqrt(newVelocity.x * newVelocity.x + newVelocity.y * newVelocity.y);
       if (magnitude > MaxMoveSpeed.current[eid]) {
         const scale = MaxMoveSpeed.current[eid] / magnitude
-        Velocity.x[eid] *= scale;
-        Velocity.y[eid] *= scale;
+        newVelocity.x *= scale;
+        newVelocity.y *= scale;
       }
+
+      Velocity.x[eid] = newVelocity.x;
+      Velocity.y[eid] = newVelocity.y;
 
       Position.x[eid] += Velocity.x[eid];
       Position.y[eid] += Velocity.y[eid];

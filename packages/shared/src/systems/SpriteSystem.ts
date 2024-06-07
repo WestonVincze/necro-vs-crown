@@ -37,7 +37,10 @@ export const createSpriteSystem = (scene: Scene) => {
 
       const sprite = spritesById.get(eid);
 
-      if (!sprite) continue;
+      if (!sprite) {
+        console.warn(`Sprite not found: Unable to update Sprite for ${eid}.`)
+        continue;
+      }
 
       sprite.x = Position.x[eid];
       sprite.y = Position.y[eid];
@@ -48,7 +51,14 @@ export const createSpriteSystem = (scene: Scene) => {
     for (let i = 0; i < entitiesExited.length; i++) {
       const eid = entitiesExited[i];
 
-      spritesById.get(eid)?.destroy();
+      const sprite = spritesById.get(eid);
+
+      if (!sprite) {
+        console.warn(`Sprite not found: Unable to destroy Sprite for ${eid}.`)
+      } else {
+        sprite.destroy();
+      }
+      
       spritesById.delete(eid);
     }
 

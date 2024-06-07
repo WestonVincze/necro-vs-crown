@@ -7,3 +7,4 @@ export * from "./InputHandlerSystem";
 export * from "./FollowTargetSystem";
 export * from "./CollisionSystem";
 export * from "./ItemEquipSystem";
+export * from "./SpellcastingSystem";

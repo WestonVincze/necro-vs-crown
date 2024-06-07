@@ -9,3 +9,4 @@ export * from "./Colliders";
 export * from "./Stats";
 export * from "./Items";
 export * from "./Bones";
+export * from "./Spellcasting";

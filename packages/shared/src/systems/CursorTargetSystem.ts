@@ -1,5 +1,5 @@
 import { defineQuery, defineSystem } from 'bitecs';
-import { fromEvent, map, tap } from 'rxjs';
+import { fromEvent, map } from 'rxjs';
 import { Behavior, Behaviors, Target } from '../components';
 import { Necro } from '../components/Tags';
 
@@ -14,9 +14,7 @@ export const createCursorTargetSystem = () => {
   const rect = canvas.getBoundingClientRect();
 
   const mouseClick$ = fromEvent<MouseEvent>(canvas, 'mousedown').pipe(
-    tap(() => console.log("CLICKED")),
     map((event) => ({ x: event.clientX - rect.left, y: event.clientY - rect.top })),
-    tap(({ x, y }) => console.log(`${x} ${y}`)),
   );
 
   const behaviorQuery = defineQuery([Behavior, Target, Necro])

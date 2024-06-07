@@ -11,11 +11,15 @@ export const createInputHandlerSystem = (cursors: Types.Input.Keyboard.CursorKey
     for (let i in entities) {
       const eid = entities[i];
 
-      // if space held, cast spell
-      // true
-      // Input.castingSpell[eid] = 1;
-      // false
-      // Input.castingSpell[eid] = 0;
+      if (cursors.space.isDown) {
+        Input.castingSpell[eid] = 1;
+        // TODO: introduce a way to effect movement without modifying the input directly
+        Input.moveX[eid] = 0;
+        Input.moveY[eid] = 0;
+        continue;
+      } else {
+        Input.castingSpell[eid] = 0;
+      }
 
       if (cursors.left.isDown) {
         Input.moveX[eid] = -1;

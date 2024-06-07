@@ -1,6 +1,8 @@
-import { addComponent, createWorld, hasComponent, type IWorld, type System } from "bitecs";
+import { addComponent, createWorld, hasComponent, pipe, type IWorld, type System } from "bitecs";
 import { Scene, type Types } from "phaser";
-import { Necro, Player, Position, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, Target, Behavior, Behaviors, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory, createBonesEntity } from "@necro-crown/shared";
+import { Necro, Player, Position, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, Target, Behavior, Behaviors, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState } from "@necro-crown/shared";
+
+type Pipeline = (world: IWorld) => void;
 
 export class SoloModeScene extends Scene {
   /**
@@ -15,14 +17,9 @@ export class SoloModeScene extends Scene {
   private world!: IWorld
 
   // system references
-  private movementSystem!: System;
-  private spriteSystem!: System;
-  private cursorTargetSystem!: System;
-  private targetingSystem!: System;
-  private inputHandlerSystem!: System;
-  private followTargetSystem!: System;
-  private itemEquipSystem!: System;
-  private collisionSystem!: System;
+  private reactiveSystems!: Pipeline;
+  private tickSystems!: Pipeline;
+  private physicsSystems!: Pipeline;
 
   constructor() {
     super("SoloModeScene");
@@ -37,76 +34,67 @@ export class SoloModeScene extends Scene {
   create() {
     console.log("creating solo mode");
     this.world = createWorld();
-    // cursorTargetSystem(this.world);
-
-    /*
-    fromEvent<KeyboardEvent>(document, 'keypress').pipe(
-      filter(event => event.key === "f")
-    ).subscribe(() => {
-      console.log('pressed F')
-      const behaviorQuery = defineQuery([Behavior, Necro])
-      const entities = behaviorQuery(this.world);
-
-      for (let i = 0; i < entities.length; i++) {
-        Behavior.type[i] = Behavior.type[i] === Behaviors.AutoTarget ? Behaviors.FollowCursor : Behaviors.AutoTarget;
-      }
-    })
-    */
 
     // create Necro player 
     const eid = createUnitEntity(this.world, "Necromancer");
     addComponent(this.world, Player, eid);
     addComponent(this.world, Collider, eid);
     addComponent(this.world, Inventory, eid);
+    addComponent(this.world, Spell, eid);
     Collider.layer[eid] = CollisionLayers.ITEM;
     Collider.radius[eid] = 50;
     Position.x[eid] = 300;
     Position.y[eid] = 300;
+    Spell.state[eid] = SpellState.Ready;
 
+    // create Bones entity (for testing)
     createBonesEntity(this.world, 500, 500);
 
+    // create Crown entities (for testing)
     for (let i = 0; i < 10; i++) {
       const eid = createUnitEntity(this.world, Math.random() > 0.5 ? "Paladin" : "Skeleton");
       addComponent(this.world, Target, eid);
       Position.x[eid] = Math.random() * 1024;
       Position.y[eid] = Math.random() * 1024;
-      /*
-      Target.x[eid] = Math.random() * 600;
-      Target.y[eid] = Math.random() * 1200;
-      */
       if (hasComponent(this.world, Necro, eid)) {
         addComponent(this.world, Behavior, eid);
         Behavior.type[eid] = Behaviors.FollowCursor;
       } 
     }
 
+    // create Item entity (for testing)
     createItemEntity(this.world, 20, 50, 1);
 
-    this.movementSystem = createMovementSystem();
-    this.spriteSystem = createSpriteSystem(this);
-    this.targetingSystem = createTargetingSystem();
-    this.cursorTargetSystem = createCursorTargetSystem();
-    this.inputHandlerSystem = createInputHandlerSystem(this.cursors);
-    this.followTargetSystem = createFollowTargetSystem();
-    this.collisionSystem = createCollisionSystem();
-    this.itemEquipSystem = createItemEquipSystem();
+    this.physicsSystems = pipe(
+      createMovementSystem(),
+      createSpriteSystem(this),
+      createInputHandlerSystem(this.cursors),
+      createFollowTargetSystem(),
+      createCollisionSystem(),
+      createSpellcastingSystem(),
+      createDrawSpellEffectSystem(this),
+    )
+
+    this.reactiveSystems = pipe(
+      createCursorTargetSystem(),
+      createItemEquipSystem(),
+    )
+
+    this.tickSystems = pipe(
+      createTargetingSystem(),
+    )
 
     /** REACTIVE SYSTEMS */
-    this.cursorTargetSystem(this.world);
-    this.itemEquipSystem(this.world);
+    this.reactiveSystems(this.world);
 
     /** TICK SYSTEMS */
     setInterval(() => {
-      this.targetingSystem(this.world);
+      this.tickSystems(this.world);
     }, 200);
   }
 
   /** UPDATE LOOP SYSTEMS */
   update(time: number, delta: number): void {
-      this.inputHandlerSystem(this.world);
-      this.followTargetSystem(this.world);
-      this.movementSystem(this.world);
-      this.collisionSystem(this.world);
-      this.spriteSystem(this.world);
+    this.physicsSystems(this.world);
   }
 }
