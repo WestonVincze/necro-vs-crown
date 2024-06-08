@@ -1,4 +1,4 @@
-import { type UnitData, type CrownUnit, Faction, NecroUnit } from "../types"
+import { type UnitData, type CrownUnit, type NecroUnit, Faction } from "../types"
 
 export const CrownUnits: Record<CrownUnit, UnitData> = {
   Peasant: {

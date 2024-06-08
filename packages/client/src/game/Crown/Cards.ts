@@ -1,4 +1,5 @@
 // TODO: move to server
+import type { Unit } from "@necro-crown/shared";
 import { BehaviorSubject, Observable, interval, map, of, scan, startWith, tap } from "rxjs";
 
 const COIN_INCREMENT = 1;
@@ -6,14 +7,14 @@ const MAX_COINS = 10;
 const MAX_HAND_SIZE = 4;
 
 /** generates random cards for testing purposes */
-const generateMockCards = (count: number) => {
-  const cards = [];
+const generateMockCards = (count: number): Card[] => {
+  const cards: Card[] = [];
   for (let i = 0; i < count; i++) {
     const roll = Math.random();
 
     cards.push({
       id: i,
-      UnitID: roll > 0.5 ? "guard" : "peasant",
+      UnitID: roll > 0.5 ? "Guard" : "Peasant",
       cost: roll > 0.5 ? 4 : 3,
     })
   }
@@ -22,7 +23,7 @@ const generateMockCards = (count: number) => {
 
 type Card = {
   id?: number,
-  UnitID: string, // TODO: change to name
+  UnitID: Unit, // TODO: change to name
   cost: number,
 }
 

@@ -17,9 +17,9 @@
 <div class="UI">
   <div class="actions">
     <h2>Debug Buttons</h2>
-    <button on:click={() => addNewCards([ { UnitID: "paladin", cost: 5 }])}>Add Paladin</button>
-    <button on:click={() => addNewCards([ { UnitID: "doppelsoldner", cost: 6 }])}>Add Doppelsoldner</button>
-    <button on:click={() => addNewCards([ { UnitID: "archer", cost: 6 }])}>Add Archer</button>
+    <button on:click={() => addNewCards([ { UnitID: "Paladin", cost: 5 }])}>Add Paladin</button>
+    <button on:click={() => addNewCards([ { UnitID: "Doppelsoldner", cost: 6 }])}>Add Doppelsoldner</button>
+    <button on:click={() => addNewCards([ { UnitID: "Archer", cost: 6 }])}>Add Archer</button>
   </div>
   <div class="bottom">
     <div class="coins">

@@ -1,5 +1,5 @@
-import { addComponent, addEntity, defineQuery, defineSystem, enterQuery, exitQuery, removeEntity } from "bitecs";
-import { Spell, Input, SpellEffect, Position, SpellState, Bones } from "../components";
+import { addComponent, addEntity, defineQuery, defineSystem, enterQuery, exitQuery, getEntityComponents, removeEntity } from "bitecs";
+import { Spell, Input, SpellEffect, Position, SpellState, Bones, Behavior, Behaviors, Target } from "../components";
 import { GameObjects, Scene } from "phaser";
 import { createUnitEntity } from "../entities";
 
@@ -135,7 +135,10 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
 
         if (distance < SpellEffect.size[eid] + 50) {
           removeEntity(world, boneEntity);
-          createUnitEntity(world, "Skeleton", Position.x[eid], Position.y[eid]);
+          const skeletonEid = createUnitEntity(world, "Skeleton", Position.x[eid], Position.y[eid]);
+          addComponent(world, Behavior, skeletonEid);
+          Behavior.type[skeletonEid] = Behaviors.FollowCursor;
+          addComponent(world, Target, skeletonEid);
         }
       }
 

@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { CrownUnits } from "@necro-crown/shared";
+  import { AllUnits, type Unit } from "@necro-crown/shared";
   export let cost: number;
-  export let unitID: string;
+  export let unitID: Unit;
   import CoinPurse from "$icons/CoinPurse.svelte";
 
   let selected = false;
   let dragging = false;
 
-  const test = CrownUnits[unitID];
+  const test = AllUnits[unitID];
 </script>
 
 <div
