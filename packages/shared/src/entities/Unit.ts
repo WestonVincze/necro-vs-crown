@@ -1,6 +1,6 @@
 import { type IWorld, addComponent, addEntity } from "bitecs"
-import { Crown, Input, Necro, Position, Sprite, Velocity } from "../components";
-import { Armor, AttackRange, AttackSpeed, CritChance, CritDamage, DamageBonus, Health, HealthRegeneration, MaxHit, MaxMoveSpeed, MoveSpeed } from "../components/Stats";
+import { Crown, Input, Necro, Position, Sprite, Velocity, Health } from "../components";
+import { Armor, AttackRange, AttackSpeed, CritChance, CritDamage, DamageBonus, MaxHealth, HealthRegeneration, MaxHit, MaxMoveSpeed, MoveSpeed } from "../components/Stats";
 import { Faction, type Unit, type UnitData } from "../types";
 import { AllUnits } from "../data";
 import { SpriteTexture } from "../constants";
@@ -14,6 +14,9 @@ export const createUnitEntity = (world: IWorld, name: Unit, x: number, y: number
   addComponent(world, Velocity, eid);
 
   const data = AllUnits[name];
+  addComponent(world, Health, eid);
+  Health.current[eid] = data.stats.maxHP;
+  Health.max[eid] = data.stats.maxHP;
   initializeStats(world, eid, data);
 
   addComponent(world, Sprite, eid);
@@ -37,9 +40,9 @@ export const createUnitEntity = (world: IWorld, name: Unit, x: number, y: number
  * Dynamically initializes components with base and current values from `AllUnits`
  */
 const initializeStats = (world: IWorld, eid: number, data: UnitData) => {
-  addComponent(world, Health, eid);
-  Health.base[eid] = data.stats.maxHP;
-  Health.current[eid] = data.stats.maxHP;
+  addComponent(world, MaxHealth, eid);
+  MaxHealth.base[eid] = data.stats.maxHP;
+  MaxHealth.current[eid] = data.stats.maxHP;
 
   addComponent(world, Armor, eid);
   Armor.base[eid] = data.stats.armor;

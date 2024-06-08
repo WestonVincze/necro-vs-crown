@@ -7,7 +7,9 @@ import { defineQuery, defineSystem, enterQuery, exitQuery } from "bitecs";
  * @param scene Reference to Phaser Scene
  */
 export const createSpriteSystem = (scene: Scene) => {
-  const spritesById = new Map<number, GameObjects.Sprite>();
+  const spritesById = new Map<number, GameObjects.Rope>();
+  const countById = new Map<number, number>();
+  // const spritesById = new Map<number, GameObjects.Sprite>();
 
   const spriteQuery = defineQuery([Position, Sprite]);
 
@@ -23,12 +25,15 @@ export const createSpriteSystem = (scene: Scene) => {
       const width = Sprite.width[eid];
       const height = Sprite.height[eid];
 
-      const sprite = scene.add.sprite(0, 0, texture);
+      // @ts-expect-error (number can be used to draw vertices)
+      const sprite = scene.add.rope(400, 350, texture, 0, 6, false)
+      // const sprite = scene.add.sprite(0, 0, texture);
       sprite.height = width;
       sprite.width = height;
       sprite.displayWidth = width;
       sprite.displayHeight = height;
       spritesById.set(eid, sprite);
+      countById.set(eid, eid);
     }
 
     const entities = spriteQuery(world);
@@ -36,11 +41,30 @@ export const createSpriteSystem = (scene: Scene) => {
       const eid = entities[i];
 
       const sprite = spritesById.get(eid);
+      const count = countById.get(eid) || 0;
 
       if (!sprite) {
         console.warn(`Sprite not found: Unable to update Sprite for ${eid}.`)
         continue;
       }
+
+      if (sprite.x === Position.x[eid] && sprite.y === Position.y[eid]) {
+        // sprite has not moved
+        continue;
+      }
+
+      let points = sprite.points;
+
+      for (let j = 0; j < points.length; j++) {
+        if (sprite.horizontal) {
+          points[j].y = Math.sin(j * 0.5 + count) * 10;
+        } else {
+          points[j].x = Math.sin(j * 0.5 + count) * 12;
+        }
+      }
+
+      sprite.setDirty();
+      countById.set(eid, count + 0.1);
 
       sprite.x = Position.x[eid];
       sprite.y = Position.y[eid];

@@ -1,6 +1,20 @@
 import { defineQuery, defineSystem, removeComponent, removeEntity } from 'bitecs';
 import { Position, Collider, Sprite } from '../components';
 import { Subject } from 'rxjs';
+/**
+ * Another option is to create a collisionSystem factory that accepts
+ * - a primary collider
+ * - a secondary collider
+ * - a callback
+ * 
+ * Pros:
+ * - no need to maintain a sort of collision map
+ * - no need for a subject
+ * 
+ * Cons:
+ * - rigid -> requires instantiation of a system to handle each type of collision
+ * - performance? (although this could probably turn into a pro with web workers)
+ */
 
 // TODO: consider deferring collisions or tracking collisions to safeguard against multiple simultaneous collisions (like picking up an item) 
 // TODO: define collisionTypes or create specific collision messages to provide context to subscribers of collisionEvents

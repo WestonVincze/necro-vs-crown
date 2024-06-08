@@ -1,5 +1,5 @@
 import { addComponent, createWorld, hasComponent, pipe, type IWorld, type System } from "bitecs";
-import { Scene, type Types } from "phaser";
+import { Game, GameObjects, Scene, type Types } from "phaser";
 import { Necro, Player, Position, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, Target, Behavior, Behaviors, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState } from "@necro-crown/shared";
 
 type Pipeline = (world: IWorld) => void;
@@ -31,7 +31,13 @@ export class SoloModeScene extends Scene {
     this.camera = this.cameras.add();
   }
 
+  rope!: GameObjects.Rope;
+
   create() {
+    /** DEBUG CONSOLE 
+    //@ts-ignore
+    PhaserGUIAction(this);
+    */
     console.log("creating solo mode");
     this.world = createWorld();
 
@@ -89,6 +95,7 @@ export class SoloModeScene extends Scene {
     }, 200);
   }
 
+  count = 0;
   /** UPDATE LOOP SYSTEMS */
   update(time: number, delta: number): void {
     this.physicsSystems(this.world);

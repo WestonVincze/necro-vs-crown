@@ -10,3 +10,4 @@ export * from "./Stats";
 export * from "./Items";
 export * from "./Bones";
 export * from "./Spellcasting";
+export * from "./Health";

@@ -22,7 +22,7 @@ export const DecimalStat = { base: Types.f32, current: Types.f32 };
  * * Health could be split into "CurrentHealth" and "MaxHealth"
  * * Health could be a system or separate component with "MaxHealth" being a Stat Component
  */
-export const Health = defineComponent({ ...Stat, max: Types.i8 });
+export const MaxHealth = defineComponent(Stat);
 
 export const Armor = defineComponent(Stat);
 

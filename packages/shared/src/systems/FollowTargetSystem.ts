@@ -2,7 +2,7 @@ import { Not, defineQuery, defineSystem } from "bitecs"
 import { Input, Player, Position, Target, Velocity } from "../components";
 import { type Vector2 } from "../types";
 
-const SEPARATION_THRESHOLD = 50;
+const SEPARATION_THRESHOLD = 30;
 const SEPARATION_THRESHOLD_SQUARED = SEPARATION_THRESHOLD ** 2;
 
 // TODO: change Vector2 to Transform to compensate for height/width
