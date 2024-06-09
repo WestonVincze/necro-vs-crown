@@ -8,3 +8,4 @@ export * from "./FollowTargetSystem";
 export * from "./CollisionSystem";
 export * from "./ItemEquipSystem";
 export * from "./SpellcastingSystem";
+export * from "./HealthSystem";

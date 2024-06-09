@@ -141,7 +141,7 @@ export const NecroUnits: Record<NecroUnit, UnitData> = {
       attackSpeed: 5,
       attackRange: 20,
       damageBonus: 0,
-      moveSpeed: 0.2,
+      moveSpeed: 0.5,
       maxSpeed: 1.5,
       critChance: 5,
       critDamage: 1.5,
@@ -156,7 +156,7 @@ export const NecroUnits: Record<NecroUnit, UnitData> = {
     stats: {
       maxHP: 20,
       armor: 10,
-      moveSpeed: 0.2,
+      moveSpeed: 0.8,
       maxSpeed: 2,
       HPregeneration: 0.05,
       castingSpeed: 0.5,

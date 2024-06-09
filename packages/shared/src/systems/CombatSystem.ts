@@ -1,0 +1,6 @@
+/**
+ * queries combatants separately
+ * 
+ * 
+ * 
+ */

@@ -48,23 +48,22 @@ export const createSpriteSystem = (scene: Scene) => {
         continue;
       }
 
-      if (sprite.x === Position.x[eid] && sprite.y === Position.y[eid]) {
-        // sprite has not moved
-        continue;
-      }
+      /** Uses rope to make everything wiggle **/
+      if (Math.abs(sprite.x - Position.x[eid]) > 0.1 || Math.abs(sprite.y - Position.y[eid]) > 0.1) {
+        // sprite has moved at least a little
+        let points = sprite.points;
 
-      let points = sprite.points;
-
-      for (let j = 0; j < points.length; j++) {
-        if (sprite.horizontal) {
-          points[j].y = Math.sin(j * 0.5 + count) * 10;
-        } else {
-          points[j].x = Math.sin(j * 0.5 + count) * 12;
+        for (let j = 0; j < points.length; j++) {
+          if (sprite.horizontal) {
+            points[j].y = Math.sin(j * 0.4 + count) * 10;
+          } else {
+            points[j].x = Math.sin(j * 0.4 + count) * 12;
+          }
         }
-      }
 
-      sprite.setDirty();
-      countById.set(eid, count + 0.1);
+        sprite.setDirty();
+        countById.set(eid, count + 0.1);
+      }
 
       sprite.x = Position.x[eid];
       sprite.y = Position.y[eid];
