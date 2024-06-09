@@ -80,7 +80,7 @@ export class SoloModeScene extends Scene {
     )
 
     this.reactiveSystems = pipe(
-      createCursorTargetSystem(),
+      createCursorTargetSystem(this.world),
       createItemEquipSystem(),
     )
 

@@ -1,6 +1,7 @@
 import { defineQuery, defineSystem, hasComponent } from "bitecs"
 import { Position, Target, Sprite, Behavior, Behaviors } from "../components";
 import { Crown, Necro } from "../components/Tags";
+import { getCursorEid } from "./CursorTargetSystem";
 
 export const createTargetingSystem = () => {
   const necroTargetQuery = defineQuery([Target, Position, Sprite, Necro, Behavior]);
@@ -16,7 +17,14 @@ export const createTargetingSystem = () => {
         let closestDistance = Infinity;
         let closestTarget = -1;
         const eid = sourceEntities[i];
-        if (hasComponent(world, Behavior, eid) && Behavior.type[eid] === Behaviors.FollowCursor) return;
+        if (hasComponent(world, Behavior, eid) && Behavior.type[eid] === Behaviors.FollowCursor) {
+          const cursorEid = getCursorEid(world);
+          if (cursorEid) {
+            Target.eid[eid] = cursorEid;
+          } 
+
+          continue;
+        }
 
         const sx = Position.x[eid];
         const sy = Position.y[eid];
@@ -37,7 +45,7 @@ export const createTargetingSystem = () => {
         }
 
         if (closestTarget !== -1) {
-          Target.eid[closestTarget];
+          Target.eid[eid] = closestTarget;
         }
       }
     }
