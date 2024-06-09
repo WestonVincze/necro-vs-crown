@@ -1,5 +1,5 @@
-import { Not, defineQuery, defineSystem } from "bitecs"
-import { Input, Player, Position, Target, Velocity } from "../components";
+import { defineQuery, defineSystem } from "bitecs"
+import { Input, Position, Target, Velocity } from "../components";
 import { type Vector2 } from "../types";
 
 const SEPARATION_THRESHOLD = 30;
@@ -39,8 +39,9 @@ export const createFollowTargetSystem = () => {
     for (let i = 0; i < entities.length; i++) {
       // get required data
       const eid = entities[i];
-      const tx = Target.x[eid];
-      const ty = Target.y[eid];
+      const targetEid = Target.eid[eid];
+      const tx = Position.x[targetEid];
+      const ty = Position.y[targetEid];
       const px = Position.x[eid];
       const py = Position.y[eid];
 

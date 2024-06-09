@@ -1,6 +1,6 @@
 import { defineQuery, defineSystem } from 'bitecs';
 import { fromEvent, map } from 'rxjs';
-import { Behavior, Behaviors, Target } from '../components';
+import { Behavior, Behaviors, Position, Target } from '../components';
 import { Necro } from '../components/Tags';
 
 /**
@@ -25,8 +25,9 @@ export const createCursorTargetSystem = () => {
       for (let i = 0; i < entities.length; i++) {
         const eid = entities[i];
         if (Behavior.type[eid] === Behaviors.FollowCursor) {
-          Target.x[eid] = x;
-          Target.y[eid] = y;
+          const targetEid = Target.eid[eid];
+          Position.x[targetEid] = x;
+          Position.y[targetEid] = y;
         }
       }
     });

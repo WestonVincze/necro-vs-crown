@@ -1,8 +1,6 @@
-import { addComponent, createWorld, hasComponent, pipe, type IWorld, type System } from "bitecs";
-import { Game, GameObjects, Scene, type Types } from "phaser";
-import { Necro, Player, Position, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, Target, Behavior, Behaviors, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem } from "@necro-crown/shared";
-
-type Pipeline = (world: IWorld) => void;
+import { addComponent, createWorld, hasComponent, pipe, type IWorld } from "bitecs";
+import { GameObjects, Scene, type Types } from "phaser";
+import { type World, type Pipeline, Necro, Player, Position, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, Target, Behavior, Behaviors, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem } from "@necro-crown/shared";
 
 export class SoloModeScene extends Scene {
   /**
@@ -14,7 +12,7 @@ export class SoloModeScene extends Scene {
   private cursors!: Types.Input.Keyboard.CursorKeys;
 
   // entity container (context)
-  private world!: IWorld
+  private world!: World
 
   // system references
   private reactiveSystems!: Pipeline;
@@ -40,6 +38,7 @@ export class SoloModeScene extends Scene {
     */
     console.log("creating solo mode");
     this.world = createWorld();
+    this.world.time = { delta: 0, elapsed: 0, then: performance.now() };
 
     // create Necro player 
     const eid = createUnitEntity(this.world, "Necromancer", 300, 300);
@@ -72,10 +71,12 @@ export class SoloModeScene extends Scene {
       createSpriteSystem(this),
       createInputHandlerSystem(this.cursors),
       createFollowTargetSystem(),
+      createCombatSystem(),
       createCollisionSystem(),
       createSpellcastingSystem(),
       createDrawSpellEffectSystem(this),
-      createHealthBarSystem(this)
+      createHealthBarSystem(this),
+      timeSystem
     )
 
     this.reactiveSystems = pipe(
@@ -96,7 +97,6 @@ export class SoloModeScene extends Scene {
     }, 200);
   }
 
-  count = 0;
   /** UPDATE LOOP SYSTEMS */
   update(time: number, delta: number): void {
     this.physicsSystems(this.world);

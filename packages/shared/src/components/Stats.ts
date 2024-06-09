@@ -32,6 +32,8 @@ export const MoveSpeed = defineComponent(DecimalStat);
 
 export const MaxMoveSpeed = defineComponent(DecimalStat);
 
+export const AttackBonus = defineComponent(Stat);
+
 export const AttackSpeed = defineComponent(Stat);
 
 export const AttackRange = defineComponent(Stat);

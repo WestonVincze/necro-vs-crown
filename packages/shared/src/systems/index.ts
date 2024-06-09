@@ -9,3 +9,5 @@ export * from "./CollisionSystem";
 export * from "./ItemEquipSystem";
 export * from "./SpellcastingSystem";
 export * from "./HealthSystem";
+export * from "./TimeSystem";
+export * from "./CombatSystem";

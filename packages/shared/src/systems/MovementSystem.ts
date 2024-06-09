@@ -1,5 +1,5 @@
 import { defineQuery, defineSystem } from "bitecs";
-import { Position, Velocity, Target, Player, Input, MoveSpeed, MaxMoveSpeed } from "../components";
+import { Position, Velocity, Input, MoveSpeed, MaxMoveSpeed } from "../components";
 import { normalizeForce } from "../helpers";
 
 const FRICTION = 0.05;
@@ -12,6 +12,11 @@ const FRICTION = 0.05;
  * apply force with moveSpeed
  * apply friction
  * cap speed
+ */
+
+/**
+ * Creates a movement system that updates the position and velocity of entities based on their input and movement speed.
+ * @returns The movement system function.
  */
 export const createMovementSystem = () => {
   const movementQuery = defineQuery([Position, Input, Velocity, MoveSpeed, MaxMoveSpeed]);
