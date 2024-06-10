@@ -11,9 +11,6 @@ import { type SpellName } from "../constants"
 type SpellData = {
   name: SpellName,
   followTarget?: boolean,
-
-
-
 }
 
 export const Spells: Record<SpellName, string>  = {

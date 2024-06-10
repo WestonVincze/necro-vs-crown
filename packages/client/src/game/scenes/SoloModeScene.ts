@@ -1,6 +1,6 @@
 import { addComponent, createWorld, hasComponent, pipe, type IWorld } from "bitecs";
 import { GameObjects, Scene, type Types } from "phaser";
-import { type World, type Pipeline, Necro, Player, Position, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, Target, Behavior, Behaviors, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem } from "@necro-crown/shared";
+import { type World, type Pipeline, Necro, Player, Position, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, Target, Behavior, Behaviors, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem, createHealthSystem } from "@necro-crown/shared";
 
 export class SoloModeScene extends Scene {
   /**
@@ -80,6 +80,7 @@ export class SoloModeScene extends Scene {
     )
 
     this.reactiveSystems = pipe(
+      createHealthSystem(),
       createCursorTargetSystem(this.world),
       createItemEquipSystem(),
     )

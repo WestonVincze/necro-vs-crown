@@ -1,6 +1,7 @@
 import { defineQuery, defineSystem, hasComponent } from "bitecs";
 import { Armor, AttackBonus, AttackRange, AttackSpeed, CritChance, CritDamage, Crown, DamageBonus, Health, MaxHit, Necro, Position, Target } from "../components";
 import { checkIfWithinDistance } from "../utils/CollisionChecks";
+import { healthChanges } from "../subjects";
 
 export const createCombatSystem = () => {
   const attackerQuery = defineQuery([Target, AttackSpeed, AttackRange, MaxHit, Position]);
@@ -36,8 +37,8 @@ export const createCombatSystem = () => {
       }
 
       damage = damage * critMod + DamageBonus.current[eid];
-      // TODO: implement event emitter for that sweet, sweet reactive code
-      Health.current[targetEid] -= damage;
+
+      healthChanges.next({ eid, amount: damage * -1 })
     }
 
     return world;

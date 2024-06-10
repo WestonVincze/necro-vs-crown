@@ -1,8 +1,28 @@
-import { defineQuery, defineSystem, enterQuery, exitQuery } from "bitecs"
+import { defineQuery, defineSystem, enterQuery, exitQuery, removeEntity } from "bitecs"
 import { Health, Position, Sprite } from "../components";
 import { GameObjects, Scene } from "phaser";
+import { healthChanges } from "../subjects";
 
 const HEALTH_BAR_HEIGHT = 5;
+
+export const createHealthSystem = () => {
+  return defineSystem(world => {
+    healthChanges.subscribe(({ eid, amount }) => {
+      if (amount > 0) {
+        Health.current[eid] = Math.min(Health.max[eid], Health.current[eid] + amount);
+      } else if (amount < 0) {
+        Health.current[eid] = Math.max(0, Health.current[eid] + amount);
+      }
+
+      // spawn hit splat
+
+      if (Health.current[eid] <= 0) {
+        removeEntity(world, eid);
+      }
+    })
+    return world;
+  })
+};
 
 export const createHealthBarSystem = (scene: Scene) => {
   const healthBarsById = new Map<number, GameObjects.Graphics>();
@@ -11,10 +31,7 @@ export const createHealthBarSystem = (scene: Scene) => {
   const onExitQuery = exitQuery(healthQuery);
 
   return defineSystem(world => {
-    const entitiesEntered = onEnterQuery(world);
-    for (let i = 0; i < entitiesEntered.length; i++) {
-      const eid = entitiesEntered[i];
-
+    for (const eid of onEnterQuery(world)) {
       const { x, y, width, height } = getHealthBarProps(eid);
 
       // create graphics reference for healthBar
@@ -26,10 +43,7 @@ export const createHealthBarSystem = (scene: Scene) => {
       healthBarsById.set(eid, healthBar);
     }
 
-    const entities = healthQuery(world);
-    for (let i = 0; i < entities.length; i++) {
-      const eid = entities[i];
-
+    for (const eid of healthQuery(world)) {
       const healthBar = healthBarsById.get(eid);
 
       if (!healthBar) {
@@ -49,10 +63,7 @@ export const createHealthBarSystem = (scene: Scene) => {
       //scene.add.rectangle
     }
 
-    const entitiesExited = onExitQuery(world);
-    for (let i = 0; i < entitiesExited.length; i++) {
-      const eid = entitiesExited[i];
-
+    for (const eid of onExitQuery(world)) {
       const healthBar = healthBarsById.get(eid);
 
       if (!healthBar) {
