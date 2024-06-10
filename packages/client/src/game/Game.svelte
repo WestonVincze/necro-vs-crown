@@ -14,16 +14,15 @@
     console.log(game.scene.getScenes());
   })
 
-  const handlePlayMultiplayer = (player: Faction) => {
-    game.scene.start("GameScene", { player })
-    currentScene = "GameScene";
+  const handlePlayAs = (player: Faction, gameMode: "solo" | "versus") => {
     currentPlayer = player;
-  }
-
-  const handlePlaySolo = (player: Faction) => {
-    game.scene.start("SoloModeScene", { player });
-    currentScene = "SoloModeScene";
-    currentPlayer = player;
+    if (gameMode === "versus") {
+      game.scene.start("GameScene", { player })
+      currentScene = "GameScene";
+    } else {
+      game.scene.start("SoloModeScene", { player });
+      currentScene = "SoloModeScene";
+    }
   }
 
   $: currentScene = "MainMenu";
@@ -34,8 +33,7 @@
   <div id="overlay">
     {#if currentScene === "MainMenu"}
       <MainMenu
-        playMultiplayerAs={handlePlayMultiplayer}
-        playSoloAs={handlePlaySolo}
+        playAs={handlePlayAs}
       />
     {/if}
 
@@ -46,25 +44,12 @@
 </div>
 
 <style>
-  :global(button) {
-    padding: 10px 15px;
-    border: none;
-    outline: none;
-    background-color: lightsteelblue;
-    border-radius: 15px;
-    color: black;
-    transition: all 200ms ease-in-out;
-  }
-  :global(button:hover) {
-    color: white;
-    background-color: steelblue;
-    cursor: pointer;
-  }
   #game-container {
     position: relative;
     max-width: 1024px;
     max-height: 768px;
     margin: 0 auto;
+    filter: drop-shadow(0 0 25px var(--bg-primary))
   }
   #overlay {
     position: absolute;

@@ -1,5 +1,6 @@
 <script lang="ts">
   import Game from "../game/Game.svelte";
+  import "../styles/globals.css";
 </script>
 
 <div id="app">
@@ -7,9 +8,10 @@
 </div>
 
 <style>
-  :global(*) {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
+  #app {
+    min-height: 100svh;
+    background-color: var(--bg-secondary);
+    display: flex;
+    align-items: center;
   }
 </style>

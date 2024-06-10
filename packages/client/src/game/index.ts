@@ -6,7 +6,7 @@ const config: Types.Core.GameConfig = {
   type: AUTO,
   width: 1024,
   height: 768,
-  backgroundColor: '#eee',
+  backgroundColor: '#e5e5e5',
   parent: 'game-container',
   fps: { smoothStep: true, limit: 60 },
   physics: { default: "arcade" },

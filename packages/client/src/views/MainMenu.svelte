@@ -1,30 +1,46 @@
 <script lang="ts">
-  // import { Card } from "$components/Card"
-  import { Faction } from "@necro-crown/shared";
-  export let playMultiplayerAs: (player: Faction) => void;
-  export let playSoloAs: (player: Faction) => void;
+  import { Faction, Necro } from "@necro-crown/shared";
+  import { Icon } from "$icons";
+  export let playAs: (player: Faction, gameMode: "solo" | "versus") => void;
+
+  let faction: Faction;
 </script>
 
 <div class="menu">
-  <h1>NECRO vs CROWN</h1>
-  <!--Card color='red' /-->
+  <header>
+    <div class="logo">
+      <Icon color="var(--crown)" height="20px" name="crown" />
+      <Icon color="var(--necro)" height="40px" name="skull" />
+    </div>
+    <h1>
+      <span class="necro">NECRO</span>
+      <span class="vs">VS</span>
+      <span class="crown">CROWN</span>
+    </h1>
+  </header>
+
+  <div class="player-select">
+    <button class="necro {faction === Faction.Necro && "selected"}"  on:click={() => faction = Faction.Necro}>
+      <Icon height="30px" name="skull" />
+      <span>Play as Necro</span>
+    </button>
+    <button class="crown {faction === Faction.Crown && "selected"}" on:click={() => faction = Faction.Crown}>
+      <Icon height="30px" name="crown" />
+      <span>Play as Crown</span>
+    </button>
+  </div>
 
   <div class="actions">
-    <div>
-      <h2>Play Multiplayer</h2>
-      <button on:click={() => playMultiplayerAs(Faction.Necro)}>Join as Necro</button>
-      <button on:click={() => playMultiplayerAs(Faction.Crown)}>Join as Crown</button>
-    </div>
-    <div>
-      <h2>Play Solo</h2>
-      <button on:click={() => playSoloAs(Faction.Necro)}>Play as Necro</button>
-      <button on:click={() => playSoloAs(Faction.Crown)}>Play as Crown</button>
-    </div>
+    <button on:click={() => playAs(faction, "solo")}>Solo</button>
+    <button on:click={() => playAs(faction, "versus")}>Versus</button>
   </div>
 </div>
 
-<style>
+<style lang="scss">
   .menu {
+    height: 100%;
+    width: 100%;
+    background-color: var(--bg-primary);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -33,10 +49,80 @@
     gap: 15px;
   }
 
-  .actions {
+  /** HEADER */
+  header {
     display: flex;
     flex-direction: column;
+    gap: 10px;
+    .logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+
+    h1 {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      .necro {
+        text-align: right;
+        color: var(--necro);
+      }
+      .vs {
+        font-size: 2.5rem;
+      }
+      .crown {
+        text-align: left;
+        color: var(--crown);
+      }
+    }
+  }
+
+  .player-select {
+    display: flex;
+    button { 
+      width: 200px;
+      opacity: 0.5;
+      color: var(--primary);
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-direction: column;
+      &:hover {
+        opacity: 0.85;
+      }
+      &.selected {
+        opacity: 1;
+        outline: 2px solid var(--primary);
+        outline-offset: -4px;
+      }
+      .icon {
+        width: auto;
+        height: 50px;
+      }
+      &.necro {
+        background-color: var(--necro-dark);
+      }
+      &.crown {
+        background-color: var(--crown-dark);
+      }
+    }
+  }
+
+  .actions {
+    display: flex;
     gap: 15px;
     text-align: center;
+    button {
+      background-color: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      width: 100px;
+      &:hover {
+        opacity: 0.75;
+      }
+    }
   }
 </style>
