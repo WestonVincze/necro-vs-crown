@@ -1,4 +1,4 @@
-import { defineQuery, defineSystem, hasComponent } from "bitecs";
+import { defineQuery, defineSystem, entityExists, hasComponent } from "bitecs";
 import { Armor, AttackBonus, AttackRange, AttackSpeed, CritChance, CritDamage, Crown, DamageBonus, Health, MaxHit, Necro, Position, Target } from "../components";
 import { checkIfWithinDistance } from "../utils/CollisionChecks";
 import { healthChanges } from "../subjects";
@@ -20,6 +20,11 @@ export const createCombatSystem = () => {
       let damage = 0;
       let critMod = 1;
 
+      if (!entityExists(world, targetEid)) {
+        console.debug(`Entity does not exist: Unable to attack with ${eid}, ${targetEid} does not exist.`)
+        continue;
+      }
+
       if (!hasComponent(world, Armor, targetEid) || !hasComponent(world, Health, targetEid)) {
         console.debug(`Not found: Unable to attack with ${eid}, ${targetEid} is missing Health or Armor.`)
         continue;
@@ -38,7 +43,7 @@ export const createCombatSystem = () => {
 
       damage = damage * critMod + DamageBonus.current[eid];
 
-      healthChanges.next({ eid, amount: damage * -1 })
+      healthChanges.next({ eid: targetEid, amount: damage * -1 })
     }
 
     return world;
@@ -56,30 +61,3 @@ const rollToHit = (difficulty: number, bonus = 0) => {
 const rollToCrit = (critChance: number) => {
   return rollDice(100) + critChance >= 100;
 }
-
-/**
-export const attackTarget = (attackerStats, target) => {
-  if (!target || !target.health) {
-    console.error("invalid attack target")
-    return false;
-  }
-
-  let damage = 0;
-  let critMod = 1;
-
-  if (rollToHit(target.stats.armor, attackerStats.attackBonus)) {
-    damage = rollDice(attackerStats.maxHit);
-  }
-
-  if (damage > 0 && attackerStats.critChance && rollToCrit(attackerStats.critChance)) {
-    critMod = attackerStats.critDamage;
-  }
-
-  damage = damage * critMod + attackerStats.damageBonus;
-  target.health.takeDamage(damage, critMod > 1);
-
-  // check for and apply effects like knockback...
-
-  return true;
-}
-*/

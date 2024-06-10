@@ -1,5 +1,5 @@
 import { defineQuery, defineSystem } from "bitecs"
-import { Input, Position, Target, Velocity } from "../components";
+import { FollowTarget, Input, Position, Velocity } from "../components";
 import { type Vector2 } from "../types";
 
 const SEPARATION_THRESHOLD = 30;
@@ -32,14 +32,14 @@ const calculateFollowForce = (self: Vector2, target: Vector2): Vector2 => {
 }
 
 export const createFollowTargetSystem = () => {
-  const followTargetQuery = defineQuery([Position, Input, Velocity, Target]);
+  const followTargetQuery = defineQuery([Position, Input, Velocity, FollowTarget]);
 
   return defineSystem(world => {
     const entities = followTargetQuery(world);
     for (let i = 0; i < entities.length; i++) {
       // get required data
       const eid = entities[i];
-      const targetEid = Target.eid[eid];
+      const targetEid = FollowTarget.eid[eid];
       const tx = Position.x[targetEid];
       const ty = Position.y[targetEid];
       const px = Position.x[eid];

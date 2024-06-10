@@ -1,5 +1,5 @@
 import { addComponent, addEntity, defineQuery, defineSystem, enterQuery, exitQuery, getEntityComponents, removeEntity } from "bitecs";
-import { Spell, Input, SpellEffect, Position, SpellState, Bones, Behavior, Behaviors, Target } from "../components";
+import { Spell, Input, SpellEffect, Position, SpellState, Bones, Behavior, Behaviors, Target, FollowTarget } from "../components";
 import { GameObjects, Scene } from "phaser";
 import { createUnitEntity } from "../entities";
 
@@ -139,6 +139,7 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
           addComponent(world, Behavior, skeletonEid);
           Behavior.type[skeletonEid] = Behaviors.FollowCursor;
           addComponent(world, Target, skeletonEid);
+          addComponent(world, FollowTarget, skeletonEid);
         }
       }
 

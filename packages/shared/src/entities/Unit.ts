@@ -1,5 +1,5 @@
 import { type IWorld, addComponent, addEntity } from "bitecs"
-import { Crown, Input, Necro, Position, Sprite, Velocity, Health } from "../components";
+import { Crown, Input, Necro, Position, Sprite, Velocity, Health, Behavior, Behaviors } from "../components";
 import { Armor, AttackRange, AttackSpeed, CritChance, CritDamage, DamageBonus, MaxHealth, HealthRegeneration, MaxHit, MaxMoveSpeed, MoveSpeed } from "../components/Stats";
 import { Faction, type Stats, type Unit, type UnitData } from "../types";
 import { AllUnits } from "../data";
@@ -7,13 +7,30 @@ import { SpriteTexture } from "../constants";
 
 export const createUnitEntity = (world: IWorld, name: Unit, x: number, y: number) => {
   const eid = addEntity(world);
+  const data = AllUnits[name];
+
+  // TODO: split player creation into separate function
+  if (name !== "Necromancer") {
+    addComponent(world, Behavior, eid);
+    Behavior.type[eid] = Behaviors.AutoTarget;
+  }
+
+  switch (data.type) {
+    case Faction.Crown:
+      addComponent(world, Crown, eid);
+      break;
+    case Faction.Necro:
+      addComponent(world, Necro, eid);
+      Behavior.type[eid] = Behaviors.FollowCursor;
+      break;
+  }
+
   addComponent(world, Input, eid);
   addComponent(world, Position, eid);
   Position.x[eid] = x;
   Position.y[eid] = y;
   addComponent(world, Velocity, eid);
 
-  const data = AllUnits[name];
   addComponent(world, Health, eid);
   Health.current[eid] = data.stats.maxHP;
   Health.max[eid] = data.stats.maxHP;
@@ -24,14 +41,6 @@ export const createUnitEntity = (world: IWorld, name: Unit, x: number, y: number
   Sprite.height[eid] = data.height;
   Sprite.width[eid] = data.width;
 
-  switch (data.type) {
-    case Faction.Crown:
-      addComponent(world, Crown, eid);
-      break;
-    case Faction.Necro:
-      addComponent(world, Necro, eid);
-      break;
-  }
 
   return eid;
 }

@@ -1,14 +1,8 @@
 import { addComponent, addEntity, defineQuery, defineSystem, type IWorld } from 'bitecs';
 import { fromEvent, map } from 'rxjs';
-import { Behavior, Behaviors, Cursor, Position, Target } from '../components';
-import { Necro } from '../components/Tags';
-import type { World } from '../types';
+import { Cursor, Position } from '../components';
 
-/**
- * This pattern goes against the principles of how Systems should operate...
- * Systems are intended to run every frame, not reactively
- * 
- */
+// TODO: this system feels a bit awkward, let's revisit later and see if we can come up with a better solution
 export const createCursorTargetSystem = (world: IWorld) => {
   const canvas = document.getElementById('game-container') || document.documentElement;
 
@@ -17,8 +11,6 @@ export const createCursorTargetSystem = (world: IWorld) => {
   const mouseClick$ = fromEvent<MouseEvent>(canvas, 'mousedown').pipe(
     map((event) => ({ x: event.clientX - rect.left, y: event.clientY - rect.top })),
   );
-
-  const behaviorQuery = defineQuery([Behavior, Target, Necro])
 
   const cursorEid = addEntity(world);
   addComponent(world, Cursor, cursorEid);

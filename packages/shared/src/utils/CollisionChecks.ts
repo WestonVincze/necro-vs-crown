@@ -1,5 +1,6 @@
-import { Vector2 } from "../types";
+import { type Vector2 } from "../types";
 
+/*
 export const isIntersectingRect = (a, b, range = 0) => {
   if (!a.isSprite || !b.isSprite) {
     console.log('WARNING')
@@ -13,6 +14,7 @@ export const isIntersectingRect = (a, b, range = 0) => {
          aBox.y + aBox.height / 2 > bBox.y - bBox.height / 2 - range &&
          aBox.y - aBox.height / 2 < bBox.y + bBox.height / 2 + range;
 }
+*/
 
 /**
  * Checks if the distance between vectors is less than the distance

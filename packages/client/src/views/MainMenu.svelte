@@ -120,8 +120,9 @@
       border: 2px solid var(--primary);
       color: var(--primary);
       width: 100px;
+      opacity: 0.75;
       &:hover {
-        opacity: 0.75;
+        opacity: 1;
       }
     }
   }
