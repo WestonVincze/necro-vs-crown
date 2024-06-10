@@ -13,7 +13,7 @@ const config = {
 		// See https://kit.svelte.dev/docs/adapters for more information about adapters.
 		alias: {
 			'$components/*': 'src/components/*',
-			'$icons/*': 'src/icons/*',
+			'$icons': 'src/icons',
 			'$game/*': 'src/game/*',
 		},
 		adapter: adapter({

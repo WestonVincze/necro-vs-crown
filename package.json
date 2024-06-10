@@ -14,5 +14,8 @@
     "packages/client",
     "packages/server",
     "packages/shared"
-  ]
+  ],
+  "devDependencies": {
+    "sass": "^1.77.4"
+  }
 }
