@@ -10,9 +10,15 @@ export const CollisionLayers = {
   // Add more layers as needed
 };
 
+/**
+ * for multiple ignoreLayers:
+ * Collider.ignoreLayers[eid] = CollisionLayers.ITEMS | CollisionLayers.NECRO
+ */
 export const Collider = defineComponent({
   radius: Types.f32,
-  layer: Types.ui32
+  layer: Types.ui32,
+  collisionLayers: Types.ui32,
+  ignoreLayers: Types.ui32,
 });
 
 /**

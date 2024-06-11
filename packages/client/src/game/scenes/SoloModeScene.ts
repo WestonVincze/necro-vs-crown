@@ -1,6 +1,6 @@
-import { addComponent, createWorld, getAllEntities, getEntityComponents, hasComponent, pipe } from "bitecs";
+import { addComponent, createWorld, getAllEntities, getEntityComponents, pipe } from "bitecs";
 import { GameObjects, Scene, type Types } from "phaser";
-import { type World, type Pipeline, Necro, Player, Position, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, Target, Behavior, Behaviors, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem, createHealthSystem, FollowTarget, createDeathSystem } from "@necro-crown/shared";
+import { type World, type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem } from "@necro-crown/shared";
 
 export class SoloModeScene extends Scene {
   /**
@@ -47,19 +47,16 @@ export class SoloModeScene extends Scene {
     // create Necro player 
     const eid = createUnitEntity(this.world, "Necromancer", 300, 300);
     addComponent(this.world, Player, eid);
-    addComponent(this.world, Collider, eid);
     addComponent(this.world, Inventory, eid);
     addComponent(this.world, Spell, eid);
-    Collider.layer[eid] = CollisionLayers.ITEM;
-    Collider.radius[eid] = 50;
     Spell.state[eid] = SpellState.Ready;
 
     // create Bones entity (for testing)
     createBonesEntity(this.world, 500, 500);
 
     // create Crown entities (for testing)
-    for (let i = 0; i < 20; i++) {
-      const eid = createUnitEntity(this.world, Math.random() > 0.5 ? "Peasant" : "Skeleton", Math.random() * 1024, Math.random() * 1024);
+    for (let i = 0; i < 50; i++) {
+      createUnitEntity(this.world, Math.random() > 0.5 ? "Peasant" : "Skeleton", Math.random() * 1024, Math.random() * 1024);
     }
 
     // create Item entity (for testing)
@@ -70,6 +67,7 @@ export class SoloModeScene extends Scene {
       createMovementSystem(),
       createSpriteSystem(this),
       createFollowTargetSystem(),
+      createCooldownSystem(),
       createCombatSystem(),
       createCollisionSystem(),
       createSpellcastingSystem(),

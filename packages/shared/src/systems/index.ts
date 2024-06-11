@@ -12,3 +12,4 @@ export * from "./HealthSystem";
 export * from "./TimeSystem";
 export * from "./CombatSystem";
 export * from "./DeathSystem";
+export * from "./CooldownSystem";

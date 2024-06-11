@@ -7,19 +7,18 @@ const HEALTH_BAR_HEIGHT = 5;
 
 export const createHealthSystem = () => {
   return defineSystem(world => {
-    healthChanges.subscribe(({ eid, amount }) => {
-      if (amount > 0) {
-        Health.current[eid] = Math.min(Health.max[eid], Health.current[eid] + amount);
-      } else if (amount < 0) {
-        Health.current[eid] = Math.max(0, Health.current[eid] + amount);
-      }
+    healthChanges.subscribe(({ eid, amount }) => { 
+        if (amount > 0) {
+          Health.current[eid] = Math.min(Health.max[eid], Health.current[eid] + amount);
+        } else if (amount < 0) {
+          Health.current[eid] = Math.max(0, Health.current[eid] + amount);
+        }
 
-      // spawn hit splat
+        // spawn hit splat
 
-      if (Health.current[eid] <= 0) {
-        onDeath.next({ eid });
-        removeEntity(world, eid);
-      }
+        if (Health.current[eid] <= 0) {
+          onDeath.next({ eid });
+        }
     })
     return world;
   })

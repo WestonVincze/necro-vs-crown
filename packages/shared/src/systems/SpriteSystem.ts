@@ -11,10 +11,10 @@ export const createSpriteSystem = (scene: Scene) => {
   const countById = new Map<number, number>();
   // const spritesById = new Map<number, GameObjects.Sprite>();
 
-  const spriteQuery = defineQuery([Position, Transform, Sprite]);
+  const spriteQuery = defineQuery([Position, Sprite]);
 
-  const spriteQueryEnter = enterQuery(spriteQuery);
-  const spriteQueryExit = exitQuery(spriteQuery);
+  const spriteQueryEnter = enterQuery(defineQuery([Position, Transform, Sprite]));
+  const spriteQueryExit = exitQuery(defineQuery([Sprite]));
 
   return defineSystem(world => {
     const entitiesEntered = spriteQueryEnter(world);
@@ -55,9 +55,9 @@ export const createSpriteSystem = (scene: Scene) => {
 
         for (let j = 0; j < points.length; j++) {
           if (sprite.horizontal) {
-            points[j].y = Math.sin(j * 0.4 + count) * 10;
+            points[j].y = Math.cos(j * 0.4 + count) * 10;
           } else {
-            points[j].x = Math.sin(j * 0.4 + count) * 12;
+            points[j].x = Math.cos(j * 0.4 + count) * 12;
           }
         }
 

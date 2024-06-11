@@ -1,6 +1,3 @@
 import { Types, defineComponent } from "bitecs";
 
-/**
- * manages 
- */
-export const Cooldowns = defineComponent({ attack: Types.f32 });
+export const AttackCooldown = defineComponent({ attackReady: Types.f32 });

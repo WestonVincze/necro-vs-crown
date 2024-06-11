@@ -1,3 +1,4 @@
+import { endOfFrame } from "../subjects";
 import { type World } from "../types"
 
 export const timeSystem = (world: World) => {
@@ -7,5 +8,6 @@ export const timeSystem = (world: World) => {
   time.delta = delta;
   time.elapsed += delta;
   time.then = now;
+  endOfFrame.next();
   return world;
 }

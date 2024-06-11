@@ -1,5 +1,5 @@
 import { type IWorld, addComponent, addEntity } from "bitecs"
-import { Crown, Input, Necro, Position, Sprite, Velocity, Health, Behavior, Behaviors, Transform } from "../components";
+import { Crown, Input, Necro, Position, Sprite, Velocity, Health, Behavior, Behaviors, Transform, Collider, CollisionLayers, Inventory } from "../components";
 import { Armor, AttackRange, AttackSpeed, CritChance, CritDamage, DamageBonus, MaxHealth, HealthRegeneration, MaxHit, MaxMoveSpeed, MoveSpeed } from "../components/Stats";
 import { Faction, type Stats, type Unit } from "../types";
 import { AllUnits } from "../data";
@@ -13,6 +13,14 @@ export const createUnitEntity = (world: IWorld, name: Unit, x: number, y: number
   if (name !== "Necromancer") {
     addComponent(world, Behavior, eid);
     Behavior.type[eid] = Behaviors.AutoTarget;
+  }
+
+  if (name === "Skeleton") {
+    addComponent(world, Collider, eid);
+    addComponent(world, Inventory, eid);
+    Collider.layer[eid] = CollisionLayers.NECRO;
+    Collider.collisionLayers[eid] = CollisionLayers.ITEM;
+    Collider.ignoreLayers[eid] = CollisionLayers.NECRO;
   }
 
   switch (data.type) {

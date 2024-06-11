@@ -1,13 +1,14 @@
-import { defineQuery, defineSystem, entityExists, hasComponent } from "bitecs";
-import { Armor, AttackBonus, AttackRange, AttackSpeed, CritChance, CritDamage, Crown, DamageBonus, Health, MaxHit, Necro, Position, Target } from "../components";
+import { addComponent, defineQuery, defineSystem, entityExists, hasComponent, Not } from "bitecs";
+import { Armor, AttackBonus, AttackCooldown, AttackRange, AttackSpeed, CritChance, CritDamage, Crown, DamageBonus, Health, MaxHit, Necro, Position, Target } from "../components";
 import { checkIfWithinDistance } from "../utils/CollisionChecks";
 import { healthChanges } from "../subjects";
+import type { World } from "../types";
 
 export const createCombatSystem = () => {
-  const attackerQuery = defineQuery([Target, AttackSpeed, AttackRange, MaxHit, Position]);
+  const attackerQuery = defineQuery([Target, AttackSpeed, AttackRange, MaxHit, Position, Not(AttackCooldown)]);
   const necroQuery = defineQuery([Necro, Health, Position, Armor]);
   const crownQuery = defineQuery([Crown, Health, Position, Armor]);
-  return defineSystem(world => {
+  return defineSystem((world: World) => {
     const entities = attackerQuery(world);
     for (let i = 0; i < entities.length; i++) {
       const eid = entities[i];
@@ -26,11 +27,16 @@ export const createCombatSystem = () => {
         continue;
       }
 
+      // TODO: consider using a "targetQuery" to check for Armor and Health, then use targets.includes(targetEid) (potentially better performance)
+      // alternatively, we could add an "AttackRoll" component to queue the attack and defer the rest of this logic to another system
       if (!hasComponent(world, Armor, targetEid) || !hasComponent(world, Health, targetEid)) {
         console.debug(`Not found: Unable to attack with ${eid}, ${targetEid} is missing Health or Armor.`)
         continue;
       }
 
+      addComponent(world, AttackCooldown, eid);
+      // TODO: move AttackSpeed (and perhaps other cooldowns) to a tick based system?
+      AttackCooldown.attackReady[eid] = (AttackSpeed.current[eid] * 200) + world.time.elapsed;
       if (rollToHit(Armor.current[targetEid], AttackBonus.current[eid])) {
         damage = rollDice(MaxHit.current[eid]);
       }
