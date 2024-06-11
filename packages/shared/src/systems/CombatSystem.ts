@@ -15,7 +15,8 @@ export const createCombatSystem = () => {
       const attacker = { x: Position.x[eid], y: Position.y[eid] };
       const target = { x: Position.x[targetEid], y: Position.y[targetEid] };
 
-      if (!checkIfWithinDistance(attacker, target, AttackRange.current[eid])) continue;
+      // TODO: accommodate for actual dimensions of sprites?
+      if (!checkIfWithinDistance(attacker, target, AttackRange.current[eid] + 30)) continue;
 
       let damage = 0;
       let critMod = 1;

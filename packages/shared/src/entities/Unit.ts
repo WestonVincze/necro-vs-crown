@@ -1,7 +1,7 @@
 import { type IWorld, addComponent, addEntity } from "bitecs"
-import { Crown, Input, Necro, Position, Sprite, Velocity, Health, Behavior, Behaviors } from "../components";
+import { Crown, Input, Necro, Position, Sprite, Velocity, Health, Behavior, Behaviors, Transform } from "../components";
 import { Armor, AttackRange, AttackSpeed, CritChance, CritDamage, DamageBonus, MaxHealth, HealthRegeneration, MaxHit, MaxMoveSpeed, MoveSpeed } from "../components/Stats";
-import { Faction, type Stats, type Unit, type UnitData } from "../types";
+import { Faction, type Stats, type Unit } from "../types";
 import { AllUnits } from "../data";
 import { SpriteTexture } from "../constants";
 
@@ -29,6 +29,9 @@ export const createUnitEntity = (world: IWorld, name: Unit, x: number, y: number
   addComponent(world, Position, eid);
   Position.x[eid] = x;
   Position.y[eid] = y;
+  addComponent(world, Transform, eid);
+  Transform.width[eid] = data.width;
+  Transform.height[eid] = data.height;
   addComponent(world, Velocity, eid);
 
   addComponent(world, Health, eid);
@@ -38,9 +41,6 @@ export const createUnitEntity = (world: IWorld, name: Unit, x: number, y: number
 
   addComponent(world, Sprite, eid);
   Sprite.texture[eid] = SpriteTexture[data.name as keyof typeof SpriteTexture];
-  Sprite.height[eid] = data.height;
-  Sprite.width[eid] = data.width;
-
 
   return eid;
 }

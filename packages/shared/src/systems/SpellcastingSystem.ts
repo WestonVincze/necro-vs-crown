@@ -134,12 +134,10 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance < SpellEffect.size[eid] + 50) {
+          const x = Position.x[boneEntity];
+          const y = Position.y[boneEntity];
           removeEntity(world, boneEntity);
-          const skeletonEid = createUnitEntity(world, "Skeleton", Position.x[eid], Position.y[eid]);
-          addComponent(world, Behavior, skeletonEid);
-          Behavior.type[skeletonEid] = Behaviors.FollowCursor;
-          addComponent(world, Target, skeletonEid);
-          addComponent(world, FollowTarget, skeletonEid);
+          createUnitEntity(world, "Skeleton", x, y);
         }
       }
 

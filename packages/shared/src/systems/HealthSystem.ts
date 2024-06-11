@@ -1,7 +1,7 @@
 import { defineQuery, defineSystem, enterQuery, exitQuery, removeEntity } from "bitecs"
-import { Health, Position, Sprite } from "../components";
+import { Health, Position, Transform } from "../components";
 import { GameObjects, Scene } from "phaser";
-import { healthChanges } from "../subjects";
+import { healthChanges, onDeath } from "../subjects";
 
 const HEALTH_BAR_HEIGHT = 5;
 
@@ -17,6 +17,7 @@ export const createHealthSystem = () => {
       // spawn hit splat
 
       if (Health.current[eid] <= 0) {
+        onDeath.next({ eid });
         removeEntity(world, eid);
       }
     })
@@ -26,7 +27,7 @@ export const createHealthSystem = () => {
 
 export const createHealthBarSystem = (scene: Scene) => {
   const healthBarsById = new Map<number, GameObjects.Graphics>();
-  const healthQuery = defineQuery([Health, Position, Sprite]);
+  const healthQuery = defineQuery([Health, Position, Transform]);
   const onEnterQuery = enterQuery(healthQuery);
   const onExitQuery = exitQuery(healthQuery);
 
@@ -88,9 +89,9 @@ const drawHealthBarGraphic = (healthBar: GameObjects.Graphics, width: number, he
 }
 
 const getHealthBarProps = (eid: number) => {
-  const x = Position.x[eid] - (Sprite.width[eid] / 2) + 4;
-  const y = Position.y[eid] - (Sprite.height[eid] / 2) - HEALTH_BAR_HEIGHT * 2;
-  const width = Sprite.width[eid] - 8;
+  const x = Position.x[eid] - (Transform.width[eid] / 2) + 4;
+  const y = Position.y[eid] - (Transform.height[eid] / 2) - HEALTH_BAR_HEIGHT * 2;
+  const width = Transform.width[eid] - 8;
   const height = HEALTH_BAR_HEIGHT;
   return { x, y, width, height };
 }

@@ -1,5 +1,5 @@
 import { GameObjects, Scene } from "phaser";
-import { Position, Sprite } from "../components";
+import { Position, Sprite, Transform } from "../components";
 import { TextureNames } from "../constants";
 import { defineQuery, defineSystem, enterQuery, exitQuery } from "bitecs";
 
@@ -11,7 +11,7 @@ export const createSpriteSystem = (scene: Scene) => {
   const countById = new Map<number, number>();
   // const spritesById = new Map<number, GameObjects.Sprite>();
 
-  const spriteQuery = defineQuery([Position, Sprite]);
+  const spriteQuery = defineQuery([Position, Transform, Sprite]);
 
   const spriteQueryEnter = enterQuery(spriteQuery);
   const spriteQueryExit = exitQuery(spriteQuery);
@@ -22,8 +22,8 @@ export const createSpriteSystem = (scene: Scene) => {
       const eid = entitiesEntered[i];
       const textureId = Sprite.texture[eid];
       const texture = TextureNames[textureId];
-      const width = Sprite.width[eid];
-      const height = Sprite.height[eid];
+      const width = Transform.width[eid];
+      const height = Transform.height[eid];
 
       // @ts-expect-error (number can be used to draw vertices)
       const sprite = scene.add.rope(400, 350, texture, 0, 6, false)

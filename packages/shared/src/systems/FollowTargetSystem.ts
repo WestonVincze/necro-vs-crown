@@ -1,5 +1,5 @@
-import { defineQuery, defineSystem } from "bitecs"
-import { FollowTarget, Input, Position, Velocity } from "../components";
+import { defineQuery, defineSystem, hasComponent } from "bitecs"
+import { AttackRange, FollowTarget, Input, Position, Transform, Velocity } from "../components";
 import { type Vector2 } from "../types";
 
 const SEPARATION_THRESHOLD = 30;
@@ -19,20 +19,21 @@ const calculateSeparationForce = (self: Vector2, target: Vector2): Vector2 => {
   return { x: dx - SEPARATION_THRESHOLD, y: dy - SEPARATION_THRESHOLD };
 }
 
-const calculateFollowForce = (self: Vector2, target: Vector2): Vector2 => {
+const calculateFollowForce = (self: Vector2, target: Vector2, range: number): Vector2 => {
   // return { x: target.x - self.x, y: target.y - self.y };
   const followForce = { x: 0, y: 0 };
   const dx = target.x - self.x;
   const dy = target.y - self.y;
   const distance = Math.sqrt(dx * dx + dy * dy);
 
-  if (distance > 100) return { x: dx, y: dy };
+  // TODO: figure out how precise we need to be
+  if (distance > range + 25) return { x: dx, y: dy };
 
   return followForce;
 }
 
 export const createFollowTargetSystem = () => {
-  const followTargetQuery = defineQuery([Position, Input, Velocity, FollowTarget]);
+  const followTargetQuery = defineQuery([Position, Input, Velocity, FollowTarget, AttackRange]);
 
   return defineSystem(world => {
     const entities = followTargetQuery(world);
@@ -49,7 +50,7 @@ export const createFollowTargetSystem = () => {
       const target = { x: tx, y: ty };
 
       // calculate follow force
-      const followForce: Vector2 = calculateFollowForce(position, target);
+      const followForce: Vector2 = calculateFollowForce(position, target, AttackRange.current[eid]);
 
       // calculate separation force
       const separationForce: Vector2 = { x: 0, y: 0}
