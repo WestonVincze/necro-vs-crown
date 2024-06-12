@@ -1,8 +1,8 @@
 import { addComponent, defineQuery, defineSystem, entityExists, hasComponent, Not } from "bitecs";
 import { Armor, AttackBonus, AttackCooldown, AttackRange, AttackSpeed, CritChance, CritDamage, Crown, DamageBonus, Health, MaxHit, Necro, Position, Target } from "../components";
 import { checkIfWithinDistance } from "../utils/CollisionChecks";
-import { healthChanges } from "../subjects";
-import type { World } from "../types";
+import { healthChanges, hitSplats } from "../subjects";
+import { Faction, type World } from "../types";
 
 export const createCombatSystem = () => {
   const attackerQuery = defineQuery([Target, AttackSpeed, AttackRange, MaxHit, Position, Not(AttackCooldown)]);
@@ -50,7 +50,15 @@ export const createCombatSystem = () => {
 
       damage = damage * critMod + DamageBonus.current[eid];
 
-      healthChanges.next({ eid: targetEid, amount: damage * -1 })
+      healthChanges.next({ eid: targetEid, amount: damage * -1 });
+
+      hitSplats.next({
+        x: target.x,
+        y: target.y,
+        amount: damage,
+        isCrit: critMod > 1,
+        tag: hasComponent(world, Necro, targetEid) ? Faction.Necro : Faction.Crown
+      });
     }
 
     return world;

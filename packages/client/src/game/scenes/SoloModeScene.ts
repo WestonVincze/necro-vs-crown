@@ -1,6 +1,6 @@
 import { addComponent, createWorld, getAllEntities, getEntityComponents, pipe } from "bitecs";
 import { GameObjects, Scene, type Types } from "phaser";
-import { type World, type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem } from "@necro-crown/shared";
+import { type World, type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem } from "@necro-crown/shared";
 
 export class SoloModeScene extends Scene {
   /**
@@ -58,6 +58,8 @@ export class SoloModeScene extends Scene {
     for (let i = 0; i < 50; i++) {
       createUnitEntity(this.world, Math.random() > 0.5 ? "Peasant" : "Skeleton", Math.random() * 1024, Math.random() * 1024);
     }
+    createUnitEntity(this.world, "Peasant", Math.random() * 1024, Math.random() * 1024);
+    createUnitEntity(this.world, "Skeleton", Math.random() * 1024, Math.random() * 1024);
 
     // create Item entity (for testing)
     createItemEntity(this.world, 20, 50, 1);
@@ -78,6 +80,7 @@ export class SoloModeScene extends Scene {
 
     this.reactiveSystems = pipe(
       createDeathSystem(),
+      createHitSplatSystem(this),
       createHealthSystem(),
       createCursorTargetSystem(this.world),
       createItemEquipSystem(),
