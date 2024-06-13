@@ -1,8 +1,22 @@
-import { type Types } from "phaser";
 import { defineQuery, defineSystem } from "bitecs";
 import { Input, Player } from "../components";
+// TODO: move InputHandlerSystem to client, it won't be shared
+import { createActiveActions, type InputAction, type action } from "../../../client/src/input";
 
-export const createInputHandlerSystem = (cursors: Types.Input.Keyboard.CursorKeys) => {
+const inputMap: InputAction = {
+  moveLeft: ["a"],
+  moveRight: ["d"],
+  moveUp: ["w"],
+  moveDown: ["s"],
+  castSpell: [" "],
+}
+
+export const createInputHandlerSystem = () => {
+  const activeActions$ = createActiveActions(inputMap);
+  // TODO: reset active keys on focus out
+  let activeKeys: Partial<Record<action, boolean>> = {};
+  activeActions$.subscribe(activeActions => activeKeys = activeActions);
+
   const inputQuery = defineQuery([Input, Player]);
 
   return defineSystem(world => {
@@ -11,7 +25,7 @@ export const createInputHandlerSystem = (cursors: Types.Input.Keyboard.CursorKey
     for (let i in entities) {
       const eid = entities[i];
 
-      if (cursors.space.isDown) {
+      if (activeKeys.castSpell) {
         Input.castingSpell[eid] = 1;
         // TODO: introduce a way to effect movement without modifying the input directly
         Input.moveX[eid] = 0;
@@ -21,17 +35,17 @@ export const createInputHandlerSystem = (cursors: Types.Input.Keyboard.CursorKey
         Input.castingSpell[eid] = 0;
       }
 
-      if (cursors.left.isDown) {
+      if (activeKeys.moveLeft) {
         Input.moveX[eid] = -1;
-      } else if (cursors.right.isDown) {
+      } else if (activeKeys.moveRight) {
         Input.moveX[eid] = 1;
       } else {
         Input.moveX[eid] = 0;
       }
 
-      if (cursors.up.isDown) {
+      if (activeKeys.moveUp) {
         Input.moveY[eid] = -1;
-      } else if (cursors.down.isDown) {
+      } else if (activeKeys.moveDown) {
         Input.moveY[eid] = 1;
       } else {
         Input.moveY[eid] = 0;

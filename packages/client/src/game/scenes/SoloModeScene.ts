@@ -55,7 +55,7 @@ export class SoloModeScene extends Scene {
     createBonesEntity(this.world, 500, 500);
 
     // create Crown entities (for testing)
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 20; i++) {
       createUnitEntity(this.world, Math.random() > 0.5 ? "Peasant" : "Skeleton", Math.random() * 1024, Math.random() * 1024);
     }
     createUnitEntity(this.world, "Peasant", Math.random() * 1024, Math.random() * 1024);
@@ -65,7 +65,7 @@ export class SoloModeScene extends Scene {
     createItemEntity(this.world, 20, 50, 1);
 
     this.physicsSystems = pipe(
-      createInputHandlerSystem(this.cursors),
+      createInputHandlerSystem(),
       createMovementSystem(),
       createSpriteSystem(this),
       createFollowTargetSystem(),

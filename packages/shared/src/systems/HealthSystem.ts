@@ -163,7 +163,7 @@ export const createHitSplatSystem = (scene: Scene) => {
         paused: false,
       })
 
-      scene.time.delayedCall(1000, () => {
+      scene.time.delayedCall(500, () => {
         star.destroy();
         text.destroy();
       })
