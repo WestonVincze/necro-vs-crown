@@ -21,13 +21,13 @@ const generateMockCards = (count: number): Card[] => {
   return cards;
 }
 
-type Card = {
+export type Card = {
   id?: number,
   UnitID: Unit, // TODO: change to name
   cost: number,
 }
 
-type State = {
+export type CrownState = {
   coins: number,
   totalCards: number,
   deck: Card[],
@@ -43,7 +43,7 @@ type Action = {
   callback?: () => void
 }
 
-const initialState: State = {
+const initialState: CrownState = {
   coins: 0,
   totalCards: 0,
   deck: [],
@@ -57,14 +57,14 @@ const shuffleCards = (cards: Card[]): Card[] => {
   return cards.sort(() => Math.random() - 0.5);
 }
 
-const discardCardFromHand = (state: State, cardID: number): State | null => {
+const discardCardFromHand = (state: CrownState, cardID: number): CrownState | null => {
   const discardedCard = state.hand.find(card => card.id === cardID);
   if (!discardedCard) return null;
   const newHand = state.hand.filter(card => card.id !== cardID);
   return { ...state, selectedCard: state.selectedCard === discardedCard ? null : state.selectedCard, hand: newHand, discard: [...state.discard, discardedCard] };
 };
 
-const drawCardFromDeck = (state: State): State => {
+const drawCardFromDeck = (state: CrownState): CrownState => {
   if (state.hand.length >= MAX_HAND_SIZE) return state;
 
   if (state.deck.length === 0) {
@@ -77,7 +77,7 @@ const drawCardFromDeck = (state: State): State => {
   return { ...state, deck: newDeck, hand: [...state.hand, drawnCard] };
 };
 
-const discardAndDrawCard = (state: State, cardID: number): State  => {
+const discardAndDrawCard = (state: CrownState, cardID: number): CrownState  => {
   const stateAfterDiscard = discardCardFromHand(state, cardID);
 
   if (!stateAfterDiscard) return state;
@@ -85,7 +85,7 @@ const discardAndDrawCard = (state: State, cardID: number): State  => {
   return drawCardFromDeck(stateAfterDiscard);
 };
 
-const updateState = (state: State, action: Action): State => {
+const updateState = (state: CrownState, action: Action): CrownState => {
   switch (action.type) {
     case "DRAW_CARD":
       return drawCardFromDeck(state);
@@ -129,7 +129,7 @@ const createCrownCards = () => {
 
 }
 
-const crownState$ = new BehaviorSubject<State>(initialState);
+const crownState$ = new BehaviorSubject<CrownState>(initialState);
 
 const mockFetchCards = (): Observable<Card[]> => {
   return of(generateMockCards(8))

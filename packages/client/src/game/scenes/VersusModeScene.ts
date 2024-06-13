@@ -7,10 +7,11 @@ import { defineAction } from "../../input/Actions";
 import { Faction } from "@necro-crown/shared";
 
 // TODO: refactor Crown and Necro logic into separate classes or modules
-export class GameScene extends Scene {
+export class VersusModeScene extends Scene {
   constructor() {
-    super("GameScene");
+    super("VersusModeScene");
   }
+
   currentPlayer?: Types.Physics.Arcade.ImageWithDynamicBody;
   remoteRef?: GameObjects.Rectangle;
 
@@ -51,7 +52,6 @@ export class GameScene extends Scene {
       this.room = await this.client.joinOrCreate("my_room", { playerType: this.playerType });
       console.log("Joined Successfully!")
       if (this.playerType === Faction.Crown) { 
-        // show card UI
         defineAction({
           name: 'mouseAction',
           callback: (event) => {

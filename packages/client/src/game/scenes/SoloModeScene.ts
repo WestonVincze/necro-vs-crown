@@ -1,8 +1,46 @@
-import { addComponent, createWorld, getAllEntities, getEntityComponents, pipe } from "bitecs";
+import { addComponent, createWorld, getAllEntities, getEntityComponents, pipe, type IWorld, type System } from "bitecs";
 import { GameObjects, Scene, type Types } from "phaser";
 import { type World, type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem, Faction } from "@necro-crown/shared";
 import { defineAction } from "../../input/Actions";
 import { crownState$, playCard } from "$game/Crown";
+
+const CrownPipeline = {}
+
+type PipelineFactory = {
+  scene: Scene,
+  pre?: System[],
+  post?: System[]
+}
+
+const createPhysicsPipeline = ({ scene, pre = [], post = [] }: PipelineFactory) => pipe(
+  ...pre,
+  createMovementSystem(),
+  createSpriteSystem(scene),
+  createFollowTargetSystem(),
+  createCooldownSystem(),
+  createCombatSystem(),
+  createCollisionSystem(),
+  createSpellcastingSystem(),
+  createDrawSpellEffectSystem(scene),
+  createHealthBarSystem(scene),
+  ...post,
+  timeSystem, // time should always be last
+);
+
+const createReactivePipeline = ({ scene, pre = [], post = [] }: PipelineFactory) => pipe( 
+  ...pre,
+  createDeathSystem(),
+  createHitSplatSystem(scene),
+  createHealthSystem(),
+  createItemEquipSystem(),
+  ...post
+);
+
+const createTickPipeline = ({ pre = [], post = [] }: PipelineFactory) => pipe(
+  ...pre,
+  createTargetingSystem(),
+  ...post
+)
 
 export class SoloModeScene extends Scene {
   /**
@@ -92,43 +130,55 @@ export class SoloModeScene extends Scene {
 
     // create Item entity (for testing)
     createItemEntity(this.world, 20, 50, 1);
+    let physicsSystems: { pre: System[], post: System[] } = { pre: [], post: [] };
+    let reactiveSystems: { pre: System[], post: System[] } = { pre: [], post: [] };
+    let tickSystems: { pre: System[], post: System[] } = { pre: [], post: [] };
 
-    this.physicsSystems = pipe(
-      createInputHandlerSystem(),
-      createMovementSystem(),
-      createSpriteSystem(this),
-      createFollowTargetSystem(),
-      createCooldownSystem(),
-      createCombatSystem(),
-      createCollisionSystem(),
-      createSpellcastingSystem(),
-      createDrawSpellEffectSystem(this),
-      createHealthBarSystem(this),
-      timeSystem
-    )
+    switch (this.playerType) {
+      case Faction.Crown:
+        physicsSystems.pre = [
 
-    this.reactiveSystems = pipe(
-      createDeathSystem(),
-      createHitSplatSystem(this),
-      createHealthSystem(),
-      createCursorTargetSystem(this.world),
-      createItemEquipSystem(),
-    )
+        ]
+        break;
+      case Faction.Necro:
+        physicsSystems.pre = [
+          createInputHandlerSystem(),
+        ]
 
-    this.tickSystems = pipe(
-      createTargetingSystem(),
-    )
+        reactiveSystems.pre = [
+          createCursorTargetSystem(this.world)
+        ]
+        break;
+    } 
 
-    /** REACTIVE SYSTEMS */
+    this.physicsSystems = createPhysicsPipeline({
+      scene: this,
+      pre: physicsSystems.pre,
+      post: physicsSystems.post
+    });
+
+    this.reactiveSystems = createReactivePipeline({
+      scene: this,
+      pre: reactiveSystems.pre,
+      post: reactiveSystems.post
+    });
+
+    this.tickSystems = createTickPipeline({
+      scene: this,
+      pre: tickSystems.pre,
+      post: tickSystems.post
+    });
+
+    /** RUN REACTIVE SYSTEMS */
     this.reactiveSystems(this.world);
 
-    /** TICK SYSTEMS */
+    /** RUN TICK SYSTEMS */
     setInterval(() => {
       this.tickSystems(this.world);
     }, 200);
   }
 
-  /** UPDATE LOOP SYSTEMS */
+  /** RUN PHYSICS SYSTEMS */
   update(time: number, delta: number): void {
     this.physicsSystems(this.world);
   }

@@ -29,7 +29,7 @@ export const createUnitEntity = (world: IWorld, name: Unit, x: number, y: number
       break;
     case Faction.Necro:
       addComponent(world, Necro, eid);
-      Behavior.type[eid] = Behaviors.FollowCursor;
+      // Behavior.type[eid] = Behaviors.FollowCursor;
       break;
   }
 

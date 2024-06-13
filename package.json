@@ -5,6 +5,7 @@
   "author": "Weston Vincze",
   "scripts": {
     "start": "npm run server:start",
+    "dev": "npm run dev --workspace @necro-crown/client",
     "client:build": "npm run build --workspace @necro-crown/client",
     "client:start": "npm run dev --workspace @necro-crown/client",
     "server:build": "npm run build --workspace @necro-crown/server",

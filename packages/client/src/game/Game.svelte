@@ -11,17 +11,16 @@
 
   onMount(() => {
     game = StartGame("game-container");
-    console.log(game.scene.getScenes());
   })
 
   const handlePlayAs = (player: Faction, gameMode: "solo" | "versus") => {
     currentPlayer = player;
     if (gameMode === "versus") {
-      game.scene.start("GameScene", { player })
-      currentScene = "GameScene";
+      game.scene.start("VersusModeScene", { player })
+      currentScene = "VersusMode";
     } else {
       game.scene.start("SoloModeScene", { player });
-      currentScene = "SoloModeScene";
+      currentScene = "SoloMode";
     }
   }
 
