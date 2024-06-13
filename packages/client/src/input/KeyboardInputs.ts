@@ -1,5 +1,9 @@
 import { fromEvent, Observable, map, distinctUntilChanged, tap, distinct, merge } from 'rxjs';
 import { actions } from './Actions';
+/**
+ * Not currently in use... revisit later if desired
+ * use "Input" for now
+ */
 
 const createKeyboardManager = (element: HTMLElement = document.documentElement) => {
   const pressedKeys: Set<string> = new Set();

@@ -124,6 +124,11 @@ const updateState = (state: State, action: Action): State => {
   }
 }
 
+// TODO: move crownstate and related functions to a factory function
+const createCrownCards = () => {
+
+}
+
 const crownState$ = new BehaviorSubject<State>(initialState);
 
 const mockFetchCards = (): Observable<Card[]> => {
