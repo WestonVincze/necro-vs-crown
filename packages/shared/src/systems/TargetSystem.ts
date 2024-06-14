@@ -1,5 +1,5 @@
 import { addComponent, defineQuery, defineSystem, hasComponent, removeComponent } from "bitecs"
-import { Position, Target, Sprite, Behavior, Behaviors, FollowTarget } from "../components";
+import { Position, Target, Sprite, Behavior, Behaviors, FollowTarget, Input } from "../components";
 import { Crown, Necro } from "../components/Tags";
 import { getCursorEid } from "./CursorTargetSystem";
 
@@ -18,6 +18,22 @@ export const createTargetingSystem = () => {
     const crownEnemyEntities = crownEnemiesQuery(world);
 
     const updateTargets = (sourceEntities: number[], targetEntities: number[]) => {
+      // workaround to clear targets when no entities remain
+      if (targetEntities.length === 0) {
+        for (let i = 0; i < sourceEntities.length; i++) {
+          const eid = sourceEntities[i];
+          removeComponent(world, Target, eid)
+
+          if (Behavior.type[eid] === Behaviors.AutoTarget) {
+            removeComponent(world, FollowTarget, eid);
+            // extra workaround to stop movement until we add proper AI
+            Input.moveX[eid] = 0;
+            Input.moveY[eid] = 0;
+          }
+        }
+        return;
+      }
+
       for (let i = 0; i < sourceEntities.length; i++) {
         let closestDistance = Infinity;
         let closestTarget = -1;
@@ -41,30 +57,10 @@ export const createTargetingSystem = () => {
           }
         }
 
-        // TODO: this is buggy, when there are no targets left we don't actually remove component
         if (closestTarget !== -1) {
           addComponent(world, Target, eid);
           Target.eid[eid] = closestTarget;
-        } else {
-          removeComponent(world, Target, eid);
-        }
-
-        // TODO: separate FollowTarget logic from TargetSystem into separate system (below)
-        if (Behavior.type[eid] === Behaviors.FollowCursor) {
-          const cursorEid = getCursorEid(world);
-          if (!cursorEid) {
-            console.warn(`Not found: FollowTarget could not be assigned to cursor for ${eid}`);
-            return;
-          } 
-
-          addComponent(world, FollowTarget, eid);
-          FollowTarget.eid[eid] = cursorEid;
-        } else if (closestTarget !== 1) {
-          addComponent(world, FollowTarget, eid);
-          FollowTarget.eid[eid] = Target.eid[eid];
-        } else {
-          removeComponent(world, FollowTarget, eid);
-        }
+        } 
       }
     }
 
@@ -74,11 +70,30 @@ export const createTargetingSystem = () => {
   })
 }
 
-const createAssignFollowTargetSystem = () => {
+export const createAssignFollowTargetSystem = () => {
   /**
    * This system should assign the "followTarget" of all entities.
    * Behavior should indicate how to assign values
    * example: with no behavior, the followTarget should just be the Target
    */
 
+  const query = defineQuery([Behavior]);
+
+  return defineSystem(world => {
+    for (const eid of query(world)) {
+      if (Behavior.type[eid] === Behaviors.FollowCursor) {
+        const cursorEid = getCursorEid(world);
+        if (!cursorEid) {
+          console.warn(`Not found: FollowTarget could not be assigned to cursor for ${eid}`);
+          continue;
+        } 
+        addComponent(world, FollowTarget, eid);
+        FollowTarget.eid[eid] = cursorEid;
+      } else if (Behavior.type[eid] === Behaviors.AutoTarget && hasComponent(world, Target, eid)) {
+        addComponent(world, FollowTarget, eid);
+        FollowTarget.eid[eid] = Target.eid[eid];
+      }
+    }
+    return world;
+  })
 }

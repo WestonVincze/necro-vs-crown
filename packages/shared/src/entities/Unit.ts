@@ -1,5 +1,5 @@
 import { type IWorld, addComponent, addEntity } from "bitecs"
-import { Crown, Input, Necro, Position, Sprite, Velocity, Health, Behavior, Behaviors, Transform, Collider, CollisionLayers, Inventory } from "../components";
+import { Crown, Input, Necro, Position, Sprite, Velocity, Health, Behavior, Behaviors, Transform, Collider, CollisionLayers, Inventory, FollowTarget, Target } from "../components";
 import { Armor, AttackRange, AttackSpeed, CritChance, CritDamage, DamageBonus, MaxHealth, HealthRegeneration, MaxHit, MaxMoveSpeed, MoveSpeed } from "../components/Stats";
 import { Faction, type Stats, type Unit } from "../types";
 import { AllUnits } from "../data";
@@ -8,12 +8,6 @@ import { SpriteTexture } from "../constants";
 export const createUnitEntity = (world: IWorld, name: Unit, x: number, y: number) => {
   const eid = addEntity(world);
   const data = AllUnits[name];
-
-  // TODO: split player creation into separate function
-  if (name !== "Necromancer") {
-    addComponent(world, Behavior, eid);
-    Behavior.type[eid] = Behaviors.AutoTarget;
-  }
 
   if (name === "Skeleton") {
     addComponent(world, Collider, eid);
@@ -29,7 +23,6 @@ export const createUnitEntity = (world: IWorld, name: Unit, x: number, y: number
       break;
     case Faction.Necro:
       addComponent(world, Necro, eid);
-      // Behavior.type[eid] = Behaviors.FollowCursor;
       break;
   }
 

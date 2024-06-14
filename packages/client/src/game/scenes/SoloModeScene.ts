@@ -1,10 +1,8 @@
 import { addComponent, createWorld, getAllEntities, getEntityComponents, pipe, type IWorld, type System } from "bitecs";
 import { GameObjects, Scene, type Types } from "phaser";
-import { type World, type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem, Faction, Behavior, Behaviors } from "@necro-crown/shared";
+import { type World, type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem, Faction, Behavior, Behaviors, createAssignFollowTargetSystem } from "@necro-crown/shared";
 import { defineAction } from "../../input/Actions";
 import { crownState$, playCard } from "$game/Crown";
-
-const CrownPipeline = {}
 
 type PipelineFactory = {
   scene: Scene,
@@ -29,7 +27,6 @@ const createPhysicsPipeline = ({ scene, pre = [], post = [] }: PipelineFactory) 
 
 const createReactivePipeline = ({ scene, pre = [], post = [] }: PipelineFactory) => pipe( 
   ...pre,
-  createDeathSystem(),
   createHitSplatSystem(scene),
   createHealthSystem(),
   createItemEquipSystem(),
@@ -39,6 +36,7 @@ const createReactivePipeline = ({ scene, pre = [], post = [] }: PipelineFactory)
 const createTickPipeline = ({ pre = [], post = [] }: PipelineFactory) => pipe(
   ...pre,
   createTargetingSystem(),
+  createAssignFollowTargetSystem(),
   ...post
 )
 
@@ -70,88 +68,102 @@ export class SoloModeScene extends Scene {
   }
 
   create() {
-    if (this.playerType === Faction.Crown) { 
-      defineAction({
-        name: 'mouseAction',
-        callback: (event) => {
-          const { selectedCard } = crownState$.value;
-          if (selectedCard === null) return;
-
-          const rect = document.getElementById("game-container")?.getBoundingClientRect();
-          if (!rect) return;
-
-          const { left, top } = rect;
-          const mouseEvent = event as MouseEvent | DragEvent
-
-          const xPos = mouseEvent.x - left;
-          const yPos = mouseEvent.y - top;
-
-          playCard(() => {
-            createUnitEntity(this.world, selectedCard.UnitID, xPos, yPos)
-          });
-        },
-        binding: { mouseEvents: ["mouseup", "dragend"] }
-      })
-    }
-    /** DEBUG CONSOLE 
-    //@ts-ignore
-    PhaserGUIAction(this);
-    */
-    console.log("creating solo mode");
+    // instantiate world
     this.world = createWorld();
     this.world.time = { delta: 0, elapsed: 0, then: performance.now() };
-
-    /** Add global debug functions */
-    (window as any).getEntities = () => getAllEntities(this.world);
-    (window as any).getEntityComponents = (eid: number) => getEntityComponents(this.world, eid);
-
-    // create Necro player 
-    const eid = createUnitEntity(this.world, "Necromancer", 300, 300);
-    addComponent(this.world, Player, eid);
-    addComponent(this.world, Inventory, eid);
-    addComponent(this.world, Spell, eid);
-    Spell.state[eid] = SpellState.Ready;
-
-    // create Bones entity (for testing)
-    createBonesEntity(this.world, 500, 500);
-
-    // create Crown entities (for testing)
-    for (let i = 0; i < 10; i++) {
-      const eid = createUnitEntity(this.world, "Skeleton", Math.random() * 1024, Math.random() * 1024);
-      // TODO: handle adding specific components during entity creation for Necro / Crown players
-      if (this.playerType === Faction.Necro) {
-        Behavior.type[eid] = Behaviors.FollowCursor;
-      }
-      /*
-      createUnitEntity(this.world, Math.random() > 0.5 ? "Peasant" : "Skeleton", Math.random() * 1024, Math.random() * 1024);
-      */
-    }
-
-    // create Item entity (for testing)
-    createItemEntity(this.world, 20, 50, 1);
 
     // create base systems
     let physicsSystems: { pre: System[], post: System[] } = { pre: [], post: [] };
     let reactiveSystems: { pre: System[], post: System[] } = { pre: [], post: [] };
     let tickSystems: { pre: System[], post: System[] } = { pre: [], post: [] };
 
+    /** DEBUG CONSOLE 
+    //@ts-ignore
+    PhaserGUIAction(this);
+    */
+
+    /** Add global debug functions */
+    (window as any).getEntities = () => getAllEntities(this.world);
+    (window as any).getEntityComponents = (eid: number) => getEntityComponents(this.world, eid);
+
+    // Faction specific configurations
     switch (this.playerType) {
       case Faction.Crown:
+        defineAction({
+          name: 'mouseAction',
+          callback: (event) => {
+            const { selectedCard } = crownState$.value;
+            if (selectedCard === null) return;
+
+            const rect = document.getElementById("game-container")?.getBoundingClientRect();
+            if (!rect) return;
+
+            const { left, top } = rect;
+            const mouseEvent = event as MouseEvent | DragEvent
+
+            const xPos = mouseEvent.x - left;
+            const yPos = mouseEvent.y - top;
+
+            playCard(() => {
+              createUnitEntity(this.world, selectedCard.UnitID, xPos, yPos)
+            });
+          },
+          binding: { mouseEvents: ["mouseup", "dragend"] }
+        })
+
+        // create starting units
+        for (let i = 0; i < 5; i++) {
+          const eid = createUnitEntity(this.world, "Skeleton", Math.random() * 1024, Math.random() * 1024);
+          addComponent(this.world, Behavior, eid);
+          Behavior.type[eid] = Behaviors.AutoTarget;
+        }
+
+        // system overrides
         physicsSystems.pre = [
 
         ]
+
+        reactiveSystems.pre = [
+          createDeathSystem(this.playerType),
+        ]
         break;
+
       case Faction.Necro:
+        // create Necro player 
+        const eid = createUnitEntity(this.world, "Necromancer", 300, 300);
+        addComponent(this.world, Player, eid);
+        addComponent(this.world, Spell, eid);
+        Spell.state[eid] = SpellState.Ready;
+
+        // create Bones entity (for testing)
+        createBonesEntity(this.world, 500, 500);
+
+        for (let i = 0; i < 30; i++) {
+          const randomEntity = Math.random() > 0.5 ? "Peasant" : "Skeleton";
+          const eid = createUnitEntity(this.world, randomEntity, Math.random() * 1024, Math.random() * 1024);
+
+          if (randomEntity === "Skeleton") {
+            addComponent(this.world, Behavior, eid);
+            Behavior.type[eid] = Behaviors.FollowCursor;
+          } else {
+            addComponent(this.world, Behavior, eid);
+            Behavior.type[eid] = Behaviors.AutoTarget;
+          }
+        }
+
+        // system overrides
         physicsSystems.pre = [
           createInputHandlerSystem(),
         ]
 
         reactiveSystems.pre = [
-          createCursorTargetSystem(this.world)
+          createCursorTargetSystem(this.world),
+          createDeathSystem(this.playerType),
         ]
         break;
-    } 
+    }
 
+    // initialize systems with overrides
     this.physicsSystems = createPhysicsPipeline({
       scene: this,
       pre: physicsSystems.pre,

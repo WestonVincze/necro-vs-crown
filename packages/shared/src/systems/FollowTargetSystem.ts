@@ -20,7 +20,6 @@ const calculateSeparationForce = (self: Vector2, target: Vector2): Vector2 => {
 }
 
 const calculateFollowForce = (self: Vector2, target: Vector2, range: number): Vector2 => {
-  // return { x: target.x - self.x, y: target.y - self.y };
   const followForce = { x: 0, y: 0 };
   const dx = target.x - self.x;
   const dy = target.y - self.y;
