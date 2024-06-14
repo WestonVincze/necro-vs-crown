@@ -1,6 +1,6 @@
 import { addComponent, createWorld, getAllEntities, getEntityComponents, pipe, type IWorld, type System } from "bitecs";
 import { GameObjects, Scene, type Types } from "phaser";
-import { type World, type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem, Faction } from "@necro-crown/shared";
+import { type World, type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem, Faction, Behavior, Behaviors } from "@necro-crown/shared";
 import { defineAction } from "../../input/Actions";
 import { crownState$, playCard } from "$game/Crown";
 
@@ -50,7 +50,6 @@ export class SoloModeScene extends Scene {
   private playerType!: Faction;
 
   private camera!: Phaser.Cameras.Scene2D.Camera;
-  private cursors!: Types.Input.Keyboard.CursorKeys;
 
   // entity container (context)
   private world!: World
@@ -66,16 +65,12 @@ export class SoloModeScene extends Scene {
 
   init(data: { player: Faction}) {
     // ensure input is enabled in config
-    this.cursors = this.input.keyboard!.createCursorKeys();
     this.camera = this.cameras.add();
     this.playerType = data.player;
   }
 
-  rope!: GameObjects.Rope;
-
   create() {
     if (this.playerType === Faction.Crown) { 
-      // show card UI
       defineAction({
         name: 'mouseAction',
         callback: (event) => {
@@ -122,7 +117,11 @@ export class SoloModeScene extends Scene {
 
     // create Crown entities (for testing)
     for (let i = 0; i < 10; i++) {
-      createUnitEntity(this.world, "Skeleton", Math.random() * 1024, Math.random() * 1024);
+      const eid = createUnitEntity(this.world, "Skeleton", Math.random() * 1024, Math.random() * 1024);
+      // TODO: handle adding specific components during entity creation for Necro / Crown players
+      if (this.playerType === Faction.Necro) {
+        Behavior.type[eid] = Behaviors.FollowCursor;
+      }
       /*
       createUnitEntity(this.world, Math.random() > 0.5 ? "Peasant" : "Skeleton", Math.random() * 1024, Math.random() * 1024);
       */
@@ -130,6 +129,8 @@ export class SoloModeScene extends Scene {
 
     // create Item entity (for testing)
     createItemEntity(this.world, 20, 50, 1);
+
+    // create base systems
     let physicsSystems: { pre: System[], post: System[] } = { pre: [], post: [] };
     let reactiveSystems: { pre: System[], post: System[] } = { pre: [], post: [] };
     let tickSystems: { pre: System[], post: System[] } = { pre: [], post: [] };
