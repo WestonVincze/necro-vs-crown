@@ -137,8 +137,7 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
           const x = Position.x[boneEntity];
           const y = Position.y[boneEntity];
           removeEntity(world, boneEntity);
-          createUnitEntity(world, "Skeleton", x, y);
-          addComponent(world, Behavior, eid);
+          const eid = createUnitEntity(world, "Skeleton", x, y);
           Behavior.type[eid] = Behaviors.FollowCursor;
         }
       }

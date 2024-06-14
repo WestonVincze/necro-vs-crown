@@ -143,12 +143,8 @@ export class SoloModeScene extends Scene {
           const eid = createUnitEntity(this.world, randomEntity, Math.random() * 1024, Math.random() * 1024);
 
           if (randomEntity === "Skeleton") {
-            addComponent(this.world, Behavior, eid);
             Behavior.type[eid] = Behaviors.FollowCursor;
-          } else {
-            addComponent(this.world, Behavior, eid);
-            Behavior.type[eid] = Behaviors.AutoTarget;
-          }
+          } 
         }
 
         // system overrides

@@ -2,7 +2,7 @@ import { defineQuery, defineSystem, hasComponent } from "bitecs"
 import { AttackRange, FollowTarget, Input, Position, Transform, Velocity } from "../components";
 import { type Vector2 } from "../types";
 
-const SEPARATION_THRESHOLD = 30;
+const SEPARATION_THRESHOLD = 50;
 const SEPARATION_THRESHOLD_SQUARED = SEPARATION_THRESHOLD ** 2;
 
 // TODO: change Vector2 to Transform to compensate for height/width
@@ -16,7 +16,9 @@ const calculateSeparationForce = (self: Vector2, target: Vector2): Vector2 => {
 
   if (distanceSquared > SEPARATION_THRESHOLD_SQUARED) return separationForce;
 
-  return { x: dx - SEPARATION_THRESHOLD, y: dy - SEPARATION_THRESHOLD };
+  const distance = Math.sqrt(distanceSquared);
+
+  return { x: dx / distance, y: dy / distance};
 }
 
 const calculateFollowForce = (self: Vector2, target: Vector2, range: number): Vector2 => {

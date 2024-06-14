@@ -9,6 +9,11 @@ export const createUnitEntity = (world: IWorld, name: Unit, x: number, y: number
   const eid = addEntity(world);
   const data = AllUnits[name];
 
+  if (name !== "Necromancer") {
+    addComponent(world, Behavior, eid);
+    Behavior.type[eid] = Behaviors.AutoTarget;
+  }
+
   if (name === "Skeleton") {
     addComponent(world, Collider, eid);
     addComponent(world, Inventory, eid);
