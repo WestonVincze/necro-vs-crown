@@ -14,3 +14,6 @@ RxDB can be used to save and access RxJS related state. It also has support for 
 - Evaluate cost vs benefit (~$75-200 monthly)
 [RxDB](https://rxdb.info/quickstart.html)
 
+
+## DEBUGGING
+[dat.gui](https://barionleg.github.io/dat.gui/API.html)
