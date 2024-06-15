@@ -77,10 +77,9 @@ export class SoloModeScene extends Scene {
     let reactiveSystems: { pre: System[], post: System[] } = { pre: [], post: [] };
     let tickSystems: { pre: System[], post: System[] } = { pre: [], post: [] };
 
-    /** DEBUG CONSOLE 
-    //@ts-ignore
-    PhaserGUIAction(this);
-    */
+    /** DEBUG CONSOLE  **/
+    // @ts-ignore
+    // PhaserGUIAction(this);
 
     /** Add global debug functions */
     (window as any).getEntities = () => getAllEntities(this.world);

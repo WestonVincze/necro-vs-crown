@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Token } from "$components/Token";
+  import { Token } from "$UI/Token";
   import CoinPurse from "$icons/CoinPurse.svelte";
   import { crownState$, drawCard, discardCard, addNewCards, selectCard } from "$game/Crown";
   import { interval, take } from "rxjs";

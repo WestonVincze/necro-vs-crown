@@ -16,7 +16,9 @@ const defineAction = ({
   callback,
   binding
 }: { name: string, callback: ActionCallback, binding: InputBinding }) => {
+  console.log('setting up action...')
   actions[name] = { ...binding, callback };
+  console.log(actions)
 };
 
 export { actions, defineAction }

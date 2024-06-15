@@ -1,5 +1,6 @@
 import { AUTO, type Types, Game } from "phaser";
 import { VersusModeScene, MainMenuScene, PreloaderScene, SoloModeScene } from "./scenes";
+import { OldVersusModeScene } from "./scenes/OldVersusModeScene";
 
 // game config
 const config: Types.Core.GameConfig = {
@@ -10,7 +11,8 @@ const config: Types.Core.GameConfig = {
   parent: 'game-container',
   fps: { smoothStep: true, limit: 60 },
   physics: { default: "arcade" },
-  scene: [ PreloaderScene, MainMenuScene, VersusModeScene, SoloModeScene ],
+  // TODO: update versusModeScene (new VersusModeScene seems to break mouse inputs)
+  scene: [ PreloaderScene, MainMenuScene, OldVersusModeScene, SoloModeScene ],
 }
 
 export const StartGame = (parent: string) => {
