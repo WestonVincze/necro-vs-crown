@@ -3,6 +3,8 @@ import { GameObjects, Scene, type Types } from "phaser";
 import { type World, type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem, Faction, Behavior, Behaviors, createAssignFollowTargetSystem } from "@necro-crown/shared";
 import { defineAction } from "../../input/Actions";
 import { crownState$, playCard } from "$game/Crown";
+// @ts-expect-error - no declaration file
+import * as dat from 'dat.gui';
 
 type PipelineFactory = {
   scene: Scene,
@@ -63,8 +65,8 @@ export class SoloModeScene extends Scene {
 
   init(data: { player: Faction}) {
     // ensure input is enabled in config
-    this.camera = this.cameras.add();
     this.playerType = data.player;
+    this.camera = this.cameras.main;
   }
 
   create() {
@@ -77,9 +79,10 @@ export class SoloModeScene extends Scene {
     let reactiveSystems: { pre: System[], post: System[] } = { pre: [], post: [] };
     let tickSystems: { pre: System[], post: System[] } = { pre: [], post: [] };
 
-    /** DEBUG CONSOLE  **/
-    // @ts-ignore
-    // PhaserGUIAction(this);
+    const gui = new dat.GUI();
+
+    gui.addFolder("Main Camera");
+    gui.add(this.cameras.main, 'x');
 
     /** Add global debug functions */
     (window as any).getEntities = () => getAllEntities(this.world);
