@@ -10,7 +10,7 @@ const config: Types.Core.GameConfig = {
   backgroundColor: '#e5e5e5',
   parent: 'game-container',
   fps: { smoothStep: true, limit: 60 },
-  physics: { default: "arcade" },
+  // physics: { default: "arcade" },
   // TODO: update versusModeScene (new VersusModeScene seems to break mouse inputs)
   scene: [ PreloaderScene, MainMenuScene, OldVersusModeScene, SoloModeScene ],
 }

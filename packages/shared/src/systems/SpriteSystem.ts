@@ -1,7 +1,7 @@
 import { GameObjects, Scene } from "phaser";
-import { Position, Sprite, Transform } from "../components";
+import { Player, Position, Sprite, Transform } from "../components";
 import { TextureNames } from "../constants";
-import { defineQuery, defineSystem, enterQuery, exitQuery } from "bitecs";
+import { defineQuery, defineSystem, enterQuery, exitQuery, hasComponent } from "bitecs";
 
 /**
  * @param scene Reference to Phaser Scene
@@ -27,6 +27,10 @@ export const createSpriteSystem = (scene: Scene) => {
 
       // @ts-expect-error (number can be used to draw vertices)
       const sprite = scene.add.rope(400, 350, texture, 0, 6, false)
+
+      if (hasComponent(world, Player, eid)) {
+        scene.cameras.main.startFollow(sprite);
+      }
       // const sprite = scene.add.sprite(0, 0, texture);
       sprite.height = width;
       sprite.width = height;
