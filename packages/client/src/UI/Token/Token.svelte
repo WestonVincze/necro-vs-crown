@@ -7,7 +7,7 @@
   let selected = false;
   let dragging = false;
 
-  const test = AllUnits[unitID];
+  const unitData = AllUnits[unitID];
 </script>
 
 <div
@@ -21,7 +21,7 @@
   <div class="cost">
     <CoinPurse value={cost} />
   </div>
-  <img src={test.url} alt="" />
+  <img src={unitData.url} alt="" />
 </div>
 
 <style>

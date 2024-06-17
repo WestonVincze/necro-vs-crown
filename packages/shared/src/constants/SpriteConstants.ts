@@ -1,6 +1,6 @@
 export enum SpriteTexture {
   /* UNITS */
-  Necro,
+  Necromancer,
   Skeleton,
   Peasant,
   Guard,

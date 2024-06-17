@@ -1,6 +1,8 @@
 import { fromEvent, Observable, Subscription, switchMap, takeUntil, tap } from 'rxjs';
 import { actions } from './Actions';
 
+// TODO: something is 
+
 const createMouseManager = (element: HTMLElement = document.documentElement) => {
   const mouseActions = new Subscription();
   

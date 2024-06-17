@@ -1,10 +1,9 @@
-import { addComponent, createWorld, getAllEntities, getEntityComponents, pipe, type IWorld, type System } from "bitecs";
-import { GameObjects, Scene, type Types } from "phaser";
+import { addComponent, createWorld, getAllEntities, getEntityComponents, pipe, type System } from "bitecs";
+import { Scene } from "phaser";
 import { type World, type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem, Faction, Behavior, Behaviors, createAssignFollowTargetSystem } from "@necro-crown/shared";
-import { defineAction } from "../../input/Actions";
-import { crownState$, playCard } from "$game/Crown";
 // @ts-expect-error - no declaration file
 import * as dat from 'dat.gui';
+import { createCameraControlSystem } from "$game/systems";
 
 type PipelineFactory = {
   scene: Scene,
@@ -59,6 +58,8 @@ export class SoloModeScene extends Scene {
   private tickSystems!: Pipeline;
   private physicsSystems!: Pipeline;
 
+  public gui: typeof dat.gui; 
+
   constructor() {
     super("SoloModeScene");
   }
@@ -79,10 +80,11 @@ export class SoloModeScene extends Scene {
     let reactiveSystems: { pre: System[], post: System[] } = { pre: [], post: [] };
     let tickSystems: { pre: System[], post: System[] } = { pre: [], post: [] };
 
-    const gui = new dat.GUI();
+    this.gui = new dat.GUI();
 
-    gui.addFolder("Main Camera");
-    gui.add(this.cameras.main, 'x');
+    const main = this.gui.addFolder("Main Camera");
+    main.add(this.camera, 'scrollX').listen();
+    main.add(this.camera, 'scrollY').listen();
 
     /** Add global debug functions */
     (window as any).getEntities = () => getAllEntities(this.world);
@@ -91,28 +93,6 @@ export class SoloModeScene extends Scene {
     // Faction specific configurations
     switch (this.playerType) {
       case Faction.Crown:
-        defineAction({
-          name: 'mouseAction',
-          callback: (event) => {
-            const { selectedCard } = crownState$.value;
-            if (selectedCard === null) return;
-
-            const rect = document.getElementById("game-container")?.getBoundingClientRect();
-            if (!rect) return;
-
-            const { left, top } = rect;
-            const mouseEvent = event as MouseEvent | DragEvent
-
-            const xPos = mouseEvent.x - left;
-            const yPos = mouseEvent.y - top;
-
-            playCard(() => {
-              createUnitEntity(this.world, selectedCard.UnitID, xPos, yPos)
-            });
-          },
-          binding: { mouseEvents: ["mouseup", "dragend"] }
-        })
-
         // create starting units
         for (let i = 0; i < 5; i++) {
           const eid = createUnitEntity(this.world, "Skeleton", Math.random() * 1024, Math.random() * 1024);
@@ -126,6 +106,7 @@ export class SoloModeScene extends Scene {
         ]
 
         reactiveSystems.pre = [
+          createCameraControlSystem(this),
           createDeathSystem(this.playerType),
         ]
         break;
@@ -187,10 +168,18 @@ export class SoloModeScene extends Scene {
     setInterval(() => {
       this.tickSystems(this.world);
     }, 200);
+
+    // this.events.once('shutdown', this.destroyResources, this);
+    this.events.once('destroy', this.destroyResources, this);
   }
 
   /** RUN PHYSICS SYSTEMS */
   update(time: number, delta: number): void {
     this.physicsSystems(this.world);
+  }
+
+  destroyResources() {
+    this.gui.destroy();
+    this.gui = null;
   }
 }

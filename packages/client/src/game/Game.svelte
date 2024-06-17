@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import type { Game } from "phaser";
 
   import { StartGame } from ".";
@@ -12,6 +12,11 @@
   onMount(() => {
     game = StartGame("game-container");
   })
+
+  onDestroy(() => {
+    // emit scene's destroy event for cleanup
+    game.scene.destroy();
+  });
 
   const handlePlayAs = (player: Faction, gameMode: "solo" | "versus") => {
     currentPlayer = player;
@@ -51,6 +56,7 @@
     filter: drop-shadow(0 0 25px var(--bg-primary))
   }
   #overlay {
+    pointer-events: none;
     position: absolute;
     top: 0;
     left: 0;

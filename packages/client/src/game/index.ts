@@ -12,7 +12,12 @@ const config: Types.Core.GameConfig = {
   fps: { smoothStep: true, limit: 60 },
   // physics: { default: "arcade" },
   // TODO: update versusModeScene (new VersusModeScene seems to break mouse inputs)
-  scene: [ PreloaderScene, MainMenuScene, OldVersusModeScene, SoloModeScene ],
+  scene: [
+    PreloaderScene,
+    MainMenuScene,
+    OldVersusModeScene,
+    SoloModeScene
+  ],
 }
 
 export const StartGame = (parent: string) => {

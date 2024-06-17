@@ -52,6 +52,7 @@
   }
 
   .bottom {
+    pointer-events: all;
     align-self: flex-end;
     display: flex;
     align-items: center;

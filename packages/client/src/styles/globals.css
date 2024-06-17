@@ -60,6 +60,7 @@ body {
 }
 
 button {
+  pointer-events: all;
   cursor: pointer;
   font-family: var(--main-font);
   padding: var(--size-2) var(--size-3);
