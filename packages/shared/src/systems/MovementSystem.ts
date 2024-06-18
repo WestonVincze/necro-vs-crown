@@ -1,8 +1,11 @@
-import { defineQuery, defineSystem } from "bitecs";
-import { Position, Velocity, Input, MoveSpeed, MaxMoveSpeed } from "../components";
+import { defineQuery, defineSystem, hasComponent } from "bitecs";
+import { Position, Velocity, Input, MoveSpeed, MaxMoveSpeed, Player } from "../components";
 import { normalizeForce } from "../helpers";
 
 const FRICTION = 0.05;
+
+const screenWidth = 1536 - 30; // 3072;
+const screenHeight = 1152 - 60; // 2304;
 
 /**
  * MovementSystem
@@ -58,6 +61,10 @@ export const createMovementSystem = () => {
 
       Position.x[eid] += Velocity.x[eid];
       Position.y[eid] += Velocity.y[eid];
+      
+      // clamp to screen size
+      Position.x[eid] = Math.max(-screenWidth, Math.min(screenWidth, Position.x[eid]));
+      Position.y[eid] = Math.max(-screenHeight, Math.min(screenHeight, Position.y[eid]));
     }
     return world;
   })

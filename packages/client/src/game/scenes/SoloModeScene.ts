@@ -90,6 +90,13 @@ export class SoloModeScene extends Scene {
     (window as any).getEntities = () => getAllEntities(this.world);
     (window as any).getEntityComponents = (eid: number) => getEntityComponents(this.world, eid);
 
+    /** Set up testing Tilemap - 3x screen size */
+    this.camera.setBounds(-1536, -1152, 3072, 2304);
+    const map = this.make.tilemap({ key: 'map' });
+    map.addTilesetImage('sample', 'sample');
+    map.createLayer("Ground", "sample", -1536, -1152);
+    map.createLayer("Objects", "sample", -1536, -1152);
+
     // Faction specific configurations
     switch (this.playerType) {
       case Faction.Crown:
@@ -136,7 +143,7 @@ export class SoloModeScene extends Scene {
         ]
 
         reactiveSystems.pre = [
-          createCursorTargetSystem(this.world),
+          createCursorTargetSystem(this),
           createDeathSystem(this.playerType),
         ]
         break;

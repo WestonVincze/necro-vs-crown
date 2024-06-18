@@ -13,6 +13,9 @@ export class PreloaderScene extends Scene {
         this.load.image(key, url);
       }
     })
+
+    this.load.tilemapTiledJSON('map', 'tilemaps/sampleLevel.tsj');
+    this.load.image('sample', 'tilemaps/sample.png');
   }
 
   create() {

@@ -71,7 +71,8 @@ export const createSpriteSystem = (scene: Scene) => {
 
       sprite.x = Position.x[eid];
       sprite.y = Position.y[eid];
-      sprite.depth = Position.y[eid];
+      // workaround to ensure z-index is always above 0
+      sprite.depth = Position.y[eid] + 1200;
     }
 
     const entitiesExited = spriteQueryExit(world);

@@ -53,7 +53,7 @@ export const createHealthBarSystem = (scene: Scene) => {
       const { x, y, width, height } = getHealthBarProps(eid);
 
       healthBar?.setPosition(x, y);
-      healthBar?.setDepth(Position.y[eid]);
+      healthBar?.setDepth(Position.y[eid] + 1200);
 
       const healthPercent = Health.current[eid] / Health.max[eid];
 

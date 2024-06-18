@@ -1,22 +1,23 @@
 import { addComponent, addEntity, defineQuery, defineSystem, type IWorld } from 'bitecs';
 import { fromEvent, map } from 'rxjs';
 import { Cursor, Position } from '../components';
+import type { Scene } from 'phaser';
 
 // TODO: this system feels a bit awkward, let's revisit later and see if we can come up with a better solution
-export const createCursorTargetSystem = (world: IWorld) => {
+export const createCursorTargetSystem = (scene: Scene) => {
   const canvas = document.getElementById('game-container') || document.documentElement;
 
   const rect = canvas.getBoundingClientRect();
 
   const mouseClick$ = fromEvent<MouseEvent>(canvas, 'mousedown').pipe(
-    map((event) => ({ x: event.clientX - rect.left, y: event.clientY - rect.top })),
+    map((event) => scene.cameras.main.getWorldPoint(event.clientX - rect.left, event.clientY - rect.top)),
   );
 
-  const cursorEid = addEntity(world);
-  addComponent(world, Cursor, cursorEid);
-  addComponent(world, Position, cursorEid);
-
   return defineSystem(world => {
+    const cursorEid = addEntity(world);
+    addComponent(world, Cursor, cursorEid);
+    addComponent(world, Position, cursorEid);
+
     mouseClick$.subscribe(({ x, y }) => {
       Cursor.eid[cursorEid] = cursorEid;
       Position.x[cursorEid] = x;
