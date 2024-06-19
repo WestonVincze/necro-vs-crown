@@ -1,7 +1,7 @@
 import { defineQuery, defineSystem, hasComponent } from "bitecs"
 import { AttackRange, FollowTarget, Input, Position, Transform, Velocity } from "../components";
 import { type Vector2 } from "../types";
-import { Grid, AStarFinder } from "pathfinding";
+import { Grid, AStarFinder, DiagonalMovement } from "pathfinding";
 
 const SEPARATION_THRESHOLD = 50;
 const SEPARATION_THRESHOLD_SQUARED = SEPARATION_THRESHOLD ** 2;
@@ -37,16 +37,14 @@ const calculateFollowForce = (self: Vector2, target: Vector2, range: number): Ve
 export const createFollowTargetSystem = () => {
   const followTargetQuery = defineQuery([Position, Input, Velocity, FollowTarget, AttackRange]);
 
-  let gridData = [];
-  for (let y = 0; y < 36; y++) {
-    let row = [];
-    for (let x = 0; x < 48; x++) {
-      row.push(0)
+  const grid = new Grid(48, 36);
+  const finder = new AStarFinder(
+    {
+      diagonalMovement: DiagonalMovement.Always
     }
-    gridData.push(row);
-  }
-  const grid = new Grid(gridData);
-  const finder = new AStarFinder();
+  );
+
+  const pathsByEntityId = new Map<number, number[][]>();
 
   return defineSystem(world => {
     const entities = followTargetQuery(world);
@@ -66,17 +64,35 @@ export const createFollowTargetSystem = () => {
       const tyGrid = Math.floor((ty + 1152) / 64);
       const pxGrid = Math.floor((px + 1536) / 64);
       const pyGrid = Math.floor((py + 1152) / 64);
-      const path = finder.findPath(pxGrid, pyGrid, txGrid, tyGrid, grid.clone());
-      console.log(path);
 
       let followForce = { x: 0, y: 0 }
-      if (path.length === 0) {
-        console.warn(`path not found for ${eid}...`);
+
+      const path = pathsByEntityId.get(eid);
+
+      if (!path || path.length === 0 || path[path.length - 1][0] !== txGrid || path[path.length - 1][1] !== tyGrid) {
+        const newPath = finder.findPath(pxGrid, pyGrid, txGrid, tyGrid, grid.clone());
+
+        if (newPath.length === 0) {
+          console.warn(`path not found for ${eid}...`);
+          continue;
+        }
+
+        // remove first step, which is our current position
+        newPath.shift();
+        pathsByEntityId.set(eid, newPath);
       } else {
-        const nextPoint = path[1];
-        const direction = { x: nextPoint[0] - px, y: nextPoint[1] - py };
-        const length = Math.sqrt(direction.x ** 2 + direction.y **2)
-        followForce = { x: direction.x / length, y: direction.y / length };
+        const nextPoint = path[0];
+        const direction = { x: nextPoint[0] - pxGrid, y: nextPoint[1] - pyGrid };
+
+        if (direction.x !== 0 || direction.y !== 0) {
+          const length = Math.sqrt(direction.x ** 2 + direction.y **2)
+          followForce = { x: direction.x / length, y: direction.y / length };
+        }
+
+        // get the next point of our path if we are at the next point
+        if (Math.abs(pxGrid - nextPoint[0]) < 1 && Math.abs(pyGrid - nextPoint[1]) < 1) {
+          pathsByEntityId.get(eid)?.shift();
+        }
       }
 
       // calculate follow force
@@ -100,8 +116,8 @@ export const createFollowTargetSystem = () => {
         separationForce.y -= force.y;
       }
 
-      Input.moveX[eid] = followForce.x + separationForce.x * 2;
-      Input.moveY[eid] = followForce.y + separationForce.y * 2;
+      Input.moveX[eid] = followForce.x + separationForce.x;
+      Input.moveY[eid] = followForce.y + separationForce.y;
     }
 
     return world;
