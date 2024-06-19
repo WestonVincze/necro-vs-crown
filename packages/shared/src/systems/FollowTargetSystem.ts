@@ -1,6 +1,7 @@
 import { defineQuery, defineSystem, hasComponent } from "bitecs"
 import { AttackRange, FollowTarget, Input, Position, Transform, Velocity } from "../components";
 import { type Vector2 } from "../types";
+import { Grid, AStarFinder } from "pathfinding";
 
 const SEPARATION_THRESHOLD = 50;
 const SEPARATION_THRESHOLD_SQUARED = SEPARATION_THRESHOLD ** 2;
@@ -36,6 +37,17 @@ const calculateFollowForce = (self: Vector2, target: Vector2, range: number): Ve
 export const createFollowTargetSystem = () => {
   const followTargetQuery = defineQuery([Position, Input, Velocity, FollowTarget, AttackRange]);
 
+  let gridData = [];
+  for (let y = 0; y < 36; y++) {
+    let row = [];
+    for (let x = 0; x < 48; x++) {
+      row.push(0)
+    }
+    gridData.push(row);
+  }
+  const grid = new Grid(gridData);
+  const finder = new AStarFinder();
+
   return defineSystem(world => {
     const entities = followTargetQuery(world);
     for (let i = 0; i < entities.length; i++) {
@@ -48,10 +60,29 @@ export const createFollowTargetSystem = () => {
       const py = Position.y[eid];
 
       const position = { x: px, y: py };
-      const target = { x: tx, y: ty };
+      // const target = { x: tx, y: ty };
+
+      const txGrid = Math.floor((tx + 1536) / 64);
+      const tyGrid = Math.floor((ty + 1152) / 64);
+      const pxGrid = Math.floor((px + 1536) / 64);
+      const pyGrid = Math.floor((py + 1152) / 64);
+      const path = finder.findPath(pxGrid, pyGrid, txGrid, tyGrid, grid.clone());
+      console.log(path);
+
+      let followForce = { x: 0, y: 0 }
+      if (path.length === 0) {
+        console.warn(`path not found for ${eid}...`);
+      } else {
+        const nextPoint = path[1];
+        const direction = { x: nextPoint[0] - px, y: nextPoint[1] - py };
+        const length = Math.sqrt(direction.x ** 2 + direction.y **2)
+        followForce = { x: direction.x / length, y: direction.y / length };
+      }
 
       // calculate follow force
+      /*
       const followForce: Vector2 = calculateFollowForce(position, target, AttackRange.current[eid]);
+      */
 
       // calculate separation force
       const separationForce: Vector2 = { x: 0, y: 0}

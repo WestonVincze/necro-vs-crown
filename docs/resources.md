@@ -17,3 +17,7 @@ RxDB can be used to save and access RxJS related state. It also has support for 
 
 ## DEBUGGING
 [dat.gui](https://barionleg.github.io/dat.gui/API.html)
+
+
+## INTERESTING EXAMPLES
+[Isometric Tileset](https://labs.phaser.io/edit.html?src=src/tilemap\isometric\isometric%20test.js)

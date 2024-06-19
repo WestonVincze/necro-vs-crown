@@ -97,6 +97,16 @@ export class SoloModeScene extends Scene {
     map.createLayer("Ground", "sample", -1536, -1152);
     map.createLayer("Objects", "sample", -1536, -1152);
 
+    // test grid data
+    let gridData = [];
+    for (let y = 0; y < map.height; y++) {
+      let row = [];
+      for (let x = 0; x < map.width; x++) {
+        row.push(map.hasTileAt(x, y) && map.getTileAt(x, y)?.index === 1 ? 0 : 1);
+      }
+      gridData.push(row);
+    }
+
     // Faction specific configurations
     switch (this.playerType) {
       case Faction.Crown:
