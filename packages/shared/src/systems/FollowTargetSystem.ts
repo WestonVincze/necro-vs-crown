@@ -42,7 +42,7 @@ export const createFollowTargetSystem = (scene: Scene) => {
   const grid = new Grid(48, 36);
   const finder = new AStarFinder(
     {
-      diagonalMovement: DiagonalMovement.Always,
+      diagonalMovement: DiagonalMovement.Always
     }
   );
 
@@ -88,7 +88,7 @@ export const createFollowTargetSystem = (scene: Scene) => {
         const graphics = graphicsById.get(eid);
 
         if (!graphics) {
-          graphicsById.set(eid, scene.add.graphics({ lineStyle: { width: 4, color: 0xaa00aa } }))
+          graphicsById.set(eid, scene.add.graphics())
         }
 
         graphics?.clear();
@@ -98,6 +98,17 @@ export const createFollowTargetSystem = (scene: Scene) => {
           const lastY = smoothPath[i - 1][1] * 64 - 1120;
 
           const line = new Geom.Line(lastX, lastY, smoothPath[i][0] * 64 - 1504, smoothPath[i][1] * 64 - 1120);
+          graphics?.lineStyle(2, 0xaa00aa);
+          graphics?.strokeLineShape(line);
+        }
+
+        for (let i = 1; i < newPath.length; i++) {
+
+          const lastX = newPath[i - 1][0] * 64 - 1504;
+          const lastY = newPath[i - 1][1] * 64 - 1120;
+
+          const line = new Geom.Line(lastX, lastY, newPath[i][0] * 64 - 1504, newPath[i][1] * 64 - 1120);
+          graphics?.lineStyle(2, 0x5555ee);
           graphics?.strokeLineShape(line);
         }
       } else {
