@@ -15,7 +15,7 @@ const createPhysicsPipeline = ({ scene, pre = [], post = [] }: PipelineFactory) 
   ...pre,
   createMovementSystem(),
   createSpriteSystem(scene),
-  createFollowTargetSystem(),
+  createFollowTargetSystem(scene),
   createCooldownSystem(),
   createCombatSystem(),
   createCollisionSystem(),
