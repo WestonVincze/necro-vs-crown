@@ -15,7 +15,7 @@ const createPhysicsPipeline = ({ scene, pre = [], post = [] }: PipelineFactory) 
   ...pre,
   createMovementSystem(),
   createSpriteSystem(scene),
-  createFollowTargetSystem(),
+  createFollowTargetSystem(scene),
   createCooldownSystem(),
   createCombatSystem(),
   createCollisionSystem(),
@@ -97,6 +97,16 @@ export class SoloModeScene extends Scene {
     map.createLayer("Ground", "sample", -1536, -1152);
     map.createLayer("Objects", "sample", -1536, -1152);
 
+    // test grid data
+    let gridData = [];
+    for (let y = 0; y < map.height; y++) {
+      let row = [];
+      for (let x = 0; x < map.width; x++) {
+        row.push(map.hasTileAt(x, y) && map.getTileAt(x, y)?.index === 1 ? 0 : 1);
+      }
+      gridData.push(row);
+    }
+
     // Faction specific configurations
     switch (this.playerType) {
       case Faction.Crown:
@@ -128,6 +138,7 @@ export class SoloModeScene extends Scene {
         // create Bones entity (for testing)
         createBonesEntity(this.world, 500, 500);
 
+        /*
         for (let i = 0; i < 30; i++) {
           const randomEntity = Math.random() > 0.5 ? "Peasant" : "Skeleton";
           const eid = createUnitEntity(this.world, randomEntity, Math.random() * 1024, Math.random() * 1024);
@@ -136,6 +147,8 @@ export class SoloModeScene extends Scene {
             Behavior.type[eid] = Behaviors.FollowCursor;
           } 
         }
+        */
+        createUnitEntity(this.world, "Paladin", Math.random() * 1024, Math.random() * 1024);
 
         // system overrides
         physicsSystems.pre = [

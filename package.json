@@ -17,6 +17,10 @@
     "packages/shared"
   ],
   "devDependencies": {
+    "@types/pathfinding": "^0.0.9",
     "sass": "^1.77.4"
+  },
+  "dependencies": {
+    "pathfinding": "^0.4.18"
   }
 }
