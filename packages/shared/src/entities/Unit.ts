@@ -1,5 +1,5 @@
 import { type IWorld, addComponent, addEntity } from "bitecs"
-import { Crown, Input, Necro, Position, Sprite, Velocity, Health, Behavior, Behaviors, Transform, Collider, CollisionLayers, Inventory, FollowTarget, Target } from "../components";
+import { Crown, Input, Necro, Position, Sprite, Velocity, Health, Behavior, Behaviors, Transform, Collider, CollisionLayers, Inventory, FollowTarget, Target, GridCell } from "../components";
 import { Armor, AttackRange, AttackSpeed, CritChance, CritDamage, DamageBonus, MaxHealth, HealthRegeneration, MaxHit, MaxMoveSpeed, MoveSpeed } from "../components/Stats";
 import { Faction, type Stats, type Unit } from "../types";
 import { AllUnits } from "../data";
@@ -35,6 +35,7 @@ export const createUnitEntity = (world: IWorld, name: Unit, x: number, y: number
   addComponent(world, Position, eid);
   Position.x[eid] = x;
   Position.y[eid] = y;
+  addComponent(world, GridCell, eid);
   addComponent(world, Transform, eid);
   Transform.width[eid] = data.width;
   Transform.height[eid] = data.height;

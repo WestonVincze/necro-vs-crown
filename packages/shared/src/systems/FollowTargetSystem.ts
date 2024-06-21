@@ -1,5 +1,5 @@
 import { defineQuery, defineSystem, hasComponent } from "bitecs"
-import { AttackRange, FollowTarget, Input, Position, Transform, Velocity } from "../components";
+import { AttackRange, FollowTarget, GridCell, Input, Position, Transform, Velocity } from "../components";
 import { type Vector2 } from "../types";
 import { Grid, AStarFinder, DiagonalMovement, Util } from "pathfinding";
 import { type Scene, GameObjects, Geom, type Types, Game } from "phaser";
@@ -37,7 +37,7 @@ const calculateFollowForce = (self: Vector2, target: Vector2, range: number): Ve
 
 // TODO: remove scene reference or make it optional for debugging
 export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => {
-  const followTargetQuery = defineQuery([Position, Input, Velocity, FollowTarget, AttackRange]);
+  const followTargetQuery = defineQuery([Position, GridCell, Input, Velocity, FollowTarget, AttackRange]);
 
   const grid = new Grid(gridData);
   const finder = new AStarFinder(
@@ -52,22 +52,22 @@ export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => 
   return defineSystem(world => {
     const entities = followTargetQuery(world);
     for (let i = 0; i < entities.length; i++) {
-      // get required data
+      // get position data
       const eid = entities[i];
-      const targetEid = FollowTarget.eid[eid];
-      const tx = Position.x[targetEid];
-      const ty = Position.y[targetEid];
       const px = Position.x[eid];
       const py = Position.y[eid];
+      const pxGrid = GridCell.x[eid];
+      const pyGrid = GridCell.y[eid];
+
+      // get target position data
+      const targetEid = FollowTarget.eid[eid];
+      const txGrid = GridCell.x[targetEid];
+      const tyGrid = GridCell.y[targetEid];
 
       const position = { x: px, y: py };
       // const target = { x: tx, y: ty };
 
       // get the corresponding grid coordinates for current and target position
-      const txGrid = Math.floor((tx + 1536) / 64);
-      const tyGrid = Math.floor((ty + 1152) / 64);
-      const pxGrid = Math.floor((px + 1536) / 64);
-      const pyGrid = Math.floor((py + 1152) / 64);
 
       let followForce = { x: 0, y: 0 }
 

@@ -1,6 +1,6 @@
 import { addComponent, createWorld, getAllEntities, getEntityComponents, pipe, type System } from "bitecs";
 import { Scene } from "phaser";
-import { type World, type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem, Faction, Behavior, Behaviors, createAssignFollowTargetSystem } from "@necro-crown/shared";
+import { type World, type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createItemEntity, Collider, CollisionLayers, Inventory, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem, Faction, Behavior, Behaviors, createAssignFollowTargetSystem, createGridSystem } from "@necro-crown/shared";
 // @ts-expect-error - no declaration file
 import * as dat from 'dat.gui';
 import { createCameraControlSystem } from "$game/systems";
@@ -120,6 +120,7 @@ export class SoloModeScene extends Scene {
 
         // system overrides
         physicsSystems.pre = [
+          createGridSystem(),
           createFollowTargetSystem(this, gridData)
         ]
 
@@ -139,8 +140,7 @@ export class SoloModeScene extends Scene {
         // create Bones entity (for testing)
         createBonesEntity(this.world, 500, 500);
 
-        /*
-        for (let i = 0; i < 30; i++) {
+        for (let i = 0; i < 300; i++) {
           const randomEntity = Math.random() > 0.5 ? "Peasant" : "Skeleton";
           const eid = createUnitEntity(this.world, randomEntity, Math.random() * 1024, Math.random() * 1024);
 
@@ -148,12 +148,11 @@ export class SoloModeScene extends Scene {
             Behavior.type[eid] = Behaviors.FollowCursor;
           } 
         }
-        */
-        createUnitEntity(this.world, "Paladin", Math.random() * 1024, Math.random() * 1024);
 
         // system overrides
         physicsSystems.pre = [
           createInputHandlerSystem(),
+          createGridSystem(),
           createFollowTargetSystem(this, gridData)
         ]
 
