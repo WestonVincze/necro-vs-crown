@@ -36,10 +36,10 @@ const calculateFollowForce = (self: Vector2, target: Vector2, range: number): Ve
 }
 
 // TODO: remove scene reference or make it optional for debugging
-export const createFollowTargetSystem = (scene: Scene) => {
+export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => {
   const followTargetQuery = defineQuery([Position, Input, Velocity, FollowTarget, AttackRange]);
 
-  const grid = new Grid(48, 36);
+  const grid = new Grid(gridData);
   const finder = new AStarFinder(
     {
       diagonalMovement: DiagonalMovement.Always
@@ -82,30 +82,28 @@ export const createFollowTargetSystem = (scene: Scene) => {
           continue;
         }
 
-        const smoothPath = Util.smoothenPath(grid, newPath);
+        const smoothPath = Util.smoothenPath(grid.clone(), newPath);
         pathsByEntityId.set(eid, smoothPath);
 
-        const graphics = graphicsById.get(eid);
-
-        if (!graphics) {
+        if (!graphicsById.has(eid)) {
           graphicsById.set(eid, scene.add.graphics())
         }
 
+        const graphics = graphicsById.get(eid);
+
         graphics?.clear();
         for (let i = 1; i < smoothPath.length; i++) {
-
-          const lastX = smoothPath[i - 1][0] * 64 - 1504;
-          const lastY = smoothPath[i - 1][1] * 64 - 1120;
+          const lastX = smoothPath[Math.max(0, i - 1)][0] * 64 - 1504;
+          const lastY = smoothPath[Math.max(0, i - 1)][1] * 64 - 1120;
 
           const line = new Geom.Line(lastX, lastY, smoothPath[i][0] * 64 - 1504, smoothPath[i][1] * 64 - 1120);
           graphics?.lineStyle(2, 0xaa00aa);
           graphics?.strokeLineShape(line);
         }
 
-        for (let i = 1; i < newPath.length; i++) {
-
-          const lastX = newPath[i - 1][0] * 64 - 1504;
-          const lastY = newPath[i - 1][1] * 64 - 1120;
+        for (let i = 0; i < newPath.length; i++) {
+          const lastX = newPath[Math.max(0, i - 1)][0] * 64 - 1504;
+          const lastY = newPath[Math.max(0, i - 1)][1] * 64 - 1120;
 
           const line = new Geom.Line(lastX, lastY, newPath[i][0] * 64 - 1504, newPath[i][1] * 64 - 1120);
           graphics?.lineStyle(2, 0x5555ee);
@@ -113,7 +111,7 @@ export const createFollowTargetSystem = (scene: Scene) => {
         }
       } else {
         const nextPoint = path[0];
-        const direction = { x: nextPoint[0] - pxGrid, y: nextPoint[1] - pyGrid };
+        const direction = { x: (nextPoint[0] * 64 - 1504) - px, y: (nextPoint[1] * 64 - 1120) - py };
 
         if (direction.x !== 0 || direction.y !== 0) {
           const length = Math.sqrt(direction.x ** 2 + direction.y **2)
@@ -122,6 +120,7 @@ export const createFollowTargetSystem = (scene: Scene) => {
 
         // get the next point of our path if we are at the next point
         if (Math.abs(pxGrid - nextPoint[0]) < 1 && Math.abs(pyGrid - nextPoint[1]) < 1) {
+          console.log(`reached ${nextPoint[0]}, ${nextPoint[1]}`)
           pathsByEntityId.get(eid)?.shift();
         }
       }

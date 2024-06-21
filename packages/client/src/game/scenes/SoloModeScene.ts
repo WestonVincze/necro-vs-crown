@@ -15,7 +15,7 @@ const createPhysicsPipeline = ({ scene, pre = [], post = [] }: PipelineFactory) 
   ...pre,
   createMovementSystem(),
   createSpriteSystem(scene),
-  createFollowTargetSystem(scene),
+  // createFollowTargetSystem(scene),
   createCooldownSystem(),
   createCombatSystem(),
   createCollisionSystem(),
@@ -95,6 +95,7 @@ export class SoloModeScene extends Scene {
     const map = this.make.tilemap({ key: 'map' });
     map.addTilesetImage('sample', 'sample');
     map.createLayer("Ground", "sample", -1536, -1152);
+    map.createLayer("Road", "sample", -1536, -1152);
     map.createLayer("Objects", "sample", -1536, -1152);
 
     // test grid data
@@ -102,7 +103,7 @@ export class SoloModeScene extends Scene {
     for (let y = 0; y < map.height; y++) {
       let row = [];
       for (let x = 0; x < map.width; x++) {
-        row.push(map.hasTileAt(x, y) && map.getTileAt(x, y)?.index === 1 ? 0 : 1);
+        row.push(map.hasTileAt(x, y, "Objects") ? 1 : 0);
       }
       gridData.push(row);
     }
@@ -119,7 +120,7 @@ export class SoloModeScene extends Scene {
 
         // system overrides
         physicsSystems.pre = [
-
+          createFollowTargetSystem(this, gridData)
         ]
 
         reactiveSystems.pre = [
@@ -153,6 +154,7 @@ export class SoloModeScene extends Scene {
         // system overrides
         physicsSystems.pre = [
           createInputHandlerSystem(),
+          createFollowTargetSystem(this, gridData)
         ]
 
         reactiveSystems.pre = [
