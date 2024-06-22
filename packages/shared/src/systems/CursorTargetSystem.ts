@@ -1,6 +1,6 @@
 import { addComponent, addEntity, defineQuery, defineSystem, type IWorld } from 'bitecs';
 import { fromEvent, map } from 'rxjs';
-import { Cursor, Position } from '../components';
+import { Cursor, GridCell, Position } from '../components';
 import type { Scene } from 'phaser';
 
 // TODO: this system feels a bit awkward, let's revisit later and see if we can come up with a better solution
@@ -17,6 +17,7 @@ export const createCursorTargetSystem = (scene: Scene) => {
     const cursorEid = addEntity(world);
     addComponent(world, Cursor, cursorEid);
     addComponent(world, Position, cursorEid);
+    addComponent(world, GridCell, cursorEid);
 
     mouseClick$.subscribe(({ x, y }) => {
       Cursor.eid[cursorEid] = cursorEid;

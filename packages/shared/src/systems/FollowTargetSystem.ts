@@ -73,58 +73,59 @@ export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => 
 
       const path = pathsByEntityId.get(eid);
 
-      // find a new path if no path exits, no steps remain, or the target position changed since initial calculation
-      if (!path || path.length === 0 || path[path.length - 1][0] !== txGrid || path[path.length - 1][1] !== tyGrid) {
-        const newPath = finder.findPath(pxGrid, pyGrid, txGrid, tyGrid, grid.clone());
+      if (grid.isWalkableAt(txGrid, tyGrid)) {
+        // find a new path if no path exits, no steps remain, or the target position changed since initial calculation
+        if (!path || path.length === 0 || path[path.length - 1][0] !== txGrid || path[path.length - 1][1] !== tyGrid) {
+          const newPath = finder.findPath(pxGrid, pyGrid, txGrid, tyGrid, grid.clone());
 
-        if (newPath.length === 0) {
-          console.warn(`path not found for ${eid}...`);
-          continue;
-        }
+          if (newPath.length === 0) {
+            console.warn(`path not found for ${eid}...`);
+            continue;
+          }
 
-        const smoothPath = Util.smoothenPath(grid.clone(), newPath);
-        pathsByEntityId.set(eid, smoothPath);
+          const smoothPath = Util.smoothenPath(grid.clone(), newPath);
+          pathsByEntityId.set(eid, smoothPath);
 
-        if (!graphicsById.has(eid)) {
-          graphicsById.set(eid, scene.add.graphics())
-        }
+          if (!graphicsById.has(eid)) {
+            graphicsById.set(eid, scene.add.graphics())
+          }
 
-        const graphics = graphicsById.get(eid);
+          const graphics = graphicsById.get(eid);
 
-        graphics?.clear();
-        for (let i = 1; i < smoothPath.length; i++) {
-          const lastX = smoothPath[Math.max(0, i - 1)][0] * 64 - 1504;
-          const lastY = smoothPath[Math.max(0, i - 1)][1] * 64 - 1120;
+          graphics?.clear();
+          for (let i = 1; i < smoothPath.length; i++) {
+            const lastX = smoothPath[Math.max(0, i - 1)][0] * 64 - 1504;
+            const lastY = smoothPath[Math.max(0, i - 1)][1] * 64 - 1120;
 
-          const line = new Geom.Line(lastX, lastY, smoothPath[i][0] * 64 - 1504, smoothPath[i][1] * 64 - 1120);
-          graphics?.lineStyle(2, 0xaa00aa);
-          graphics?.strokeLineShape(line);
-        }
+            const line = new Geom.Line(lastX, lastY, smoothPath[i][0] * 64 - 1504, smoothPath[i][1] * 64 - 1120);
+            graphics?.lineStyle(2, 0xaa00aa);
+            graphics?.strokeLineShape(line);
+          }
 
-        for (let i = 0; i < newPath.length; i++) {
-          const lastX = newPath[Math.max(0, i - 1)][0] * 64 - 1504;
-          const lastY = newPath[Math.max(0, i - 1)][1] * 64 - 1120;
+          for (let i = 0; i < newPath.length; i++) {
+            const lastX = newPath[Math.max(0, i - 1)][0] * 64 - 1504;
+            const lastY = newPath[Math.max(0, i - 1)][1] * 64 - 1120;
 
-          const line = new Geom.Line(lastX, lastY, newPath[i][0] * 64 - 1504, newPath[i][1] * 64 - 1120);
-          graphics?.lineStyle(2, 0x5555ee);
-          graphics?.strokeLineShape(line);
-        }
-      } else {
-        const nextPoint = path[0];
-        const direction = { x: (nextPoint[0] * 64 - 1504) - px, y: (nextPoint[1] * 64 - 1120) - py };
+            const line = new Geom.Line(lastX, lastY, newPath[i][0] * 64 - 1504, newPath[i][1] * 64 - 1120);
+            graphics?.lineStyle(2, 0x5555ee);
+            graphics?.strokeLineShape(line);
+          }
+        } else {
+          const nextPoint = path[0];
+          const direction = { x: (nextPoint[0] * 64 - 1504) - px, y: (nextPoint[1] * 64 - 1120) - py };
 
-        if (direction.x !== 0 || direction.y !== 0) {
-          const length = Math.sqrt(direction.x ** 2 + direction.y **2)
-          followForce = { x: direction.x / length, y: direction.y / length };
-        }
+          if (direction.x !== 0 || direction.y !== 0) {
+            const length = Math.sqrt(direction.x ** 2 + direction.y **2)
+            followForce = { x: direction.x / length, y: direction.y / length };
+          }
 
-        // get the next point of our path if we are at the next point
-        if (Math.abs(pxGrid - nextPoint[0]) < 1 && Math.abs(pyGrid - nextPoint[1]) < 1) {
-          console.log(`reached ${nextPoint[0]}, ${nextPoint[1]}`)
-          pathsByEntityId.get(eid)?.shift();
+          // get the next point of our path if we are at the next point
+          if (Math.abs(pxGrid - nextPoint[0]) < 1 && Math.abs(pyGrid - nextPoint[1]) < 1) {
+            console.log(`reached ${nextPoint[0]}, ${nextPoint[1]}`)
+            pathsByEntityId.get(eid)?.shift();
+          }
         }
       }
-
       // calculate follow force
       /*
       const followForce: Vector2 = calculateFollowForce(position, target, AttackRange.current[eid]);

@@ -120,7 +120,7 @@ export class SoloModeScene extends Scene {
 
         // system overrides
         physicsSystems.pre = [
-          createGridSystem(),
+          createGridSystem(map),
           createFollowTargetSystem(this, gridData)
         ]
 
@@ -152,7 +152,7 @@ export class SoloModeScene extends Scene {
         // system overrides
         physicsSystems.pre = [
           createInputHandlerSystem(),
-          createGridSystem(),
+          createGridSystem(map),
           createFollowTargetSystem(this, gridData)
         ]
 
