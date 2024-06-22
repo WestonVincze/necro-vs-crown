@@ -1,11 +1,10 @@
 import { defineQuery, defineSystem } from "bitecs";
 import { Position, GridCell } from "../components";
-import type { GameObjects, Tilemaps } from "phaser";
+import type { Tilemaps } from "phaser";
 
 type Cell = {
   walkable: boolean;
   entities: number[];
-  graphics?: GameObjects.Graphics
 }
 
 const createGrid = (onCellFill: (x: number, y: number) => void, onCellEmpty: (x: number, y: number) => void) => {
@@ -48,7 +47,10 @@ export const createGridSystem = (map: Tilemaps.Tilemap) => {
     map.getTileAt(x, y, false, "Ground")?.setAlpha(alpha);
   }
   const gridQuery = defineQuery([Position, GridCell]);
-  const grid = createGrid((x: number, y: number) => setTileAlpha(x, y, 0.5), (x, y) => setTileAlpha(x, y, 1));
+  const grid = createGrid(
+    (x: number, y: number) => setTileAlpha(x, y, 0.5),
+    (x, y) => setTileAlpha(x, y, 1)
+  );
 
   return defineSystem(world => {
     for (const eid of (gridQuery(world))) {
