@@ -24,9 +24,8 @@ const createGrid = (onCellFill: (x: number, y: number) => void, onCellEmpty: (x:
   }
 
   const addEntity = (x: number, y: number, eid: number) => {
-    if (cells[y][x].entities.length > 0) onCellFill(x, y);
-
     cells[y][x].entities.push(eid);
+    if (cells[y][x].entities.length > 0) onCellFill(x, y);
   }
 
   const removeEntity = (x: number, y: number, eid: number) => {
@@ -53,12 +52,17 @@ export const createGridSystem = (map: Tilemaps.Tilemap) => {
 
   return defineSystem(world => {
     for (const eid of (gridQuery(world))) {
-      const oldCellX = GridCell.x[eid];
-      const oldCellY = GridCell.y[eid];
-      grid.removeEntity(oldCellX, oldCellY, eid);
-      GridCell.x[eid] = Math.floor((Position.x[eid] + 1536) / 64);
-      GridCell.y[eid] = Math.floor((Position.y[eid] + 1152) / 64);
-      grid.addEntity(GridCell.x[eid], GridCell.y[eid], eid);
+      const currentGridCellX = GridCell.x[eid];
+      const currentGridCellY = GridCell.y[eid];
+      const newGridCellX = Math.floor((Position.x[eid] + 1536) / 64);
+      const newGridCellY = Math.floor((Position.y[eid] + 1152) / 64);
+
+      if (currentGridCellX !== newGridCellX || currentGridCellY !== newGridCellY) {
+        GridCell.x[eid] = newGridCellX;
+        GridCell.y[eid] = newGridCellY;
+        grid.removeEntity(currentGridCellX, currentGridCellY, eid);
+        grid.addEntity(newGridCellX, newGridCellY, eid);
+      }
     }
     return world;
   })
