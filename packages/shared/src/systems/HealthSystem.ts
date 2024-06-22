@@ -106,8 +106,10 @@ const hitSplatColors = {
     crit: 0xed2424,
   }
 }
+
 export const createHitSplatSystem = (scene: Scene) => {
   return defineSystem(world => {
+    // TODO: this needs to unsubscribe when the scene changes
     hitSplats.subscribe(({ x, y, amount, isCrit, tag}) => {
       let color = hitSplatColors[tag].hit;
       let fontSize = "16px"

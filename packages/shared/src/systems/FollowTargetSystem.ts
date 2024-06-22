@@ -1,4 +1,4 @@
-import { defineQuery, defineSystem, hasComponent } from "bitecs"
+import { defineQuery, defineSystem, exitQuery, hasComponent } from "bitecs"
 import { AttackRange, FollowTarget, GridCell, Input, Position, Transform, Velocity } from "../components";
 import { type Vector2 } from "../types";
 import { Grid, AStarFinder, DiagonalMovement, Util } from "pathfinding";
@@ -64,11 +64,6 @@ export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => 
       const txGrid = GridCell.x[targetEid];
       const tyGrid = GridCell.y[targetEid];
 
-      const position = { x: px, y: py };
-      // const target = { x: tx, y: ty };
-
-      // get the corresponding grid coordinates for current and target position
-
       let followForce = { x: 0, y: 0 }
 
       const path = pathsByEntityId.get(eid);
@@ -126,13 +121,10 @@ export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => 
           }
         }
       }
-      // calculate follow force
-      /*
-      const followForce: Vector2 = calculateFollowForce(position, target, AttackRange.current[eid]);
-      */
 
       // calculate separation force
       const separationForce: Vector2 = { x: 0, y: 0}
+      const position = { x: px, y: py };
 
       // TODO: apply (half?) force to self and target, otherwise we only apply force to self and skip the calculation when the other entity targets self
       for (let j = 0; j < entities.length; j++) {
@@ -149,6 +141,12 @@ export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => 
 
       Input.moveX[eid] = followForce.x + separationForce.x;
       Input.moveY[eid] = followForce.y + separationForce.y;
+    }
+
+    for (const eid of (exitQuery(followTargetQuery)(world))) {
+      pathsByEntityId.delete(eid);
+      graphicsById.get(eid)?.destroy();
+      graphicsById.delete(eid);
     }
 
     return world;

@@ -1,4 +1,4 @@
-import { defineQuery, defineSystem } from "bitecs";
+import { defineQuery, defineSystem, exitQuery } from "bitecs";
 import { Position, GridCell } from "../components";
 import type { Tilemaps } from "phaser";
 
@@ -65,6 +65,10 @@ export const createGridSystem = (map: Tilemaps.Tilemap) => {
         grid.removeEntity(currentGridCellX, currentGridCellY, eid);
         grid.addEntity(newGridCellX, newGridCellY, eid);
       }
+    }
+
+    for (const eid of (exitQuery(gridQuery)(world))) {
+      grid.removeEntity(GridCell.x[eid], GridCell.y[eid], eid);
     }
     return world;
   })
