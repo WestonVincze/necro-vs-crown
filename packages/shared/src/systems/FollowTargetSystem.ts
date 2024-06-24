@@ -4,6 +4,8 @@ import { type Vector2 } from "../types";
 import { Grid, AStarFinder, DiagonalMovement, Util } from "pathfinding";
 import { type Scene, GameObjects, Geom, type Types, Game } from "phaser";
 
+const DEBUG_MODE = false;
+
 const SEPARATION_THRESHOLD = 50;
 const SEPARATION_THRESHOLD_SQUARED = SEPARATION_THRESHOLD ** 2;
 
@@ -81,29 +83,31 @@ export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => 
           const smoothPath = Util.smoothenPath(grid.clone(), newPath);
           pathsByEntityId.set(eid, smoothPath);
 
-          if (!graphicsById.has(eid)) {
-            graphicsById.set(eid, scene.add.graphics())
-          }
+          if (DEBUG_MODE) {
+            if (!graphicsById.has(eid)) {
+              graphicsById.set(eid, scene.add.graphics())
+            }
 
-          const graphics = graphicsById.get(eid);
+            const graphics = graphicsById.get(eid);
 
-          graphics?.clear();
-          for (let i = 1; i < smoothPath.length; i++) {
-            const lastX = smoothPath[Math.max(0, i - 1)][0] * 64 - 1504;
-            const lastY = smoothPath[Math.max(0, i - 1)][1] * 64 - 1120;
+            graphics?.clear();
+            for (let i = 1; i < smoothPath.length; i++) {
+              const lastX = smoothPath[Math.max(0, i - 1)][0] * 64 - 1504;
+              const lastY = smoothPath[Math.max(0, i - 1)][1] * 64 - 1120;
 
-            const line = new Geom.Line(lastX, lastY, smoothPath[i][0] * 64 - 1504, smoothPath[i][1] * 64 - 1120);
-            graphics?.lineStyle(2, 0xaa00aa);
-            graphics?.strokeLineShape(line);
-          }
+              const line = new Geom.Line(lastX, lastY, smoothPath[i][0] * 64 - 1504, smoothPath[i][1] * 64 - 1120);
+              graphics?.lineStyle(2, 0xaa00aa);
+              graphics?.strokeLineShape(line);
+            }
 
-          for (let i = 0; i < newPath.length; i++) {
-            const lastX = newPath[Math.max(0, i - 1)][0] * 64 - 1504;
-            const lastY = newPath[Math.max(0, i - 1)][1] * 64 - 1120;
+            for (let i = 0; i < newPath.length; i++) {
+              const lastX = newPath[Math.max(0, i - 1)][0] * 64 - 1504;
+              const lastY = newPath[Math.max(0, i - 1)][1] * 64 - 1120;
 
-            const line = new Geom.Line(lastX, lastY, newPath[i][0] * 64 - 1504, newPath[i][1] * 64 - 1120);
-            graphics?.lineStyle(2, 0x5555ee);
-            graphics?.strokeLineShape(line);
+              const line = new Geom.Line(lastX, lastY, newPath[i][0] * 64 - 1504, newPath[i][1] * 64 - 1120);
+              graphics?.lineStyle(2, 0x5555ee);
+              graphics?.strokeLineShape(line);
+            }
           }
         } else {
           const nextPoint = path[0];

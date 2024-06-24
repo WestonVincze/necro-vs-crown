@@ -2,6 +2,8 @@ import { defineQuery, defineSystem, exitQuery } from "bitecs";
 import { Position, GridCell } from "../components";
 import type { Tilemaps } from "phaser";
 
+const DEBUG_MODE = false;
+
 type Cell = {
   walkable: boolean;
   entities: number[];
@@ -44,6 +46,7 @@ const createGrid = (onCellFill: (x: number, y: number) => void, onCellEmpty: (x:
 
 export const createGridSystem = (map: Tilemaps.Tilemap) => {
   const setTileAlpha = (x: number, y: number, alpha: number) => {
+    if (!DEBUG_MODE) return;
     map.getTileAt(x, y, false, "Ground")?.setAlpha(alpha);
   }
   const gridQuery = defineQuery([Position, GridCell]);
