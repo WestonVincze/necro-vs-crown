@@ -1,8 +1,8 @@
-import { defineQuery, defineSystem, exitQuery, hasComponent } from "bitecs"
-import { AttackRange, FollowTarget, GridCell, Input, Position, Transform, Velocity } from "../components";
+import { defineQuery, defineSystem, exitQuery } from "bitecs"
+import { AttackRange, FollowTarget, GridCell, Input, Position, Velocity } from "../components";
 import { type Vector2 } from "../types";
 import { Grid, AStarFinder, DiagonalMovement, Util } from "pathfinding";
-import { type Scene, GameObjects, Geom, type Types, Game } from "phaser";
+import { type Scene, GameObjects, Geom } from "phaser";
 
 const DEBUG_MODE = false;
 

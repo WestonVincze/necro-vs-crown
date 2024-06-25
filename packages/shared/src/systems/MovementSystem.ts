@@ -1,5 +1,5 @@
-import { defineQuery, defineSystem, hasComponent } from "bitecs";
-import { Position, Velocity, Input, MoveSpeed, MaxMoveSpeed, Player } from "../components";
+import { defineQuery, defineSystem } from "bitecs";
+import { Position, Velocity, Input, MoveSpeed, MaxMoveSpeed } from "../components";
 import { normalizeForce } from "../helpers";
 
 const FRICTION = 0.05;

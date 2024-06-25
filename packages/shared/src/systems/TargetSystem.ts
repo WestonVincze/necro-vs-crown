@@ -1,5 +1,5 @@
 import { addComponent, defineQuery, defineSystem, hasComponent, removeComponent } from "bitecs"
-import { Position, Target, Sprite, Behavior, Behaviors, FollowTarget, Input } from "../components";
+import { Position, Target, Behavior, Behaviors, FollowTarget, Input } from "../components";
 import { Crown, Necro } from "../components/Tags";
 import { getCursorEid } from "./CursorTargetSystem";
 
