@@ -24,7 +24,7 @@
 	"type": "module",
 	"dependencies": {
 		"@necro-crown/shared": "^0.0.1",
-		"bitecs": "^0.3.40",
+		"bitecs": "github:NateTheGreatt/bitECS#v0.0.1-alpha.3",
 		"colyseus.js": "^0.15.19",
 		"phaser": "^3.80.1",
 		"rxjs": "^7.8.1"
