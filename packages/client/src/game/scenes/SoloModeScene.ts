@@ -95,7 +95,7 @@ export class SoloModeScene extends Scene {
     const map = this.make.tilemap({ key: 'map' });
     map.addTilesetImage('sample', 'sample');
     map.createLayer("Ground", "sample", -1536, -1152);
-    map.createLayer("Road", "sample", -1536, -1152);
+    // map.createLayer("Roads", "sample", -1536, -1152);
     map.createLayer("Objects", "sample", -1536, -1152);
 
     // test grid data

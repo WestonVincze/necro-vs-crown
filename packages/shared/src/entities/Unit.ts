@@ -1,5 +1,5 @@
-import { type IWorld, addComponent, addEntity } from "bitecs"
-import { Crown, Input, Necro, Position, Sprite, Velocity, Health, Behavior, Behaviors, Transform, Collider, CollisionLayers, Inventory, FollowTarget, Target, GridCell } from "../components";
+import { type World as IWorld, addComponent, addEntity } from "bitecs"
+import { Crown, Input, Necro, Position, Sprite, Velocity, Health, Behavior, Behaviors, Transform, Collider, CollisionLayers, Inventory, GridCell } from "../components";
 import { Armor, AttackRange, AttackSpeed, CritChance, CritDamage, DamageBonus, MaxHealth, HealthRegeneration, MaxHit, MaxMoveSpeed, MoveSpeed } from "../components/Stats";
 import { Faction, type Stats, type Unit } from "../types";
 import { AllUnits } from "../data";
