@@ -1,4 +1,4 @@
-import { type IWorld } from "bitecs";
+import { type World as IWorld } from "bitecs";
 
 export type Pipeline = (world: World) => void;
 

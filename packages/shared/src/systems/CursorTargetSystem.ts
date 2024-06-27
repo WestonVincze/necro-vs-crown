@@ -1,4 +1,4 @@
-import { addComponent, addEntity, defineQuery, defineSystem, type IWorld } from 'bitecs';
+import { addComponent, addEntity, defineQuery, defineSystem, type World as IWorld } from 'bitecs';
 import { fromEvent, map } from 'rxjs';
 import { Cursor, GridCell, Position } from '../components';
 import type { Scene } from 'phaser';
