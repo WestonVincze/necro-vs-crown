@@ -5,7 +5,7 @@
  * * Define logic for each state in an FSM or switch statement
  */
 
-import { defineQuery, defineSystem } from "bitecs";
+import { type World, defineQuery, query } from "bitecs";
 import { AIGoal, AIState } from "../components/AI";
 
 enum Goals {
@@ -17,7 +17,7 @@ enum Goals {
 export const createBehaviorSystem = () => {
   const behaviorQuery = defineQuery([AIState, AIGoal]);
 
-  return defineSystem(world => {
+  return (world: World) => {
     for (const eid in behaviorQuery(world)) {
       switch (AIGoal.goalType[eid]) {
         case Goals.None:
@@ -30,5 +30,5 @@ export const createBehaviorSystem = () => {
     }
 
     return world;
-  })
+  }
 }

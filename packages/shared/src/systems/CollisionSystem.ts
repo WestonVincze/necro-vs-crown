@@ -1,4 +1,4 @@
-import { defineQuery, defineSystem } from 'bitecs';
+import { defineQuery, type World } from 'bitecs';
 import { Position, Collider } from '../components';
 import { Subject } from 'rxjs';
 /**
@@ -23,7 +23,7 @@ export const collisionEvents = new Subject<{ eid1: number, eid2: number }>();
 export const createCollisionSystem = () => {
   const collisionQuery = defineQuery([Position, Collider]);
 
-  return defineSystem((world) => {
+  return (world: World) => {
     const entities = collisionQuery(world);
 
     for (let i = 0; i < entities.length; i++) {
@@ -40,7 +40,7 @@ export const createCollisionSystem = () => {
     }
 
     return world;
-  })
+  }
 };
 
 const checkCollision = (eid1: number, eid2: number) => {
