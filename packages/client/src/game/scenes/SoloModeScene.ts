@@ -1,6 +1,6 @@
 import { addComponent, createWorld, getAllEntities, getEntityComponents, pipe, type System } from "bitecs";
 import { Scene } from "phaser";
-import { type World, type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem, Faction, Behavior, Behaviors, createAssignFollowTargetSystem, createGridSystem } from "@necro-crown/shared";
+import { type World, type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem, Faction, Behavior, Behaviors, createAssignFollowTargetSystem, createGridSystem, SpellName } from "@necro-crown/shared";
 // @ts-expect-error - no declaration file
 import * as dat from 'dat.gui';
 import { createCameraControlSystem } from "$game/systems";
@@ -136,6 +136,7 @@ export class SoloModeScene extends Scene {
         addComponent(this.world, Player, eid);
         addComponent(this.world, Spell, eid);
         Spell.state[eid] = SpellState.Ready;
+        Spell.name[eid] = SpellName.HolyNova;
 
         // create Bones entity (for testing)
         createBonesEntity(this.world, 500, 500);

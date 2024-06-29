@@ -1,5 +1,5 @@
 import { type World as IWorld, addComponent, addEntity } from "bitecs"
-import { Crown, Input, Necro, Position, Sprite, Velocity, Health, Behavior, Behaviors, Transform, Collider, CollisionLayers, Inventory, GridCell } from "../components";
+import { Crown, Input, Necro, Position, Sprite, Velocity, Health, Behavior, Behaviors, Transform, Collider, CollisionLayers, Inventory, GridCell, Spell, SpellState, SpellName } from "../components";
 import { Armor, AttackRange, AttackSpeed, CritChance, CritDamage, DamageBonus, MaxHealth, HealthRegeneration, MaxHit, MaxMoveSpeed, MoveSpeed } from "../components/Stats";
 import { Faction, type Stats, type Unit } from "../types";
 import { AllUnits } from "../data";
@@ -20,6 +20,13 @@ export const createUnitEntity = (world: IWorld, name: Unit, x: number, y: number
     Collider.layer[eid] = CollisionLayers.NECRO;
     Collider.collisionLayers[eid] = CollisionLayers.ITEM;
     Collider.ignoreLayers[eid] = CollisionLayers.NECRO;
+  }
+
+  // TODO: add spell data to unit data to avoid this mess
+  if (name === "Paladin") {
+    addComponent(world, Spell, eid);
+    Spell.state[eid] = SpellState.Ready;
+    Spell.name[eid] = SpellName.HolyNova;
   }
 
   switch (data.type) {

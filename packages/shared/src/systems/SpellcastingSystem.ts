@@ -1,7 +1,9 @@
-import { addComponent, addEntity, defineQuery, defineSystem, enterQuery, exitQuery, removeEntity } from "bitecs";
-import { Spell, Input, SpellEffect, Position, SpellState, Bones, Behavior, Behaviors } from "../components";
+import { addComponent, addEntity, defineQuery, defineSystem, enterQuery, exitQuery, removeEntity, type World } from "bitecs";
+import { Spell, Input, SpellEffect, Position, SpellState, Bones, Behavior, Behaviors, Necro, Health, SpellName } from "../components";
 import { GameObjects, Scene } from "phaser";
 import { createUnitEntity } from "../entities";
+import { healthChanges, hitSplats } from "../subjects";
+import { Faction } from "../types";
 
 export const createSpellcastingSystem = () => {
   const spellcasterQuery = defineQuery([Input, Position, Spell]);
@@ -9,7 +11,7 @@ export const createSpellcastingSystem = () => {
   const sEnterQuery = enterQuery(spellcasterQuery);
   const sExitQuery = exitQuery(spellcasterQuery);
 
-  return defineSystem(world => {
+  return (world: World) => {
     const entitiesEntered = sEnterQuery(world);
     // for (let i = 0; i < entitiesEntered.length; i++) {}
 
@@ -35,6 +37,7 @@ export const createSpellcastingSystem = () => {
           SpellEffect.size[spellEffectEid] = 30;
           SpellEffect.maxSize[spellEffectEid] = 100;
           SpellEffect.growthRate[spellEffectEid] = 1;
+          SpellEffect.name[spellEffectEid] = Spell.name[casterEid];
 
           /*
           Position.x[spellEffectEid] = Position.x[casterEid];
@@ -56,7 +59,7 @@ export const createSpellcastingSystem = () => {
     */
 
     return world;
-  })
+  }
 }
 
 // TODO: abstract the client (Phaser related) logic into separate system
@@ -70,8 +73,9 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
 
   // TODO: avoid defining queries for every type of spell... this works for now though
   const bonesQuery = defineQuery([Bones, Position]);
+  const necroUnitQuery = defineQuery([Necro, Position, Health]);
 
-  return defineSystem(world => {
+  return (world: World) => {
     const entitiesEntered = onEnterQuery(world);
     for (let i = 0; i < entitiesEntered.length; i++) {
       const eid = entitiesEntered[i];
@@ -126,20 +130,46 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
     for (let i = 0; i < entitiesExited.length; i++) {
       const eid = entitiesExited[i];
 
-      const boneEntities = bonesQuery(world);
+      switch (SpellEffect.name[eid]) {
+        case SpellName.Summon:
+          const boneEntities = bonesQuery(world);
 
-      for (const boneEntity of boneEntities) {
-        const dx = Position.x[eid] - Position.x[boneEntity];
-        const dy = Position.y[eid] - Position.y[boneEntity];
-        const distance = Math.sqrt(dx * dx + dy * dy);
+          for (const boneEntity of boneEntities) {
+            const dx = Position.x[eid] - Position.x[boneEntity];
+            const dy = Position.y[eid] - Position.y[boneEntity];
+            const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance < SpellEffect.size[eid] + 50) {
-          const x = Position.x[boneEntity];
-          const y = Position.y[boneEntity];
-          removeEntity(world, boneEntity);
-          const eid = createUnitEntity(world, "Skeleton", x, y);
-          Behavior.type[eid] = Behaviors.FollowCursor;
-        }
+            if (distance < SpellEffect.size[eid] + 50) {
+              const x = Position.x[boneEntity];
+              const y = Position.y[boneEntity];
+              removeEntity(world, boneEntity);
+              const eid = createUnitEntity(world, "Skeleton", x, y);
+              Behavior.type[eid] = Behaviors.FollowCursor;
+            }
+          }
+          break;
+        case SpellName.HolyNova:
+          const necroEntities = necroUnitQuery(world);
+
+          for (const necroEid of necroEntities) {
+            const dx = Position.x[eid] - Position.x[necroEid];
+            const dy = Position.y[eid] - Position.y[necroEid];
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < SpellEffect.size[eid] + 50) {
+              healthChanges.next({ eid: necroEid, amount: -10 });
+              hitSplats.next({
+                x: Position.x[necroEid],
+                y: Position.y[necroEid],
+                amount: 10,
+                isCrit: false,
+                tag: Faction.Necro 
+              });
+            }
+          }
+          break;
+        default:
+          break;
       }
 
       const circle = circlesById.get(eid);
@@ -154,7 +184,7 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
 
     }
     return world;
-  })
+  }
 }
 
 export const createSpellFXSystem = () => {
