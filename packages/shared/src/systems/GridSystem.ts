@@ -2,7 +2,7 @@ import { defineQuery, defineSystem, exitQuery } from "bitecs";
 import { Position, GridCell } from "../components";
 import type { Tilemaps } from "phaser";
 
-const DEBUG_MODE = false;
+const DEBUG_MODE = true;
 
 type Cell = {
   walkable: boolean;

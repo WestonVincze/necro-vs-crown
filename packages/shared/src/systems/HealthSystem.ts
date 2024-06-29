@@ -88,7 +88,7 @@ const drawHealthBarGraphic = (healthBar: GameObjects.Graphics, width: number, he
 
 const getHealthBarProps = (eid: number) => {
   const x = Position.x[eid] - (Transform.width[eid] / 2) + 4;
-  const y = Position.y[eid] - (Transform.height[eid] / 2) - HEALTH_BAR_HEIGHT * 2;
+  const y = Position.y[eid] - (Transform.height[eid]) - HEALTH_BAR_HEIGHT * 2;
   const width = Transform.width[eid] - 8;
   const height = HEALTH_BAR_HEIGHT;
   return { x, y, width, height };

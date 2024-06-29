@@ -5,7 +5,7 @@ import { Grid, AStarFinder, DiagonalMovement, Util } from "pathfinding";
 import { type Scene, GameObjects, Geom } from "phaser";
 import { MoveTarget } from "../relations";
 
-const DEBUG_MODE = false;
+const DEBUG_MODE = true;
 
 const SEPARATION_THRESHOLD = 50;
 const SEPARATION_THRESHOLD_SQUARED = SEPARATION_THRESHOLD ** 2;
