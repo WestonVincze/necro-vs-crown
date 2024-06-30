@@ -1,8 +1,9 @@
-import { defineQuery, defineSystem, enterQuery, exitQuery } from "bitecs"
-import { Health, Position, Transform } from "../components";
+import { defineQuery, defineSystem, enterQuery, exitQuery, hasComponent } from "bitecs"
+import { Health, Necro, Position, Transform } from "../components";
 import { GameObjects, Scene } from "phaser";
-import { healthChanges, hitSplats, onDeath } from "../subjects";
+import { healthChanges, onDeath } from "../subjects";
 import { Faction } from "../types";
+import { getPositionVector } from "../utils";
 
 const HEALTH_BAR_HEIGHT = 5;
 
@@ -88,7 +89,7 @@ const drawHealthBarGraphic = (healthBar: GameObjects.Graphics, width: number, he
 
 const getHealthBarProps = (eid: number) => {
   const x = Position.x[eid] - (Transform.width[eid] / 2) + 4;
-  const y = Position.y[eid] - (Transform.height[eid] / 2) - HEALTH_BAR_HEIGHT * 2;
+  const y = Position.y[eid] - (Transform.height[eid]) - HEALTH_BAR_HEIGHT * 2;
   const width = Transform.width[eid] - 8;
   const height = HEALTH_BAR_HEIGHT;
   return { x, y, width, height };
@@ -110,12 +111,17 @@ const hitSplatColors = {
 export const createHitSplatSystem = (scene: Scene) => {
   return defineSystem(world => {
     // TODO: this needs to unsubscribe when the scene changes
-    hitSplats.subscribe(({ x, y, amount, isCrit, tag}) => {
+    healthChanges.subscribe(({ amount, isCrit, eid}) => {
+      const tag = hasComponent(world, Necro, eid) ? Faction.Necro : Faction.Crown
+      const position = getPositionVector(eid);
+      position.y -= Transform.height[eid] / 2;
+      const { x, y } = position;
+
       let color = hitSplatColors[tag].hit;
       let fontSize = "16px"
-      let textAmount = String(amount);
+      let textAmount = String(Math.abs(amount));
 
-      if (amount <= 0) {
+      if (amount === 0) {
         color = hitSplatColors[tag].miss;
       } else if (isCrit) {
         color = hitSplatColors[tag].crit;

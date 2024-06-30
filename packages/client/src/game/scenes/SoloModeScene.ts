@@ -1,6 +1,6 @@
-import { addComponent, createWorld, getAllEntities, getEntityComponents, pipe, type System } from "bitecs";
+import { addComponent, addEntity, createWorld, getAllEntities, getEntityComponents, pipe, type System } from "bitecs";
 import { Scene } from "phaser";
-import { type World, type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem, Faction, Behavior, Behaviors, createAssignFollowTargetSystem, createGridSystem } from "@necro-crown/shared";
+import { type World, type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem, Faction, Behavior, Behaviors, createAssignFollowTargetSystem, createGridSystem, SpellName } from "@necro-crown/shared";
 // @ts-expect-error - no declaration file
 import * as dat from 'dat.gui';
 import { createCameraControlSystem } from "$game/systems";
@@ -95,7 +95,7 @@ export class SoloModeScene extends Scene {
     const map = this.make.tilemap({ key: 'map' });
     map.addTilesetImage('sample', 'sample');
     map.createLayer("Ground", "sample", -1536, -1152);
-    map.createLayer("Road", "sample", -1536, -1152);
+    // map.createLayer("Roads", "sample", -1536, -1152);
     map.createLayer("Objects", "sample", -1536, -1152);
 
     // test grid data
@@ -107,6 +107,9 @@ export class SoloModeScene extends Scene {
       }
       gridData.push(row);
     }
+
+    // somehow this is necessary to prevent a bug with targeting
+    const zero = addEntity(this.world);
 
     // Faction specific configurations
     switch (this.playerType) {
@@ -136,17 +139,20 @@ export class SoloModeScene extends Scene {
         addComponent(this.world, Player, eid);
         addComponent(this.world, Spell, eid);
         Spell.state[eid] = SpellState.Ready;
+        Spell.name[eid] = SpellName.HolyNova;
 
         // create Bones entity (for testing)
         createBonesEntity(this.world, 500, 500);
 
-        for (let i = 0; i < 300; i++) {
-          const randomEntity = Math.random() > 0.5 ? "Peasant" : "Skeleton";
+        for (let i = 0; i < 30; i++) {
+          const randomEntity = Math.random() > 0.5 ? "Paladin" : "Skeleton";
           const eid = createUnitEntity(this.world, randomEntity, Math.random() * 1024, Math.random() * 1024);
 
           if (randomEntity === "Skeleton") {
             Behavior.type[eid] = Behaviors.FollowCursor;
-          } 
+          }  else {
+            Behavior.type[eid] = Behaviors.AutoTarget;
+          }
         }
 
         // system overrides

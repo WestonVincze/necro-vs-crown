@@ -1,4 +1,4 @@
-import { type IWorld, addComponent, defineSystem, hasComponent, removeComponent, removeEntity } from 'bitecs';
+import { addComponent, hasComponent, removeEntity, type World } from 'bitecs';
 import { Item, Equipped, Inventory } from '../components';
 
 import { collisionEvents } from './CollisionSystem';
@@ -19,7 +19,7 @@ const itemEffects = {
 
 export const createItemEquipSystem = () => {
   // TODO: map item stats to stat components and update base / current values
-  return defineSystem(world => {
+  return (world: World) => {
     collisionEvents.subscribe(({ eid1, eid2 }) => {
       if (hasComponent(world, Item, eid1) && hasComponent(world, Inventory, eid2)) {
         equipItem(world, eid2, eid1);
@@ -29,10 +29,10 @@ export const createItemEquipSystem = () => {
     });
 
     return world;
-  })
+  }
 }
 
-const equipItem = (world: IWorld, entity: number, item: number) => {
+const equipItem = (world: World, entity: number, item: number) => {
   console.log(`${entity} is equipping ${item}`)
   const itemId = Item.itemId[item];
 

@@ -1,23 +1,23 @@
-import { addComponent, defineQuery, defineSystem, entityExists, hasComponent, Not } from "bitecs";
-import { Armor, AttackBonus, AttackCooldown, AttackRange, AttackSpeed, CritChance, CritDamage, Crown, DamageBonus, Health, MaxHit, Necro, Position, Target } from "../components";
-import { checkIfWithinDistance } from "../utils/CollisionChecks";
-import { healthChanges, hitSplats } from "../subjects";
-import { Faction, type World } from "../types";
+import { addComponent, defineQuery, entityExists, getRelationTargets, hasComponent, Not } from "bitecs";
+import { Armor, AttackBonus, AttackCooldown, AttackRange, AttackSpeed, CritChance, CritDamage, Crown, DamageBonus, Health, MaxHit, Necro, Position } from "../components";
+import { checkIfWithinDistance } from "../utils";
+import { healthChanges } from "../subjects";
+import { CombatTarget } from "../relations";
+import type { World } from "../types";
 
 export const createCombatSystem = () => {
-  const attackerQuery = defineQuery([Target, AttackSpeed, AttackRange, MaxHit, Position, Not(AttackCooldown)]);
+  const attackerQuery = defineQuery([CombatTarget("*"), AttackSpeed, AttackRange, MaxHit, Position, Not(AttackCooldown)]);
   const necroQuery = defineQuery([Necro, Health, Position, Armor]);
   const crownQuery = defineQuery([Crown, Health, Position, Armor]);
-  return defineSystem((world: World) => {
-    const entities = attackerQuery(world);
-    for (let i = 0; i < entities.length; i++) {
-      const eid = entities[i];
-      const targetEid = Target.eid[eid];
-      const attacker = { x: Position.x[eid], y: Position.y[eid] };
-      const target = { x: Position.x[targetEid], y: Position.y[targetEid] };
+
+  return (world: World) => {
+    for (const eid of attackerQuery(world)) {
+      const targetEid = getRelationTargets(world, CombatTarget, eid)[0];
+      const attackerPosition = { x: Position.x[eid], y: Position.y[eid] };
+      const targetPosition = { x: Position.x[targetEid], y: Position.y[targetEid] };
 
       // TODO: accommodate for actual dimensions of sprites?
-      if (!checkIfWithinDistance(attacker, target, AttackRange.current[eid] + 30)) continue;
+      if (!checkIfWithinDistance(attackerPosition, targetPosition, AttackRange.current[eid] + 30)) continue;
 
       let damage = 0;
       let critMod = 1;
@@ -36,7 +36,7 @@ export const createCombatSystem = () => {
 
       addComponent(world, AttackCooldown, eid);
       // TODO: move AttackSpeed (and perhaps other cooldowns) to a tick based system?
-      AttackCooldown.attackReady[eid] = (AttackSpeed.current[eid] * 200) + world.time.elapsed;
+      AttackCooldown.ready[eid] = (AttackSpeed.current[eid] * 200) + world.time.elapsed;
       if (rollToHit(Armor.current[targetEid], AttackBonus.current[eid])) {
         damage = rollDice(MaxHit.current[eid]);
       }
@@ -51,18 +51,10 @@ export const createCombatSystem = () => {
       damage = damage * critMod + DamageBonus.current[eid];
 
       healthChanges.next({ eid: targetEid, amount: damage * -1 });
-
-      hitSplats.next({
-        x: target.x,
-        y: target.y,
-        amount: damage,
-        isCrit: critMod > 1,
-        tag: hasComponent(world, Necro, targetEid) ? Faction.Necro : Faction.Crown
-      });
     }
 
     return world;
-  })
+  }
 }
 
 const rollDice = (sides: number, bonus = 0) => {

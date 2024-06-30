@@ -1,4 +1,4 @@
-import { type IWorld, addComponent, addEntity } from "bitecs";
+import { type World as IWorld, addComponent, addEntity } from "bitecs";
 import { Collider, CollisionLayers, Item, Position, Sprite, Transform } from "../components"
 import { SpriteTexture } from "../constants";
 

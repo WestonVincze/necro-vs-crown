@@ -1,4 +1,4 @@
-import { IWorld } from 'bitecs';
+import { World } from 'bitecs';
 import { Position } from '../components';
 
 /**
@@ -28,7 +28,7 @@ export class SpatialGrid {
     return `${cellX},${cellY}`;
   }
 
-  insert(world: IWorld, eid: number): void {
+  insert(world: World, eid: number): void {
     const x = Position.x[eid];
     const y = Position.y[eid];
     const key = this.getCellKey(x, y);

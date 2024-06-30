@@ -1,13 +1,12 @@
-// dice rolls are 0 inclusive
-const rollDice = (sides, bonus = 0) => {
-  return Math.round(Math.random() * sides) + bonus;
+const rollDice = (sides: number, bonus = 0) => {
+  return Math.floor(Math.random() * sides) + 1 + bonus;
 }
 
-const rollToHit = (difficulty, bonus = 0) => {
+const rollToHit = (difficulty: number, bonus = 0) => {
   return rollDice(20, bonus) >= difficulty;
 }
 
-const rollToCrit = (critChance) => {
+const rollToCrit = (critChance: number) => {
   return rollDice(100) + critChance >= 100;
 }
 

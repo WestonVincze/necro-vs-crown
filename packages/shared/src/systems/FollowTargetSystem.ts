@@ -1,10 +1,11 @@
-import { defineQuery, defineSystem, exitQuery } from "bitecs"
-import { AttackRange, FollowTarget, GridCell, Input, Position, Velocity } from "../components";
+import { defineQuery, defineSystem, exitQuery, getRelationTargets } from "bitecs"
+import { AttackRange, GridCell, Input, Position, Velocity } from "../components";
 import { type Vector2 } from "../types";
 import { Grid, AStarFinder, DiagonalMovement, Util } from "pathfinding";
 import { type Scene, GameObjects, Geom } from "phaser";
+import { MoveTarget } from "../relations";
 
-const DEBUG_MODE = false;
+const DEBUG_MODE = true;
 
 const SEPARATION_THRESHOLD = 50;
 const SEPARATION_THRESHOLD_SQUARED = SEPARATION_THRESHOLD ** 2;
@@ -39,7 +40,7 @@ const calculateFollowForce = (self: Vector2, target: Vector2, range: number): Ve
 
 // TODO: remove scene reference or make it optional for debugging
 export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => {
-  const followTargetQuery = defineQuery([Position, GridCell, Input, Velocity, FollowTarget, AttackRange]);
+  const followTargetQuery = defineQuery([Position, GridCell, Input, Velocity, MoveTarget("*"), AttackRange]);
 
   const grid = new Grid(gridData);
   const finder = new AStarFinder(
@@ -62,7 +63,7 @@ export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => 
       const pyGrid = GridCell.y[eid];
 
       // get target position data
-      const targetEid = FollowTarget.eid[eid];
+      const targetEid = getRelationTargets(world, MoveTarget, eid)[0];
       const txGrid = GridCell.x[targetEid];
       const tyGrid = GridCell.y[targetEid];
 
@@ -120,7 +121,7 @@ export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => 
 
           // get the next point of our path if we are at the next point
           if (Math.abs(pxGrid - nextPoint[0]) < 1 && Math.abs(pyGrid - nextPoint[1]) < 1) {
-            console.log(`reached ${nextPoint[0]}, ${nextPoint[1]}`)
+            // console.log(`reached ${nextPoint[0]}, ${nextPoint[1]}`)
             pathsByEntityId.get(eid)?.shift();
           }
         }

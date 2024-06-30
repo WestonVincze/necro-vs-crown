@@ -43,6 +43,8 @@ export const createSpriteSystem = (scene: Scene) => {
     const entities = spriteQuery(world);
     for (let i = 0; i < entities.length; i++) {
       const eid = entities[i];
+      const x = Position.x[eid];
+      const y = Position.y[eid] - Transform.height[eid] / 2;
 
       const sprite = spritesById.get(eid);
       const count = countById.get(eid) || 0;
@@ -53,7 +55,7 @@ export const createSpriteSystem = (scene: Scene) => {
       }
 
       /** Uses rope to make everything wiggle **/
-      if (Math.abs(sprite.x - Position.x[eid]) > 0.1 || Math.abs(sprite.y - Position.y[eid]) > 0.1) {
+      if (Math.abs(sprite.x - x) > 0.1 || Math.abs(sprite.y - y) > 0.1) {
         // sprite has moved at least a little
         let points = sprite.points;
 
@@ -70,7 +72,7 @@ export const createSpriteSystem = (scene: Scene) => {
       }
 
       sprite.x = Position.x[eid];
-      sprite.y = Position.y[eid];
+      sprite.y = Position.y[eid] - Transform.height[eid] / 2;
       // workaround to ensure z-index is always above 0
       sprite.depth = Position.y[eid] + 1200;
     }

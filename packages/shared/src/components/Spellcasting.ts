@@ -5,6 +5,11 @@ export enum SpellState {
   Casting,
 }
 
+export enum SpellName {
+  Summon,
+  HolyNova
+}
+
 export const Spell = defineComponent({
   name: Types.ui8,
   type: Types.ui8,
@@ -12,9 +17,10 @@ export const Spell = defineComponent({
 });
 
 export const SpellEffect = defineComponent({
+  // faction? reference to owner?
   anchor: Types.eid,
   duration: Types.f32,
-  type: Types.ui8,
+  name: Types.ui8,
   size: Types.f32,
   maxSize: Types.f32,
   growthRate: Types.f32,
