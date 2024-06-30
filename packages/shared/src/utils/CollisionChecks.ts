@@ -1,3 +1,4 @@
+import { Position } from "../components";
 import { type Vector2 } from "../types";
 
 /*
@@ -25,4 +26,8 @@ export const checkIfWithinDistance = (a: Vector2, b: Vector2, distance: number) 
   const distanceSquared = dx ** 2 + dy ** 2;
 
   return distanceSquared <= distance ** 2;
+}
+
+export const getPositionVector = (eid: number) => {
+  return { x: Position.x[eid], y: Position.y[eid] };
 }

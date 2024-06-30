@@ -1,18 +1,17 @@
-import { addComponent, defineQuery, defineSystem, entityExists, getRelationTargets, hasComponent, Not } from "bitecs";
+import { addComponent, defineQuery, entityExists, getRelationTargets, hasComponent, Not } from "bitecs";
 import { Armor, AttackBonus, AttackCooldown, AttackRange, AttackSpeed, CritChance, CritDamage, Crown, DamageBonus, Health, MaxHit, Necro, Position } from "../components";
-import { checkIfWithinDistance } from "../utils/CollisionChecks";
-import { healthChanges, hitSplats } from "../subjects";
-import { Faction, type World } from "../types";
+import { checkIfWithinDistance } from "../utils";
+import { healthChanges } from "../subjects";
 import { CombatTarget } from "../relations";
+import type { World } from "../types";
 
 export const createCombatSystem = () => {
   const attackerQuery = defineQuery([CombatTarget("*"), AttackSpeed, AttackRange, MaxHit, Position, Not(AttackCooldown)]);
   const necroQuery = defineQuery([Necro, Health, Position, Armor]);
   const crownQuery = defineQuery([Crown, Health, Position, Armor]);
-  return defineSystem((world: World) => {
-    const entities = attackerQuery(world);
-    for (let i = 0; i < entities.length; i++) {
-      const eid = entities[i];
+
+  return (world: World) => {
+    for (const eid of attackerQuery(world)) {
       const targetEid = getRelationTargets(world, CombatTarget, eid)[0];
       const attackerPosition = { x: Position.x[eid], y: Position.y[eid] };
       const targetPosition = { x: Position.x[targetEid], y: Position.y[targetEid] };
@@ -52,18 +51,10 @@ export const createCombatSystem = () => {
       damage = damage * critMod + DamageBonus.current[eid];
 
       healthChanges.next({ eid: targetEid, amount: damage * -1 });
-
-      hitSplats.next({
-        x: targetPosition.x,
-        y: targetPosition.y,
-        amount: damage,
-        isCrit: critMod > 1,
-        tag: hasComponent(world, Necro, targetEid) ? Faction.Necro : Faction.Crown
-      });
     }
 
     return world;
-  })
+  }
 }
 
 const rollDice = (sides: number, bonus = 0) => {
