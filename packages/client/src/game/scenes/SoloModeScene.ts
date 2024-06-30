@@ -1,4 +1,4 @@
-import { addComponent, createWorld, getAllEntities, getEntityComponents, pipe, type System } from "bitecs";
+import { addComponent, addEntity, createWorld, getAllEntities, getEntityComponents, pipe, type System } from "bitecs";
 import { Scene } from "phaser";
 import { type World, type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem, Faction, Behavior, Behaviors, createAssignFollowTargetSystem, createGridSystem, SpellName } from "@necro-crown/shared";
 // @ts-expect-error - no declaration file
@@ -108,6 +108,9 @@ export class SoloModeScene extends Scene {
       gridData.push(row);
     }
 
+    // somehow this is necessary to prevent a bug with targeting
+    const zero = addEntity(this.world);
+
     // Faction specific configurations
     switch (this.playerType) {
       case Faction.Crown:
@@ -147,7 +150,9 @@ export class SoloModeScene extends Scene {
 
           if (randomEntity === "Skeleton") {
             Behavior.type[eid] = Behaviors.FollowCursor;
-          } 
+          }  else {
+            Behavior.type[eid] = Behaviors.AutoTarget;
+          }
         }
 
         // system overrides

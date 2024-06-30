@@ -63,7 +63,7 @@ export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => 
       const pyGrid = GridCell.y[eid];
 
       // get target position data
-      const targetEid = getRelationTargets(world, MoveTarget, eid)[0]; // FollowTarget.eid[eid];
+      const targetEid = getRelationTargets(world, MoveTarget, eid)[0];
       const txGrid = GridCell.x[targetEid];
       const tyGrid = GridCell.y[targetEid];
 

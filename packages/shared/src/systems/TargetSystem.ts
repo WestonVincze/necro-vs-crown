@@ -1,9 +1,11 @@
 import { addComponent, defineQuery, defineSystem, getRelationTargets, hasComponent, removeComponent } from "bitecs"
-import { Position, Behavior, Behaviors, Input } from "../components";
+import { Position, Behavior, Behaviors, Input, Spell } from "../components";
 import { Crown, Necro } from "../components/Tags";
 import { getCursorEid } from "./CursorTargetSystem";
 import { MoveTarget, CombatTarget } from "../relations";
+import { getDistanceSquared, getPositionVector } from "../utils";
 
+// THOUGHT: we could change this system to be reactive or include some dirty/clean flags to skip over target search when not required
 export const createTargetingSystem = () => {
   const necroTargetQuery = defineQuery([Behavior, Position, Necro]);
   const crownTargetQuery = defineQuery([Behavior, Position, Crown]);
@@ -27,7 +29,7 @@ export const createTargetingSystem = () => {
 
           if (Behavior.type[eid] === Behaviors.AutoTarget) {
             removeComponent(world, MoveTarget("*"), eid);
-            // extra workaround to stop movement until we add proper AI
+            // WORKAROUND: to stop movement until we add proper AI
             Input.moveX[eid] = 0;
             Input.moveY[eid] = 0;
           }
@@ -35,22 +37,16 @@ export const createTargetingSystem = () => {
         return;
       }
 
-      for (let i = 0; i < sourceEntities.length; i++) {
+      for (const eid of sourceEntities) {
         let closestDistance = Infinity;
-        let closestTarget = -1;
-        const eid = sourceEntities[i];
+        let closestTarget = null;
 
-        const sx = Position.x[eid];
-        const sy = Position.y[eid];
+        const position = getPositionVector(eid);
 
-        for (let j = 0; j < targetEntities.length; j++) { //targetEid of targetEntities) {
-          const targetEid = targetEntities[j];
-          const tx = Position.x[targetEid];
-          const ty = Position.y[targetEid];
-          const dx = sx - tx;
-          const dy = sy - ty;
+        for (const targetEid of targetEntities) {
+          const targetPosition = getPositionVector(targetEid);
 
-          const distance = (dx ** 2) + (dy ** 2);
+          const distance = getDistanceSquared(position, targetPosition);
 
           if (distance < closestDistance) {
             closestTarget = targetEid;
@@ -58,7 +54,7 @@ export const createTargetingSystem = () => {
           }
         }
 
-        if (closestTarget !== -1) {
+        if (closestTarget !== null) {
           addComponent(world, CombatTarget(closestTarget), eid);
         } 
       }
