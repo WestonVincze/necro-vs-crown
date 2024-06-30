@@ -1,5 +1,5 @@
 import { addComponent, defineQuery, defineSystem, getRelationTargets, hasComponent, removeComponent } from "bitecs"
-import { Position, Behavior, Behaviors, Input, Spell } from "../components";
+import { Position, Behavior, Behaviors, Input } from "../components";
 import { Crown, Necro } from "../components/Tags";
 import { getCursorEid } from "./CursorTargetSystem";
 import { MoveTarget, CombatTarget } from "../relations";

@@ -1,13 +1,13 @@
-import { defineEnterQueue, addComponent, defineQuery, removeComponent, removeEntity, type World, defineExitQueue } from "bitecs";
-import { Spell, Input, SpellEffect, Position, SpellState, Bones, Behavior, Behaviors, Necro, Health, SpellName } from "../components";
+import { defineEnterQueue, addComponent, defineQuery, removeComponent, removeEntity, defineExitQueue, Not } from "bitecs";
+import { Spell, Input, SpellEffect, Position, SpellState, Bones, Behavior, Behaviors, Necro, Health, SpellName, SpellCooldown } from "../components";
 import { GameObjects, Scene } from "phaser";
 import { createUnitEntity } from "../entities";
 import { healthChanges } from "../subjects";
-import { Faction } from "../types";
 import { checkIfWithinDistance, getPositionVector } from "../utils";
+import type { World } from "../types";
 
 export const createSpellcastingSystem = () => {
-  const spellcasterQuery = defineQuery([Input, Position, Spell]);
+  const spellcasterQuery = defineQuery([Input, Position, Spell, Not(SpellCooldown)]);
 
   return (world: World) => {
     const entities = spellcasterQuery(world);
@@ -62,6 +62,10 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
       // grow spell effect
       if (SpellEffect.size[eid] < SpellEffect.maxSize[eid]) {
         SpellEffect.size[eid] += Math.min(SpellEffect.maxSize[eid], SpellEffect.growthRate[eid]);
+      } else if (SpellEffect.name[eid] === SpellName.HolyNova) {
+        // TODO: generalize this for auto-resolving spell effects
+        removeComponent(world, SpellEffect, eid, false);
+        Spell.state[eid] = SpellState.Ready;
       }
 
       const circle = circlesById.get(eid);
@@ -77,6 +81,8 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
     // onExit
     for (const eid of onExit(world)) {
       const position = getPositionVector(eid);
+      addComponent(world, SpellCooldown, eid);
+      SpellCooldown.ready[eid] = world.time.elapsed + 1000;
       switch (SpellEffect.name[eid]) {
         case SpellName.Summon:
           const boneEntities = bonesQuery(world);

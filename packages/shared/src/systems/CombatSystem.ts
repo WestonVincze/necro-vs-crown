@@ -36,7 +36,7 @@ export const createCombatSystem = () => {
 
       addComponent(world, AttackCooldown, eid);
       // TODO: move AttackSpeed (and perhaps other cooldowns) to a tick based system?
-      AttackCooldown.attackReady[eid] = (AttackSpeed.current[eid] * 200) + world.time.elapsed;
+      AttackCooldown.ready[eid] = (AttackSpeed.current[eid] * 200) + world.time.elapsed;
       if (rollToHit(Armor.current[targetEid], AttackBonus.current[eid])) {
         damage = rollDice(MaxHit.current[eid]);
       }

@@ -22,12 +22,6 @@ export const createUnitEntity = (world: IWorld, name: Unit, x: number, y: number
     Collider.ignoreLayers[eid] = CollisionLayers.NECRO;
   }
 
-  // TODO: add spell data to unit data to avoid this mess
-  if (name === "Paladin") {
-    addComponent(world, Spell, eid);
-    Spell.state[eid] = SpellState.Ready;
-    Spell.name[eid] = SpellName.HolyNova;
-  }
 
   switch (data.type) {
     case Faction.Crown:
@@ -39,6 +33,14 @@ export const createUnitEntity = (world: IWorld, name: Unit, x: number, y: number
   }
 
   addComponent(world, Input, eid);
+  // TODO: add spell data to unit data to avoid this mess
+  if (name === "Paladin") {
+    addComponent(world, Spell, eid);
+    Spell.state[eid] = SpellState.Ready;
+    Spell.name[eid] = SpellName.HolyNova;
+    Input.castingSpell[eid] = 1;
+  }
+
   addComponent(world, Position, eid);
   Position.x[eid] = x;
   Position.y[eid] = y;
