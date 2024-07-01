@@ -35,7 +35,3 @@ export const getDistanceSquared = (a: Vector2, b: Vector2) => {
 export const checkIfWithinDistance = (a: Vector2, b: Vector2, distance: number) => {
   return getDistanceSquared(a, b) <= distance ** 2;
 }
-
-export const getPositionVector = (eid: number) => {
-  return { x: Position.x[eid], y: Position.y[eid] };
-}

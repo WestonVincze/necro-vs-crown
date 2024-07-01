@@ -3,7 +3,7 @@ import { Position, Behavior, Behaviors, Input } from "../components";
 import { Crown, Necro } from "../components/Tags";
 import { getCursorEid } from "./CursorTargetSystem";
 import { MoveTarget, CombatTarget } from "../relations";
-import { getDistanceSquared, getPositionVector } from "../utils";
+import { getDistanceSquared, getPositionFromEid } from "../utils";
 
 // THOUGHT: we could change this system to be reactive or include some dirty/clean flags to skip over target search when not required
 export const createTargetingSystem = () => {
@@ -39,12 +39,12 @@ export const createTargetingSystem = () => {
 
       for (const eid of sourceEntities) {
         let closestDistance = Infinity;
-        let closestTarget = null;
+        let closestTarget: null | number = null;
 
-        const position = getPositionVector(eid);
+        const position = getPositionFromEid(eid);
 
         for (const targetEid of targetEntities) {
-          const targetPosition = getPositionVector(targetEid);
+          const targetPosition = getPositionFromEid(targetEid);
 
           const distance = getDistanceSquared(position, targetPosition);
 

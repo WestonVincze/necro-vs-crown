@@ -3,7 +3,7 @@ import { Spell, Input, SpellEffect, Position, SpellState, Bones, Behavior, Behav
 import { GameObjects, Scene } from "phaser";
 import { createUnitEntity } from "../entities";
 import { healthChanges } from "../subjects";
-import { checkIfWithinDistance, getPositionVector } from "../utils";
+import { checkIfWithinDistance, getPositionFromEid } from "../utils";
 import type { World } from "../types";
 
 export const createSpellcastingSystem = () => {
@@ -80,7 +80,7 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
 
     // onExit
     for (const eid of onExit(world)) {
-      const position = getPositionVector(eid);
+      const position = getPositionFromEid(eid);
       addComponent(world, SpellCooldown, eid);
       SpellCooldown.ready[eid] = world.time.elapsed + 1000;
       switch (SpellEffect.name[eid]) {
@@ -88,7 +88,7 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
           const boneEntities = bonesQuery(world);
 
           for (const boneEntity of boneEntities) {
-            const bonePosition = getPositionVector(boneEntity);
+            const bonePosition = getPositionFromEid(boneEntity);
             
             if (checkIfWithinDistance(position, bonePosition, SpellEffect.size[eid] + 50)) {
               removeEntity(world, boneEntity);
@@ -101,7 +101,7 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
         case SpellName.HolyNova:
           const necroEntities = necroUnitQuery(world);
           for (const necroEid of necroEntities) {
-            const necroPosition = getPositionVector(necroEid);
+            const necroPosition = getPositionFromEid(necroEid);
 
             if (checkIfWithinDistance(position, necroPosition, SpellEffect.size[eid] + 50)) {
               healthChanges.next({ eid: necroEid, amount: -10 });

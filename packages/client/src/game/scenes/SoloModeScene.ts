@@ -4,6 +4,7 @@ import { type World, type Pipeline, Player, createCursorTargetSystem, createInpu
 // @ts-expect-error - no declaration file
 import * as dat from 'dat.gui';
 import { createCameraControlSystem } from "$game/systems";
+import { MAP_X_MAX, MAP_X_MIN, MAP_Y_MAX, MAP_Y_MIN, SCREEN_HEIGHT, SCREEN_WIDTH } from "@necro-crown/shared/src/constants";
 
 type PipelineFactory = {
   scene: Scene,
@@ -91,12 +92,12 @@ export class SoloModeScene extends Scene {
     (window as any).getEntityComponents = (eid: number) => getEntityComponents(this.world, eid);
 
     /** Set up testing Tilemap - 3x screen size */
-    this.camera.setBounds(-1536, -1152, 3072, 2304);
+    this.camera.setBounds(MAP_X_MIN, MAP_Y_MIN, MAP_X_MAX, MAP_Y_MAX);
     const map = this.make.tilemap({ key: 'map' });
     map.addTilesetImage('sample', 'sample');
-    map.createLayer("Ground", "sample", -1536, -1152);
-    // map.createLayer("Roads", "sample", -1536, -1152);
-    map.createLayer("Objects", "sample", -1536, -1152);
+    map.createLayer("Ground", "sample", MAP_X_MIN, MAP_Y_MIN);
+    // map.createLayer("Roads", "sample", MAP_X_MIN, MAP_Y_MIN);
+    map.createLayer("Objects", "sample", MAP_X_MIN, MAP_Y_MIN);
 
     // test grid data
     let gridData = [];
@@ -116,7 +117,7 @@ export class SoloModeScene extends Scene {
       case Faction.Crown:
         // create starting units
         for (let i = 0; i < 5; i++) {
-          const eid = createUnitEntity(this.world, "Skeleton", Math.random() * 1024, Math.random() * 1024);
+          const eid = createUnitEntity(this.world, "Skeleton", Math.random() * SCREEN_HEIGHT, Math.random() * SCREEN_WIDTH);
           addComponent(this.world, Behavior, eid);
           Behavior.type[eid] = Behaviors.AutoTarget;
         }

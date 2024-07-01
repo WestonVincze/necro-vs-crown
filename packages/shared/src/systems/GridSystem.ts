@@ -1,6 +1,7 @@
-import { defineQuery, defineSystem, exitQuery } from "bitecs";
+import { defineQuery, type World, exitQuery } from "bitecs";
 import { Position, GridCell } from "../components";
 import type { Tilemaps } from "phaser";
+import { getGridCellFromPosition, getGridCellFromEid, getPositionFromEid } from "../utils";
 
 const DEBUG_MODE = true;
 
@@ -55,18 +56,17 @@ export const createGridSystem = (map: Tilemaps.Tilemap) => {
     (x, y) => setTileAlpha(x, y, 1)
   );
 
-  return defineSystem(world => {
+  return (world: World) => {
     for (const eid of (gridQuery(world))) {
-      const currentGridCellX = GridCell.x[eid];
-      const currentGridCellY = GridCell.y[eid];
-      const newGridCellX = Math.floor((Position.x[eid] + 1536) / 64);
-      const newGridCellY = Math.floor((Position.y[eid] + 1152) / 64);
+      const currentGridCell = getGridCellFromEid(eid);
+      const newPosition = getPositionFromEid(eid);
+      const newGridCell = getGridCellFromPosition(newPosition);
 
-      if (currentGridCellX !== newGridCellX || currentGridCellY !== newGridCellY) {
-        GridCell.x[eid] = newGridCellX;
-        GridCell.y[eid] = newGridCellY;
-        grid.removeEntity(currentGridCellX, currentGridCellY, eid);
-        grid.addEntity(newGridCellX, newGridCellY, eid);
+      if (currentGridCell.x !== newGridCell.x || currentGridCell.y !== newGridCell.y) {
+        GridCell.x[eid] = newGridCell.x;
+        GridCell.y[eid] = newGridCell.y;
+        grid.removeEntity(currentGridCell.x, currentGridCell.y, eid);
+        grid.addEntity(newGridCell.x, newGridCell.y, eid);
       }
     }
 
@@ -74,5 +74,5 @@ export const createGridSystem = (map: Tilemaps.Tilemap) => {
       grid.removeEntity(GridCell.x[eid], GridCell.y[eid], eid);
     }
     return world;
-  })
+  }
 }

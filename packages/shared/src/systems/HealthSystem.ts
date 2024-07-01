@@ -3,7 +3,7 @@ import { Health, Necro, Position, Transform } from "../components";
 import { GameObjects, Scene } from "phaser";
 import { healthChanges, onDeath } from "../subjects";
 import { Faction } from "../types";
-import { getPositionVector } from "../utils";
+import { getPositionFromEid } from "../utils";
 
 const HEALTH_BAR_HEIGHT = 5;
 
@@ -113,7 +113,7 @@ export const createHitSplatSystem = (scene: Scene) => {
     // TODO: this needs to unsubscribe when the scene changes
     healthChanges.subscribe(({ amount, isCrit, eid}) => {
       const tag = hasComponent(world, Necro, eid) ? Faction.Necro : Faction.Crown
-      const position = getPositionVector(eid);
+      const position = getPositionFromEid(eid);
       position.y -= Transform.height[eid] / 2;
       const { x, y } = position;
 

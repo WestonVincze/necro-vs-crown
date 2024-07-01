@@ -1,14 +1,35 @@
-import { defineQuery, defineSystem, exitQuery, getRelationTargets } from "bitecs"
+import { defineQuery, exitQuery, getRelationTargets, type World } from "bitecs"
 import { AttackRange, GridCell, Input, Position, Velocity } from "../components";
 import { type Vector2 } from "../types";
 import { Grid, AStarFinder, DiagonalMovement, Util } from "pathfinding";
 import { type Scene, GameObjects, Geom } from "phaser";
 import { MoveTarget } from "../relations";
+import { getPositionFromGridCell } from "../utils";
 
 const DEBUG_MODE = true;
 
 const SEPARATION_THRESHOLD = 50;
 const SEPARATION_THRESHOLD_SQUARED = SEPARATION_THRESHOLD ** 2;
+
+const drawPathLines = (path: number[][], graphics: GameObjects.Graphics, color: number) => {
+  for (let i = 0; i < path.length; i++) {
+    const lastGridCell = {
+      x: path[Math.max(0, i - 1)][0],
+      y: path[Math.max(0, i - 1)][1],
+    }
+    const lastPosition = getPositionFromGridCell(lastGridCell);
+
+    const currentGridCell = {
+      x: path[i][0],
+      y: path[i][1],
+    }
+    const currentPosition = getPositionFromGridCell(currentGridCell);
+
+    const line = new Geom.Line(lastPosition.x, lastPosition.y, currentPosition.x, currentPosition.y);
+    graphics?.lineStyle(2, color);
+    graphics?.strokeLineShape(line);
+  }
+}
 
 // TODO: change Vector2 to Transform to compensate for height/width
 const calculateSeparationForce = (self: Vector2, target: Vector2): Vector2 => {
@@ -52,7 +73,7 @@ export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => 
   const pathsByEntityId = new Map<number, number[][]>();
   const graphicsById = new Map<number, GameObjects.Graphics>()
 
-  return defineSystem(world => {
+  return (world: World) => {
     const entities = followTargetQuery(world);
     for (let i = 0; i < entities.length; i++) {
       // get position data
@@ -90,25 +111,14 @@ export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => 
             }
 
             const graphics = graphicsById.get(eid);
-
-            graphics?.clear();
-            for (let i = 1; i < smoothPath.length; i++) {
-              const lastX = smoothPath[Math.max(0, i - 1)][0] * 64 - 1504;
-              const lastY = smoothPath[Math.max(0, i - 1)][1] * 64 - 1120;
-
-              const line = new Geom.Line(lastX, lastY, smoothPath[i][0] * 64 - 1504, smoothPath[i][1] * 64 - 1120);
-              graphics?.lineStyle(2, 0xaa00aa);
-              graphics?.strokeLineShape(line);
+            if (!graphics) {
+              console.warn("unable to draw paths, graphics not found");
+              continue;
             }
 
-            for (let i = 0; i < newPath.length; i++) {
-              const lastX = newPath[Math.max(0, i - 1)][0] * 64 - 1504;
-              const lastY = newPath[Math.max(0, i - 1)][1] * 64 - 1120;
-
-              const line = new Geom.Line(lastX, lastY, newPath[i][0] * 64 - 1504, newPath[i][1] * 64 - 1120);
-              graphics?.lineStyle(2, 0x5555ee);
-              graphics?.strokeLineShape(line);
-            }
+            graphics.clear();
+            drawPathLines(smoothPath, graphics, 0xaa00aa);
+            drawPathLines(newPath, graphics, 0x5555aa);
           }
         } else {
           const nextPoint = path[0];
@@ -155,5 +165,5 @@ export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => 
     }
 
     return world;
-  })
+  }
 }
