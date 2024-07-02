@@ -4,7 +4,7 @@ import { type Vector2 } from "../types";
 import { Grid, AStarFinder, DiagonalMovement, Util } from "pathfinding";
 import { type Scene, GameObjects, Geom } from "phaser";
 import { MoveTarget } from "../relations";
-import { getPositionFromGridCell } from "../utils";
+import { areVectorsIdentical, getGridCellFromEid, getPositionFromEid, getPositionFromGridCell } from "../utils";
 
 const DEBUG_MODE = true;
 
@@ -75,27 +75,24 @@ export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => 
 
   return (world: World) => {
     const entities = followTargetQuery(world);
-    for (let i = 0; i < entities.length; i++) {
+    for (const eid of entities) {
       // get position data
-      const eid = entities[i];
-      const px = Position.x[eid];
-      const py = Position.y[eid];
-      const pxGrid = GridCell.x[eid];
-      const pyGrid = GridCell.y[eid];
+      const position = getPositionFromEid(eid);
+      const gridCell = getGridCellFromEid(eid);
 
       // get target position data
       const targetEid = getRelationTargets(world, MoveTarget, eid)[0];
-      const txGrid = GridCell.x[targetEid];
-      const tyGrid = GridCell.y[targetEid];
+      const targetGridCell = getGridCellFromEid(targetEid);
 
       let followForce = { x: 0, y: 0 }
 
       const path = pathsByEntityId.get(eid);
 
-      if (grid.isWalkableAt(txGrid, tyGrid)) {
+      // check if we are already at the target position
+      if (!areVectorsIdentical(gridCell, targetGridCell) && grid.isWalkableAt(targetGridCell.x, targetGridCell.y)) {
         // find a new path if no path exits, no steps remain, or the target position changed since initial calculation
-        if (!path || path.length === 0 || path[path.length - 1][0] !== txGrid || path[path.length - 1][1] !== tyGrid) {
-          const newPath = finder.findPath(pxGrid, pyGrid, txGrid, tyGrid, grid.clone());
+        if (!path || path.length === 0 || path[path.length - 1][0] !== targetGridCell.x || path[path.length - 1][1] !== targetGridCell.y) {
+          const newPath = finder.findPath(gridCell.x, gridCell.y, targetGridCell.x, targetGridCell.y, grid.clone());
 
           if (newPath.length === 0) {
             console.warn(`path not found for ${eid}...`);
@@ -121,8 +118,10 @@ export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => 
             drawPathLines(newPath, graphics, 0x5555aa);
           }
         } else {
-          const nextPoint = path[0];
-          const direction = { x: (nextPoint[0] * 64 - 1504) - px, y: (nextPoint[1] * 64 - 1120) - py };
+          const nextGridCell = { x: path[0][0], y: path[0][1] };
+          const nextPosition = getPositionFromGridCell(nextGridCell);
+
+          const direction = { x: nextPosition.x - position.x, y: nextPosition.y - position.y };
 
           if (direction.x !== 0 || direction.y !== 0) {
             const length = Math.sqrt(direction.x ** 2 + direction.y **2)
@@ -130,7 +129,7 @@ export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => 
           }
 
           // get the next point of our path if we are at the next point
-          if (Math.abs(pxGrid - nextPoint[0]) < 1 && Math.abs(pyGrid - nextPoint[1]) < 1) {
+          if (Math.abs(gridCell.x - nextGridCell.x) < 1 && Math.abs(gridCell.y - nextGridCell.y) < 1) {
             // console.log(`reached ${nextPoint[0]}, ${nextPoint[1]}`)
             pathsByEntityId.get(eid)?.shift();
           }
@@ -139,11 +138,9 @@ export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => 
 
       // calculate separation force
       const separationForce: Vector2 = { x: 0, y: 0}
-      const position = { x: px, y: py };
 
       // TODO: apply (half?) force to self and target, otherwise we only apply force to self and skip the calculation when the other entity targets self
-      for (let j = 0; j < entities.length; j++) {
-        const otherEid = entities[j];
+      for (const otherEid of entities) {
         if (eid === otherEid) continue;
         const ox = Position.x[otherEid];
         const oy = Position.y[otherEid];
