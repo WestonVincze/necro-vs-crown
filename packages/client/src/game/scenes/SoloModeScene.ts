@@ -87,6 +87,14 @@ export class SoloModeScene extends Scene {
     main.add(this.camera, 'scrollX').listen();
     main.add(this.camera, 'scrollY').listen();
 
+    const entityData = this.gui.addFolder("Entity Data");
+    const entityMethods = {
+      printEntities: () => console.log(getAllEntities(this.world)),
+      printComponents: () => getAllEntities(this.world).forEach(eid => console.log(getEntityComponents(this.world, eid)))
+    }
+    entityData.add(entityMethods, "printEntities").name("Print Entities");
+    entityData.add(entityMethods, "printComponents").name("Print Entity Components");
+
     /** Add global debug functions */
     (window as any).getEntities = () => getAllEntities(this.world);
     (window as any).getEntityComponents = (eid: number) => getEntityComponents(this.world, eid);
@@ -130,6 +138,9 @@ export class SoloModeScene extends Scene {
 
         reactiveSystems.pre = [
           createCameraControlSystem(this),
+        ]
+
+        reactiveSystems.post = [
           createDeathSystem(this.playerType),
         ]
         break;
@@ -165,6 +176,9 @@ export class SoloModeScene extends Scene {
 
         reactiveSystems.pre = [
           createCursorTargetSystem(this),
+        ]
+
+        reactiveSystems.post = [
           createDeathSystem(this.playerType),
         ]
         break;
