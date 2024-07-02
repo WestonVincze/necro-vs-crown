@@ -1,4 +1,4 @@
-export type Item =
+export type ItemName =
   "Bones"        |
   "MedHelm"      |
   "BucketHelm"   |

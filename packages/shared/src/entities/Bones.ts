@@ -1,10 +1,10 @@
-import { type IWorld, addComponent, addEntity } from "bitecs";
+import { addComponent, addEntity } from "bitecs";
 import { Bones, Collider, CollisionLayers, Position, Sprite, Transform } from "../components";
 import { SpriteTexture } from "../constants";
 
 const BONE_LIFETIME = 15000;
 
-export const createBonesEntity = (world: IWorld, x: number, y: number) => {
+export const createBonesEntity = (world: World, x: number, y: number) => {
   const eid = addEntity(world);
 
   addComponent(world, Bones, eid);

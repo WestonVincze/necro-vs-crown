@@ -1,4 +1,4 @@
-import { defineQuery, type World, exitQuery } from "bitecs";
+import { defineQuery, exitQuery } from "bitecs";
 import { Position, GridCell } from "../components";
 import type { Tilemaps } from "phaser";
 import { getGridCellFromPosition, getGridCellFromEid, getPositionFromEid } from "../utils";

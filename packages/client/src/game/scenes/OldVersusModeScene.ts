@@ -1,11 +1,10 @@
 import { Scene, type Types, GameObjects } from "phaser";
 import { Client, Room } from "colyseus.js";
-import { addNewCards, crownState$, playCard } from "$game/Crown";
+import { crownState$, playCard } from "$game/Crown";
 import { createMouseManager } from "../../input/MouseInputs";
 import { createKeyboardManager } from "../../input/KeyboardInputs";
 import { defineAction } from "../../input/Actions";
-import { Faction, type World } from "@necro-crown/shared";
-import { createWorld } from "bitecs";
+import { Faction } from "@necro-crown/shared";
 
 // TODO: refactor Crown and Necro logic into separate classes or modules
 export class OldVersusModeScene extends Scene {

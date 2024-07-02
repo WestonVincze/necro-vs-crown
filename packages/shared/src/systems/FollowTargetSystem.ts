@@ -1,4 +1,4 @@
-import { defineQuery, exitQuery, getRelationTargets, type World } from "bitecs"
+import { defineQuery, exitQuery, getRelationTargets } from "bitecs"
 import { AttackRange, GridCell, Input, Position, Velocity } from "../components";
 import { type Vector2 } from "../types";
 import { Grid, AStarFinder, DiagonalMovement, Util } from "pathfinding";

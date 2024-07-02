@@ -1,8 +1,8 @@
-import { type World as IWorld, addComponent, addEntity } from "bitecs";
+import { addComponent, addEntity } from "bitecs";
 import { Collider, CollisionLayers, Item, Position, Sprite, Transform } from "../components"
 import { SpriteTexture } from "../constants";
 
-export const createItemEntity = (world: IWorld, x: number, y: number, itemId: number) => {
+export const createItemEntity = (world: World, x: number, y: number, itemId: number) => {
   const eid = addEntity(world);
   addComponent(world, Position, eid);
   addComponent(world, Item, eid);

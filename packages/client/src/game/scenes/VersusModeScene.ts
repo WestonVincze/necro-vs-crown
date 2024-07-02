@@ -4,7 +4,7 @@ import { addNewCards, crownState$, playCard } from "$game/Crown";
 import { createMouseManager } from "../../input/MouseInputs";
 import { createKeyboardManager } from "../../input/KeyboardInputs";
 import { defineAction } from "../../input/Actions";
-import { Faction, createUnitEntity, type Pipeline, type World } from "@necro-crown/shared";
+import { Faction, createUnitEntity, type Pipeline } from "@necro-crown/shared";
 import { createWorld } from "bitecs";
 
 // TODO: refactor Crown and Necro logic into separate classes or modules

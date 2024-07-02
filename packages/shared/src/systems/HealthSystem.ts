@@ -1,4 +1,4 @@
-import { defineQuery, defineSystem, enterQuery, exitQuery, hasComponent } from "bitecs"
+import { defineQuery, enterQuery, exitQuery, hasComponent } from "bitecs"
 import { Health, Necro, Position, Transform } from "../components";
 import { GameObjects, Scene } from "phaser";
 import { healthChanges, onDeath } from "../subjects";
@@ -8,7 +8,7 @@ import { getPositionFromEid } from "../utils";
 const HEALTH_BAR_HEIGHT = 5;
 
 export const createHealthSystem = () => {
-  return defineSystem(world => {
+  return (world: World) => {
     healthChanges.subscribe(({ eid, amount }) => { 
         if (amount > 0) {
           Health.current[eid] = Math.min(Health.max[eid], Health.current[eid] + amount);
@@ -21,7 +21,7 @@ export const createHealthSystem = () => {
         }
     })
     return world;
-  })
+  }
 };
 
 export const createHealthBarSystem = (scene: Scene) => {
@@ -30,7 +30,7 @@ export const createHealthBarSystem = (scene: Scene) => {
   const onEnterQuery = enterQuery(healthQuery);
   const onExitQuery = exitQuery(healthQuery);
 
-  return defineSystem(world => {
+  return (world: World) => {
     for (const eid of onEnterQuery(world)) {
       const { x, y, width, height } = getHealthBarProps(eid);
 
@@ -75,7 +75,7 @@ export const createHealthBarSystem = (scene: Scene) => {
     }
 
     return world;
-  })
+  }
 };
 
 const drawHealthBarGraphic = (healthBar: GameObjects.Graphics, width: number, height: number, healthPercentage: number) => {
@@ -109,7 +109,7 @@ const hitSplatColors = {
 }
 
 export const createHitSplatSystem = (scene: Scene) => {
-  return defineSystem(world => {
+  return (world: World) => {
     // TODO: this needs to unsubscribe when the scene changes
     healthChanges.subscribe(({ amount, isCrit, eid}) => {
       const tag = hasComponent(world, Necro, eid) ? Faction.Necro : Faction.Crown
@@ -177,5 +177,5 @@ export const createHitSplatSystem = (scene: Scene) => {
       })
     })
     return world;
-  })
+  }
 }

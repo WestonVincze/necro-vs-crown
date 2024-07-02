@@ -1,4 +1,4 @@
-import { defineQuery, type World } from 'bitecs';
+import { defineQuery } from 'bitecs';
 import { Position, Collider } from '../components';
 import { Subject } from 'rxjs';
 /**

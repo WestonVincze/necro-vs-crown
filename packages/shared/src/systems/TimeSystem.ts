@@ -1,5 +1,4 @@
 import { endOfFrame } from "../subjects";
-import { type World } from "../types"
 
 export const timeSystem = (world: World) => {
   const { time } = world;

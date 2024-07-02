@@ -1,4 +1,4 @@
-import { addComponent, hasComponent, removeEntity, type World } from 'bitecs';
+import { addComponent, hasComponent, removeEntity } from 'bitecs';
 import { Item, Equipped, Inventory } from '../components';
 
 import { collisionEvents } from './CollisionSystem';

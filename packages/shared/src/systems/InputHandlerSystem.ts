@@ -1,4 +1,4 @@
-import { defineQuery, defineSystem } from "bitecs";
+import { defineQuery } from "bitecs";
 import { Input, Player } from "../components";
 // TODO: move InputHandlerSystem to client, it won't be shared
 import { createActiveActions, type InputAction, type action } from "../../../client/src/input";
@@ -19,7 +19,7 @@ export const createInputHandlerSystem = () => {
 
   const inputQuery = defineQuery([Input, Player]);
 
-  return defineSystem(world => {
+  return (world: World) => {
     const entities = inputQuery(world);
 
     for (let i in entities) {
@@ -53,5 +53,5 @@ export const createInputHandlerSystem = () => {
     }
 
     return world;
-  });
+  }
 }

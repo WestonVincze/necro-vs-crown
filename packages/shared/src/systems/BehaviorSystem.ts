@@ -5,7 +5,7 @@
  * * Define logic for each state in an FSM or switch statement
  */
 
-import { type World, defineQuery, query } from "bitecs";
+import { defineQuery, query } from "bitecs";
 import { AIGoal, AIState } from "../components/AI";
 
 enum Goals {

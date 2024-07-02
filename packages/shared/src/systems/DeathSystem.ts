@@ -1,4 +1,4 @@
-import { defineSystem, entityExists, hasComponent, removeEntity, type World } from "bitecs";
+import { entityExists, hasComponent, removeEntity } from "bitecs";
 import { bufferedOnDeath } from "../subjects";
 import { createBonesEntity, createUnitEntity } from "../entities";
 import { Necro, Position } from "../components";

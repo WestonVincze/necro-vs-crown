@@ -1,4 +1,4 @@
-import { addComponent, addEntity, defineQuery, defineSystem, type World as IWorld } from 'bitecs';
+import { addComponent, addEntity, defineQuery } from 'bitecs';
 import { fromEvent, map } from 'rxjs';
 import { Cursor, GridCell, Position } from '../components';
 import type { Scene } from 'phaser';
@@ -13,7 +13,7 @@ export const createCursorTargetSystem = (scene: Scene) => {
     map((event) => scene.cameras.main.getWorldPoint(event.clientX - rect.left, event.clientY - rect.top)),
   );
 
-  return defineSystem(world => {
+  return (world: World) => {
     const cursorEid = addEntity(world);
     addComponent(world, Cursor, cursorEid);
     addComponent(world, Position, cursorEid);
@@ -25,10 +25,10 @@ export const createCursorTargetSystem = (scene: Scene) => {
       Position.y[cursorEid] = y;
     });
     return world;
-  })
+  }
 }
 
-export const getCursorEid = (world: IWorld) => {
+export const getCursorEid = (world: World) => {
   // there should only be one cursor
   const cursorQuery = defineQuery([Cursor]);
 
