@@ -5,9 +5,9 @@ import { type Pipeline, Player, createCursorTargetSystem, createInputHandlerSyst
 import * as dat from 'dat.gui';
 import { createCameraControlSystem } from "$game/systems";
 import { MAP_X_MAX, MAP_X_MIN, MAP_Y_MAX, MAP_Y_MIN, SCREEN_HEIGHT, SCREEN_WIDTH } from "@necro-crown/shared/src/constants";
+import { type World } from "@necro-crown/shared"
 
-
-type System = ((world: World) => World);
+type System = (world: World) => World
 
 type PipelineFactory = {
   scene: Scene,
