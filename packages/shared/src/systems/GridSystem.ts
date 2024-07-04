@@ -3,6 +3,7 @@ import { Position, GridCell } from "../components";
 import type { Tilemaps } from "phaser";
 import { getGridCellFromPosition, getGridCellFromEid, getPositionFromEid } from "../utils";
 import { GameState } from "../managers";
+import { MAP_HEIGHT_TILES, MAP_WIDTH_TILES } from "../constants";
 
 type Cell = {
   walkable: boolean;
@@ -55,8 +56,18 @@ export const createGridSystem = (map: Tilemaps.Tilemap) => {
     (x, y) => setTileAlpha(x, y, 1)
   );
 
+  GameState.onDebugEnabled$.subscribe(() => {
+    for (let x = 0; x < MAP_WIDTH_TILES; x++) {
+      for (let y = 0; y < MAP_HEIGHT_TILES; y++) {
+        if (grid.getEntities(x, y).length > 0) {
+          setTileAlpha(x, y, 0.5);
+        }
+      }
+    }
+  });
+
   GameState.onDebugDisabled$.subscribe(() =>
-    map.getTilesWithin()?.forEach(tile => tile.setAlpha(0))
+    map.getTilesWithin(undefined, undefined, undefined, undefined, undefined, "Ground")?.forEach(tile => tile.setAlpha(1))
   );
 
   return (world: World) => {
