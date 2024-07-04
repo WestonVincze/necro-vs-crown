@@ -55,7 +55,9 @@ export const createGridSystem = (map: Tilemaps.Tilemap) => {
     (x, y) => setTileAlpha(x, y, 1)
   );
 
-  GameState.onDebugDisabled$.subscribe(() => map.getTilesWithin()?.forEach(tile => console.log(tile)));
+  GameState.onDebugDisabled$.subscribe(() =>
+    map.getTilesWithin()?.forEach(tile => tile.setAlpha(0))
+  );
 
   return (world: World) => {
     for (const eid of (gridQuery(world))) {
