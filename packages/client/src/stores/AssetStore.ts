@@ -1,7 +1,7 @@
-import { type Unit, type Item } from '@necro-crown/shared/src/types';
+import { type Unit, type ItemName } from '@necro-crown/shared';
 import { writable } from 'svelte/store';
 
-export const assets = writable<Record<Unit | Item, string>>({
+export const assets = writable<Record<Unit | ItemName, string>>({
   Necromancer: 'necro.png',
   Skeleton: 'skele.png',
   Peasant: 'peasant.png',

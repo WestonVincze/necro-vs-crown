@@ -5,8 +5,7 @@ import { Grid, AStarFinder, DiagonalMovement, Util } from "pathfinding";
 import { type Scene, GameObjects, Geom } from "phaser";
 import { MoveTarget } from "../relations";
 import { areVectorsIdentical, getGridCellFromEid, getPositionFromEid, getPositionFromGridCell } from "../utils";
-
-const DEBUG_MODE = true;
+import { GameState } from "../managers";
 
 const SEPARATION_THRESHOLD = 50;
 const SEPARATION_THRESHOLD_SQUARED = SEPARATION_THRESHOLD ** 2;
@@ -73,6 +72,8 @@ export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => 
   const pathsByEntityId = new Map<number, number[][]>();
   const graphicsById = new Map<number, GameObjects.Graphics>()
 
+  GameState.onDebugDisabled$.subscribe(() => graphicsById.forEach(graphics => graphics.destroy()));
+
   return (world: World) => {
     const entities = followTargetQuery(world);
     for (const eid of entities) {
@@ -102,7 +103,7 @@ export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => 
           const smoothPath = Util.smoothenPath(grid.clone(), newPath);
           pathsByEntityId.set(eid, smoothPath);
 
-          if (DEBUG_MODE) {
+          if (GameState.isDebugMode()) {
             if (!graphicsById.has(eid)) {
               graphicsById.set(eid, scene.add.graphics())
             }

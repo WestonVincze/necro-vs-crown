@@ -5,7 +5,7 @@ import { type Pipeline, Player, createCursorTargetSystem, createInputHandlerSyst
 import * as dat from 'dat.gui';
 import { createCameraControlSystem } from "$game/systems";
 import { MAP_X_MAX, MAP_X_MIN, MAP_Y_MAX, MAP_Y_MIN, SCREEN_HEIGHT, SCREEN_WIDTH } from "@necro-crown/shared/src/constants";
-import { type World } from "@necro-crown/shared"
+import { type World, GameState } from "@necro-crown/shared"
 
 type System = (world: World) => World
 
@@ -62,6 +62,8 @@ export class SoloModeScene extends Scene {
   private tickSystems!: Pipeline;
   private physicsSystems!: Pipeline;
 
+  public globalState: any; 
+
   public gui: typeof dat.gui; 
 
   constructor() {
@@ -84,13 +86,14 @@ export class SoloModeScene extends Scene {
     let reactiveSystems: { pre: System[], post: System[] } = { pre: [], post: [] };
     let tickSystems: { pre: System[], post: System[] } = { pre: [], post: [] };
 
-    this.gui = new dat.GUI();
 
-    const main = this.gui.addFolder("Main Camera");
+    const { gui } = GameState;
+
+    const main = gui.addFolder("Main Camera");
     main.add(this.camera, 'scrollX').listen();
     main.add(this.camera, 'scrollY').listen();
 
-    const entityData = this.gui.addFolder("Entity Data");
+    const entityData = gui.addFolder("Entity Data");
     const entityMethods = {
       printEntities: () => console.log(getAllEntities(this.world)),
       printComponents: () => getAllEntities(this.world).forEach(eid => console.log(getEntityComponents(this.world, eid)))
@@ -99,8 +102,10 @@ export class SoloModeScene extends Scene {
     entityData.add(entityMethods, "printComponents").name("Print Entity Components");
 
     /** Add global debug functions */
+    /*
     (window as any).getEntities = () => getAllEntities(this.world);
     (window as any).getEntityComponents = (eid: number) => getEntityComponents(this.world, eid);
+    */
 
     /** Set up testing Tilemap - 3x screen size */
     this.camera.setBounds(MAP_X_MIN, MAP_Y_MIN, MAP_X_MAX, MAP_Y_MAX);

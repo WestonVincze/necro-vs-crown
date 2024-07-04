@@ -6,3 +6,4 @@ export * from "./src/relations";
 export * from "./src/types";
 export * from "./src/helpers"
 export * from "./src/subjects";
+export * from "./src/managers";

@@ -2,8 +2,7 @@ import { defineQuery, exitQuery } from "bitecs";
 import { Position, GridCell } from "../components";
 import type { Tilemaps } from "phaser";
 import { getGridCellFromPosition, getGridCellFromEid, getPositionFromEid } from "../utils";
-
-const DEBUG_MODE = true;
+import { GameState } from "../managers";
 
 type Cell = {
   walkable: boolean;
@@ -47,7 +46,7 @@ const createGrid = (onCellFill: (x: number, y: number) => void, onCellEmpty: (x:
 
 export const createGridSystem = (map: Tilemaps.Tilemap) => {
   const setTileAlpha = (x: number, y: number, alpha: number) => {
-    if (!DEBUG_MODE) return;
+    if (!GameState.isDebugMode()) return;
     map.getTileAt(x, y, false, "Ground")?.setAlpha(alpha);
   }
   const gridQuery = defineQuery([Position, GridCell]);
@@ -55,6 +54,8 @@ export const createGridSystem = (map: Tilemaps.Tilemap) => {
     (x: number, y: number) => setTileAlpha(x, y, 0.5),
     (x, y) => setTileAlpha(x, y, 1)
   );
+
+  GameState.onDebugDisabled$.subscribe(() => map.getTilesWithin()?.forEach(tile => console.log(tile)));
 
   return (world: World) => {
     for (const eid of (gridQuery(world))) {
