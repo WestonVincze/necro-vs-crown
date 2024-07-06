@@ -1,4 +1,4 @@
-import { removeComponent } from "bitecs";
+import { addComponent, defineRelation, removeComponent } from "bitecs";
 import { AIStateMachine } from "./AIStateMachine";
 import { AIEventType, AIState, AIType, StateTransition } from "../../../types";
 import { MoveTarget } from "../../../relations";
@@ -7,6 +7,11 @@ import { MoveTarget } from "../../../relations";
 /** MELEE STATE MACHINE */
 const exitChase: StateTransition = (world, eid) => {
   removeComponent(world, MoveTarget, eid);
+}
+const enterChase: StateTransition = (world, eid) => {
+  // we need a way to pass the target eid
+  const target = 0;
+  addComponent(world, MoveTarget(0), eid);
 }
 
 export const createStateMachines = (stateMachines: Map<AIType, AIStateMachine>) => {

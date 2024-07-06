@@ -1,4 +1,4 @@
-import { Observable, Subject, buffer, distinct, filter, map, scan } from "rxjs";
+import { Observable, Subject, buffer, distinct, filter } from "rxjs";
 import { AIEvent } from "../types";
 
 interface EntityEvent {

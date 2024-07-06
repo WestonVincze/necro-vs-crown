@@ -3,7 +3,8 @@ import { gameEvents } from "../../events";
 import { AI } from "../../components";
 import { AIStateMachine, createStateMachines } from "./AIStateMachine";
 
-export const createAISystem = () => {
+
+export const createAIEventsSystem = () => {
   const stateMachines: Map<AIType, AIStateMachine> = new Map();
 
   createStateMachines(stateMachines);
@@ -54,4 +55,11 @@ export const createAISystem = () => {
  * * event emitted with an EID, event type, and data
  * * * updateAISystem could read various parts of entity state and emit events? For example, it could check health every frame and if the percentage meets a threshold emit "FLEE" event
  * * * other systems will emit events, FSM reacts to these events and enables/disables behaviors by adding/removing components
+ */
+
+
+/**
+ * AI DEBUGGING / UI
+ * * create a system that renders a thought bubble above an entity to indicate their current state
+ * * create a helper that can display the "decision making" state of an entity (target, cooldowns, etc)
  */

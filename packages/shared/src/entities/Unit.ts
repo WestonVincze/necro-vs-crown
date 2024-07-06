@@ -1,7 +1,7 @@
 import { addComponent, addEntity } from "bitecs"
-import { Crown, Input, Necro, Position, Sprite, Velocity, Health, Behavior, Behaviors, Transform, Collider, CollisionLayers, Inventory, GridCell, Spell, SpellState, SpellName } from "../components";
+import { Crown, Input, Necro, Position, Sprite, Velocity, Health, Behavior, Behaviors, Transform, Collider, CollisionLayers, Inventory, GridCell, Spell, SpellState, SpellName, AI } from "../components";
 import { Armor, AttackRange, AttackSpeed, CritChance, CritDamage, DamageBonus, MaxHealth, HealthRegeneration, MaxHit, MaxMoveSpeed, MoveSpeed } from "../components/Stats";
-import { Faction, type Stats, type Unit } from "../types";
+import { AIState, AIType, Faction, type Stats, type Unit } from "../types";
 import { AllUnits } from "../data";
 import { SpriteTexture } from "../constants";
 
@@ -10,6 +10,9 @@ export const createUnitEntity = (world: World, name: Unit, x: number, y: number)
   const data = AllUnits[name];
 
   if (name !== "Necromancer") {
+    addComponent(world, AI, eid);
+    AI.state[eid] = AIState.IDLE;
+    AI.type[eid] = AIType.MELEE;
     addComponent(world, Behavior, eid);
     Behavior.type[eid] = Behaviors.AutoTarget;
   }

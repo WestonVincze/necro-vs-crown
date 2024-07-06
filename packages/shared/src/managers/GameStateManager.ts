@@ -2,6 +2,7 @@
 import * as dat from 'dat.gui';
 import { BehaviorSubject, distinctUntilChanged, filter, skip } from 'rxjs';
 
+// right now this is only used for debugging, we may not ever need a global game state
 const InitializeGameState = () => {
   let _debugMode = new BehaviorSubject<boolean>(false);
   const gui = new dat.GUI();

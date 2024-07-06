@@ -6,6 +6,7 @@ import { Types, defineComponent } from "bitecs";
 export const AI = defineComponent({
   type: Types.ui8,
   state: Types.ui8,
+  // TODO: add AI configuration data (like flee_at_hp_percent)
 })
 
 /**
