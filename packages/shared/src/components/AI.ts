@@ -1,18 +1,15 @@
 import { Types, defineComponent } from "bitecs";
-/**
- * NOT YET IMPLEMENTED
- */
 
 /**
- * AIState represents the current state (behavior)
+ * represents the current state of an AI entity (behavior)
  */
-export const AIState = defineComponent({
-  state: Types.ui8, // TODO: define enum with various states (idle, patrolling, attacking, etc...)
-  targetEntity: Types.ui32
-});
+export const AI = defineComponent({
+  type: Types.ui8,
+  state: Types.ui8,
+})
 
 /**
- * AIGoal represents a specific objective or action
+ * AIGoal represents a specific objective or action - not yet used (may not ever be)
  */
 export const AIGoal = defineComponent({
   goalType: Types.ui8, // TODO: create enum with various goal types (none, moveTo, attack, etc...)
