@@ -1,7 +1,7 @@
 import { defineQuery, enterQuery, exitQuery, hasComponent } from "bitecs"
-import { Health, Necro, Position, Transform } from "../components";
 import { GameObjects, Scene } from "phaser";
-import { healthChanges, onDeath } from "../subjects";
+import { Health, Necro, Position, Transform } from "../components";
+import { gameEvents } from "../events";
 import { Faction } from "../types";
 import { getPositionFromEid } from "../utils";
 
@@ -9,7 +9,7 @@ const HEALTH_BAR_HEIGHT = 5;
 
 export const createHealthSystem = () => {
   return (world: World) => {
-    healthChanges.subscribe(({ eid, amount }) => { 
+    gameEvents.healthChanges.subscribe(({ eid, amount }) => { 
         if (amount > 0) {
           Health.current[eid] = Math.min(Health.max[eid], Health.current[eid] + amount);
         } else if (amount < 0) {
@@ -17,9 +17,10 @@ export const createHealthSystem = () => {
         }
 
         if (Health.current[eid] <= 0) {
-          onDeath.next({ eid });
+          gameEvents.emitDeath(eid)
         }
     })
+
     return world;
   }
 };
@@ -111,7 +112,7 @@ const hitSplatColors = {
 export const createHitSplatSystem = (scene: Scene) => {
   return (world: World) => {
     // TODO: this needs to unsubscribe when the scene changes
-    healthChanges.subscribe(({ amount, isCrit, eid}) => {
+    gameEvents.healthChanges.subscribe(({ amount, isCrit, eid}) => {
       const tag = hasComponent(world, Necro, eid) ? Faction.Necro : Faction.Crown
       const position = getPositionFromEid(eid);
       position.y -= Transform.height[eid] / 2;

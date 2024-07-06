@@ -2,9 +2,9 @@ import { defineEnterQueue, addComponent, defineQuery, removeComponent, removeEnt
 import { Spell, Input, SpellEffect, Position, SpellState, Bones, Behavior, Behaviors, Necro, Health, SpellName, SpellCooldown } from "../components";
 import { GameObjects, Scene } from "phaser";
 import { createUnitEntity } from "../entities";
-import { healthChanges } from "../subjects";
 import { checkIfWithinDistance, getPositionFromEid } from "../utils";
 import type { World } from "../types";
+import { gameEvents } from "../events";
 
 export const createSpellcastingSystem = () => {
   const spellcasterQuery = defineQuery([Input, Position, Spell, Not(SpellCooldown)]);
@@ -104,7 +104,7 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
             const necroPosition = getPositionFromEid(necroEid);
 
             if (checkIfWithinDistance(position, necroPosition, SpellEffect.size[eid] + 50)) {
-              healthChanges.next({ eid: necroEid, amount: -10 });
+              gameEvents.emitHealthChange({ eid: necroEid, amount: -10 });
             }
           }
           break;

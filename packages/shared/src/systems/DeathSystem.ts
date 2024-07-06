@@ -1,12 +1,12 @@
 import { entityExists, hasComponent, removeEntity } from "bitecs";
-import { bufferedOnDeath } from "../subjects";
+import { gameEvents } from "../events";
 import { createBonesEntity, createUnitEntity } from "../entities";
 import { Necro, Position } from "../components";
 import { Faction } from "../types";
 
 export const createDeathSystem = (faction = Faction.Necro) => {
   return (world: World) => {
-    bufferedOnDeath.subscribe(events => {
+    gameEvents.bufferedOnDeath.subscribe(events => {
       for (const { eid } of events) {
         if (!entityExists(world, eid)) continue;
 

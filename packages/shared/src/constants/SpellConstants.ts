@@ -3,7 +3,7 @@ export enum Spells {
   HolyNova,
 }
 
-export type SpellName = keyof typeof Spells;
+//type SpellName = keyof typeof Spells;
 
 export const SpellNames = Object.keys(Spells)
   .filter((key) => isNaN(Number(key)))

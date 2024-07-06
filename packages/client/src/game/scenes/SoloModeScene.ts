@@ -1,6 +1,6 @@
 import { addComponent, addEntity, createWorld, getAllEntities, getEntityComponents, pipe } from "bitecs";
 import { Scene } from "phaser";
-import { type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, timeSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem, Faction, Behavior, Behaviors, createAssignFollowTargetSystem, createGridSystem, SpellName } from "@necro-crown/shared";
+import { type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem, Faction, Behavior, Behaviors, createAssignFollowTargetSystem, createGridSystem, SpellName, createTimeSystem } from "@necro-crown/shared";
 // @ts-expect-error - no declaration file
 import * as dat from 'dat.gui';
 import { createCameraControlSystem } from "$game/systems";
@@ -27,7 +27,7 @@ const createPhysicsPipeline = ({ scene, pre = [], post = [] }: PipelineFactory) 
   createDrawSpellEffectSystem(scene),
   createHealthBarSystem(scene),
   ...post,
-  timeSystem, // time should always be last
+  createTimeSystem(), // time should always be last
 );
 
 const createReactivePipeline = ({ scene, pre = [], post = [] }: PipelineFactory) => pipe( 

@@ -1,9 +1,9 @@
 import { addComponent, defineQuery, entityExists, getRelationTargets, hasComponent, Not } from "bitecs";
 import { Armor, AttackBonus, AttackCooldown, AttackRange, AttackSpeed, CritChance, CritDamage, Crown, DamageBonus, Health, MaxHit, Necro, Position } from "../components";
 import { checkIfWithinDistance } from "../utils";
-import { healthChanges } from "../subjects";
 import { CombatTarget } from "../relations";
 import type { World } from "../types";
+import { gameEvents } from "../events";
 
 export const createCombatSystem = () => {
   const attackerQuery = defineQuery([CombatTarget("*"), AttackSpeed, AttackRange, MaxHit, Position, Not(AttackCooldown)]);
@@ -50,7 +50,7 @@ export const createCombatSystem = () => {
 
       damage = damage * critMod + DamageBonus.current[eid];
 
-      healthChanges.next({ eid: targetEid, amount: damage * -1 });
+      gameEvents.emitHealthChange({ eid: targetEid, amount: damage * -1 });
     }
 
     return world;

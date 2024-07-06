@@ -1,7 +1,7 @@
 import { AUTO, type Types, Game } from "phaser";
 import { VersusModeScene, MainMenuScene, PreloaderScene, SoloModeScene } from "./scenes";
 import { OldVersusModeScene } from "./scenes/OldVersusModeScene";
-import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@necro-crown/shared/src/constants";
+import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@necro-crown/shared";
 
 // game config
 const config: Types.Core.GameConfig = {
