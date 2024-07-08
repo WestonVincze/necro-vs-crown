@@ -1,8 +1,6 @@
 import { addComponent, addEntity, createWorld, getAllEntities, getEntityComponents, pipe } from "bitecs";
 import { Scene } from "phaser";
-import { type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem, Faction, Behavior, Behaviors, createAssignFollowTargetSystem, createGridSystem, SpellName, createTimeSystem } from "@necro-crown/shared";
-// @ts-expect-error - no declaration file
-import * as dat from 'dat.gui';
+import { type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem, Faction, Behavior, Behaviors, createAssignFollowTargetSystem, createGridSystem, SpellName, createTimeSystem, createAIEventsSystem } from "@necro-crown/shared";
 import { createCameraControlSystem } from "$game/systems";
 import { MAP_X_MAX, MAP_X_MIN, MAP_Y_MAX, MAP_Y_MIN, SCREEN_HEIGHT, SCREEN_WIDTH } from "@necro-crown/shared/src/constants";
 import { type World, GameState } from "@necro-crown/shared"
@@ -32,6 +30,7 @@ const createPhysicsPipeline = ({ scene, pre = [], post = [] }: PipelineFactory) 
 
 const createReactivePipeline = ({ scene, pre = [], post = [] }: PipelineFactory) => pipe( 
   ...pre,
+  createAIEventsSystem(),
   createHitSplatSystem(scene),
   createHealthSystem(),
   createItemEquipSystem(),
@@ -63,8 +62,6 @@ export class SoloModeScene extends Scene {
   private physicsSystems!: Pipeline;
 
   public globalState: any; 
-
-  public gui: typeof dat.gui; 
 
   constructor() {
     super("SoloModeScene");
@@ -165,7 +162,7 @@ export class SoloModeScene extends Scene {
         createBonesEntity(this.world, 500, 500);
 
         for (let i = 0; i < 30; i++) {
-          const randomEntity = Math.random() > 0.5 ? "Paladin" : "Skeleton";
+          const randomEntity = Math.random() > 0.5 ? "Guard" : "Skeleton";
           const eid = createUnitEntity(this.world, randomEntity, Math.random() * 1024, Math.random() * 1024);
 
           if (randomEntity === "Skeleton") {
@@ -220,16 +217,11 @@ export class SoloModeScene extends Scene {
     }, 200);
 
     // this.events.once('shutdown', this.destroyResources, this);
-    this.events.once('destroy', this.destroyResources, this);
+    // this.events.once('destroy', this.destroyResources, this);
   }
 
   /** RUN PHYSICS SYSTEMS */
   update(time: number, delta: number): void {
     this.physicsSystems(this.world);
-  }
-
-  destroyResources() {
-    this.gui.destroy();
-    this.gui = null;
   }
 }
