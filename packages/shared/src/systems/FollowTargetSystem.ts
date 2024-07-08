@@ -157,6 +157,8 @@ export const createFollowTargetSystem = (scene: Scene, gridData: number[][]) => 
     }
 
     for (const eid of (exitQuery(followTargetQuery)(world))) {
+      Input.moveX[eid] = 0;
+      Input.moveY[eid] = 0;
       pathsByEntityId.delete(eid);
       graphicsById.get(eid)?.destroy();
       graphicsById.delete(eid);

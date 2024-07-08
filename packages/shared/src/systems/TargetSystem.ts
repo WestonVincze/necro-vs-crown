@@ -1,14 +1,14 @@
 import { addComponent, defineQuery, defineSystem, getRelationTargets, hasComponent, removeComponent } from "bitecs"
-import { Position, Behavior, Behaviors, Input } from "../components";
-import { Crown, Necro } from "../components/Tags";
+import { Position, Behavior, Behaviors, Input, AI } from "../components";
+import { Crown, Necro } from "../components";
 import { getCursorEid } from "./CursorTargetSystem";
 import { MoveTarget, CombatTarget } from "../relations";
 import { getDistanceSquared, getPositionFromEid } from "../utils";
 
 // THOUGHT: we could change this system to be reactive or include some dirty/clean flags to skip over target search when not required
 export const createTargetingSystem = () => {
-  const necroTargetQuery = defineQuery([Behavior, Position, Necro]);
-  const crownTargetQuery = defineQuery([Behavior, Position, Crown]);
+  const necroTargetQuery = defineQuery([AI, Behavior, Position, Necro]);
+  const crownTargetQuery = defineQuery([AI, Behavior, Position, Crown]);
 
   const necroEnemiesQuery = defineQuery([Crown, Position]);
   const crownEnemiesQuery = defineQuery([Necro, Position]);
@@ -21,22 +21,6 @@ export const createTargetingSystem = () => {
     const crownEnemyEntities = crownEnemiesQuery(world);
 
     const updateTargets = (sourceEntities: readonly number[], targetEntities: readonly number[]) => {
-      // workaround to clear targets when no entities remain
-      if (targetEntities.length === 0) {
-        for (let i = 0; i < sourceEntities.length; i++) {
-          const eid = sourceEntities[i];
-          removeComponent(world, CombatTarget("*"), eid)
-
-          if (Behavior.type[eid] === Behaviors.AutoTarget) {
-            removeComponent(world, MoveTarget("*"), eid);
-            // WORKAROUND: to stop movement until we add proper AI
-            Input.moveX[eid] = 0;
-            Input.moveY[eid] = 0;
-          }
-        }
-        return;
-      }
-
       for (const eid of sourceEntities) {
         let closestDistance = Infinity;
         let closestTarget: null | number = null;
