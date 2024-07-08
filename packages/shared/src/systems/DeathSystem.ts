@@ -13,11 +13,13 @@ export const createDeathSystem = (faction = Faction.Necro) => {
         const x = Position.x[eid];
         const y = Position.y[eid];
 
-        removeEntity(world, eid);
-
         // WORKAROUND: for testing Crown Solo mode
-        if (hasComponent(world, Necro, eid)) continue;
+        if (hasComponent(world, Necro, eid)) {
+          removeEntity(world, eid);
+          continue;
+        }
 
+        removeEntity(world, eid);
         if (faction === Faction.Necro) {
           // TODO: spawn loot based on unit's drop table
           createBonesEntity(world, x, y);
