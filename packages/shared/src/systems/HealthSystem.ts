@@ -3,24 +3,26 @@ import { GameObjects, Scene } from "phaser";
 import { Health, Necro, Position, Transform } from "../components";
 import { gameEvents } from "../events";
 import { Faction } from "../types";
-import { getPositionFromEid } from "../utils";
+import { getPositionFromEid, profiler } from "../utils";
 
 const HEALTH_BAR_HEIGHT = 5;
 
 export const createHealthSystem = () => {
   return (world: World) => {
+    profiler.start("HEALTH_SYSTEM")
     gameEvents.healthChanges.subscribe(({ eid, amount }) => { 
-        if (amount > 0) {
-          Health.current[eid] = Math.min(Health.max[eid], Health.current[eid] + amount);
-        } else if (amount < 0) {
-          Health.current[eid] = Math.max(0, Health.current[eid] + amount);
-        }
+      if (amount > 0) {
+        Health.current[eid] = Math.min(Health.max[eid], Health.current[eid] + amount);
+      } else if (amount < 0) {
+        Health.current[eid] = Math.max(0, Health.current[eid] + amount);
+      }
 
-        if (Health.current[eid] <= 0) {
-          gameEvents.emitDeath(eid)
-        }
+      if (Health.current[eid] <= 0) {
+        gameEvents.emitDeath(eid)
+      }
     })
 
+    profiler.end("HEALTH_SYSTEM")
     return world;
   }
 };
