@@ -14,3 +14,4 @@ export * from "./CombatSystem";
 export * from "./DeathSystem";
 export * from "./CooldownSystem";
 export * from "./GridSystem";
+export * from "./AISystem";

@@ -1,23 +1,21 @@
-import { addComponent, defineRelation, removeComponent } from "bitecs";
 import { AIStateMachine } from "./AIStateMachine";
 import { AIEventType, AIState, AIType, StateTransition } from "../../../types";
-import { MoveTarget } from "../../../relations";
 
 // TODO: move state machine definitions to independent files
 /** MELEE STATE MACHINE */
 const exitChase: StateTransition = (world, eid) => {
-  removeComponent(world, MoveTarget, eid);
+  // component cleanup
 }
+
 const enterChase: StateTransition = (world, eid) => {
-  // we need a way to pass the target eid
-  const target = 0;
-  addComponent(world, MoveTarget(0), eid);
+  // add behavior components to entity based on how it should behave during chase
 }
 
 export const createStateMachines = (stateMachines: Map<AIType, AIStateMachine>) => {
   const meleeFSM = new AIStateMachine();
 
   meleeFSM.addOnExitState(AIState.CHASE, exitChase);
+  meleeFSM.addOnEnterState(AIState.CHASE, enterChase);
 
   meleeFSM.addTransition(AIState.IDLE, AIEventType.TARGET_ACQUIRED, AIState.CHASE);
   meleeFSM.addTransition(AIState.CHASE, AIEventType.TARGET_LOST, AIState.IDLE);

@@ -16,3 +16,15 @@ export const AIGoal = defineComponent({
   goalType: Types.ui8, // TODO: create enum with various goal types (none, moveTo, attack, etc...)
   // various goal data (x, y, etc...)
 })
+
+export const AIConfig = defineComponent({
+  fleeThreshold: Types.f32,
+  // cooldowns?
+  // chaseDistance?
+})
+
+export const AIState = defineComponent({
+  currentAction: Types.ui8,
+  lastUtilityCalc: Types.f32,
+  // cachedUtilities?
+})
