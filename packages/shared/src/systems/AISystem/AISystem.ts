@@ -1,7 +1,8 @@
 import { AIType } from "../../types";
 import { gameEvents } from "../../events";
-import { AI } from "../../components";
+import { AI, AIState, FollowTarget } from "../../components";
 import { AIStateMachine, createStateMachines } from "./AIStateMachine";
+import { addComponent, defineQuery, removeComponent } from "bitecs";
 
 
 export const createAIEventsSystem = () => {
@@ -30,6 +31,69 @@ export const createAIEventsSystem = () => {
     })
 
     return world;
+  }
+}
+
+interface Action {
+  name: string;
+  calculateUtility: (world: World, eid: number) => number;
+  components: any[]; // TODO: components type safety
+}
+
+const chaseAction: Action = {
+  name: "Chase",
+  calculateUtility: (world, eid) => {
+    // return 0 if no target
+    // check distance to target
+    // return 1 if within 1 tile
+    // return less as tile gap increases
+    return 0;
+  },
+  components: [FollowTarget]
+}
+
+const ActionMap: Map<AIType, Action[]> = new Map();
+
+const UTILITY_CALCULATION_INTERVAL = 10;
+
+const createUtilityAISystem = () => {
+  const aiQuery = defineQuery([AI]);
+  let frameCount = 0;
+
+  return (world: World) => {
+    const aiEntities = aiQuery(world);
+    frameCount++;
+
+    for (const eid of aiEntities) {
+      const actions = ActionMap.get(AI.type[eid]);
+      if (!actions) {
+        console.warn(`Actions not found for ${eid}.`)
+        continue;
+      }
+
+      if (frameCount % UTILITY_CALCULATION_INTERVAL === 0) {
+        const utilities = actions.map(action => {
+          return action.calculateUtility(world, eid);
+        })
+
+        const maxUtility = Math.max(...utilities);
+        const bestActionIndex = utilities.indexOf(maxUtility);
+
+        if (AIState.currentAction[eid] === bestActionIndex) continue;
+
+        // remove components for old action
+        for (const component of actions[AIState.currentAction[eid]].components) {
+          removeComponent(world, component, eid);
+        }
+
+        // add components for new action
+        for (const component of actions[bestActionIndex].components) {
+          addComponent(world, component, eid);
+        }
+
+        AIState.currentAction[eid] = bestActionIndex;
+      }
+    }
   }
 }
 

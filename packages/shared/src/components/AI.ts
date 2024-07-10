@@ -27,4 +27,5 @@ export const AIState = defineComponent({
   currentAction: Types.ui8,
   lastUtilityCalc: Types.f32,
   // cachedUtilities?
+  // frameSinceLastCalculation: Types.ui16
 })
