@@ -4,6 +4,7 @@ import { type Pipeline, Player, createCursorTargetSystem, createInputHandlerSyst
 import { createCameraControlSystem } from "$game/systems";
 import { MAP_X_MAX, MAP_X_MIN, MAP_Y_MAX, MAP_Y_MIN, SCREEN_HEIGHT, SCREEN_WIDTH } from "@necro-crown/shared/src/constants";
 import { type World, GameState } from "@necro-crown/shared"
+import { profiler } from "@necro-crown/shared/src/utils";
 
 type System = (world: World) => World
 
@@ -214,6 +215,7 @@ export class SoloModeScene extends Scene {
     /** RUN TICK SYSTEMS */
     setInterval(() => {
       this.tickSystems(this.world);
+      if (GameState.isDebugMode()) profiler.logResults();
     }, 200);
 
     // this.events.once('shutdown', this.destroyResources, this);
@@ -222,6 +224,8 @@ export class SoloModeScene extends Scene {
 
   /** RUN PHYSICS SYSTEMS */
   update(time: number, delta: number): void {
+    profiler.start("FRAME_TIMER");
     this.physicsSystems(this.world);
+    profiler.end("FRAME_TIMER");
   }
 }
