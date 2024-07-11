@@ -13,3 +13,4 @@ export * from "./Spellcasting";
 export * from "./Health";
 export * from "./Cooldowns";
 export * from "./AI";
+export * from "./Combat";

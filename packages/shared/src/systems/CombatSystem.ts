@@ -1,9 +1,10 @@
 import { addComponent, defineQuery, entityExists, getRelationTargets, hasComponent, Not } from "bitecs";
 import { Armor, AttackBonus, AttackCooldown, AttackRange, AttackSpeed, CritChance, CritDamage, Crown, DamageBonus, Health, MaxHit, Necro, Position } from "../components";
-import { checkIfWithinDistance } from "../utils";
+import { checkIfWithinDistance, getPositionFromEid } from "../utils";
 import { CombatTarget } from "../relations";
 import type { World } from "../types";
 import { gameEvents } from "../events";
+import { RangedUnit } from "../components";
 
 export const createCombatSystem = () => {
   const attackerQuery = defineQuery([CombatTarget("*"), AttackSpeed, AttackRange, MaxHit, Position, Not(AttackCooldown)]);
@@ -13,48 +14,69 @@ export const createCombatSystem = () => {
   return (world: World) => {
     for (const eid of attackerQuery(world)) {
       const targetEid = getRelationTargets(world, CombatTarget, eid)[0];
-      const attackerPosition = { x: Position.x[eid], y: Position.y[eid] };
-      const targetPosition = { x: Position.x[targetEid], y: Position.y[targetEid] };
+      const attackerPosition = getPositionFromEid(eid);
+      const targetPosition = getPositionFromEid(targetEid);
 
       // TODO: accommodate for actual dimensions of sprites?
       if (!checkIfWithinDistance(attackerPosition, targetPosition, AttackRange.current[eid] + 30)) continue;
 
-      let damage = 0;
-      let critMod = 1;
+      const attackBonus = AttackBonus.current[eid];
+      const maxHit = MaxHit.current[eid];
+      const damageBonus = DamageBonus.current[eid];
+      const critChance = CritChance.current[eid];
+      const critDamage = CritDamage.current[eid];
+      console.log(critChance);
+      if (hasComponent(world, RangedUnit, eid)) {
+        // create arrow entity
 
-      if (!entityExists(world, targetEid)) {
-        console.debug(`Entity does not exist: Unable to attack with ${eid}, ${targetEid} does not exist.`)
-        continue;
+      } else {
+        attackEntity(world, targetEid, attackBonus, maxHit, damageBonus, critChance, critDamage);
       }
-
-      // TODO: consider using a "targetQuery" to check for Armor and Health, then use targets.includes(targetEid) (potentially better performance)
-      // alternatively, we could add an "AttackRoll" component to queue the attack and defer the rest of this logic to another system
-      if (!hasComponent(world, Armor, targetEid) || !hasComponent(world, Health, targetEid)) {
-        console.debug(`Not found: Unable to attack with ${eid}, ${targetEid} is missing Health or Armor.`)
-        continue;
-      }
-
       addComponent(world, AttackCooldown, eid);
       // TODO: move AttackSpeed (and perhaps other cooldowns) to a tick based system?
       AttackCooldown.ready[eid] = (AttackSpeed.current[eid] * 200) + world.time.elapsed;
-      if (rollToHit(Armor.current[targetEid], AttackBonus.current[eid])) {
-        damage = rollDice(MaxHit.current[eid]);
-      }
-
-      if (damage > 0 &&
-          hasComponent(world, CritChance, eid) &&
-          hasComponent(world, CritDamage, eid) &&
-          rollToCrit(CritChance.current[eid])) {
-            critMod = CritDamage.current[eid];
-      }
-
-      damage = damage * critMod + DamageBonus.current[eid];
-
-      gameEvents.emitHealthChange({ eid: targetEid, amount: damage * -1 });
     }
 
     return world;
   }
+}
+
+const attackEntity = (
+  world: World,
+  targetEid: number,
+  attackBonus: number,
+  maxHit: number,
+  damageBonus: number,
+  critChance?: number,
+  critDamage: number = 1,
+): boolean => {
+  let damage = 0;
+  let critMod = 1;
+
+  if (!entityExists(world, targetEid)) {
+    console.debug(`Attack Failed: Target ${targetEid} does not exist.`)
+    return false;
+  }
+
+  // TODO: consider using a "targetQuery" to check for Armor and Health, then use targets.includes(targetEid) (potentially better performance)
+  // alternatively, we could add an "AttackRoll" component to queue the attack and defer the rest of this logic to another system
+  if (!hasComponent(world, Armor, targetEid) || !hasComponent(world, Health, targetEid)) {
+    console.debug(`Attack Failed: Target ${targetEid} is missing Health or Armor.`)
+    return false;
+  }
+
+  if (rollToHit(Armor.current[targetEid], attackBonus)) {
+    damage = rollDice(maxHit);
+  }
+
+  if (damage > 0 && critChance && rollToCrit(critChance)) {
+    critMod = critDamage;
+  }
+
+  damage = damage * critMod + damageBonus;
+
+  gameEvents.emitHealthChange({ eid: targetEid, amount: damage * -1 });
+  return true;
 }
 
 const rollDice = (sides: number, bonus = 0) => {
