@@ -2,9 +2,9 @@ import { addComponent, defineQuery, entityExists, getRelationTargets, hasCompone
 import { Armor, AttackBonus, AttackCooldown, AttackRange, AttackSpeed, CritChance, CritDamage, Crown, DamageBonus, Health, MaxHit, Necro, Position } from "../components";
 import { checkIfWithinDistance, getPositionFromEid } from "../utils";
 import { CombatTarget } from "../relations";
-import type { World } from "../types";
 import { gameEvents } from "../events";
 import { RangedUnit } from "../components";
+import { createProjectileEntity, ProjectileName } from "../entities";
 
 export const createCombatSystem = () => {
   const attackerQuery = defineQuery([CombatTarget("*"), AttackSpeed, AttackRange, MaxHit, Position, Not(AttackCooldown)]);
@@ -18,6 +18,7 @@ export const createCombatSystem = () => {
       const targetPosition = getPositionFromEid(targetEid);
 
       // TODO: accommodate for actual dimensions of sprites?
+      // ranged units will also need to consider LoS
       if (!checkIfWithinDistance(attackerPosition, targetPosition, AttackRange.current[eid] + 30)) continue;
 
       const attackBonus = AttackBonus.current[eid];
@@ -25,12 +26,15 @@ export const createCombatSystem = () => {
       const damageBonus = DamageBonus.current[eid];
       const critChance = CritChance.current[eid];
       const critDamage = CritDamage.current[eid];
-      console.log(critChance);
-      if (hasComponent(world, RangedUnit, eid)) {
-        // create arrow entity
 
+      // TODO: measure performance impact of creating a new callback every iteration
+      const rollAttack = (targetEid: number) => attackEntity(world, targetEid, attackBonus, maxHit, damageBonus, critChance, critDamage);
+
+      if (hasComponent(world, RangedUnit, eid)) {
+        // create arrow entity -- check the ranged unit for the type of projectile it should instantiate
+        createProjectileEntity(world, ProjectileName.Arrow, attackerPosition, rollAttack);
       } else {
-        attackEntity(world, targetEid, attackBonus, maxHit, damageBonus, critChance, critDamage);
+        rollAttack(targetEid)
       }
       addComponent(world, AttackCooldown, eid);
       // TODO: move AttackSpeed (and perhaps other cooldowns) to a tick based system?
