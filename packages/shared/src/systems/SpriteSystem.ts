@@ -1,7 +1,7 @@
 import { GameObjects, Scene } from "phaser";
 import { Player, Position, Sprite, SpriteType, Transform } from "../components";
 import { TextureNames } from "../constants";
-import { defineQuery, defineSystem, enterQuery, exitQuery, hasComponent } from "bitecs";
+import { defineQuery, enterQuery, exitQuery, hasComponent } from "bitecs";
 
 /**
  * @param scene Reference to Phaser Scene
@@ -23,6 +23,7 @@ export const createSpriteSystem = (scene: Scene) => {
       const texture = TextureNames[textureId];
       const width = Transform.width[eid];
       const height = Transform.height[eid];
+      const rotation = Transform.rotation[eid];
 
       let sprite: GameObjects.Sprite | GameObjects.Rope;
 
@@ -44,6 +45,7 @@ export const createSpriteSystem = (scene: Scene) => {
       }
       sprite.height = width;
       sprite.width = height;
+      sprite.rotation = rotation;
       sprite.displayWidth = width;
       sprite.displayHeight = height;
       countById.set(eid, eid);

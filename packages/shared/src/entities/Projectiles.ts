@@ -40,14 +40,18 @@ export const createProjectileEntity = (world: World, name: ProjectileName, posit
   Sprite.texture[eid] = SpriteTexture[ProjectileName[name]as keyof typeof SpriteTexture]
   Sprite.type[eid] = SpriteType.Sprite;
 
-  addComponent(world, Transform, eid);
-  Transform.width[eid] = data.width;
-  Transform.height[eid] = data.height;
-
   // calculate direction
   const dx = targetPosition.x - position.x;
   const dy = targetPosition.y - position.y;
   const normalizedDirection = normalizeForce({ x: dx, y: dy });
+
+  // calculate rotation
+  const rotation = Math.atan2(dy, dx);
+
+  addComponent(world, Transform, eid);
+  Transform.width[eid] = data.width;
+  Transform.height[eid] = data.height;
+  Transform.rotation[eid] = rotation;
 
   addComponent(world, Input, eid);
   Input.moveX[eid] = normalizedDirection.x;
