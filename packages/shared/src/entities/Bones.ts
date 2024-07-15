@@ -1,5 +1,5 @@
 import { addComponent, addEntity } from "bitecs";
-import { Bones, Collider, CollisionLayers, Position, Sprite, Transform } from "../components";
+import { Bones, Collider, CollisionLayers, Position, Sprite, SpriteType, Transform } from "../components";
 import { SpriteTexture } from "../constants";
 
 const BONE_LIFETIME = 15000;
@@ -17,6 +17,7 @@ export const createBonesEntity = (world: World, x: number, y: number) => {
   Position.y[eid] = y;
 
   Sprite.texture[eid] = SpriteTexture.Bones;
+  Sprite.type[eid] = SpriteType.Sprite;
   Transform.width[eid] = 50;
   Transform.height[eid] = 30;
 

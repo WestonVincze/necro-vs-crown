@@ -1,8 +1,8 @@
 import { SpriteTexture } from "../constants";
 import { Vector2 } from "../types";
-import { Input, MaxMoveSpeed, MoveSpeed, Projectile, Sprite, Velocity } from "../components";
+import { DestroyEntity, Input, MaxMoveSpeed, MoveSpeed, Position, Sprite, SpriteType, Transform, Velocity } from "../components";
 import { addComponent, addEntity } from "bitecs"
-import { normalizeForce } from "$helpers";
+import { normalizeForce } from "../helpers";
 
 export enum ProjectileName {
   Arrow
@@ -12,13 +12,17 @@ interface ProjectileProps {
   speed: number;
   maxSpeed: number;
   lifetime: number;
+  width: number;
+  height: number;
 }
 
 const ProjectileData: Record<ProjectileName, ProjectileProps> = {
   [ProjectileName.Arrow]: {
-    speed: 1,
-    maxSpeed: 2,
-    lifetime: 5,
+    speed: 5,
+    maxSpeed: 8,
+    lifetime: 5000,
+    width: 50,
+    height: 12,
   }
 }
 
@@ -27,9 +31,18 @@ export const createProjectileEntity = (world: World, name: ProjectileName, posit
   const eid = addEntity(world);
   const data = ProjectileData[name];
 
+  addComponent(world, Position, eid);
+  Position.x[eid] = position.x;
+  Position.y[eid] = position.y;
+
   // add sprite URL
   addComponent(world, Sprite, eid);
   Sprite.texture[eid] = SpriteTexture[ProjectileName[name]as keyof typeof SpriteTexture]
+  Sprite.type[eid] = SpriteType.Sprite;
+
+  addComponent(world, Transform, eid);
+  Transform.width[eid] = data.width;
+  Transform.height[eid] = data.height;
 
   // calculate direction
   const dx = targetPosition.x - position.x;
@@ -48,5 +61,8 @@ export const createProjectileEntity = (world: World, name: ProjectileName, posit
   MoveSpeed.current[eid] = data.speed;
 
   addComponent(world, MaxMoveSpeed, eid);
-  MoveSpeed.current[eid] = data.speed;
+  MaxMoveSpeed.current[eid] = data.speed;
+
+  addComponent(world, DestroyEntity, eid);
+  DestroyEntity.timeUntilDestroy[eid] = data.lifetime;
 }

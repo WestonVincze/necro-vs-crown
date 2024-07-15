@@ -24,7 +24,7 @@ const screenHeight = 1152 - 60; // 2304;
 export const createMovementSystem = () => {
   const movementQuery = defineQuery([Position, Input, Velocity, MoveSpeed, MaxMoveSpeed]);
 
-  return defineSystem((world) => {
+  return (world: World) => {
     const entities = movementQuery(world);
     for (let i = 0; i < entities.length; i++) {
       const eid = entities[i];
@@ -67,5 +67,5 @@ export const createMovementSystem = () => {
       Position.y[eid] = Math.max(-screenHeight, Math.min(screenHeight, Position.y[eid]));
     }
     return world;
-  })
+  }
 }

@@ -59,7 +59,7 @@ export const createAssignFollowTargetSystem = () => {
 
   const query = defineQuery([Behavior]);
 
-  return defineSystem(world => {
+  return (world: World) => {
     for (const eid of query(world)) {
       if (Behavior.type[eid] === Behaviors.FollowCursor) {
         const cursorEid = getCursorEid(world);
@@ -74,5 +74,5 @@ export const createAssignFollowTargetSystem = () => {
       }
     }
     return world;
-  })
+  }
 }

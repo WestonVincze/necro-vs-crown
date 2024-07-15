@@ -1,9 +1,10 @@
 import { addComponent, addEntity } from "bitecs"
-import { Crown, Input, Necro, Position, Sprite, Velocity, Health, Behavior, Behaviors, Transform, Collider, CollisionLayers, Inventory, GridCell, Spell, SpellState, SpellName, AI } from "../components";
+import { Crown, Input, Necro, Position, Sprite, Velocity, Health, Behavior, Behaviors, Transform, Collider, CollisionLayers, Inventory, GridCell, Spell, SpellState, SpellName, AI, RangedUnit, SpriteType } from "../components";
 import { Armor, AttackRange, AttackSpeed, CritChance, CritDamage, DamageBonus, MaxHealth, HealthRegeneration, MaxHit, MaxMoveSpeed, MoveSpeed } from "../components/Stats";
 import { AIState, AIType, Faction, type Stats, type Unit } from "../types";
 import { AllUnits } from "../data";
 import { SpriteTexture } from "../constants";
+import { ProjectileName } from "./Projectiles";
 
 export const createUnitEntity = (world: World, name: Unit, x: number, y: number) => {
   const eid = addEntity(world);
@@ -25,6 +26,11 @@ export const createUnitEntity = (world: World, name: Unit, x: number, y: number)
     Collider.ignoreLayers[eid] = CollisionLayers.NECRO;
   }
 
+  // TODO: create an enum to define UnitType
+  if (name === "Archer") {
+    addComponent(world, RangedUnit, eid);
+    RangedUnit.projectileType[eid] = ProjectileName.Arrow;
+  }
 
   switch (data.type) {
     case Faction.Crown:
@@ -60,6 +66,7 @@ export const createUnitEntity = (world: World, name: Unit, x: number, y: number)
 
   addComponent(world, Sprite, eid);
   Sprite.texture[eid] = SpriteTexture[data.name as keyof typeof SpriteTexture];
+  Sprite.type[eid] = SpriteType.Rope;
 
   return eid;
 }
