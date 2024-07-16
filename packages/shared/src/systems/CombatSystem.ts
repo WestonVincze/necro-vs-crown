@@ -32,6 +32,7 @@ export const createCombatSystem = () => {
 
       if (hasComponent(world, RangedUnit, eid)) {
         // create arrow entity -- check the ranged unit for the type of projectile it should instantiate
+        // TODO: change callback to a component with the same params
         createProjectileEntity(world, ProjectileName.Arrow, attackerPosition, targetPosition, rollAttack);
       } else {
         rollAttack(targetEid)

@@ -164,7 +164,7 @@ export class SoloModeScene extends Scene {
         createBonesEntity(this.world, 500, 500);
 
         for (let i = 0; i < 30; i++) {
-          const randomEntity = Math.random() > 0.5 ? "Archer" : "Skeleton";
+          const randomEntity = Math.random() > 0.5 ? "Guard" : "Skeleton";
           const eid = createUnitEntity(this.world, randomEntity, Math.random() * 1024, Math.random() * 1024);
 
           if (randomEntity === "Skeleton") {

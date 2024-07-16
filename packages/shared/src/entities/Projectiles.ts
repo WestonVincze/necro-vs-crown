@@ -1,6 +1,6 @@
 import { SpriteTexture } from "../constants";
 import { Vector2 } from "../types";
-import { DestroyEntity, Input, MaxMoveSpeed, MoveSpeed, Position, Sprite, SpriteType, Transform, Velocity } from "../components";
+import { Collider, DestroyEntity, Input, MaxMoveSpeed, MoveSpeed, Position, Sprite, SpriteType, Transform, Velocity } from "../components";
 import { addComponent, addEntity } from "bitecs"
 import { normalizeForce } from "../helpers";
 
@@ -69,4 +69,10 @@ export const createProjectileEntity = (world: World, name: ProjectileName, posit
 
   addComponent(world, DestroyEntity, eid);
   DestroyEntity.timeUntilDestroy[eid] = data.lifetime;
+
+  addComponent(world, Collider, eid);
+  Collider.radius[eid] = data.height;
+  // get the Faction of the projectile owner
+  // get the Faction of the target
+  // add component with attack params
 }
