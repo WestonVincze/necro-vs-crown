@@ -6,7 +6,7 @@ import { Faction } from "../types";
 
 export const createDeathSystem = (faction = Faction.Necro) => {
   return (world: World) => {
-    gameEvents.bufferedOnDeath.subscribe(events => {
+    gameEvents.bufferedOnDeath.subscribe((events) => {
       for (const { eid } of events) {
         if (!entityExists(world, eid)) continue;
 
@@ -27,7 +27,7 @@ export const createDeathSystem = (faction = Faction.Necro) => {
           createUnitEntity(world, "Skeleton", x, y);
         }
       }
-    })
+    });
     return world;
-  }
-}
+  };
+};

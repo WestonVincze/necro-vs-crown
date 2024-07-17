@@ -11,5 +11,5 @@ export const createTimeSystem = () => {
     gameEvents.emitEndOfFrame();
 
     return world;
-  }
-}
+  };
+};

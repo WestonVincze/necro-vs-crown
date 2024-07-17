@@ -1,11 +1,24 @@
 import { SpriteTexture } from "../constants";
 import { Vector2 } from "../types";
-import { Collider, CollisionLayers, DestroyEntity, Input, MaxMoveSpeed, MoveSpeed, Position, Projectile, Sprite, SpriteType, Transform, Velocity } from "../components";
-import { addComponent, addEntity } from "bitecs"
+import {
+  Collider,
+  CollisionLayers,
+  DestroyEntity,
+  Input,
+  MaxMoveSpeed,
+  MoveSpeed,
+  Position,
+  Projectile,
+  Sprite,
+  SpriteType,
+  Transform,
+  Velocity,
+} from "../components";
+import { addComponent, addEntity } from "bitecs";
 import { normalizeForce } from "../helpers";
 
 export enum ProjectileName {
-  Arrow
+  Arrow,
 }
 
 interface ProjectileProps {
@@ -23,8 +36,8 @@ const ProjectileData: Record<ProjectileName, ProjectileProps> = {
     lifetime: 5000,
     width: 50,
     height: 12,
-  }
-}
+  },
+};
 
 export const createProjectileEntity = (
   world: World,
@@ -44,7 +57,8 @@ export const createProjectileEntity = (
 
   // add sprite URL
   addComponent(world, Sprite, eid);
-  Sprite.texture[eid] = SpriteTexture[ProjectileName[name]as keyof typeof SpriteTexture]
+  Sprite.texture[eid] =
+    SpriteTexture[ProjectileName[name] as keyof typeof SpriteTexture];
   Sprite.type[eid] = SpriteType.Sprite;
 
   // calculate direction
@@ -85,4 +99,4 @@ export const createProjectileEntity = (
   addComponent(world, Projectile, eid);
   Projectile.attackBonus[eid] = attackBonus;
   Projectile.damage[eid] = damage;
-}
+};

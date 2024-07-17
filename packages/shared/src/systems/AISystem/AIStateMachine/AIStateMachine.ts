@@ -3,7 +3,7 @@ import { AIEventType, AIState, StateTransition } from "../../../types";
 // if we only add / remove components on enter and exit, lets just maintain a reference to a list of components that each state needs to have. When we transition we can compare the components we have with the components we need and update accordingly
 export class AIStateMachine {
   // private states: Map<AIState, StateTransition> = new Map();
-  private transitions: Map<AIState, Map<AIEventType, AIState>> = new Map()
+  private transitions: Map<AIState, Map<AIEventType, AIState>> = new Map();
   private onEnterState: Map<AIState, StateTransition> = new Map();
   private onExitState: Map<AIState, StateTransition> = new Map();
 

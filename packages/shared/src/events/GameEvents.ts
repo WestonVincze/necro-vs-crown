@@ -41,11 +41,11 @@ class GameEvents {
     return this.#onDeath.asObservable();
   }
 
-  get bufferedOnDeath(): Observable<EntityEvent[]> { 
+  get bufferedOnDeath(): Observable<EntityEvent[]> {
     return this.#onDeath.pipe(
-      distinct(event => event.eid),
+      distinct((event) => event.eid),
       buffer(this.#endOfFrame),
-      filter(events => events.length > 0),
+      filter((events) => events.length > 0),
     );
   }
 

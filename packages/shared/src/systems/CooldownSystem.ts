@@ -19,5 +19,5 @@ export const createCooldownSystem = () => {
     }
 
     return world;
-  }
-}
+  };
+};

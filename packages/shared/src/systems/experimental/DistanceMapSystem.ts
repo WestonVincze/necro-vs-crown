@@ -8,9 +8,9 @@ import { Position } from "../../components";
 export const DistanceMap = new Map<number, Map<number, number>>();
 
 export const createDistanceMapSystem = () => {
-  const positionQuery = defineQuery([Position])
+  const positionQuery = defineQuery([Position]);
 
-  return defineSystem(world => {
+  return defineSystem((world) => {
     const entities = positionQuery(world);
 
     DistanceMap.clear();
@@ -42,10 +42,13 @@ export const createDistanceMapSystem = () => {
     }
 
     return world;
-  })
-}
+  });
+};
 
-export const getEntitiesWithinDistance = (entity: number, maxDistance: number): number[] => {
+export const getEntitiesWithinDistance = (
+  entity: number,
+  maxDistance: number,
+): number[] => {
   const maxDistanceSquared = maxDistance * maxDistance;
   const nearbyEntities: number[] = [];
 
@@ -59,5 +62,4 @@ export const getEntitiesWithinDistance = (entity: number, maxDistance: number): 
   }
 
   return nearbyEntities;
-}
-
+};

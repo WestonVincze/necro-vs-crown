@@ -13,17 +13,16 @@ export class VersusModeScene extends Scene {
     super("VersusModeScene");
   }
 
-  playerEntities: {[sessionId: string]: any} = {};
+  playerEntities: { [sessionId: string]: any } = {};
   private playerType!: Faction;
-  private world!: World
+  private world!: World;
 
   // system references
   private reactiveSystems!: Pipeline;
   private tickSystems!: Pipeline;
   private physicsSystems!: Pipeline;
 
-
-  init (data: { player: Faction }) {
+  init(data: { player: Faction }) {
     this.playerType = data.player;
     // load the corresponding UI
   }
@@ -31,15 +30,14 @@ export class VersusModeScene extends Scene {
   client = new Client("ws://localhost:2567");
   room?: Room;
 
-
   units: any[] = [];
 
   async create() {
-    console.log('joining room...');
+    console.log("joining room...");
     this.world = createWorld();
     this.world.time = { delta: 0, elapsed: 0, then: performance.now() };
 
-      /*
+    /*
     try {
       this.room = await this.client.joinOrCreate("my_room", { playerType: this.playerType });
       console.log("Joined Successfully!")
@@ -78,7 +76,7 @@ export class VersusModeScene extends Scene {
     this.room?.state.minions.onAdd((minion: any, sessionId: string) => {
       createUnitEntity(this.world, "Skeleton", minion.x, minion.y);
 
-      const entity = this.physics.add.image(minion.x, minion.y, 'skele');
+      const entity = this.physics.add.image(minion.x, minion.y, "skele");
       entity.width = 40;
       entity.height = 60;
       entity.displayWidth = 40;
@@ -102,9 +100,9 @@ export class VersusModeScene extends Scene {
 
       this.units.push(entity);
       enemy.onChange(() => {
-        entity.setData('serverX', enemy.x);
-        entity.setData('serverY', enemy.y);
-      })
+        entity.setData("serverX", enemy.x);
+        entity.setData("serverY", enemy.y);
+      });
     });
 
     this.room?.state.players.onAdd((player: any, sessionId: string) => {
@@ -114,7 +112,7 @@ export class VersusModeScene extends Scene {
         // sessionId matches, this is the current player
         // this.currentPlayer = entity;
       }
-    })
+    });
 
     this.room?.state.players.onRemove((player: any, sessionId: string) => {
       // clean up player resources
@@ -124,12 +122,11 @@ export class VersusModeScene extends Scene {
 
         delete this.playerEntities[sessionId];
       }
-    })
+    });
   }
 
   fixedUpdate(time: number, delta: number) {
     if (!this.room) return;
-
   }
 
   elapsedTime = 0;

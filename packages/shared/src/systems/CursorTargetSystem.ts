@@ -1,16 +1,22 @@
-import { addComponent, addEntity, defineQuery } from 'bitecs';
-import { fromEvent, map } from 'rxjs';
-import { Cursor, GridCell, Position } from '../components';
-import type { Scene } from 'phaser';
+import { addComponent, addEntity, defineQuery } from "bitecs";
+import { fromEvent, map } from "rxjs";
+import { Cursor, GridCell, Position } from "../components";
+import type { Scene } from "phaser";
 
 // TODO: this system feels a bit awkward, let's revisit later and see if we can come up with a better solution
 export const createCursorTargetSystem = (scene: Scene) => {
-  const canvas = document.getElementById('game-container') || document.documentElement;
+  const canvas =
+    document.getElementById("game-container") || document.documentElement;
 
   const rect = canvas.getBoundingClientRect();
 
-  const mouseClick$ = fromEvent<MouseEvent>(canvas, 'mousedown').pipe(
-    map((event) => scene.cameras.main.getWorldPoint(event.clientX - rect.left, event.clientY - rect.top)),
+  const mouseClick$ = fromEvent<MouseEvent>(canvas, "mousedown").pipe(
+    map((event) =>
+      scene.cameras.main.getWorldPoint(
+        event.clientX - rect.left,
+        event.clientY - rect.top,
+      ),
+    ),
   );
 
   return (world: World) => {
@@ -25,8 +31,8 @@ export const createCursorTargetSystem = (scene: Scene) => {
       Position.y[cursorEid] = y;
     });
     return world;
-  }
-}
+  };
+};
 
 export const getCursorEid = (world: World) => {
   // there should only be one cursor
@@ -34,8 +40,10 @@ export const getCursorEid = (world: World) => {
 
   const entities = cursorQuery(world);
   if (entities.length === 0) {
-    console.warn(`Not found: Could not return Cursor eid, an instance of Cursor was not found.`);
+    console.warn(
+      `Not found: Could not return Cursor eid, an instance of Cursor was not found.`,
+    );
     return;
   }
   return entities[0];
-}
+};

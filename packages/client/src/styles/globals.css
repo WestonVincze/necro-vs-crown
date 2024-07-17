@@ -1,13 +1,13 @@
 :root {
   /** palette **/
-  --primary: #FFFFFF;
-  --necro: #673F69;
-  --necro-dark: #482C49; 
-  --crown: #FFAF45;
-  --crown-dark: #B27A30;
+  --primary: #ffffff;
+  --necro: #673f69;
+  --necro-dark: #482c49;
+  --crown: #ffaf45;
+  --crown-dark: #b27a30;
   --bg-primary: #111111;
   --bg-secondary: #252525;
-  --font-color: #CECECE;
+  --font-color: #cecece;
 
   /** sizes **/
   --size-1: 5px;
@@ -21,7 +21,7 @@
   --gutter: 15px;
   --max-width: 1200px;
   --header-height: 65px;
-  
+
   /** fonts **/
   --main-font: "Wellfleet", "monospace";
 }
@@ -48,7 +48,12 @@
   background-color: var(--bg-secondary);
 }
 
-h1,h2,h3,h4,h5,h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: var(--primary);
 }
 

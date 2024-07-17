@@ -1,2 +1,1 @@
-export const createEnemySpawnSystem = () => {
-}
+export const createEnemySpawnSystem = () => {};

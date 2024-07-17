@@ -4,7 +4,6 @@ import { AI, AIState, FollowTarget } from "../../components";
 import { AIStateMachine, createStateMachines } from "./AIStateMachine";
 import { addComponent, defineQuery, removeComponent } from "bitecs";
 
-
 export const createAIEventsSystem = () => {
   const stateMachines: Map<AIType, AIStateMachine> = new Map();
 
@@ -14,25 +13,25 @@ export const createAIEventsSystem = () => {
     // react to state transitions and call related logic
     gameEvents.AIEvents.subscribe((event) => {
       console.log(event.eid);
-      console.log(event.type)
+      console.log(event.type);
 
       const stateMachine = stateMachines.get(AI.type[event.eid]);
       if (!stateMachine) return;
 
       const currentState = AI.state[event.eid];
 
-      const nextState = stateMachine.getNextState(currentState, event.type)
+      const nextState = stateMachine.getNextState(currentState, event.type);
       if (!nextState) return;
 
       stateMachine.getOnExitState(currentState)?.(world, event.eid);
       stateMachine.getOnEnterState(nextState)?.(world, event.eid);
 
       AI.state[event.eid] = nextState;
-    })
+    });
 
     return world;
-  }
-}
+  };
+};
 
 interface Action {
   name: string;
@@ -49,8 +48,8 @@ const chaseAction: Action = {
     // return less as tile gap increases
     return 0;
   },
-  components: [FollowTarget]
-}
+  components: [FollowTarget],
+};
 
 const ActionMap: Map<AIType, Action[]> = new Map();
 
@@ -67,14 +66,14 @@ const createUtilityAISystem = () => {
     for (const eid of aiEntities) {
       const actions = ActionMap.get(AI.type[eid]);
       if (!actions) {
-        console.warn(`Actions not found for ${eid}.`)
+        console.warn(`Actions not found for ${eid}.`);
         continue;
       }
 
       if (frameCount % UTILITY_CALCULATION_INTERVAL === 0) {
-        const utilities = actions.map(action => {
+        const utilities = actions.map((action) => {
           return action.calculateUtility(world, eid);
-        })
+        });
 
         const maxUtility = Math.max(...utilities);
         const bestActionIndex = utilities.indexOf(maxUtility);
@@ -82,7 +81,8 @@ const createUtilityAISystem = () => {
         if (AIState.currentAction[eid] === bestActionIndex) continue;
 
         // remove components for old action
-        for (const component of actions[AIState.currentAction[eid]].components) {
+        for (const component of actions[AIState.currentAction[eid]]
+          .components) {
           removeComponent(world, component, eid);
         }
 
@@ -94,25 +94,24 @@ const createUtilityAISystem = () => {
         AIState.currentAction[eid] = bestActionIndex;
       }
     }
-  }
-}
-
+  };
+};
 
 /**
  * State machines are stateless... they act as decision making tree that accepts the current state and data to determine which components should be on/off
- * 
+ *
  * aiBrain is reactive -> other systems and interactions can trigger events and the aiBrain will react accordingly
- * 
+ *
  * EX
  * * "TARGET_ACQUIRED" event emission is sent to aiBrain
  * * if current state has a handler for the event type its state will be altered and the necessary components will be modified
- * 
- * 
+ *
+ *
  * (later) component modifications should be buffered to happen at the start of the next frame
  * * events will have priority, if a higher priority event is emitted before the previous event is processed, only the highest priority event should be emitted
- * 
- * 
- * 
+ *
+ *
+ *
  * how do events get emitted and processed?
  * * map of "types" to state machines created
  * * each entity has a "type" that determines which state machine to pull
@@ -120,7 +119,6 @@ const createUtilityAISystem = () => {
  * * * updateAISystem could read various parts of entity state and emit events? For example, it could check health every frame and if the percentage meets a threshold emit "FLEE" event
  * * * other systems will emit events, FSM reacts to these events and enables/disables behaviors by adding/removing components
  */
-
 
 /**
  * AI DEBUGGING / UI

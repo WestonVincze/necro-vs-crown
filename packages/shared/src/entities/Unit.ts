@@ -1,12 +1,50 @@
-import { addComponent, addEntity } from "bitecs"
-import { Crown, Input, Necro, Position, Sprite, Velocity, Health, Behavior, Behaviors, Transform, Collider, CollisionLayers, Inventory, GridCell, Spell, SpellState, SpellName, AI, RangedUnit, SpriteType } from "../components";
-import { Armor, AttackRange, AttackSpeed, CritChance, CritDamage, DamageBonus, MaxHealth, HealthRegeneration, MaxHit, MaxMoveSpeed, MoveSpeed } from "../components/Stats";
+import { addComponent, addEntity } from "bitecs";
+import {
+  Crown,
+  Input,
+  Necro,
+  Position,
+  Sprite,
+  Velocity,
+  Health,
+  Behavior,
+  Behaviors,
+  Transform,
+  Collider,
+  CollisionLayers,
+  Inventory,
+  GridCell,
+  Spell,
+  SpellState,
+  SpellName,
+  AI,
+  RangedUnit,
+  SpriteType,
+} from "../components";
+import {
+  Armor,
+  AttackRange,
+  AttackSpeed,
+  CritChance,
+  CritDamage,
+  DamageBonus,
+  MaxHealth,
+  HealthRegeneration,
+  MaxHit,
+  MaxMoveSpeed,
+  MoveSpeed,
+} from "../components/Stats";
 import { AIState, AIType, Faction, type Stats, type Unit } from "../types";
 import { AllUnits } from "../data";
 import { SpriteTexture } from "../constants";
 import { ProjectileName } from "./Projectiles";
 
-export const createUnitEntity = (world: World, name: Unit, x: number, y: number) => {
+export const createUnitEntity = (
+  world: World,
+  name: Unit,
+  x: number,
+  y: number,
+) => {
   const eid = addEntity(world);
   const data = AllUnits[name];
 
@@ -72,7 +110,7 @@ export const createUnitEntity = (world: World, name: Unit, x: number, y: number)
   Sprite.type[eid] = SpriteType.Rope;
 
   return eid;
-}
+};
 
 /**
  * Dynamically initializes components with base and current values from `AllUnits`
@@ -139,4 +177,4 @@ const initializeStats = (world: World, eid: number, stats: Stats) => {
     CritDamage.base[eid] = stats.critDamage;
     CritDamage.current[eid] = stats.critDamage;
   }
-}
+};

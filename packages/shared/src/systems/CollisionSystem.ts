@@ -1,38 +1,50 @@
-import { defineQuery, hasComponent, removeComponent, removeEntity } from 'bitecs';
-import { Position, Collider, Projectile, Armor, Health } from '../components';
-import { Subject } from 'rxjs';
-import { attackEntity } from './CombatSystem';
+import {
+  defineQuery,
+  hasComponent,
+  removeComponent,
+  removeEntity,
+} from "bitecs";
+import { Position, Collider, Projectile, Armor, Health } from "../components";
+import { Subject } from "rxjs";
+import { attackEntity } from "./CombatSystem";
 /**
  * Another option is to create a collisionSystem factory that accepts
  * - a primary collider
  * - a secondary collider
  * - a callback
- * 
+ *
  * Pros:
  * - no need to maintain a sort of collision map
  * - no need for a subject
- * 
+ *
  * Cons:
  * - rigid -> requires instantiation of a system to handle each type of collision
  * - performance? (although this could probably turn into a pro with web workers)
  */
 
-// TODO: consider deferring collisions or tracking collisions to safeguard against multiple simultaneous collisions (like picking up an item) 
+// TODO: consider deferring collisions or tracking collisions to safeguard against multiple simultaneous collisions (like picking up an item)
 // TODO: define collisionTypes or create specific collision messages to provide context to subscribers of collisionEvents
-export const collisionEvents = new Subject<{ eid1: number, eid2: number }>();
+export const collisionEvents = new Subject<{ eid1: number; eid2: number }>();
 
 // base collision query
 const colliderQuery = defineQuery([Position, Collider]);
 
 export const createProjectileCollisionSystem = () => {
-  const query = defineQuery([Position, Collider, Projectile])
+  const query = defineQuery([Position, Collider, Projectile]);
 
   return (world: World) => {
     for (const projectileEid of query(world)) {
       for (const colliderEid of colliderQuery(world)) {
         if (checkCollision(projectileEid, colliderEid)) {
           // projectile collided with something
-          if (attackEntity(world, colliderEid, Projectile.attackBonus[projectileEid], Projectile.damage[projectileEid])) {
+          if (
+            attackEntity(
+              world,
+              colliderEid,
+              Projectile.attackBonus[projectileEid],
+              Projectile.damage[projectileEid],
+            )
+          ) {
             removeEntity(world, projectileEid);
           }
         }
@@ -40,8 +52,8 @@ export const createProjectileCollisionSystem = () => {
     }
 
     return world;
-  }
-}
+  };
+};
 
 export const createCollisionSystem = () => {
   return (world: World) => {
@@ -52,16 +64,16 @@ export const createCollisionSystem = () => {
         const eid1 = entities[i];
         const eid2 = entities[j];
 
-       if (checkCollision(eid1, eid2)) {
+        if (checkCollision(eid1, eid2)) {
           // Collision detected, emit an event
-          console.log("collision detected")
+          console.log("collision detected");
           collisionEvents.next({ eid1, eid2 });
         }
       }
     }
 
     return world;
-  }
+  };
 };
 
 const checkCollision = (eid1: number, eid2: number) => {
@@ -91,4 +103,4 @@ const checkCollision = (eid1: number, eid2: number) => {
   }
 
   return false;
-}
+};

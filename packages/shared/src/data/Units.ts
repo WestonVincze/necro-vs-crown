@@ -1,4 +1,9 @@
-import { type UnitData, type CrownUnit, type NecroUnit, Faction } from "../types"
+import {
+  type UnitData,
+  type CrownUnit,
+  type NecroUnit,
+  Faction,
+} from "../types";
 
 export const CrownUnits: Record<CrownUnit, UnitData> = {
   Peasant: {
@@ -20,8 +25,8 @@ export const CrownUnits: Record<CrownUnit, UnitData> = {
       maxSpeed: 1.2,
     },
     dropTable: {
-      always: ["bones"]
-    }
+      always: ["bones"],
+    },
   },
   Guard: {
     name: "Guard",
@@ -45,8 +50,8 @@ export const CrownUnits: Record<CrownUnit, UnitData> = {
     },
     dropTable: {
       always: ["bones"],
-      common: ["med_helm"]
-    }
+      common: ["med_helm"],
+    },
   },
   Paladin: {
     name: "Paladin",
@@ -70,8 +75,8 @@ export const CrownUnits: Record<CrownUnit, UnitData> = {
     },
     dropTable: {
       always: ["bones"],
-      common: ["bucket_helm"]
-    }
+      common: ["bucket_helm"],
+    },
   },
   Doppelsoldner: {
     name: "Doppelsoldner",
@@ -95,8 +100,8 @@ export const CrownUnits: Record<CrownUnit, UnitData> = {
     },
     dropTable: {
       always: ["bones"],
-      common: ["great_sword"]
-    }
+      common: ["great_sword"],
+    },
   },
   Archer: {
     name: "Archer",
@@ -122,9 +127,9 @@ export const CrownUnits: Record<CrownUnit, UnitData> = {
     dropTable: {
       always: ["bones"],
       common: ["crossbow"],
-    }
-  }
-}
+    },
+  },
+};
 
 export const NecroUnits: Record<NecroUnit, UnitData> = {
   Skeleton: {
@@ -161,8 +166,8 @@ export const NecroUnits: Record<NecroUnit, UnitData> = {
       HPregeneration: 0.05,
       castingSpeed: 0.5,
       spellRadius: 50,
-    }
-  }
-}
+    },
+  },
+};
 
 export const AllUnits = { ...CrownUnits, ...NecroUnits };

@@ -8,7 +8,7 @@ class Profiler {
   end(label: string) {
     performance.mark(`${label}-end`);
     performance.measure(label, `${label}-start`, `${label}-end`);
-    
+
     const measure = performance.getEntriesByName(label).pop();
     if (measure) {
       if (!this.measurements.has(label)) {
@@ -16,7 +16,7 @@ class Profiler {
       }
       this.measurements.get(label)!.push(measure.duration);
     }
-    
+
     performance.clearMarks(`${label}-start`);
     performance.clearMarks(`${label}-end`);
     performance.clearMeasures(label);
@@ -33,10 +33,12 @@ class Profiler {
   }
 
   logResults() {
-    console.log('Profiling Results:');
+    console.log("Profiling Results:");
     for (const [label, times] of this.measurements.entries()) {
       const avg = this.getAverageTime(label);
-      console.log(`${label}: Avg ${avg.toFixed(2)}ms over ${times.length} calls`);
+      console.log(
+        `${label}: Avg ${avg.toFixed(2)}ms over ${times.length} calls`,
+      );
     }
   }
 }

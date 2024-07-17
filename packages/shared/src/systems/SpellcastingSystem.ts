@@ -1,5 +1,26 @@
-import { defineEnterQueue, addComponent, defineQuery, removeComponent, removeEntity, defineExitQueue, Not } from "bitecs";
-import { Spell, Input, SpellEffect, Position, SpellState, Bones, Behavior, Behaviors, Necro, Health, SpellName, SpellCooldown } from "../components";
+import {
+  defineEnterQueue,
+  addComponent,
+  defineQuery,
+  removeComponent,
+  removeEntity,
+  defineExitQueue,
+  Not,
+} from "bitecs";
+import {
+  Spell,
+  Input,
+  SpellEffect,
+  Position,
+  SpellState,
+  Bones,
+  Behavior,
+  Behaviors,
+  Necro,
+  Health,
+  SpellName,
+  SpellCooldown,
+} from "../components";
 import { GameObjects, Scene } from "phaser";
 import { createUnitEntity } from "../entities";
 import { checkIfWithinDistance, getPositionFromEid } from "../utils";
@@ -7,7 +28,12 @@ import type { World } from "../types";
 import { gameEvents } from "../events";
 
 export const createSpellcastingSystem = () => {
-  const spellcasterQuery = defineQuery([Input, Position, Spell, Not(SpellCooldown)]);
+  const spellcasterQuery = defineQuery([
+    Input,
+    Position,
+    Spell,
+    Not(SpellCooldown),
+  ]);
 
   return (world: World) => {
     const entities = spellcasterQuery(world);
@@ -22,17 +48,18 @@ export const createSpellcastingSystem = () => {
         SpellEffect.maxSize[eid] = 100;
         SpellEffect.growthRate[eid] = 1;
         SpellEffect.name[eid] = Spell.name[eid];
-      }
-
-      else if (spellState === SpellState.Casting && Input.castingSpell[eid] !== 1) {
-        removeComponent(world, SpellEffect, eid)
+      } else if (
+        spellState === SpellState.Casting &&
+        Input.castingSpell[eid] !== 1
+      ) {
+        removeComponent(world, SpellEffect, eid);
         Spell.state[eid] = SpellState.Ready;
       }
     }
 
     return world;
-  }
-}
+  };
+};
 
 // TODO: abstract the client (Phaser related) logic into separate system
 export const createDrawSpellEffectSystem = (scene: Scene) => {
@@ -48,12 +75,18 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
   const necroUnitQuery = defineQuery([Necro, Position, Health]);
 
   return (world: World) => {
-    // onEnter 
+    // onEnter
     for (const eid of onEnter(world)) {
       const x = Position.x[eid];
       const y = Position.y[eid];
 
-      const circle = scene.add.circle(x, y, SpellEffect.size[eid], 0xc360eb, 0.5);
+      const circle = scene.add.circle(
+        x,
+        y,
+        SpellEffect.size[eid],
+        0xc360eb,
+        0.5,
+      );
       circlesById.set(eid, circle);
     }
 
@@ -61,7 +94,10 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
     for (const eid of query(world)) {
       // grow spell effect
       if (SpellEffect.size[eid] < SpellEffect.maxSize[eid]) {
-        SpellEffect.size[eid] += Math.min(SpellEffect.maxSize[eid], SpellEffect.growthRate[eid]);
+        SpellEffect.size[eid] += Math.min(
+          SpellEffect.maxSize[eid],
+          SpellEffect.growthRate[eid],
+        );
       } else if (SpellEffect.name[eid] === SpellName.HolyNova) {
         // TODO: generalize this for auto-resolving spell effects
         removeComponent(world, SpellEffect, eid, false);
@@ -70,7 +106,9 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
 
       const circle = circlesById.get(eid);
       if (!circle) {
-        console.warn(`Circle not found: Unable to modify spellEffect for ${eid}`);
+        console.warn(
+          `Circle not found: Unable to modify spellEffect for ${eid}`,
+        );
         continue;
       }
 
@@ -89,10 +127,21 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
 
           for (const boneEntity of boneEntities) {
             const bonePosition = getPositionFromEid(boneEntity);
-            
-            if (checkIfWithinDistance(position, bonePosition, SpellEffect.size[eid] + 50)) {
+
+            if (
+              checkIfWithinDistance(
+                position,
+                bonePosition,
+                SpellEffect.size[eid] + 50,
+              )
+            ) {
               removeEntity(world, boneEntity);
-              const eid = createUnitEntity(world, "Skeleton", bonePosition.x, bonePosition.y);
+              const eid = createUnitEntity(
+                world,
+                "Skeleton",
+                bonePosition.x,
+                bonePosition.y,
+              );
               Behavior.type[eid] = Behaviors.FollowCursor;
             }
           }
@@ -103,7 +152,13 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
           for (const necroEid of necroEntities) {
             const necroPosition = getPositionFromEid(necroEid);
 
-            if (checkIfWithinDistance(position, necroPosition, SpellEffect.size[eid] + 50)) {
+            if (
+              checkIfWithinDistance(
+                position,
+                necroPosition,
+                SpellEffect.size[eid] + 50,
+              )
+            ) {
               gameEvents.emitHealthChange({ eid: necroEid, amount: -10 });
             }
           }
@@ -119,11 +174,10 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
       }
 
       circlesById.delete(eid);
-
     }
     return world;
-  }
-}
+  };
+};
 
 export const createSpellFXSystem = () => {
   // creates, updates, and destroys the necessary FX for a spell
@@ -134,4 +188,4 @@ export const createSpellFXSystem = () => {
    * * play SFX, add particles, update colors
    * * garbage collection
    */
-}
+};

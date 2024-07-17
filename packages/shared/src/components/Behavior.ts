@@ -6,8 +6,8 @@ export enum Behaviors {
 }
 
 export const Behavior = defineComponent({
-  type: Types.i8
-})
+  type: Types.i8,
+});
 
 export const FollowCursor = defineComponent();
 

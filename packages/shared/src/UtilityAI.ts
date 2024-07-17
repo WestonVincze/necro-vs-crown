@@ -1,3 +1,3 @@
 /**
- * AI Component has a list of behaviors 
+ * AI Component has a list of behaviors
  */

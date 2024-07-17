@@ -2,7 +2,7 @@ import { Types, defineComponent } from "bitecs";
 
 export enum SpriteType {
   Sprite,
-  Rope
+  Rope,
 }
 
 export const Sprite = defineComponent({

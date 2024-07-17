@@ -1,51 +1,109 @@
-import { addComponent, addEntity, createWorld, getAllEntities, getEntityComponents, pipe } from "bitecs";
+import {
+  addComponent,
+  addEntity,
+  createWorld,
+  getAllEntities,
+  getEntityComponents,
+  pipe,
+} from "bitecs";
 import { Scene } from "phaser";
-import { type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem, Faction, Behavior, Behaviors, createAssignFollowTargetSystem, createGridSystem, SpellName, createTimeSystem, createAIEventsSystem, createDestroyAfterDelaySystem, createProjectileCollisionSystem } from "@necro-crown/shared";
+import {
+  type Pipeline,
+  Player,
+  createCursorTargetSystem,
+  createInputHandlerSystem,
+  createMovementSystem,
+  createTargetingSystem,
+  createUnitEntity,
+  createFollowTargetSystem,
+  createSpriteSystem,
+  createCollisionSystem,
+  createItemEquipSystem,
+  createBonesEntity,
+  createSpellcastingSystem,
+  createDrawSpellEffectSystem,
+  Spell,
+  SpellState,
+  createHealthBarSystem,
+  createCombatSystem,
+  createHealthSystem,
+  createDeathSystem,
+  createCooldownSystem,
+  createHitSplatSystem,
+  Faction,
+  Behavior,
+  Behaviors,
+  createAssignFollowTargetSystem,
+  createGridSystem,
+  SpellName,
+  createTimeSystem,
+  createAIEventsSystem,
+  createDestroyAfterDelaySystem,
+  createProjectileCollisionSystem,
+} from "@necro-crown/shared";
 import { createCameraControlSystem } from "$game/systems";
-import { MAP_X_MAX, MAP_X_MIN, MAP_Y_MAX, MAP_Y_MIN, SCREEN_HEIGHT, SCREEN_WIDTH } from "@necro-crown/shared/src/constants";
-import { type World, GameState } from "@necro-crown/shared"
+import {
+  MAP_X_MAX,
+  MAP_X_MIN,
+  MAP_Y_MAX,
+  MAP_Y_MIN,
+  SCREEN_HEIGHT,
+  SCREEN_WIDTH,
+} from "@necro-crown/shared/src/constants";
+import { type World, GameState } from "@necro-crown/shared";
 import { profiler } from "@necro-crown/shared/src/utils";
 
-type System = (world: World) => World
+type System = (world: World) => World;
 
 type PipelineFactory = {
-  scene: Scene,
-  pre?: System[],
-  post?: System[],
-}
+  scene: Scene;
+  pre?: System[];
+  post?: System[];
+};
 
-const createPhysicsPipeline = ({ scene, pre = [], post = [] }: PipelineFactory) => pipe(
-  ...pre,
-  createDestroyAfterDelaySystem(),
-  createMovementSystem(),
-  createSpriteSystem(scene),
-  // createFollowTargetSystem(scene),
-  createCooldownSystem(),
-  createCombatSystem(),
-  createCollisionSystem(),
-  createProjectileCollisionSystem(),
-  createSpellcastingSystem(),
-  createDrawSpellEffectSystem(scene),
-  createHealthBarSystem(scene),
-  ...post,
-  createTimeSystem(), // time should always be last
-);
+const createPhysicsPipeline = ({
+  scene,
+  pre = [],
+  post = [],
+}: PipelineFactory) =>
+  pipe(
+    ...pre,
+    createDestroyAfterDelaySystem(),
+    createMovementSystem(),
+    createSpriteSystem(scene),
+    // createFollowTargetSystem(scene),
+    createCooldownSystem(),
+    createCombatSystem(),
+    createCollisionSystem(),
+    createProjectileCollisionSystem(),
+    createSpellcastingSystem(),
+    createDrawSpellEffectSystem(scene),
+    createHealthBarSystem(scene),
+    ...post,
+    createTimeSystem(), // time should always be last
+  );
 
-const createReactivePipeline = ({ scene, pre = [], post = [] }: PipelineFactory) => pipe( 
-  ...pre,
-  createAIEventsSystem(),
-  createHitSplatSystem(scene),
-  createHealthSystem(),
-  createItemEquipSystem(),
-  ...post
-);
+const createReactivePipeline = ({
+  scene,
+  pre = [],
+  post = [],
+}: PipelineFactory) =>
+  pipe(
+    ...pre,
+    createAIEventsSystem(),
+    createHitSplatSystem(scene),
+    createHealthSystem(),
+    createItemEquipSystem(),
+    ...post,
+  );
 
-const createTickPipeline = ({ pre = [], post = [] }: PipelineFactory) => pipe(
-  ...pre,
-  createTargetingSystem(),
-  createAssignFollowTargetSystem(),
-  ...post
-)
+const createTickPipeline = ({ pre = [], post = [] }: PipelineFactory) =>
+  pipe(
+    ...pre,
+    createTargetingSystem(),
+    createAssignFollowTargetSystem(),
+    ...post,
+  );
 
 export class SoloModeScene extends Scene {
   /**
@@ -57,20 +115,20 @@ export class SoloModeScene extends Scene {
   private camera!: Phaser.Cameras.Scene2D.Camera;
 
   // entity container (context)
-  private world!: World
+  private world!: World;
 
   // system references
   private reactiveSystems!: Pipeline;
   private tickSystems!: Pipeline;
   private physicsSystems!: Pipeline;
 
-  public globalState: any; 
+  public globalState: any;
 
   constructor() {
     super("SoloModeScene");
   }
 
-  init(data: { player: Faction}) {
+  init(data: { player: Faction }) {
     // ensure input is enabled in config
     this.playerType = data.player;
     this.camera = this.cameras.main;
@@ -82,24 +140,34 @@ export class SoloModeScene extends Scene {
     this.world.time = { delta: 0, elapsed: 0, then: performance.now() };
 
     // create base systems
-    let physicsSystems: { pre: System[], post: System[] } = { pre: [], post: [] };
-    let reactiveSystems: { pre: System[], post: System[] } = { pre: [], post: [] };
-    let tickSystems: { pre: System[], post: System[] } = { pre: [], post: [] };
-
+    let physicsSystems: { pre: System[]; post: System[] } = {
+      pre: [],
+      post: [],
+    };
+    let reactiveSystems: { pre: System[]; post: System[] } = {
+      pre: [],
+      post: [],
+    };
+    let tickSystems: { pre: System[]; post: System[] } = { pre: [], post: [] };
 
     const { gui } = GameState;
 
     const main = gui.addFolder("Main Camera");
-    main.add(this.camera, 'scrollX').listen();
-    main.add(this.camera, 'scrollY').listen();
+    main.add(this.camera, "scrollX").listen();
+    main.add(this.camera, "scrollY").listen();
 
     const entityData = gui.addFolder("Entity Data");
     const entityMethods = {
       printEntities: () => console.log(getAllEntities(this.world)),
-      printComponents: () => getAllEntities(this.world).forEach(eid => console.log(getEntityComponents(this.world, eid)))
-    }
+      printComponents: () =>
+        getAllEntities(this.world).forEach((eid) =>
+          console.log(getEntityComponents(this.world, eid)),
+        ),
+    };
     entityData.add(entityMethods, "printEntities").name("Print Entities");
-    entityData.add(entityMethods, "printComponents").name("Print Entity Components");
+    entityData
+      .add(entityMethods, "printComponents")
+      .name("Print Entity Components");
 
     /** Add global debug functions */
     /*
@@ -109,8 +177,8 @@ export class SoloModeScene extends Scene {
 
     /** Set up testing Tilemap - 3x screen size */
     this.camera.setBounds(MAP_X_MIN, MAP_Y_MIN, MAP_X_MAX, MAP_Y_MAX);
-    const map = this.make.tilemap({ key: 'map' });
-    map.addTilesetImage('sample', 'sample');
+    const map = this.make.tilemap({ key: "map" });
+    map.addTilesetImage("sample", "sample");
     map.createLayer("Ground", "sample", MAP_X_MIN, MAP_Y_MIN);
     // map.createLayer("Roads", "sample", MAP_X_MIN, MAP_Y_MIN);
     map.createLayer("Objects", "sample", MAP_X_MIN, MAP_Y_MIN);
@@ -133,7 +201,12 @@ export class SoloModeScene extends Scene {
       case Faction.Crown:
         // create starting units
         for (let i = 0; i < 5; i++) {
-          const eid = createUnitEntity(this.world, "Skeleton", Math.random() * SCREEN_HEIGHT, Math.random() * SCREEN_WIDTH);
+          const eid = createUnitEntity(
+            this.world,
+            "Skeleton",
+            Math.random() * SCREEN_HEIGHT,
+            Math.random() * SCREEN_WIDTH,
+          );
           addComponent(this.world, Behavior, eid);
           Behavior.type[eid] = Behaviors.AutoTarget;
         }
@@ -141,20 +214,16 @@ export class SoloModeScene extends Scene {
         // system overrides
         physicsSystems.pre = [
           createGridSystem(map),
-          createFollowTargetSystem(this, gridData)
-        ]
+          createFollowTargetSystem(this, gridData),
+        ];
 
-        reactiveSystems.pre = [
-          createCameraControlSystem(this),
-        ]
+        reactiveSystems.pre = [createCameraControlSystem(this)];
 
-        reactiveSystems.post = [
-          createDeathSystem(this.playerType),
-        ]
+        reactiveSystems.post = [createDeathSystem(this.playerType)];
         break;
 
       case Faction.Necro:
-        // create Necro player 
+        // create Necro player
         const eid = createUnitEntity(this.world, "Necromancer", 300, 300);
         addComponent(this.world, Player, eid);
         addComponent(this.world, Spell, eid);
@@ -166,11 +235,16 @@ export class SoloModeScene extends Scene {
 
         for (let i = 0; i < 10; i++) {
           const randomEntity = Math.random() > 0.5 ? "Archer" : "Skeleton";
-          const eid = createUnitEntity(this.world, randomEntity, Math.random() * 1024, Math.random() * 1024);
+          const eid = createUnitEntity(
+            this.world,
+            randomEntity,
+            Math.random() * 1024,
+            Math.random() * 1024,
+          );
 
           if (randomEntity === "Skeleton") {
             Behavior.type[eid] = Behaviors.FollowCursor;
-          }  else {
+          } else {
             Behavior.type[eid] = Behaviors.AutoTarget;
           }
         }
@@ -179,16 +253,12 @@ export class SoloModeScene extends Scene {
         physicsSystems.pre = [
           createInputHandlerSystem(),
           createGridSystem(map),
-          createFollowTargetSystem(this, gridData)
-        ]
+          createFollowTargetSystem(this, gridData),
+        ];
 
-        reactiveSystems.pre = [
-          createCursorTargetSystem(this),
-        ]
+        reactiveSystems.pre = [createCursorTargetSystem(this)];
 
-        reactiveSystems.post = [
-          createDeathSystem(this.playerType),
-        ]
+        reactiveSystems.post = [createDeathSystem(this.playerType)];
         break;
     }
 
@@ -196,19 +266,19 @@ export class SoloModeScene extends Scene {
     this.physicsSystems = createPhysicsPipeline({
       scene: this,
       pre: physicsSystems.pre,
-      post: physicsSystems.post
+      post: physicsSystems.post,
     });
 
     this.reactiveSystems = createReactivePipeline({
       scene: this,
       pre: reactiveSystems.pre,
-      post: reactiveSystems.post
+      post: reactiveSystems.post,
     });
 
     this.tickSystems = createTickPipeline({
       scene: this,
       pre: tickSystems.pre,
-      post: tickSystems.post
+      post: tickSystems.post,
     });
 
     /** RUN REACTIVE SYSTEMS */

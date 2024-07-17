@@ -1,4 +1,11 @@
-import { addComponent, defineQuery, defineSystem, getRelationTargets, hasComponent, removeComponent } from "bitecs"
+import {
+  addComponent,
+  defineQuery,
+  defineSystem,
+  getRelationTargets,
+  hasComponent,
+  removeComponent,
+} from "bitecs";
 import { Position, Behavior, Behaviors, Input, AI } from "../components";
 import { Crown, Necro } from "../components";
 import { getCursorEid } from "./CursorTargetSystem";
@@ -13,14 +20,17 @@ export const createTargetingSystem = () => {
   const necroEnemiesQuery = defineQuery([Crown, Position]);
   const crownEnemiesQuery = defineQuery([Necro, Position]);
 
-  return defineSystem(world => {
+  return defineSystem((world) => {
     const necroEntities = necroTargetQuery(world);
     const crownEntities = crownTargetQuery(world);
 
     const necroEnemyEntities = necroEnemiesQuery(world);
     const crownEnemyEntities = crownEnemiesQuery(world);
 
-    const updateTargets = (sourceEntities: readonly number[], targetEntities: readonly number[]) => {
+    const updateTargets = (
+      sourceEntities: readonly number[],
+      targetEntities: readonly number[],
+    ) => {
       for (const eid of sourceEntities) {
         let closestDistance = Infinity;
         let closestTarget: null | number = null;
@@ -40,15 +50,15 @@ export const createTargetingSystem = () => {
 
         if (closestTarget !== null) {
           addComponent(world, CombatTarget(closestTarget), eid);
-        } 
+        }
       }
-    }
+    };
 
     updateTargets(necroEntities, necroEnemyEntities);
     updateTargets(crownEntities, crownEnemyEntities);
     return world;
-  })
-}
+  });
+};
 
 export const createAssignFollowTargetSystem = () => {
   /**
@@ -64,15 +74,20 @@ export const createAssignFollowTargetSystem = () => {
       if (Behavior.type[eid] === Behaviors.FollowCursor) {
         const cursorEid = getCursorEid(world);
         if (!cursorEid) {
-          console.warn(`Not found: FollowTarget could not be assigned to cursor for ${eid}`);
+          console.warn(
+            `Not found: FollowTarget could not be assigned to cursor for ${eid}`,
+          );
           continue;
-        } 
+        }
         addComponent(world, MoveTarget(cursorEid), eid);
-      } else if (Behavior.type[eid] === Behaviors.AutoTarget && hasComponent(world, CombatTarget("*"), eid)) {
+      } else if (
+        Behavior.type[eid] === Behaviors.AutoTarget &&
+        hasComponent(world, CombatTarget("*"), eid)
+      ) {
         const target = getRelationTargets(world, CombatTarget, eid)[0];
         addComponent(world, MoveTarget(target), eid);
       }
     }
     return world;
-  }
-}
+  };
+};

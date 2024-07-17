@@ -2,7 +2,7 @@ import { ArraySchema, MapSchema, Schema, type } from "@colyseus/schema";
 
 enum PlayerType {
   Necro,
-  Crown
+  Crown,
 }
 
 export class Player extends Schema {

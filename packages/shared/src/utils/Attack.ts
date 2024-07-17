@@ -1,22 +1,22 @@
 const rollDice = (sides: number, bonus = 0) => {
   return Math.floor(Math.random() * sides) + 1 + bonus;
-}
+};
 
 const rollToHit = (difficulty: number, bonus = 0) => {
   return rollDice(20, bonus) >= difficulty;
-}
+};
 
 const rollToCrit = (critChance: number) => {
   return rollDice(100) + critChance >= 100;
-}
+};
 
 /**
- * @param {Stats} attackerStats 
- * @param {Unit} target 
+ * @param {Stats} attackerStats
+ * @param {Unit} target
  */
 export const attackTarget = (attackerStats, target) => {
   if (!target || !target.health) {
-    console.error("invalid attack target")
+    console.error("invalid attack target");
     return false;
   }
 
@@ -27,7 +27,11 @@ export const attackTarget = (attackerStats, target) => {
     damage = rollDice(attackerStats.maxHit);
   }
 
-  if (damage > 0 && attackerStats.critChance && rollToCrit(attackerStats.critChance)) {
+  if (
+    damage > 0 &&
+    attackerStats.critChance &&
+    rollToCrit(attackerStats.critChance)
+  ) {
     critMod = attackerStats.critDamage;
   }
 
@@ -37,4 +41,4 @@ export const attackTarget = (attackerStats, target) => {
   // check for and apply effects like knockback...
 
   return true;
-}
+};

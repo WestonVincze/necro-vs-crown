@@ -1,4 +1,4 @@
-import { Types, defineComponent } from 'bitecs';
+import { Types, defineComponent } from "bitecs";
 
 export enum SpellState {
   Ready,
@@ -7,7 +7,7 @@ export enum SpellState {
 
 export enum SpellName {
   Summon,
-  HolyNova
+  HolyNova,
 }
 
 export const Spell = defineComponent({

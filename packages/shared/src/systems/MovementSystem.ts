@@ -1,5 +1,11 @@
 import { defineQuery, defineSystem } from "bitecs";
-import { Position, Velocity, Input, MoveSpeed, MaxMoveSpeed } from "../components";
+import {
+  Position,
+  Velocity,
+  Input,
+  MoveSpeed,
+  MaxMoveSpeed,
+} from "../components";
 import { normalizeForce } from "../helpers";
 
 const FRICTION = 0.05;
@@ -9,7 +15,7 @@ const screenHeight = 1152 - 60; // 2304;
 
 /**
  * MovementSystem
- * read from inputPayload -> { moveX, moveY } 
+ * read from inputPayload -> { moveX, moveY }
  * read from stats -> moveSpeed, maxMoveSpeed
  * normalize forces
  * apply force with moveSpeed
@@ -22,7 +28,13 @@ const screenHeight = 1152 - 60; // 2304;
  * @returns The movement system function.
  */
 export const createMovementSystem = () => {
-  const movementQuery = defineQuery([Position, Input, Velocity, MoveSpeed, MaxMoveSpeed]);
+  const movementQuery = defineQuery([
+    Position,
+    Input,
+    Velocity,
+    MoveSpeed,
+    MaxMoveSpeed,
+  ]);
 
   return (world: World) => {
     const entities = movementQuery(world);
@@ -49,9 +61,11 @@ export const createMovementSystem = () => {
       }
 
       // limit max speed
-      const magnitude = Math.sqrt(newVelocity.x * newVelocity.x + newVelocity.y * newVelocity.y);
+      const magnitude = Math.sqrt(
+        newVelocity.x * newVelocity.x + newVelocity.y * newVelocity.y,
+      );
       if (magnitude > MaxMoveSpeed.current[eid]) {
-        const scale = MaxMoveSpeed.current[eid] / magnitude
+        const scale = MaxMoveSpeed.current[eid] / magnitude;
         newVelocity.x *= scale;
         newVelocity.y *= scale;
       }
@@ -61,11 +75,17 @@ export const createMovementSystem = () => {
 
       Position.x[eid] += Velocity.x[eid];
       Position.y[eid] += Velocity.y[eid];
-      
+
       // clamp to screen size
-      Position.x[eid] = Math.max(-screenWidth, Math.min(screenWidth, Position.x[eid]));
-      Position.y[eid] = Math.max(-screenHeight, Math.min(screenHeight, Position.y[eid]));
+      Position.x[eid] = Math.max(
+        -screenWidth,
+        Math.min(screenWidth, Position.x[eid]),
+      );
+      Position.y[eid] = Math.max(
+        -screenHeight,
+        Math.min(screenHeight, Position.y[eid]),
+      );
     }
     return world;
-  }
-}
+  };
+};

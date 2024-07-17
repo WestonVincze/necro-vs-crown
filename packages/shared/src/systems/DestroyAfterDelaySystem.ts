@@ -17,5 +17,5 @@ export const createDestroyAfterDelaySystem = () => {
     }
 
     return world;
-  }
-}
+  };
+};

@@ -14,10 +14,8 @@
     "useDefineForClassFields": false,
     "baseUrl": "./src/",
     "paths": {
-      "$rooms": ["./rooms"],
-    },
+      "$rooms": ["./rooms"]
+    }
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }

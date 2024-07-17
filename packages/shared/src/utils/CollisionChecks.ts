@@ -20,18 +20,22 @@ export const getDistance = (a: Vector2, b: Vector2) => {
   const dx = a.x - b.x;
   const dy = a.y - b.y;
   return Math.sqrt(dx ** 2 + dy ** 2);
-}
+};
 
 export const getDistanceSquared = (a: Vector2, b: Vector2) => {
   const dx = a.x - b.x;
   const dy = a.y - b.y;
   return dx ** 2 + dy ** 2;
-}
+};
 
 /**
  * Checks if the distance between vectors is less than the distance
  * Utilizes a squared distance check
  */
-export const checkIfWithinDistance = (a: Vector2, b: Vector2, distance: number) => {
+export const checkIfWithinDistance = (
+  a: Vector2,
+  b: Vector2,
+  distance: number,
+) => {
   return getDistanceSquared(a, b) <= distance ** 2;
-}
+};

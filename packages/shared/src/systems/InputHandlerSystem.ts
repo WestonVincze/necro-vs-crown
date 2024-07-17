@@ -1,7 +1,11 @@
 import { defineQuery } from "bitecs";
 import { Input, Player } from "../components";
 // TODO: move InputHandlerSystem to client, it won't be shared
-import { createActiveActions, type InputAction, type action } from "../../../client/src/input";
+import {
+  createActiveActions,
+  type InputAction,
+  type action,
+} from "../../../client/src/input";
 
 const inputMap: InputAction = {
   moveLeft: ["a"],
@@ -9,13 +13,13 @@ const inputMap: InputAction = {
   moveUp: ["w"],
   moveDown: ["s"],
   castSpell: [" "],
-}
+};
 
 export const createInputHandlerSystem = () => {
   const activeActions$ = createActiveActions(inputMap);
   // TODO: reset active keys on focus out
   let activeKeys: Partial<Record<action, boolean>> = {};
-  activeActions$.subscribe(activeActions => activeKeys = activeActions);
+  activeActions$.subscribe((activeActions) => (activeKeys = activeActions));
 
   const inputQuery = defineQuery([Input, Player]);
 
@@ -53,5 +57,5 @@ export const createInputHandlerSystem = () => {
     }
 
     return world;
-  }
-}
+  };
+};

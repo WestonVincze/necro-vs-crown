@@ -1,4 +1,4 @@
-import { defineQuery, enterQuery, exitQuery, hasComponent } from "bitecs"
+import { defineQuery, enterQuery, exitQuery, hasComponent } from "bitecs";
 import { GameObjects, Scene } from "phaser";
 import { Health, Necro, Position, Transform } from "../components";
 import { gameEvents } from "../events";
@@ -9,22 +9,25 @@ const HEALTH_BAR_HEIGHT = 5;
 
 export const createHealthSystem = () => {
   return (world: World) => {
-    profiler.start("HEALTH_SYSTEM")
-    gameEvents.healthChanges.subscribe(({ eid, amount }) => { 
+    profiler.start("HEALTH_SYSTEM");
+    gameEvents.healthChanges.subscribe(({ eid, amount }) => {
       if (amount > 0) {
-        Health.current[eid] = Math.min(Health.max[eid], Health.current[eid] + amount);
+        Health.current[eid] = Math.min(
+          Health.max[eid],
+          Health.current[eid] + amount,
+        );
       } else if (amount < 0) {
         Health.current[eid] = Math.max(0, Health.current[eid] + amount);
       }
 
       if (Health.current[eid] <= 0) {
-        gameEvents.emitDeath(eid)
+        gameEvents.emitDeath(eid);
       }
-    })
+    });
 
-    profiler.end("HEALTH_SYSTEM")
+    profiler.end("HEALTH_SYSTEM");
     return world;
-  }
+  };
 };
 
 export const createHealthBarSystem = (scene: Scene) => {
@@ -62,7 +65,7 @@ export const createHealthBarSystem = (scene: Scene) => {
       const healthPercent = Health.current[eid] / Health.max[eid];
 
       drawHealthBarGraphic(healthBar, width, height, healthPercent);
-      // sync healthBar with health 
+      // sync healthBar with health
       //scene.add.rectangle
     }
 
@@ -78,25 +81,30 @@ export const createHealthBarSystem = (scene: Scene) => {
     }
 
     return world;
-  }
+  };
 };
 
-const drawHealthBarGraphic = (healthBar: GameObjects.Graphics, width: number, height: number, healthPercentage: number) => {
+const drawHealthBarGraphic = (
+  healthBar: GameObjects.Graphics,
+  width: number,
+  height: number,
+  healthPercentage: number,
+) => {
   healthBar.clear();
-  healthBar.fillStyle(0xAA5555);
+  healthBar.fillStyle(0xaa5555);
   healthBar.fillRect(0, 0, width, height);
 
-  healthBar.fillStyle(0x55AA55);
+  healthBar.fillStyle(0x55aa55);
   healthBar.fillRect(0, 0, width * healthPercentage, height);
-}
+};
 
 const getHealthBarProps = (eid: number) => {
-  const x = Position.x[eid] - (Transform.width[eid] / 2) + 4;
-  const y = Position.y[eid] - (Transform.height[eid]) - HEALTH_BAR_HEIGHT * 2;
+  const x = Position.x[eid] - Transform.width[eid] / 2 + 4;
+  const y = Position.y[eid] - Transform.height[eid] - HEALTH_BAR_HEIGHT * 2;
   const width = Transform.width[eid] - 8;
   const height = HEALTH_BAR_HEIGHT;
   return { x, y, width, height };
-}
+};
 
 const hitSplatColors = {
   [Faction.Crown]: {
@@ -108,20 +116,22 @@ const hitSplatColors = {
     miss: 0xff9191,
     hit: 0xff5555,
     crit: 0xed2424,
-  }
-}
+  },
+};
 
 export const createHitSplatSystem = (scene: Scene) => {
   return (world: World) => {
     // TODO: this needs to unsubscribe when the scene changes
-    gameEvents.healthChanges.subscribe(({ amount, isCrit, eid}) => {
-      const tag = hasComponent(world, Necro, eid) ? Faction.Necro : Faction.Crown
+    gameEvents.healthChanges.subscribe(({ amount, isCrit, eid }) => {
+      const tag = hasComponent(world, Necro, eid)
+        ? Faction.Necro
+        : Faction.Crown;
       const position = getPositionFromEid(eid);
       position.y -= Transform.height[eid] / 2;
       const { x, y } = position;
 
       let color = hitSplatColors[tag].hit;
-      let fontSize = "16px"
+      let fontSize = "16px";
       let textAmount = String(Math.abs(amount));
 
       if (amount === 0) {
@@ -132,8 +142,8 @@ export const createHitSplatSystem = (scene: Scene) => {
         textAmount += "!";
       }
 
-      const xVariance = (Math.random() * 20) - 10;
-      const yVariance = (Math.random() * 20) - 10;
+      const xVariance = Math.random() * 20 - 10;
+      const yVariance = Math.random() * 20 - 10;
       // const star = createRandomStar(scene, x, y, 50, 25);
       const text = new GameObjects.Text(
         scene,
@@ -141,10 +151,10 @@ export const createHitSplatSystem = (scene: Scene) => {
         y + yVariance,
         textAmount,
         {
-          color: '#FFF',
-          fontFamily: 'Wellfleet, monospace',
+          color: "#FFF",
+          fontFamily: "Wellfleet, monospace",
           fontSize,
-        }
+        },
       );
       const star = new GameObjects.Star(
         scene,
@@ -153,7 +163,7 @@ export const createHitSplatSystem = (scene: Scene) => {
         12,
         15,
         10,
-        color
+        color,
       );
 
       star.depth = 5000;
@@ -172,13 +182,13 @@ export const createHitSplatSystem = (scene: Scene) => {
         duration: 500,
         ease: "ease.out",
         paused: false,
-      })
+      });
 
       scene.time.delayedCall(500, () => {
         star.destroy();
         text.destroy();
-      })
-    })
+      });
+    });
     return world;
-  }
-}
+  };
+};

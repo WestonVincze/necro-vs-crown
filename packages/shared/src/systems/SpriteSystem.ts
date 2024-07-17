@@ -12,7 +12,9 @@ export const createSpriteSystem = (scene: Scene) => {
 
   const spriteQuery = defineQuery([Position, Sprite]);
 
-  const spriteQueryEnter = enterQuery(defineQuery([Position, Transform, Sprite]));
+  const spriteQueryEnter = enterQuery(
+    defineQuery([Position, Transform, Sprite]),
+  );
   const spriteQueryExit = exitQuery(defineQuery([Sprite]));
 
   return (world: World) => {
@@ -30,7 +32,7 @@ export const createSpriteSystem = (scene: Scene) => {
       switch (Sprite.type[eid]) {
         case SpriteType.Rope:
           // @ts-expect-error (number can be used to draw vertices)
-          sprite = scene.add.rope(400, 350, texture, 0, 6, false)
+          sprite = scene.add.rope(400, 350, texture, 0, 6, false);
           spriteById.set(eid, sprite);
           break;
         case SpriteType.Sprite:
@@ -61,7 +63,7 @@ export const createSpriteSystem = (scene: Scene) => {
       const count = countById.get(eid) || 0;
 
       if (!sprite) {
-        console.warn(`Sprite not found: Unable to update Sprite for ${eid}.`)
+        console.warn(`Sprite not found: Unable to update Sprite for ${eid}.`);
         continue;
       }
 
@@ -99,14 +101,14 @@ export const createSpriteSystem = (scene: Scene) => {
       const sprite = spriteById.get(eid);
 
       if (!sprite) {
-        console.warn(`Sprite not found: Unable to destroy Sprite for ${eid}.`)
+        console.warn(`Sprite not found: Unable to destroy Sprite for ${eid}.`);
       } else {
         sprite.destroy();
       }
-      
+
       spriteById.delete(eid);
     }
 
     return world;
-  }
-}
+  };
+};

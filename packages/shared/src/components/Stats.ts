@@ -14,7 +14,7 @@ export const DecimalStat = { base: Types.f32, current: Types.f32 };
  * ALTERNATIVE APPROACH
  * ====================
  * Single stat component that contains all stats
- * PROS: easier 
+ * PROS: easier
  */
 
 /**

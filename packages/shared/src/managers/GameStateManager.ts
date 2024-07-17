@@ -1,6 +1,6 @@
 // @ts-expect-error - no declaration file
-import * as dat from 'dat.gui';
-import { BehaviorSubject, distinctUntilChanged, filter, skip } from 'rxjs';
+import * as dat from "dat.gui";
+import { BehaviorSubject, distinctUntilChanged, filter, skip } from "rxjs";
 
 // right now this is only used for debugging, we may not ever need a global game state
 const InitializeGameState = () => {
@@ -11,23 +11,23 @@ const InitializeGameState = () => {
     if (e.key !== "`") return;
 
     _debugMode.next(!_debugMode.value);
-  }
+  };
 
   window.addEventListener("keydown", toggleDebug);
 
   const destroyGameState = () => {
-    window.removeEventListener("keydown", toggleDebug)
-  }
+    window.removeEventListener("keydown", toggleDebug);
+  };
 
   const onDebugEnabled$ = _debugMode.pipe(
     distinctUntilChanged(),
-    filter(value => value === true)
+    filter((value) => value === true),
   );
 
   const onDebugDisabled$ = _debugMode.pipe(
     skip(1),
     distinctUntilChanged(),
-    filter(value => value === false)
+    filter((value) => value === false),
   );
 
   return {
@@ -35,8 +35,8 @@ const InitializeGameState = () => {
     isDebugMode: () => _debugMode.value,
     destroyGameState,
     onDebugEnabled$,
-    onDebugDisabled$
-  }
-}
+    onDebugDisabled$,
+  };
+};
 
 export const GameState = InitializeGameState();

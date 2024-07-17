@@ -1,16 +1,16 @@
-import { World } from 'bitecs';
-import { Position } from '../components';
+import { World } from "bitecs";
+import { Position } from "../components";
 
 /**
  ** NOT YET REQUIRED, USED, OR TESTED **
  ***************************************
- * SpatialGrid is a performance optimization intended to split entities into smaller batches based on their position. 
- * 
+ * SpatialGrid is a performance optimization intended to split entities into smaller batches based on their position.
+ *
  * `cellSize` defines the length and width of a cell within the grid
  * `grid` is a map of cells that contains a Set of entity ID's
- * 
+ *
  * SpatialGrid should only be used if the calculation complexity of entities exceeds the 16ms limit
- * * do not prematurely integrate if 144fps can be maintained with ~800 entities 
+ * * do not prematurely integrate if 144fps can be maintained with ~800 entities
  */
 
 export class SpatialGrid {

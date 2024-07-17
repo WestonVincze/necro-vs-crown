@@ -16,15 +16,15 @@ export enum AIEventType {
   TARGET_LOST,
   IN_ATTACK_RANGE,
   OUT_OF_ATTACK_RANGE,
-  TAKE_DAMAGE
+  TAKE_DAMAGE,
 }
 
 export type AIEvent = {
-  eid: number
-  type: AIEventType
+  eid: number;
+  type: AIEventType;
   // targetEid?: number
-  priority?: number
-  data?: any
-}
+  priority?: number;
+  data?: any;
+};
 
 export type StateTransition = (world: World, eid: number) => void;
