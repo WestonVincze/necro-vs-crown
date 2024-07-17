@@ -19,11 +19,8 @@ export const createUnitEntity = (world: World, name: Unit, x: number, y: number)
   }
 
   if (name === "Skeleton") {
-    addComponent(world, Collider, eid);
     addComponent(world, Inventory, eid);
-    Collider.layer[eid] = CollisionLayers.NECRO;
     Collider.collisionLayers[eid] = CollisionLayers.ITEM;
-    Collider.ignoreLayers[eid] = CollisionLayers.NECRO;
   }
 
   // TODO: create an enum to define UnitType
@@ -32,12 +29,18 @@ export const createUnitEntity = (world: World, name: Unit, x: number, y: number)
     RangedUnit.projectileType[eid] = ProjectileName.Arrow;
   }
 
+  addComponent(world, Collider, eid);
+  Collider.ignoreLayers[eid] = CollisionLayers.NECRO;
+  Collider.ignoreLayers[eid] = CollisionLayers.CROWN;
+
   switch (data.type) {
     case Faction.Crown:
       addComponent(world, Crown, eid);
+      Collider.layer[eid] = CollisionLayers.CROWN;
       break;
     case Faction.Necro:
       addComponent(world, Necro, eid);
+      Collider.layer[eid] = CollisionLayers.NECRO;
       break;
   }
 

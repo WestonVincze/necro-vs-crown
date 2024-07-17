@@ -1,6 +1,6 @@
 import { addComponent, addEntity, createWorld, getAllEntities, getEntityComponents, pipe } from "bitecs";
 import { Scene } from "phaser";
-import { type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem, Faction, Behavior, Behaviors, createAssignFollowTargetSystem, createGridSystem, SpellName, createTimeSystem, createAIEventsSystem, createDestroyAfterDelaySystem } from "@necro-crown/shared";
+import { type Pipeline, Player, createCursorTargetSystem, createInputHandlerSystem, createMovementSystem, createTargetingSystem, createUnitEntity, createFollowTargetSystem, createSpriteSystem, createCollisionSystem, createItemEquipSystem, createBonesEntity, createSpellcastingSystem, createDrawSpellEffectSystem, Spell, SpellState, createHealthBarSystem, createCombatSystem, createHealthSystem, createDeathSystem, createCooldownSystem, createHitSplatSystem, Faction, Behavior, Behaviors, createAssignFollowTargetSystem, createGridSystem, SpellName, createTimeSystem, createAIEventsSystem, createDestroyAfterDelaySystem, createProjectileCollisionSystem } from "@necro-crown/shared";
 import { createCameraControlSystem } from "$game/systems";
 import { MAP_X_MAX, MAP_X_MIN, MAP_Y_MAX, MAP_Y_MIN, SCREEN_HEIGHT, SCREEN_WIDTH } from "@necro-crown/shared/src/constants";
 import { type World, GameState } from "@necro-crown/shared"
@@ -23,6 +23,7 @@ const createPhysicsPipeline = ({ scene, pre = [], post = [] }: PipelineFactory) 
   createCooldownSystem(),
   createCombatSystem(),
   createCollisionSystem(),
+  createProjectileCollisionSystem(),
   createSpellcastingSystem(),
   createDrawSpellEffectSystem(scene),
   createHealthBarSystem(scene),
@@ -163,8 +164,8 @@ export class SoloModeScene extends Scene {
         // create Bones entity (for testing)
         createBonesEntity(this.world, 500, 500);
 
-        for (let i = 0; i < 30; i++) {
-          const randomEntity = Math.random() > 0.5 ? "Guard" : "Skeleton";
+        for (let i = 0; i < 10; i++) {
+          const randomEntity = Math.random() > 0.5 ? "Archer" : "Skeleton";
           const eid = createUnitEntity(this.world, randomEntity, Math.random() * 1024, Math.random() * 1024);
 
           if (randomEntity === "Skeleton") {

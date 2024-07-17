@@ -1,6 +1,7 @@
-import { defineQuery } from 'bitecs';
-import { Position, Collider } from '../components';
+import { defineQuery, hasComponent, removeComponent, removeEntity } from 'bitecs';
+import { Position, Collider, Projectile, Armor, Health } from '../components';
 import { Subject } from 'rxjs';
+import { attackEntity } from './CombatSystem';
 /**
  * Another option is to create a collisionSystem factory that accepts
  * - a primary collider
@@ -20,11 +21,31 @@ import { Subject } from 'rxjs';
 // TODO: define collisionTypes or create specific collision messages to provide context to subscribers of collisionEvents
 export const collisionEvents = new Subject<{ eid1: number, eid2: number }>();
 
-export const createCollisionSystem = () => {
-  const collisionQuery = defineQuery([Position, Collider]);
+// base collision query
+const colliderQuery = defineQuery([Position, Collider]);
+
+export const createProjectileCollisionSystem = () => {
+  const query = defineQuery([Position, Collider, Projectile])
 
   return (world: World) => {
-    const entities = collisionQuery(world);
+    for (const projectileEid of query(world)) {
+      for (const colliderEid of colliderQuery(world)) {
+        if (checkCollision(projectileEid, colliderEid)) {
+          // projectile collided with something
+          if (attackEntity(world, colliderEid, Projectile.attackBonus[projectileEid], Projectile.damage[projectileEid])) {
+            removeEntity(world, projectileEid);
+          }
+        }
+      }
+    }
+
+    return world;
+  }
+}
+
+export const createCollisionSystem = () => {
+  return (world: World) => {
+    const entities = colliderQuery(world);
 
     for (let i = 0; i < entities.length; i++) {
       for (let j = i + 1; j < entities.length; j++) {

@@ -5,6 +5,6 @@ export const RangedUnit = defineComponent({
 });
 
 export const Projectile = defineComponent({
-  speed: Types.f32,
-  lifetime: Types.f32,
+  attackBonus: Types.f32,
+  damage: Types.f32,
 })

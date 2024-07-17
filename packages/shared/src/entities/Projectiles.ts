@@ -1,6 +1,6 @@
 import { SpriteTexture } from "../constants";
 import { Vector2 } from "../types";
-import { Collider, DestroyEntity, Input, MaxMoveSpeed, MoveSpeed, Position, Sprite, SpriteType, Transform, Velocity } from "../components";
+import { Collider, CollisionLayers, DestroyEntity, Input, MaxMoveSpeed, MoveSpeed, Position, Projectile, Sprite, SpriteType, Transform, Velocity } from "../components";
 import { addComponent, addEntity } from "bitecs"
 import { normalizeForce } from "../helpers";
 
@@ -26,7 +26,14 @@ const ProjectileData: Record<ProjectileName, ProjectileProps> = {
   }
 }
 
-export const createProjectileEntity = (world: World, name: ProjectileName, position: Vector2, targetPosition: Vector2, onCollide: (target: number) => void) => {
+export const createProjectileEntity = (
+  world: World,
+  name: ProjectileName,
+  position: Vector2,
+  targetPosition: Vector2,
+  attackBonus: number,
+  damage: number,
+) => {
   // get projectile data from name
   const eid = addEntity(world);
   const data = ProjectileData[name];
@@ -72,7 +79,10 @@ export const createProjectileEntity = (world: World, name: ProjectileName, posit
 
   addComponent(world, Collider, eid);
   Collider.radius[eid] = data.height;
-  // get the Faction of the projectile owner
-  // get the Faction of the target
-  // add component with attack params
+  // TODO: get the Faction of the projectile owner (NECRO is fine for now)
+  Collider.collisionLayers[eid] = CollisionLayers.NECRO;
+
+  addComponent(world, Projectile, eid);
+  Projectile.attackBonus[eid] = attackBonus;
+  Projectile.damage[eid] = damage;
 }

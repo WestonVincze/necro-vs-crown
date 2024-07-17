@@ -27,15 +27,14 @@ export const createCombatSystem = () => {
       const critChance = CritChance.current[eid];
       const critDamage = CritDamage.current[eid];
 
-      // TODO: measure performance impact of creating a new callback every iteration
-      const rollAttack = (targetEid: number) => attackEntity(world, targetEid, attackBonus, maxHit, damageBonus, critChance, critDamage);
+      const damage = rollDamage(maxHit, damageBonus, critChance, critDamage);
 
       if (hasComponent(world, RangedUnit, eid)) {
         // create arrow entity -- check the ranged unit for the type of projectile it should instantiate
-        // TODO: change callback to a component with the same params
-        createProjectileEntity(world, ProjectileName.Arrow, attackerPosition, targetPosition, rollAttack);
+        // pre-roll damage
+        createProjectileEntity(world, ProjectileName.Arrow, attackerPosition, targetPosition, attackBonus, damage);
       } else {
-        rollAttack(targetEid)
+        attackEntity(world, targetEid, attackBonus, damage);
       }
       addComponent(world, AttackCooldown, eid);
       // TODO: move AttackSpeed (and perhaps other cooldowns) to a tick based system?
@@ -46,17 +45,30 @@ export const createCombatSystem = () => {
   }
 }
 
-const attackEntity = (
-  world: World,
-  targetEid: number,
-  attackBonus: number,
+const rollDamage = (
   maxHit: number,
   damageBonus: number,
   critChance?: number,
   critDamage: number = 1,
-): boolean => {
+): number => {
   let damage = 0;
   let critMod = 1;
+
+  damage = rollDice(maxHit);
+
+  if (damage > 0 && critChance && rollToCrit(critChance)) {
+    critMod = critDamage;
+  }
+
+  return damage = damage * critMod + damageBonus;
+}
+
+export const attackEntity = (
+  world: World,
+  targetEid: number,
+  attackBonus: number,
+  damage: number,
+): boolean => {
 
   if (!entityExists(world, targetEid)) {
     console.debug(`Attack Failed: Target ${targetEid} does not exist.`)
@@ -70,15 +82,8 @@ const attackEntity = (
     return false;
   }
 
-  if (rollToHit(Armor.current[targetEid], attackBonus)) {
-    damage = rollDice(maxHit);
-  }
+  if (!rollToHit(Armor.current[targetEid], attackBonus)) return false;
 
-  if (damage > 0 && critChance && rollToCrit(critChance)) {
-    critMod = critDamage;
-  }
-
-  damage = damage * critMod + damageBonus;
 
   gameEvents.emitHealthChange({ eid: targetEid, amount: damage * -1 });
   return true;
