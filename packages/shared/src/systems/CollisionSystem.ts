@@ -1,12 +1,10 @@
-import {
-  defineQuery,
-  hasComponent,
-  removeComponent,
-  removeEntity,
-} from "bitecs";
-import { Position, Collider, Projectile, Armor, Health } from "../components";
+import { defineQuery, enterQuery, exitQuery, removeEntity } from "bitecs";
+import { GameObjects } from "phaser";
 import { Subject } from "rxjs";
+
+import { Position, Collider, Projectile } from "../components";
 import { attackEntity } from "./CombatSystem";
+import { GameState } from "../managers";
 /**
  * Another option is to create a collisionSystem factory that accepts
  * - a primary collider
@@ -36,6 +34,7 @@ export const createProjectileCollisionSystem = () => {
     for (const projectileEid of query(world)) {
       for (const colliderEid of colliderQuery(world)) {
         if (checkCollision(projectileEid, colliderEid)) {
+          // TODO: handle collisions for other types of entities (walls)
           // projectile collided with something
           if (
             attackEntity(
@@ -76,6 +75,48 @@ export const createCollisionSystem = () => {
   };
 };
 
+export const createDrawCollisionSystem = (scene: Phaser.Scene) => {
+  const query = defineQuery([Collider, Position]);
+  const onEnter = enterQuery(colliderQuery);
+  const onExit = exitQuery(colliderQuery);
+  const colliderGraphicsMap = new Map<number, GameObjects.Arc>();
+
+  return (world: World) => {
+    // TODO: create a "debugSystem" to enable/disable debugging features without having to create custom debug actions for each system
+    /* 
+    if (!GameState.isDebugMode()) {
+      colliderGraphicsMap.forEach((arc) => arc.destroy());
+      colliderGraphicsMap.clear();
+      return world;
+    }
+    */
+
+    for (const eid of onEnter(world)) {
+      const arc = scene.add.circle(
+        Position.x[eid],
+        Position.y[eid],
+        Collider.radius[eid],
+        0xaa555522,
+      );
+
+      colliderGraphicsMap.set(eid, arc);
+    }
+
+    for (const eid of colliderQuery(world)) {
+      colliderGraphicsMap
+        .get(eid)
+        ?.setPosition(Position.x[eid], Position.y[eid]);
+    }
+
+    for (const eid of onExit(world)) {
+      colliderGraphicsMap.get(eid)?.destroy();
+      colliderGraphicsMap.delete(eid);
+    }
+
+    return world;
+  };
+};
+
 const checkCollision = (eid1: number, eid2: number) => {
   const layer1 = Collider.layer[eid1];
   const layer2 = Collider.layer[eid2];
@@ -98,9 +139,5 @@ const checkCollision = (eid1: number, eid2: number) => {
   const dy = Position.y[eid1] - Position.y[eid2];
   const distance = Math.sqrt(dx * dx + dy * dy);
 
-  if (distance < Collider.radius[eid1] + Collider.radius[eid2]) {
-    return true;
-  }
-
-  return false;
+  return distance < Collider.radius[eid1] + Collider.radius[eid2];
 };

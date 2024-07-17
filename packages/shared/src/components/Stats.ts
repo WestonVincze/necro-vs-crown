@@ -6,7 +6,7 @@ import { Types, defineComponent } from "bitecs";
  * base: the initial stat value, as determined by the unit type
  * current: base + the current modifications (items, status effects, etc)
  */
-export const Stat = { base: Types.i8, current: Types.i8 };
+export const Stat = { base: Types.i32, current: Types.i32 };
 // TODO: refactor all stats to use whole numbers
 export const DecimalStat = { base: Types.f32, current: Types.f32 };
 

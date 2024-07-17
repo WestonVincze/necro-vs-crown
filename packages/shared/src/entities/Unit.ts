@@ -70,6 +70,7 @@ export const createUnitEntity = (
   addComponent(world, Collider, eid);
   Collider.ignoreLayers[eid] = CollisionLayers.NECRO;
   Collider.ignoreLayers[eid] = CollisionLayers.CROWN;
+  Collider.radius[eid] = data.width;
 
   switch (data.type) {
     case Faction.Crown:

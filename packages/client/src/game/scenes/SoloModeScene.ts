@@ -40,6 +40,7 @@ import {
   createAIEventsSystem,
   createDestroyAfterDelaySystem,
   createProjectileCollisionSystem,
+  createDrawCollisionSystem,
 } from "@necro-crown/shared";
 import { createCameraControlSystem } from "$game/systems";
 import {
@@ -69,6 +70,7 @@ const createPhysicsPipeline = ({
   pipe(
     ...pre,
     createDestroyAfterDelaySystem(),
+    createDrawCollisionSystem(scene),
     createMovementSystem(),
     createSpriteSystem(scene),
     // createFollowTargetSystem(scene),
@@ -233,7 +235,7 @@ export class SoloModeScene extends Scene {
         // create Bones entity (for testing)
         createBonesEntity(this.world, 500, 500);
 
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 1; i++) {
           const randomEntity = Math.random() > 0.5 ? "Archer" : "Skeleton";
           const eid = createUnitEntity(
             this.world,
