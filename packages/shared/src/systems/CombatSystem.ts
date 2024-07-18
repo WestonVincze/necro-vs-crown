@@ -20,6 +20,7 @@ import {
   MaxHit,
   Necro,
   Position,
+  Transform,
 } from "../components";
 import { checkIfWithinDistance, getPositionFromEid } from "../utils";
 import { CombatTarget } from "../relations";
@@ -65,8 +66,13 @@ export const createCombatSystem = () => {
       const damage = rollDamage(maxHit, damageBonus, critChance, critDamage);
 
       if (hasComponent(world, RangedUnit, eid)) {
-        // create arrow entity -- check the ranged unit for the type of projectile it should instantiate
+        // TODO: store data for commonly used offsets or create helper functions
+        targetPosition.y -= Transform.height[targetEid] / 2;
+        // set spawn point of the projectile based on entity position and spawn position offset
+        attackerPosition.x += RangedUnit.spawnPositionOffsetX[eid];
+        attackerPosition.y += RangedUnit.spawnPositionOffsetY[eid];
         // pre-roll damage
+        // create arrow entity -- check the ranged unit for the type of projectile it should instantiate
         createProjectileEntity(
           world,
           ProjectileName.Arrow,

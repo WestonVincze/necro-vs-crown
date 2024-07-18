@@ -62,8 +62,8 @@ export const createProjectileEntity = (
   Sprite.type[eid] = SpriteType.Sprite;
 
   // calculate direction
-  const dx = targetPosition.x - position.x;
-  const dy = targetPosition.y - position.y;
+  const dx = targetPosition.x - position.x - data.width / 2;
+  const dy = targetPosition.y - position.y - data.height / 2;
   const normalizedDirection = normalizeForce({ x: dx, y: dy });
 
   // calculate rotation
@@ -95,6 +95,14 @@ export const createProjectileEntity = (
   Collider.radius[eid] = data.height;
   // TODO: get the Faction of the projectile owner (NECRO is fine for now)
   Collider.collisionLayers[eid] = CollisionLayers.NECRO;
+  let baseOffsetX = data.width / 2; // Offset to the left for x
+  let baseOffsetY = -data.height / 2; // Offset to the center for y
+
+  // Apply rotation to the offsets
+  Collider.offsetX[eid] =
+    baseOffsetX * Math.cos(rotation) - baseOffsetY * Math.sin(rotation);
+  Collider.offsetY[eid] =
+    baseOffsetX * Math.sin(rotation) + baseOffsetY * Math.cos(rotation);
 
   addComponent(world, Projectile, eid);
   Projectile.attackBonus[eid] = attackBonus;

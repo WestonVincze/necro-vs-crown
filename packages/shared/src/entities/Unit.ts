@@ -65,12 +65,15 @@ export const createUnitEntity = (
   if (name === "Archer") {
     addComponent(world, RangedUnit, eid);
     RangedUnit.projectileType[eid] = ProjectileName.Arrow;
+    RangedUnit.spawnPositionOffsetX[eid] = data.width / -4;
+    RangedUnit.spawnPositionOffsetY[eid] = data.height / -2;
   }
 
   addComponent(world, Collider, eid);
   Collider.ignoreLayers[eid] = CollisionLayers.NECRO;
   Collider.ignoreLayers[eid] = CollisionLayers.CROWN;
-  Collider.radius[eid] = data.width;
+  Collider.radius[eid] = data.height / 3;
+  Collider.offsetY[eid] = data.height / -2;
 
   switch (data.type) {
     case Faction.Crown:

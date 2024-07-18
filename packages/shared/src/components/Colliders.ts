@@ -19,6 +19,8 @@ export const Collider = defineComponent({
   layer: Types.ui32,
   collisionLayers: Types.ui32,
   ignoreLayers: Types.ui32,
+  offsetX: Types.f32,
+  offsetY: Types.f32,
 });
 
 /**

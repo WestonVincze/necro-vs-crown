@@ -93,10 +93,11 @@ export const createDrawCollisionSystem = (scene: Phaser.Scene) => {
 
     for (const eid of onEnter(world)) {
       const arc = scene.add.circle(
-        Position.x[eid],
-        Position.y[eid],
+        Position.x[eid] + Collider.offsetX[eid],
+        Position.y[eid] + Collider.offsetY[eid],
         Collider.radius[eid],
-        0xaa555522,
+        0xaa5555,
+        0.3,
       );
 
       colliderGraphicsMap.set(eid, arc);
@@ -105,7 +106,10 @@ export const createDrawCollisionSystem = (scene: Phaser.Scene) => {
     for (const eid of colliderQuery(world)) {
       colliderGraphicsMap
         .get(eid)
-        ?.setPosition(Position.x[eid], Position.y[eid]);
+        ?.setPosition(
+          Position.x[eid] + Collider.offsetX[eid],
+          Position.y[eid] + Collider.offsetY[eid],
+        );
     }
 
     for (const eid of onExit(world)) {
@@ -135,8 +139,14 @@ const checkCollision = (eid1: number, eid2: number) => {
     return false;
   }
 
-  const dx = Position.x[eid1] - Position.x[eid2];
-  const dy = Position.y[eid1] - Position.y[eid2];
+  const eid1PositionX = Position.x[eid1] + Collider.offsetX[eid1];
+  const eid1PositionY = Position.y[eid1] + Collider.offsetY[eid1];
+
+  const eid2PositionX = Position.x[eid2] + Collider.offsetX[eid2];
+  const eid2PositionY = Position.y[eid2] + Collider.offsetY[eid2];
+
+  const dx = eid1PositionX - eid2PositionX;
+  const dy = eid1PositionY - eid2PositionY;
   const distance = Math.sqrt(dx * dx + dy * dy);
 
   return distance < Collider.radius[eid1] + Collider.radius[eid2];
