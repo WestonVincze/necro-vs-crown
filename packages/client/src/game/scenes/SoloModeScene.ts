@@ -43,6 +43,9 @@ import {
   createDrawCollisionSystem,
   createProjectileEntity,
   ProjectileName,
+  createUnitSpawnerSystem,
+  Spawner,
+  SpawnTarget,
 } from "@necro-crown/shared";
 import { createCameraControlSystem } from "$game/systems";
 import {
@@ -72,6 +75,7 @@ const createPhysicsPipeline = ({
   pipe(
     ...pre,
     createDestroyAfterDelaySystem(),
+    createUnitSpawnerSystem(),
     createDrawCollisionSystem(scene),
     createMovementSystem(),
     createSpriteSystem(scene),
@@ -228,14 +232,20 @@ export class SoloModeScene extends Scene {
 
       case Faction.Necro:
         // create Necro player
-        const eid = createUnitEntity(this.world, "Necromancer", 300, 300);
-        addComponent(this.world, Player, eid);
-        addComponent(this.world, Spell, eid);
-        Spell.state[eid] = SpellState.Ready;
-        Spell.name[eid] = SpellName.HolyNova;
+        const necro = createUnitEntity(this.world, "Necromancer", 300, 300);
+        addComponent(this.world, Player, necro);
+        addComponent(this.world, Spell, necro);
+        Spell.state[necro] = SpellState.Ready;
+        Spell.name[necro] = SpellName.HolyNova;
 
         // create Bones entity (for testing)
         createBonesEntity(this.world, 500, 500);
+
+        const spawner = addEntity(this.world);
+        addComponent(this.world, Spawner, spawner);
+        Spawner.timeUntilSpawn[spawner] = 500;
+
+        addComponent(this.world, SpawnTarget(necro), spawner);
 
         for (let i = 0; i < 1; i++) {
           const randomEntity = Math.random() > 0.5 ? "Archer" : "Skeleton";
