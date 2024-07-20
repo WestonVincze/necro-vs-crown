@@ -81,25 +81,25 @@ export const createDrawCollisionSystem = (scene: Phaser.Scene) => {
   const colliderGraphicsMap = new Map<number, GameObjects.Arc | null>();
 
   GameState.onDebugEnabled$.subscribe(() => {
-    colliderGraphicsMap.forEach((arc, eid) => {
-      // arc.destroy();
-      arc = scene.add.circle(
-        Position.x[eid] + Collider.offsetX[eid],
-        Position.y[eid] + Collider.offsetY[eid],
-        Collider.radius[eid],
-        0xaa5555,
-        0.3,
+    colliderGraphicsMap.forEach((_, eid) => {
+      colliderGraphicsMap.set(
+        eid,
+        scene.add.circle(
+          Position.x[eid] + Collider.offsetX[eid],
+          Position.y[eid] + Collider.offsetY[eid],
+          Collider.radius[eid],
+          0xaa5555,
+          0.3,
+        ),
       );
     });
   });
 
   GameState.onDebugDisabled$.subscribe(() => {
     colliderGraphicsMap.forEach((arc) => arc?.destroy());
-    // colliderGraphicsMap.clear();
   });
 
   return (world: World) => {
-    console.log(colliderGraphicsMap);
     // TODO: create a "debugSystem" to enable/disable debugging features without having to create custom debug actions for each system
     for (const eid of onEnter(world)) {
       const arc = GameState.isDebugMode()

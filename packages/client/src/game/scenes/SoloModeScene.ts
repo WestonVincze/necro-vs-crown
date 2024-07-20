@@ -237,9 +237,8 @@ export class SoloModeScene extends Scene {
         // create Bones entity (for testing)
         createBonesEntity(this.world, 500, 500);
 
-        /*
         for (let i = 0; i < 1; i++) {
-          const randomEntity = "Archer"; //Math.random() > 0.5 ? "Archer" : "Skeleton";
+          const randomEntity = Math.random() > 0.5 ? "Archer" : "Skeleton";
           const eid = createUnitEntity(
             this.world,
             randomEntity,
@@ -253,7 +252,6 @@ export class SoloModeScene extends Scene {
             Behavior.type[eid] = Behaviors.AutoTarget;
           }
         }
-        */
 
         // system overrides
         physicsSystems.pre = [
@@ -293,15 +291,6 @@ export class SoloModeScene extends Scene {
     /** RUN TICK SYSTEMS */
     setInterval(() => {
       this.tickSystems(this.world);
-
-      createProjectileEntity(
-        this.world,
-        ProjectileName.Arrow,
-        { x: 400, y: 400 },
-        { x: Math.random() * 800, y: Math.random() * 800 },
-        0,
-        0,
-      );
       if (GameState.isDebugMode()) profiler.logResults();
     }, 200);
 
