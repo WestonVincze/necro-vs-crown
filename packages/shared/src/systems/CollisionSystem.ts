@@ -76,34 +76,47 @@ export const createCollisionSystem = () => {
 };
 
 export const createDrawCollisionSystem = (scene: Phaser.Scene) => {
-  const query = defineQuery([Collider, Position]);
   const onEnter = enterQuery(colliderQuery);
   const onExit = exitQuery(colliderQuery);
-  const colliderGraphicsMap = new Map<number, GameObjects.Arc>();
+  const colliderGraphicsMap = new Map<number, GameObjects.Arc | null>();
 
-  return (world: World) => {
-    // TODO: create a "debugSystem" to enable/disable debugging features without having to create custom debug actions for each system
-    /* 
-    if (!GameState.isDebugMode()) {
-      colliderGraphicsMap.forEach((arc) => arc.destroy());
-      colliderGraphicsMap.clear();
-      return world;
-    }
-    */
-
-    for (const eid of onEnter(world)) {
-      const arc = scene.add.circle(
+  GameState.onDebugEnabled$.subscribe(() => {
+    colliderGraphicsMap.forEach((arc, eid) => {
+      // arc.destroy();
+      arc = scene.add.circle(
         Position.x[eid] + Collider.offsetX[eid],
         Position.y[eid] + Collider.offsetY[eid],
         Collider.radius[eid],
         0xaa5555,
         0.3,
       );
+    });
+  });
+
+  GameState.onDebugDisabled$.subscribe(() => {
+    colliderGraphicsMap.forEach((arc) => arc?.destroy());
+    // colliderGraphicsMap.clear();
+  });
+
+  return (world: World) => {
+    console.log(colliderGraphicsMap);
+    // TODO: create a "debugSystem" to enable/disable debugging features without having to create custom debug actions for each system
+    for (const eid of onEnter(world)) {
+      const arc = GameState.isDebugMode()
+        ? scene.add.circle(
+            Position.x[eid] + Collider.offsetX[eid],
+            Position.y[eid] + Collider.offsetY[eid],
+            Collider.radius[eid],
+            0xaa5555,
+            0.3,
+          )
+        : null;
 
       colliderGraphicsMap.set(eid, arc);
     }
 
     for (const eid of colliderQuery(world)) {
+      if (!GameState.isDebugMode()) continue;
       colliderGraphicsMap
         .get(eid)
         ?.setPosition(

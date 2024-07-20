@@ -72,7 +72,7 @@ export const createUnitEntity = (
   addComponent(world, Collider, eid);
   Collider.ignoreLayers[eid] = CollisionLayers.NECRO;
   Collider.ignoreLayers[eid] = CollisionLayers.CROWN;
-  Collider.radius[eid] = data.height / 3;
+  Collider.radius[eid] = data.width / 2;
   Collider.offsetY[eid] = data.height / -2;
 
   switch (data.type) {

@@ -95,8 +95,8 @@ export const createProjectileEntity = (
   Collider.radius[eid] = data.height;
   // TODO: get the Faction of the projectile owner (NECRO is fine for now)
   Collider.collisionLayers[eid] = CollisionLayers.NECRO;
-  let baseOffsetX = data.width / 2; // Offset to the left for x
-  let baseOffsetY = -data.height / 2; // Offset to the center for y
+  let baseOffsetX = data.width / 2;
+  let baseOffsetY = 0;
 
   // Apply rotation to the offsets
   Collider.offsetX[eid] =
