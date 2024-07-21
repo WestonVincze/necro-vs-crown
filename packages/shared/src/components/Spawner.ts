@@ -1,6 +1,6 @@
 import { defineComponent, defineRelation, Types } from "bitecs";
-
-export const SpawnTarget = defineRelation({ exclusive: true });
+import { SpriteTexture } from "../constants";
+import { Unit } from "../types";
 
 export const Spawner = defineComponent({
   timeUntilSpawn: Types.f32,
@@ -9,3 +9,9 @@ export const Spawner = defineComponent({
   yMin: Types.f32,
   yMax: Types.f32,
 });
+
+export const SpawnTarget = defineRelation({ exclusive: true });
+
+export const BuildingSpawner = [] as {
+  spawnableUnits: Unit[];
+}[];

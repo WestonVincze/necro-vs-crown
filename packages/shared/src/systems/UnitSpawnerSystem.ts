@@ -1,38 +1,53 @@
 import { defineQuery, getRelationTargets, hasComponent } from "bitecs";
 import { createUnitEntity } from "../entities";
-import { Position, Spawner, SpawnTarget } from "../components";
+import { BuildingSpawner, Position, Spawner, SpawnTarget } from "../components";
+import { getRandomElement } from "../utils";
 
 const MIN_RANGE = 300;
 const MAX_RANGE = 500;
 
 export const createUnitSpawnerSystem = () => {
   let difficultyScale = 1.0;
-  const query = defineQuery([Spawner, SpawnTarget("*")]);
+  const spawnNearTargetQuery = defineQuery([Spawner, SpawnTarget("*")]);
+  const spawnAtBuildingQuery = defineQuery([Spawner, BuildingSpawner]);
 
   return (world: World) => {
-    for (const eid of query(world)) {
+    for (const eid of spawnNearTargetQuery(world)) {
       Spawner.timeUntilSpawn[eid] -= world.time.delta;
       if (Spawner.timeUntilSpawn[eid] <= 0) {
-        // spawn entity
         const target = getRelationTargets(world, SpawnTarget, eid)[0];
         if (!hasComponent(world, Position, target)) {
           console.warn(`SpawnTarget ${target} does not have a Position`);
           continue;
         }
-        // const x = Math.random() * Spawner.xMax[eid] - Spawner.xMin[eid];
-        // const y = Math.random() * Spawner.yMax[eid] - Spawner.yMin[eid];
+
         const { x, y } = getRandomPositionWithinRange(
           Position.x[target],
           Position.y[target],
           MIN_RANGE,
           MAX_RANGE,
         );
-        createUnitEntity(world, decideEnemyToSpawn(difficultyScale), x, y);
 
+        // spawn entity
+        // const x = Math.random() * Spawner.xMax[eid] - Spawner.xMin[eid];
+        // const y = Math.random() * Spawner.yMax[eid] - Spawner.yMin[eid];
+
+        createUnitEntity(world, decideEnemyToSpawn(difficultyScale), x, y);
         Spawner.timeUntilSpawn[eid] = 5000;
         difficultyScale += 0.02;
       }
     }
+
+    for (const eid of spawnAtBuildingQuery(world)) {
+      // select random unit from spawnableUnits
+      const unit = getRandomElement(BuildingSpawner[eid].spawnableUnits);
+      if (!unit) continue;
+
+      const x = Math.random() * Spawner.xMax[eid] - Spawner.xMin[eid];
+      const y = Math.random() * Spawner.yMax[eid] - Spawner.yMin[eid];
+      createUnitEntity(world, unit, x, y);
+    }
+
     return world;
   };
 };
