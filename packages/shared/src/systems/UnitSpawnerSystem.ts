@@ -40,12 +40,18 @@ export const createUnitSpawnerSystem = () => {
 
     for (const eid of spawnAtBuildingQuery(world)) {
       // select random unit from spawnableUnits
-      const unit = getRandomElement(BuildingSpawner[eid].spawnableUnits);
-      if (!unit) continue;
+      Spawner.timeUntilSpawn[eid] -= world.time.delta;
+      if (Spawner.timeUntilSpawn[eid] <= 0) {
+        const unit = getRandomElement(BuildingSpawner[eid].spawnableUnits);
+        if (!unit) continue;
 
-      const x = Math.random() * Spawner.xMax[eid] - Spawner.xMin[eid];
-      const y = Math.random() * Spawner.yMax[eid] - Spawner.yMin[eid];
-      createUnitEntity(world, unit, x, y);
+        const x = Math.random() * Spawner.xMax[eid] - Spawner.xMin[eid];
+        const y = Math.random() * Spawner.yMax[eid] - Spawner.yMin[eid];
+        createUnitEntity(world, unit, x, y);
+
+        // TODO: get time value from building data
+        Spawner.timeUntilSpawn[eid] = 5000;
+      }
     }
 
     return world;

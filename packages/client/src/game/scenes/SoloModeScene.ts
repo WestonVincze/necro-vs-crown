@@ -41,11 +41,9 @@ import {
   createDestroyAfterDelaySystem,
   createProjectileCollisionSystem,
   createDrawCollisionSystem,
-  createProjectileEntity,
-  ProjectileName,
   createUnitSpawnerSystem,
-  Spawner,
-  SpawnTarget,
+  BuildingSpawner,
+  createTargetSpawnerEntity,
 } from "@necro-crown/shared";
 import { createCameraControlSystem } from "$game/systems";
 import {
@@ -241,11 +239,7 @@ export class SoloModeScene extends Scene {
         // create Bones entity (for testing)
         createBonesEntity(this.world, 500, 500);
 
-        const spawner = addEntity(this.world);
-        addComponent(this.world, Spawner, spawner);
-        Spawner.timeUntilSpawn[spawner] = 500;
-
-        addComponent(this.world, SpawnTarget(necro), spawner);
+        createTargetSpawnerEntity(this.world, necro);
 
         for (let i = 0; i < 1; i++) {
           const randomEntity = Math.random() > 0.5 ? "Archer" : "Skeleton";
@@ -258,8 +252,6 @@ export class SoloModeScene extends Scene {
 
           if (randomEntity === "Skeleton") {
             Behavior.type[eid] = Behaviors.FollowCursor;
-          } else {
-            Behavior.type[eid] = Behaviors.AutoTarget;
           }
         }
 
