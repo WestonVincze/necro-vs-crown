@@ -5,7 +5,7 @@ import { BehaviorSubject, distinctUntilChanged, filter, skip } from "rxjs";
 // right now this is only used for debugging, we may not ever need a global game state
 const InitializeGameState = () => {
   let _debugMode = new BehaviorSubject<boolean>(false);
-  const gui = new dat.GUI();
+  let gui = new dat.GUI();
 
   const toggleDebug = (e: KeyboardEvent) => {
     if (e.key !== "`") return;
@@ -15,8 +15,13 @@ const InitializeGameState = () => {
 
   window.addEventListener("keydown", toggleDebug);
 
+  const resetGUI = () => {
+    gui = new dat.GUI();
+  };
+
   const destroyGameState = () => {
     window.removeEventListener("keydown", toggleDebug);
+    gui.destroy();
   };
 
   const onDebugEnabled$ = _debugMode.pipe(
@@ -32,6 +37,7 @@ const InitializeGameState = () => {
 
   return {
     gui,
+    resetGUI,
     isDebugMode: () => _debugMode.value,
     destroyGameState,
     onDebugEnabled$,

@@ -28,10 +28,6 @@ export const createUnitSpawnerSystem = () => {
           MAX_RANGE,
         );
 
-        // spawn entity
-        // const x = Math.random() * Spawner.xMax[eid] - Spawner.xMin[eid];
-        // const y = Math.random() * Spawner.yMax[eid] - Spawner.yMin[eid];
-
         createUnitEntity(world, decideEnemyToSpawn(difficultyScale), x, y);
         Spawner.timeUntilSpawn[eid] = 5000;
         difficultyScale += 0.02;

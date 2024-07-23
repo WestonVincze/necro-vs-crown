@@ -35,16 +35,6 @@ export type DropTable = {
   legendary?: string[];
 };
 
-// @DEPRECATED
-export type UnitOLD = {
-  name: string;
-  width: number;
-  height: number;
-  vx?: number;
-  vy?: number;
-} & Vector2;
-
-// @DEPRECATED
 export type Stats = {
   maxHP: number;
   armor: number;

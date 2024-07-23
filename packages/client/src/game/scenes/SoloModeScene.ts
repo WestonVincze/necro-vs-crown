@@ -186,7 +186,7 @@ export class SoloModeScene extends Scene {
     const map = this.make.tilemap({ key: "map" });
     map.addTilesetImage("sample", "sample");
     map.createLayer("Ground", "sample", MAP_X_MIN, MAP_Y_MIN);
-    // map.createLayer("Roads", "sample", MAP_X_MIN, MAP_Y_MIN);
+    map.createLayer("Roads", "sample", MAP_X_MIN, MAP_Y_MIN);
     map.createLayer("Objects", "sample", MAP_X_MIN, MAP_Y_MIN);
 
     // test grid data
@@ -296,8 +296,8 @@ export class SoloModeScene extends Scene {
       if (GameState.isDebugMode()) profiler.logResults();
     }, 200);
 
-    // this.events.once('shutdown', this.destroyResources, this);
-    // this.events.once('destroy', this.destroyResources, this);
+    // this.events.once("shutdown", GameState.destroyGameState, this);
+    // this.events.once("destroy", GameState.destroyGameState, this);
   }
 
   /** RUN PHYSICS SYSTEMS */

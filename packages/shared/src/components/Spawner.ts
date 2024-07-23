@@ -1,5 +1,4 @@
 import { defineComponent, defineRelation, Types } from "bitecs";
-import { SpriteTexture } from "../constants";
 import { Unit } from "../types";
 
 export const Spawner = defineComponent({
