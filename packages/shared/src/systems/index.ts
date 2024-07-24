@@ -17,3 +17,4 @@ export * from "./GridSystem";
 export * from "./AISystem";
 export * from "./DestroyAfterDelaySystem";
 export * from "./UnitSpawnerSystem";
+export * from "./UpgradeSystem";

@@ -6,22 +6,34 @@ import { Types, defineComponent } from "bitecs";
  * base: the initial stat value, as determined by the unit type
  * current: base + the current modifications (items, status effects, etc)
  */
-export const Stat = { base: Types.i32, current: Types.i32 };
+const Stat = { base: Types.i32, current: Types.i32 };
 // TODO: refactor all stats to use whole numbers
-export const DecimalStat = { base: Types.f32, current: Types.f32 };
+const DecimalStat = { base: Types.f32, current: Types.f32 };
 
-/**
- * ALTERNATIVE APPROACH
- * ====================
- * Single stat component that contains all stats
- * PROS: easier
- */
+export enum StatName {
+  MaxHealth,
+  Armor,
+  HealthRegeneration,
+  MoveSpeed,
+  MaxMoveSpeed,
+  AttackBonus,
+  AttackSpeed,
+  AttackRange,
+  MaxHit,
+  DamageBonus,
+  CritChance,
+  CritDamage,
+  CastingSpeed,
+  CastingRange,
+  AttackKnockback,
+}
 
-/**
- * We need a way to track a unit's current HP, Max HP, and Base Max HP
- * * Health could be split into "CurrentHealth" and "MaxHealth"
- * * Health could be a system or separate component with "MaxHealth" being a Stat Component
- */
+export const AddToStat = defineComponent({
+  stat: Types.ui8,
+  value: Types.f32,
+});
+
+/** Stat Components */
 export const MaxHealth = defineComponent(Stat);
 
 export const Armor = defineComponent(Stat);
