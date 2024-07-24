@@ -25,15 +25,31 @@ export enum StatName {
   CritDamage,
   CastingSpeed,
   CastingRange,
-  AttackKnockback,
+  Knockback,
 }
 
-export const AddToStat = defineComponent({
-  stat: Types.ui8,
-  value: Types.f32,
-});
+/**
+ * updates only the current value of a stat until `timeUntilReset` reaches 0, at which point the stat reverts to its base value
+ */
+export const UpdateCurrentStats = [] as {
+  statUpdates: {
+    stat: StatName;
+    value: number;
+    timeUntilReset: number;
+  }[];
+}[];
 
-/** Stat Components */
+/**
+ * updates current and base values of a stat
+ */
+export const UpdateStatsRequest = [] as {
+  statUpdates: {
+    stat: StatName;
+    value: number;
+  }[];
+}[];
+
+/** Stat Components **/
 export const MaxHealth = defineComponent(Stat);
 
 export const Armor = defineComponent(Stat);
@@ -54,12 +70,39 @@ export const MaxHit = defineComponent(Stat);
 
 export const DamageBonus = defineComponent(Stat);
 
-export const CritChance = defineComponent(Stat);
+export const CritChance = defineComponent(DecimalStat);
 
-export const CritDamage = defineComponent(Stat);
+export const CritDamage = defineComponent(DecimalStat);
 
 export const CastingSpeed = defineComponent(Stat);
 
 export const CastingRange = defineComponent(Stat);
 
-export const AttackKnockback = defineComponent(Stat);
+export const Knockback = defineComponent(Stat);
+
+/** AoS components for stat updates
+ * * NOT CURRENTLY USED *
+ */
+const AllStats = {
+  MaxHealth: Types.i32,
+  Armor: Types.i32,
+  HealthRegeneration: Types.f32,
+  MoveSpeed: Types.f32,
+  MaxMoveSpeed: Types.f32,
+  AttackBonus: Types.i32,
+  AttackSpeed: Types.i32,
+  AttackRange: Types.i32,
+  MaxHit: Types.i32,
+  DamageBonus: Types.i32,
+  CritChance: Types.f32,
+  CritDamage: Types.f32,
+  CastingSpeed: Types.i32,
+  CastingRange: Types.i32,
+  Knockback: Types.i32,
+};
+
+/* updates the base and current values of a stat - "permanent" change */
+export const UpdateStatRequest = defineComponent(AllStats);
+
+/* updates the current value of a stat - "temporary" change */
+export const UpdateStatCurrentRequest = defineComponent(AllStats);

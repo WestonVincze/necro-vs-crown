@@ -33,6 +33,9 @@ import {
   MaxHit,
   MaxMoveSpeed,
   MoveSpeed,
+  AttackBonus,
+  CastingSpeed,
+  Knockback,
 } from "../components/Stats";
 import { AIState, AIType, Faction, type Stats, type Unit } from "../types";
 import { AllUnits } from "../data";
@@ -146,6 +149,12 @@ const initializeStats = (world: World, eid: number, stats: Stats) => {
     MaxMoveSpeed.current[eid] = stats.maxSpeed;
   }
 
+  if (stats.attackBonus) {
+    addComponent(world, AttackBonus, eid);
+    AttackBonus.base[eid] = stats.attackBonus;
+    AttackBonus.current[eid] = stats.attackBonus;
+  }
+
   if (stats.attackSpeed) {
     addComponent(world, AttackSpeed, eid);
     AttackSpeed.base[eid] = stats.attackSpeed;
@@ -180,5 +189,19 @@ const initializeStats = (world: World, eid: number, stats: Stats) => {
     addComponent(world, CritDamage, eid);
     CritDamage.base[eid] = stats.critDamage;
     CritDamage.current[eid] = stats.critDamage;
+  }
+
+  if (stats.castingSpeed) {
+    addComponent(world, CastingSpeed, eid);
+    CastingSpeed.base[eid] = stats.castingSpeed;
+    CastingSpeed.current[eid] = stats.castingSpeed;
+  }
+
+  /** missing: castingRange from stat components, but it's not currently in use **/
+
+  if (stats.knockback) {
+    addComponent(world, Knockback, eid);
+    Knockback.base[eid] = stats.knockback;
+    Knockback.current[eid] = stats.knockback;
   }
 };

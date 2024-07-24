@@ -44,6 +44,7 @@ import {
   createUnitSpawnerSystem,
   BuildingSpawner,
   createTargetSpawnerEntity,
+  createUpgradeSystem,
 } from "@necro-crown/shared";
 import { createCameraControlSystem } from "$game/systems";
 import {
@@ -85,6 +86,7 @@ const createPhysicsPipeline = ({
     createSpellcastingSystem(),
     createDrawSpellEffectSystem(scene),
     createHealthBarSystem(scene),
+    createUpgradeSystem(),
     ...post,
     createTimeSystem(), // time should always be last
   );
