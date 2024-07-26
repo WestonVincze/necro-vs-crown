@@ -6,6 +6,7 @@ import {
   removeEntity,
   defineExitQueue,
   Not,
+  entityExists,
 } from "bitecs";
 import {
   Spell,
@@ -24,7 +25,6 @@ import {
 import { GameObjects, Scene } from "phaser";
 import { createUnitEntity } from "../entities";
 import { checkIfWithinDistance, getPositionFromEid } from "../utils";
-import type { World } from "../types";
 import { gameEvents } from "../events";
 
 export const createSpellcastingSystem = () => {
@@ -36,8 +36,7 @@ export const createSpellcastingSystem = () => {
   ]);
 
   return (world: World) => {
-    const entities = spellcasterQuery(world);
-    for (const eid of entities) {
+    for (const eid of spellcasterQuery(world)) {
       const spellState = Spell.state[eid] as SpellState;
 
       if (spellState === SpellState.Ready && Input.castingSpell[eid] === 1) {
@@ -75,7 +74,6 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
   const necroUnitQuery = defineQuery([Necro, Position, Health]);
 
   return (world: World) => {
-    // onEnter
     for (const eid of onEnter(world)) {
       const x = Position.x[eid];
       const y = Position.y[eid];
@@ -90,7 +88,6 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
       circlesById.set(eid, circle);
     }
 
-    // query
     for (const eid of query(world)) {
       // grow spell effect
       if (SpellEffect.size[eid] < SpellEffect.maxSize[eid]) {
@@ -116,11 +113,23 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
       circle.radius = SpellEffect.size[eid];
     }
 
-    // onExit
     for (const eid of onExit(world)) {
+      const circle = circlesById.get(eid);
+
+      if (!circle) {
+        console.warn(`Circle not found: Unable to delete circle for ${eid}`);
+      } else {
+        circle.destroy();
+      }
+
+      circlesById.delete(eid);
+
+      if (!entityExists(world, eid)) continue;
+
       const position = getPositionFromEid(eid);
       addComponent(world, SpellCooldown, eid);
       SpellCooldown.ready[eid] = world.time.elapsed + 1000;
+      // TODO: figure out why summon spell sometimes casts holy nova
       switch (SpellEffect.name[eid]) {
         case SpellName.Summon:
           const boneEntities = bonesQuery(world);
@@ -164,17 +173,8 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
           }
           break;
       }
-
-      const circle = circlesById.get(eid);
-
-      if (!circle) {
-        console.warn(`Circle not found: Unable to delete circle for ${eid}`);
-      } else {
-        circle.destroy();
-      }
-
-      circlesById.delete(eid);
     }
+
     return world;
   };
 };

@@ -28,10 +28,10 @@ export const collisionEvents = new Subject<{ eid1: number; eid2: number }>();
 const colliderQuery = defineQuery([Position, Collider]);
 
 export const createProjectileCollisionSystem = () => {
-  const query = defineQuery([Position, Collider, Projectile]);
+  const projectileQuery = defineQuery([Position, Collider, Projectile]);
 
   return (world: World) => {
-    for (const projectileEid of query(world)) {
+    for (const projectileEid of projectileQuery(world)) {
       for (const colliderEid of colliderQuery(world)) {
         if (checkCollision(projectileEid, colliderEid)) {
           // TODO: handle collisions for other types of entities (walls)
@@ -45,6 +45,7 @@ export const createProjectileCollisionSystem = () => {
             )
           ) {
             removeEntity(world, projectileEid);
+            break;
           }
         }
       }
@@ -54,6 +55,9 @@ export const createProjectileCollisionSystem = () => {
   };
 };
 
+/**
+ * DEPRECATED
+ */
 export const createCollisionSystem = () => {
   return (world: World) => {
     const entities = colliderQuery(world);
@@ -135,6 +139,8 @@ export const createDrawCollisionSystem = (scene: Phaser.Scene) => {
 };
 
 const checkCollision = (eid1: number, eid2: number) => {
+  if (eid1 === eid2) return false;
+
   const layer1 = Collider.layer[eid1];
   const layer2 = Collider.layer[eid2];
   const collisionLayers1 = Collider.collisionLayers[eid1];

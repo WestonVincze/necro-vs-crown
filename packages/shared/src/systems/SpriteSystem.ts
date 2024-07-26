@@ -18,9 +18,7 @@ export const createSpriteSystem = (scene: Scene) => {
   const spriteQueryExit = exitQuery(defineQuery([Sprite]));
 
   return (world: World) => {
-    const entitiesEntered = spriteQueryEnter(world);
-    for (let i = 0; i < entitiesEntered.length; i++) {
-      const eid = entitiesEntered[i];
+    for (const eid of spriteQueryEnter(world)) {
       const textureId = Sprite.texture[eid];
       const texture = TextureNames[textureId];
       const width = Transform.width[eid];
@@ -53,9 +51,7 @@ export const createSpriteSystem = (scene: Scene) => {
       countById.set(eid, eid);
     }
 
-    const entities = spriteQuery(world);
-    for (let i = 0; i < entities.length; i++) {
-      const eid = entities[i];
+    for (const eid of spriteQuery(world)) {
       const x = Position.x[eid];
       const y = Position.y[eid] - Transform.height[eid] / 2;
 
@@ -94,10 +90,7 @@ export const createSpriteSystem = (scene: Scene) => {
       sprite.depth = Position.y[eid] + 1200;
     }
 
-    const entitiesExited = spriteQueryExit(world);
-    for (let i = 0; i < entitiesExited.length; i++) {
-      const eid = entitiesExited[i];
-
+    for (const eid of spriteQueryExit(world)) {
       const sprite = spriteById.get(eid);
 
       if (!sprite) {
