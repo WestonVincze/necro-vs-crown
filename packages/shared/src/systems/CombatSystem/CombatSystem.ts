@@ -21,12 +21,12 @@ import {
   Necro,
   Position,
   Transform,
-} from "../components";
-import { checkIfWithinDistance, getPositionFromEid } from "../utils";
-import { CombatTarget } from "../relations";
-import { gameEvents } from "../events";
-import { RangedUnit } from "../components";
-import { createProjectileEntity, ProjectileName } from "../entities";
+} from "../../components";
+import { checkIfWithinDistance, getPositionFromEid } from "../../utils";
+import { CombatTarget } from "../../relations";
+import { gameEvents } from "../../events";
+import { RangedUnit } from "../../components";
+import { createProjectileEntity, ProjectileName } from "../../entities";
 
 export const createCombatSystem = () => {
   const attackerQuery = defineQuery([
@@ -94,24 +94,9 @@ export const createCombatSystem = () => {
   };
 };
 
-const rollDamage = (
-  maxHit: number,
-  damageBonus: number,
-  critChance?: number,
-  critDamage: number = 1,
-): number => {
-  let damage = 0;
-  let critMod = 1;
-
-  damage = rollDice(maxHit);
-
-  if (damage > 0 && critChance && rollToCrit(critChance)) {
-    critMod = critDamage;
-  }
-
-  return (damage = damage * critMod + damageBonus);
-};
-
+/**
+ * @returns `true` if the attack was **rolled**, `false` otherwise
+ */
 export const attackEntity = (
   world: World,
   targetEid: number,
@@ -135,20 +120,43 @@ export const attackEntity = (
     return false;
   }
 
-  if (!rollToHit(Armor.current[targetEid], attackBonus)) return false;
+  const amount = rollToHit(Armor.current[targetEid], attackBonus)
+    ? damage * -1
+    : 0;
 
-  gameEvents.emitHealthChange({ eid: targetEid, amount: damage * -1 });
+  gameEvents.emitHealthChange({ eid: targetEid, amount });
+
   return true;
 };
 
-const rollDice = (sides: number, bonus = 0) => {
-  return Math.floor(Math.random() * sides) + 1 + bonus;
+export const rollDamage = (
+  maxHit: number,
+  damageBonus: number,
+  critChance?: number,
+  critDamage: number = 1,
+): number => {
+  let damage = 0;
+  let critMod = 1;
+
+  damage = rollDice(maxHit, damageBonus);
+
+  if (damage > 0 && critChance && rollToCrit(critChance)) {
+    console.log("CRIT");
+    critMod = critDamage;
+  }
+
+  return (damage *= critMod);
 };
 
-const rollToHit = (difficulty: number, bonus = 0) => {
+export const rollDice = (sides: number, bonus = 0) => {
+  return Math.floor(Math.random() * (sides - 1)) + 1 + bonus;
+};
+
+export const rollToHit = (difficulty: number, bonus = 0) => {
+  console.log(difficulty, bonus);
   return rollDice(20, bonus) >= difficulty;
 };
 
-const rollToCrit = (critChance: number) => {
+export const rollToCrit = (critChance: number) => {
   return rollDice(100) + critChance >= 100;
 };
