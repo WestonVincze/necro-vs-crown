@@ -141,7 +141,6 @@ export const rollDamage = (
   damage = rollDice(maxHit, damageBonus);
 
   if (damage > 0 && critChance && rollToCrit(critChance)) {
-    console.log("CRIT");
     critMod = critDamage;
   }
 
@@ -153,7 +152,6 @@ export const rollDice = (sides: number, bonus = 0) => {
 };
 
 export const rollToHit = (difficulty: number, bonus = 0) => {
-  console.log(difficulty, bonus);
   return rollDice(20, bonus) >= difficulty;
 };
 

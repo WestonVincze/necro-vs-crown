@@ -2,6 +2,7 @@ import { Scene } from "phaser";
 import { defineAction } from "../../input/Actions";
 import { crownState$, playCard } from "$game/Crown";
 import { createUnitEntity } from "@necro-crown/shared";
+import { type World } from "@necro-crown/shared";
 
 export const createCameraControlSystem = (scene: Scene) => {
   const canvas =

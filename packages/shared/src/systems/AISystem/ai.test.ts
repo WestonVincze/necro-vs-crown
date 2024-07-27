@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach } from "vitest";
 
+describe("AIManager", () => {
+  it("will have tests later", () => {
+    expect(true).toBe(true);
+  });
+});
+
 /*
 describe('AIManager', () => {
   let aiManager: AIManager;
