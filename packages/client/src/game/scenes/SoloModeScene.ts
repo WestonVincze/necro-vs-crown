@@ -45,6 +45,7 @@ import {
   BuildingSpawner,
   createTargetSpawnerEntity,
   createUpgradeSystem,
+  createLevelUpSystem,
 } from "@necro-crown/shared";
 import { createCameraControlSystem } from "$game/systems";
 import {
@@ -73,6 +74,7 @@ const createPhysicsPipeline = ({
 }: PipelineFactory) =>
   pipe(
     ...pre,
+    createLevelUpSystem(),
     createDestroyAfterDelaySystem(),
     createUnitSpawnerSystem(),
     createDrawCollisionSystem(scene),
@@ -243,7 +245,7 @@ export class SoloModeScene extends Scene {
 
         createTargetSpawnerEntity(this.world, necro);
 
-        for (let i = 0; i < 1; i++) {
+        for (let i = 0; i < 10; i++) {
           const randomEntity = Math.random() > 0.5 ? "Archer" : "Skeleton";
           const eid = createUnitEntity(
             this.world,

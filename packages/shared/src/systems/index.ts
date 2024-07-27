@@ -18,3 +18,4 @@ export * from "./AISystem";
 export * from "./DestroyAfterDelaySystem";
 export * from "./UnitSpawnerSystem";
 export * from "./UpgradeSystem";
+export * from "./LevelUpSystem";
