@@ -5,7 +5,8 @@
   import { StartGame } from ".";
   import MainMenu from "../views/MainMenu.svelte";
   import { CrownUI } from "../views/Crown";
-  import { Faction } from "@necro-crown/shared";
+  import { Faction, gameEvents } from "@necro-crown/shared";
+  import UpgradeSelect from "../views/UpgradeSelect.svelte";
 
   let game: Game;
 
@@ -30,6 +31,17 @@
   }
 
   $: currentScene = "MainMenu";
+
+  gameEvents.onLevelUp.subscribe(({ eid, newLevel, upgrades }) => console.log(`${eid} leveled up to ${newLevel}`) )
+
+  /* testing 
+  let healthUpdates = 0;
+  const healthUpdatesSubscription = gameEvents.healthChanges.subscribe(({ amount }) => healthUpdates = amount)
+
+  onDestroy(() => {
+    healthUpdatesSubscription.unsubscribe();
+  })
+  */
   let currentPlayer: Faction;
 </script>
 
@@ -44,6 +56,14 @@
     {#if currentPlayer === Faction.Crown}
       <CrownUI />
     {/if}
+
+    <!--
+    <span>{healthUpdates}</span>
+    {#if selectingUpgrade}
+      <UpgradeSelect options={["one", "two", "three"]} />
+    {/if}
+    -->
+
   </div>
 </div>
 

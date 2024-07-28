@@ -1,5 +1,5 @@
 import { Observable, Subject, buffer, distinct, filter } from "rxjs";
-import { AIEvent } from "../types";
+import { AIEvent, Faction } from "../types";
 
 interface EntityEvent {
   eid: number;
@@ -8,6 +8,13 @@ interface EntityEvent {
 interface HealthChange extends EntityEvent {
   amount: number;
   isCrit?: boolean;
+}
+
+interface LevelUpEvent {
+  eid: number;
+  newLevel: number;
+  faction: Faction;
+  upgrades: string[];
 }
 
 class GameEvents {
@@ -22,16 +29,23 @@ class GameEvents {
 
   #AIEvents: Subject<AIEvent>;
 
+  #onLevelUp: Subject<LevelUpEvent>;
+
   constructor() {
     this.#endOfFrame = new Subject<void>();
     this.#healthChanges = new Subject<HealthChange>();
     this.#onDeath = new Subject<EntityEvent>();
     this.#AIEvents = new Subject<AIEvent>();
+    this.#onLevelUp = new Subject<LevelUpEvent>();
   }
 
   /** OBSERVABLES */
   get healthChanges(): Observable<HealthChange> {
     return this.#healthChanges.asObservable();
+  }
+
+  get onLevelUp(): Observable<LevelUpEvent> {
+    return this.#onLevelUp.asObservable();
   }
 
   /**
@@ -60,6 +74,10 @@ class GameEvents {
 
   emitHealthChange(change: HealthChange) {
     this.#healthChanges.next(change);
+  }
+
+  emitLevelUp(event: LevelUpEvent): void {
+    this.#onLevelUp.next(event);
   }
 
   emitDeath(eid: number) {

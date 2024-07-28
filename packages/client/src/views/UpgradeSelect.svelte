@@ -1,5 +1,12 @@
 <script lang="ts">
-  export let options: string[];
+  type Option = {
+    id: string;
+    title: string;
+    description: string;
+    imageURL?: string;
+  }
+
+  export let options: Option[];
 </script>
 
 <div class="upgrade-select">

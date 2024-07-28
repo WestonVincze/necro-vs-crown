@@ -23,7 +23,7 @@ export const AIConfig = defineComponent({
   // chaseDistance?
 });
 
-export const AIState = defineComponent({
+export const AIAction = defineComponent({
   currentAction: Types.ui8,
   lastUtilityCalc: Types.f32,
   // cachedUtilities?

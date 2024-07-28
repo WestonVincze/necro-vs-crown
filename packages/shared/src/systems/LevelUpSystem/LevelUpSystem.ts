@@ -1,3 +1,5 @@
+import { gameEvents } from "../../events";
+import { Faction } from "../../types";
 import { Experience, Level } from "../../components";
 import { addComponent, defineQuery, removeComponent } from "bitecs";
 
@@ -28,6 +30,14 @@ export const createLevelUpSystem = () => {
         Level.currentExp[eid] = newExperience - Level.expToNextLevel[eid];
 
         Level.expToNextLevel[eid] = getExpForNextLevel(Level.currentLevel[eid]);
+
+        // TODO: upgrade option selected by AI if not main player
+        gameEvents.emitLevelUp({
+          eid,
+          newLevel: Level.currentLevel[eid],
+          faction: Faction.Necro,
+          upgrades: ["one", "two", "three"],
+        });
 
         // perform "onLevelUp" callback
         /**

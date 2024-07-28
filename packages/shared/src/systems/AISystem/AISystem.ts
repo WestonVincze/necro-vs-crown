@@ -1,6 +1,6 @@
 import { AIType } from "../../types";
 import { gameEvents } from "../../events";
-import { AI, AIState, FollowTarget } from "../../components";
+import { AI, AIAction, FollowTarget } from "../../components";
 import { AIStateMachine, createStateMachines } from "./AIStateMachine";
 import { addComponent, defineQuery, removeComponent } from "bitecs";
 
@@ -78,10 +78,10 @@ const createUtilityAISystem = () => {
         const maxUtility = Math.max(...utilities);
         const bestActionIndex = utilities.indexOf(maxUtility);
 
-        if (AIState.currentAction[eid] === bestActionIndex) continue;
+        if (AIAction.currentAction[eid] === bestActionIndex) continue;
 
         // remove components for old action
-        for (const component of actions[AIState.currentAction[eid]]
+        for (const component of actions[AIAction.currentAction[eid]]
           .components) {
           removeComponent(world, component, eid);
         }
@@ -91,7 +91,7 @@ const createUtilityAISystem = () => {
           addComponent(world, component, eid);
         }
 
-        AIState.currentAction[eid] = bestActionIndex;
+        AIAction.currentAction[eid] = bestActionIndex;
       }
     }
   };
