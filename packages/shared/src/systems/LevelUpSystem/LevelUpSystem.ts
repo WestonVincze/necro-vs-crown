@@ -1,7 +1,8 @@
 import { gameEvents } from "../../events";
-import { Faction } from "../../types";
-import { Experience, Level } from "../../components";
+import { Faction, Upgrade } from "../../types";
+import { Experience, Level, StatName } from "../../components";
 import { addComponent, defineQuery, removeComponent } from "bitecs";
+import { getRandomElements } from "../../helpers";
 
 export const BASE_EXP = 35;
 export const MAX_LEVEL = 50;
@@ -36,7 +37,7 @@ export const createLevelUpSystem = () => {
           eid,
           newLevel: Level.currentLevel[eid],
           faction: Faction.Necro,
-          upgrades: ["one", "two", "three"],
+          upgrades: getRandomElements(upgradeOptions, 3),
         });
 
         // perform "onLevelUp" callback
@@ -83,3 +84,24 @@ export const getExpForNextLevel = (currentLevel: number) => {
   if (currentLevel >= MAX_LEVEL) return 0;
   return BASE_EXP + currentLevel * 10;
 };
+
+const upgradeOptions: Upgrade[] = [
+  {
+    stat: StatName.MaxHealth,
+    value: 5,
+    title: "Max HP",
+    description: "Increases max HP of ALL {unit} by 5",
+  },
+  {
+    stat: StatName.Armor,
+    value: 1,
+    title: "Armor",
+    description: "Increases Armor of ALL {unit} by 1",
+  },
+  {
+    stat: StatName.HealthRegeneration,
+    value: 0.1,
+    title: "HP Regen",
+    description: "Increases HP Regen of ALL {unit} by 0.1",
+  },
+];

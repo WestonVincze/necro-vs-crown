@@ -3,6 +3,7 @@ import { gameEvents } from "../events";
 import { createBonesEntity, createUnitEntity } from "../entities";
 import { Necro, Position } from "../components";
 import { Faction } from "../types";
+import { giveExpToEntity } from "./LevelUpSystem";
 
 export const createDeathSystem = (faction = Faction.Necro) => {
   return (world: World) => {
@@ -17,6 +18,8 @@ export const createDeathSystem = (faction = Faction.Necro) => {
         if (hasComponent(world, Necro, eid)) {
           removeEntity(world, eid);
           continue;
+        } else {
+          giveExpToEntity(world, 1, 10);
         }
 
         removeEntity(world, eid);

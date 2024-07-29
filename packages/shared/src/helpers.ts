@@ -27,11 +27,8 @@ export const getRandomElement = <T>(array: T[]) => {
   return array[randomIndex];
 };
 
-export const getRandomElements = <T>(
-  array: T[],
-  count: number,
-): T[] | boolean => {
-  if (count > array.length) return false;
+export const getRandomElements = <T>(array: T[], count: number): T[] => {
+  if (count > array.length) return array;
 
   const randomElements: T[] = [];
 

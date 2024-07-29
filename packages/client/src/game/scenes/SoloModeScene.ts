@@ -246,7 +246,7 @@ export class SoloModeScene extends Scene {
         createTargetSpawnerEntity(this.world, necro);
 
         for (let i = 0; i < 10; i++) {
-          const randomEntity = Math.random() > 0.5 ? "Archer" : "Skeleton";
+          const randomEntity = Math.random() > 0.5 ? "Peasant" : "Skeleton";
           const eid = createUnitEntity(
             this.world,
             randomEntity,

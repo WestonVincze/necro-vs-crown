@@ -20,6 +20,7 @@ import {
   AI,
   RangedUnit,
   SpriteType,
+  Level,
 } from "../components";
 import {
   Armor,
@@ -57,6 +58,11 @@ export const createUnitEntity = (
     AI.type[eid] = AIType.MELEE;
     addComponent(world, Behavior, eid);
     Behavior.type[eid] = Behaviors.AutoTarget;
+  } else {
+    addComponent(world, Level, eid);
+    Level.currentLevel[eid] = 0;
+    Level.currentExp[eid] = 0;
+    Level.expToNextLevel[eid] = 35;
   }
 
   if (name === "Skeleton") {

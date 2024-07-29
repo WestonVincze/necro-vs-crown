@@ -1,5 +1,5 @@
 import { Observable, Subject, buffer, distinct, filter } from "rxjs";
-import { AIEvent, Faction } from "../types";
+import { AIEvent, Faction, Upgrade } from "../types";
 
 interface EntityEvent {
   eid: number;
@@ -14,9 +14,10 @@ interface LevelUpEvent {
   eid: number;
   newLevel: number;
   faction: Faction;
-  upgrades: string[];
+  upgrades: Upgrade[];
 }
 
+// TODO: refactor health and death systems into ECS components instead of subjects
 class GameEvents {
   /** SUBJECTS */
   // emitted at the very end of the update loop
