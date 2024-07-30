@@ -5,19 +5,36 @@
   import { StartGame } from ".";
   import MainMenu from "../views/MainMenu.svelte";
   import { CrownUI } from "../views/Crown";
-  import { Faction, gameEvents } from "@necro-crown/shared";
+  import { Faction, gameEvents, StatName, type Upgrade } from "@necro-crown/shared";
   import UpgradeSelect from "../views/UpgradeSelect.svelte";
 
   let game: Game;
+  $: upgrade = {
+    active: false,
+    options: [] as Upgrade[],
+  }
+  let handleUpgradeSelect: (stat: StatName) => void;
+
 
   onMount(() => {
     game = StartGame("game-container");
   })
+    const levelUpSubscription = gameEvents.onLevelUp.subscribe(({ eid, upgrades }) => {
 
-  onDestroy(() => {
-    // emit scene's destroy event for cleanup
-    game.scene.destroy();
-  });
+      console.log('lvl up')
+      console.log(upgrades);
+
+      upgrade.active = true;
+      upgrade.options = upgrades;
+
+      handleUpgradeSelect = (stat: StatName) => {
+        upgrade.options = [];
+        upgrade.active = false;
+        console.log(`${StatName[stat]} was selected.`);
+        gameEvents.emitUpgradeSelect({ eid, stat, value: 5})
+      }
+    });
+
 
   const handlePlayAs = (player: Faction, gameMode: "solo" | "versus") => {
     currentPlayer = player;
@@ -32,7 +49,6 @@
 
   $: currentScene = "MainMenu";
 
-  gameEvents.onLevelUp.subscribe(({ eid, newLevel, upgrades }) => console.log(`${eid} leveled up to ${newLevel}`) )
 
   /* testing 
   let healthUpdates = 0;
@@ -43,6 +59,12 @@
   })
   */
   let currentPlayer: Faction;
+
+  onDestroy(() => {
+    // emit scene's destroy event for cleanup
+    game.scene.destroy();
+    levelUpSubscription.unsubscribe();
+  });
 </script>
 
 <div id="game-container">
@@ -57,12 +79,9 @@
       <CrownUI />
     {/if}
 
-    <!--
-    <span>{healthUpdates}</span>
-    {#if selectingUpgrade}
-      <UpgradeSelect options={["one", "two", "three"]} />
+    {#if upgrade.active}
+      <UpgradeSelect options={upgrade.options} onSelect={handleUpgradeSelect} />
     {/if}
-    -->
 
   </div>
 </div>

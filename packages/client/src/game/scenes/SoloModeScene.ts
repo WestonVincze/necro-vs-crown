@@ -44,8 +44,10 @@ import {
   createUnitSpawnerSystem,
   BuildingSpawner,
   createTargetSpawnerEntity,
-  createUpgradeSystem,
+  createStatUpdateSystem,
   createLevelUpSystem,
+  createProcessUpgradeEventSystem,
+  UnitName,
 } from "@necro-crown/shared";
 import { createCameraControlSystem } from "$game/systems";
 import {
@@ -88,7 +90,7 @@ const createPhysicsPipeline = ({
     createSpellcastingSystem(),
     createDrawSpellEffectSystem(scene),
     createHealthBarSystem(scene),
-    createUpgradeSystem(),
+    createStatUpdateSystem(),
     ...post,
     createTimeSystem(), // time should always be last
   );
@@ -100,6 +102,7 @@ const createReactivePipeline = ({
 }: PipelineFactory) =>
   pipe(
     ...pre,
+    createProcessUpgradeEventSystem(),
     createAIEventsSystem(),
     createHitSplatSystem(scene),
     createHealthSystem(),
@@ -213,7 +216,7 @@ export class SoloModeScene extends Scene {
         for (let i = 0; i < 5; i++) {
           const eid = createUnitEntity(
             this.world,
-            "Skeleton",
+            UnitName.Skeleton,
             Math.random() * SCREEN_HEIGHT,
             Math.random() * SCREEN_WIDTH,
           );
@@ -234,7 +237,12 @@ export class SoloModeScene extends Scene {
 
       case Faction.Necro:
         // create Necro player
-        const necro = createUnitEntity(this.world, "Necromancer", 300, 300);
+        const necro = createUnitEntity(
+          this.world,
+          UnitName.Necromancer,
+          300,
+          300,
+        );
         addComponent(this.world, Player, necro);
         addComponent(this.world, Spell, necro);
         Spell.state[necro] = SpellState.Ready;
@@ -246,7 +254,8 @@ export class SoloModeScene extends Scene {
         createTargetSpawnerEntity(this.world, necro);
 
         for (let i = 0; i < 10; i++) {
-          const randomEntity = Math.random() > 0.5 ? "Peasant" : "Skeleton";
+          const randomEntity =
+            Math.random() > 0.5 ? UnitName.Peasant : UnitName.Skeleton;
           const eid = createUnitEntity(
             this.world,
             randomEntity,
@@ -254,7 +263,7 @@ export class SoloModeScene extends Scene {
             Math.random() * 1024,
           );
 
-          if (randomEntity === "Skeleton") {
+          if (randomEntity === UnitName.Skeleton) {
             Behavior.type[eid] = Behaviors.FollowCursor;
           }
         }

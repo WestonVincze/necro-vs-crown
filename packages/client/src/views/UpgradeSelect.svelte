@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { StatName, type Upgrade } from "@necro-crown/shared";
+
   type Option = {
     id: string;
     title: string;
@@ -6,13 +8,14 @@
     imageURL?: string;
   }
 
-  export let options: Option[];
+  export let options: Upgrade[];
+  export let onSelect: (stat: StatName) => void = (stat: StatName) => console.log(StatName[stat]);
 </script>
 
 <div class="upgrade-select">
   <div class="upgrade-options">
     {#each options as option}
-      <button class="option" on:click={() => console.log(`selected ${option}`)}>{option}</button>
+      <button class="option" on:click={() => onSelect(option.stat)}>{option.title}</button>
     {/each}
   </div>
 </div>

@@ -1,5 +1,6 @@
 import { Scene } from "phaser";
 import { assets } from "../../stores/AssetStore";
+import { SpriteTexture } from "@necro-crown/shared";
 
 export class PreloaderScene extends Scene {
   constructor() {
@@ -9,7 +10,10 @@ export class PreloaderScene extends Scene {
   preload() {
     assets.subscribe((assetUrls) => {
       for (const [key, url] of Object.entries(assetUrls)) {
-        this.load.image(key, url);
+        this.load.image(
+          SpriteTexture[key as keyof typeof SpriteTexture].toString(),
+          url,
+        );
       }
     });
 

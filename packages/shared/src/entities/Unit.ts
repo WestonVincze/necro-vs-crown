@@ -21,6 +21,7 @@ import {
   RangedUnit,
   SpriteType,
   Level,
+  Unit,
 } from "../components";
 import {
   Armor,
@@ -38,21 +39,28 @@ import {
   CastingSpeed,
   Knockback,
 } from "../components/Stats";
-import { AIState, AIType, Faction, type Stats, type Unit } from "../types";
-import { AllUnits } from "../data";
+import { AIState, AIType, Faction, UnitName, type Stats } from "../types";
+import { Units } from "../data";
 import { SpriteTexture } from "../constants";
 import { ProjectileName } from "./Projectiles";
 
+// TODO:
+
+export const baseUnitStats = Units;
+
 export const createUnitEntity = (
   world: World,
-  name: Unit,
+  name: UnitName,
   x: number,
   y: number,
 ) => {
   const eid = addEntity(world);
-  const data = AllUnits[name];
+  const data = Units[name];
 
-  if (name !== "Necromancer") {
+  addComponent(world, Unit, eid);
+  Unit.name[eid] = name;
+
+  if (name !== UnitName.Necromancer) {
     addComponent(world, AI, eid);
     AI.state[eid] = AIState.IDLE;
     AI.type[eid] = AIType.MELEE;
@@ -62,16 +70,16 @@ export const createUnitEntity = (
     addComponent(world, Level, eid);
     Level.currentLevel[eid] = 0;
     Level.currentExp[eid] = 0;
-    Level.expToNextLevel[eid] = 35;
+    Level.expToNextLevel[eid] = 10;
   }
 
-  if (name === "Skeleton") {
+  if (name === UnitName.Skeleton) {
     addComponent(world, Inventory, eid);
     Collider.collisionLayers[eid] = CollisionLayers.ITEM;
   }
 
   // TODO: create an enum to define UnitType
-  if (name === "Archer") {
+  if (name === UnitName.Archer) {
     addComponent(world, RangedUnit, eid);
     RangedUnit.projectileType[eid] = ProjectileName.Arrow;
     RangedUnit.spawnPositionOffsetX[eid] = data.width / -4;
@@ -97,7 +105,7 @@ export const createUnitEntity = (
 
   addComponent(world, Input, eid);
   // TODO: add spell data to unit data to avoid this mess
-  if (name === "Paladin") {
+  if (name === UnitName.Paladin) {
     addComponent(world, Spell, eid);
     Spell.state[eid] = SpellState.Ready;
     Spell.name[eid] = SpellName.HolyNova;
@@ -126,7 +134,7 @@ export const createUnitEntity = (
 };
 
 /**
- * Dynamically initializes components with base and current values from `AllUnits`
+ * Dynamically initializes components with base and current values from `Stats`
  */
 const initializeStats = (world: World, eid: number, stats: Stats) => {
   addComponent(world, MaxHealth, eid);

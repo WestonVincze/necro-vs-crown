@@ -1,4 +1,3 @@
-// export * from "./BehaviorSystem"; // not yet implemented
 export * from "./CursorTargetSystem";
 export * from "./MovementSystem";
 export * from "./SpriteSystem"; // should this be client only?
@@ -17,5 +16,6 @@ export * from "./GridSystem";
 export * from "./AISystem";
 export * from "./DestroyAfterDelaySystem";
 export * from "./UnitSpawnerSystem";
-export * from "./UpgradeSystem";
+export * from "./StatUpdateSystem";
 export * from "./LevelUpSystem";
+export * from "./UpgradeSystem";

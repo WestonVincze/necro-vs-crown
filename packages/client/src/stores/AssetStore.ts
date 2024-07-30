@@ -1,18 +1,18 @@
-import { type Unit, type ItemName } from "@necro-crown/shared";
+import { SpriteTexture } from "@necro-crown/shared";
 import { writable } from "svelte/store";
 
-export const assets = writable<Record<Unit | ItemName, string>>({
-  Necromancer: "necro.png",
-  Skeleton: "skele.png",
-  Peasant: "peasant.png",
-  Guard: "guard.png",
-  Paladin: "paladin.png",
-  Doppelsoldner: "doppelsoldner.png",
-  Archer: "archer.png",
-  Bones: "bones.png",
-  MedHelm: "med_helm.png",
-  BucketHelm: "bucket_helm.png",
-  GreatSword: "great_sword.png",
-  Crossbow: "crossbow.png",
-  Arrow: "arrow.png",
+export const assets = writable<Record<SpriteTexture, string>>({
+  [SpriteTexture.Necromancer]: "necro.png",
+  [SpriteTexture.Skeleton]: "skele.png",
+  [SpriteTexture.Peasant]: "peasant.png",
+  [SpriteTexture.Guard]: "guard.png",
+  [SpriteTexture.Paladin]: "paladin.png",
+  [SpriteTexture.Doppelsoldner]: "doppelsoldner.png",
+  [SpriteTexture.Archer]: "archer.png",
+  [SpriteTexture.Bones]: "bones.png",
+  [SpriteTexture.MedHelm]: "med_helm.png",
+  [SpriteTexture.BucketHelm]: "bucket_helm.png",
+  [SpriteTexture.GreatSword]: "great_sword.png",
+  [SpriteTexture.Crossbow]: "crossbow.png",
+  [SpriteTexture.Arrow]: "arrow.png",
 });

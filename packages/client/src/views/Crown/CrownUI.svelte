@@ -3,6 +3,7 @@
   import CoinPurse from "$icons/CoinPurse.svelte";
   import { crownState$, drawCard, discardCard, addNewCards, selectCard } from "$game/Crown";
   import { interval, take } from "rxjs";
+  import { UnitName } from "@necro-crown/shared";
 
   /**
    * drawing cards should be managed in Cards.ts, but for now this simulates some animation so drawing is not instantaneous
@@ -17,9 +18,9 @@
 <div class="UI">
   <div class="actions">
     <h2>Debug Buttons</h2>
-    <button on:click={() => addNewCards([ { UnitID: "Paladin", cost: 5 }])}>Add Paladin</button>
-    <button on:click={() => addNewCards([ { UnitID: "Doppelsoldner", cost: 6 }])}>Add Doppelsoldner</button>
-    <button on:click={() => addNewCards([ { UnitID: "Archer", cost: 6 }])}>Add Archer</button>
+    <button on:click={() => addNewCards([ { UnitID: UnitName.Paladin, cost: 5 }])}>Add Paladin</button>
+    <button on:click={() => addNewCards([ { UnitID: UnitName.Doppelsoldner, cost: 6 }])}>Add Doppelsoldner</button>
+    <button on:click={() => addNewCards([ { UnitID: UnitName.Archer, cost: 6 }])}>Add Archer</button>
   </div>
   <div class="bottom">
     <div class="coins">

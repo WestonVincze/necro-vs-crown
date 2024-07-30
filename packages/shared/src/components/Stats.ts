@@ -81,9 +81,6 @@ export const CastingRange = defineComponent(Stat);
 
 export const Knockback = defineComponent(Stat);
 
-/** AoS components for stat updates
- * * NOT CURRENTLY USED *
- */
 const AllStats = {
   MaxHealth: Types.i32,
   Armor: Types.i32,
@@ -102,8 +99,4 @@ const AllStats = {
   Knockback: Types.i32,
 };
 
-/* updates the base and current values of a stat - "permanent" change */
-export const UpdateStatRequest = defineComponent(AllStats);
-
-/* updates the current value of a stat - "temporary" change */
-export const UpdateStatCurrentRequest = defineComponent(AllStats);
+export const BaseStats = defineComponent(AllStats);

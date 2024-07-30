@@ -1,5 +1,6 @@
 import { Observable, Subject, buffer, distinct, filter } from "rxjs";
 import { AIEvent, Faction, Upgrade } from "../types";
+import { StatName } from "../components";
 
 interface EntityEvent {
   eid: number;
@@ -17,6 +18,12 @@ interface LevelUpEvent {
   upgrades: Upgrade[];
 }
 
+interface UpgradeSelectEvent {
+  eid: number;
+  stat: StatName;
+  value: number;
+}
+
 // TODO: refactor health and death systems into ECS components instead of subjects
 class GameEvents {
   /** SUBJECTS */
@@ -32,12 +39,15 @@ class GameEvents {
 
   #onLevelUp: Subject<LevelUpEvent>;
 
+  #onUpgradeSelect: Subject<UpgradeSelectEvent>;
+
   constructor() {
     this.#endOfFrame = new Subject<void>();
     this.#healthChanges = new Subject<HealthChange>();
     this.#onDeath = new Subject<EntityEvent>();
     this.#AIEvents = new Subject<AIEvent>();
     this.#onLevelUp = new Subject<LevelUpEvent>();
+    this.#onUpgradeSelect = new Subject<UpgradeSelectEvent>();
   }
 
   /** OBSERVABLES */
@@ -47,6 +57,10 @@ class GameEvents {
 
   get onLevelUp(): Observable<LevelUpEvent> {
     return this.#onLevelUp.asObservable();
+  }
+
+  get onUpgradeSelect(): Observable<UpgradeSelectEvent> {
+    return this.#onUpgradeSelect.asObservable();
   }
 
   /**
@@ -79,6 +93,10 @@ class GameEvents {
 
   emitLevelUp(event: LevelUpEvent): void {
     this.#onLevelUp.next(event);
+  }
+
+  emitUpgradeSelect(event: UpgradeSelectEvent): void {
+    this.#onUpgradeSelect.next(event);
   }
 
   emitDeath(eid: number) {

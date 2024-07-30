@@ -1,5 +1,5 @@
 // TODO: move to server
-import type { Unit } from "@necro-crown/shared";
+import { UnitName } from "@necro-crown/shared";
 import {
   BehaviorSubject,
   Observable,
@@ -23,7 +23,7 @@ const generateMockCards = (count: number): Card[] => {
 
     cards.push({
       id: i,
-      UnitID: roll > 0.5 ? "Guard" : "Peasant",
+      UnitID: roll > 0.5 ? UnitName.Guard : UnitName.Peasant,
       cost: roll > 0.5 ? 4 : 3,
     });
   }
@@ -32,7 +32,7 @@ const generateMockCards = (count: number): Card[] => {
 
 export type Card = {
   id?: number;
-  UnitID: Unit; // TODO: change to name
+  UnitID: UnitName; // TODO: change to name
   cost: number;
 };
 

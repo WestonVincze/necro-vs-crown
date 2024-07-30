@@ -1,12 +1,7 @@
-import {
-  type UnitData,
-  type CrownUnit,
-  type NecroUnit,
-  Faction,
-} from "../types";
+import { type UnitData, Faction, UnitName } from "../types";
 
-export const CrownUnits: Record<CrownUnit, UnitData> = {
-  Peasant: {
+export const Units: Record<UnitName, UnitData> = {
+  [UnitName.Peasant]: {
     name: "Peasant",
     type: Faction.Crown,
     url: "peasant.png",
@@ -28,7 +23,7 @@ export const CrownUnits: Record<CrownUnit, UnitData> = {
       always: ["bones"],
     },
   },
-  Guard: {
+  [UnitName.Guard]: {
     name: "Guard",
     type: Faction.Crown,
     url: "guard.png",
@@ -53,7 +48,7 @@ export const CrownUnits: Record<CrownUnit, UnitData> = {
       common: ["med_helm"],
     },
   },
-  Paladin: {
+  [UnitName.Paladin]: {
     name: "Paladin",
     type: Faction.Crown,
     url: "paladin.png",
@@ -78,7 +73,7 @@ export const CrownUnits: Record<CrownUnit, UnitData> = {
       common: ["bucket_helm"],
     },
   },
-  Doppelsoldner: {
+  [UnitName.Doppelsoldner]: {
     name: "Doppelsoldner",
     type: Faction.Crown,
     url: "doppelsoldner.png",
@@ -103,7 +98,7 @@ export const CrownUnits: Record<CrownUnit, UnitData> = {
       common: ["great_sword"],
     },
   },
-  Archer: {
+  [UnitName.Archer]: {
     name: "Archer",
     type: Faction.Crown,
     url: "archer.png",
@@ -129,10 +124,7 @@ export const CrownUnits: Record<CrownUnit, UnitData> = {
       common: ["crossbow"],
     },
   },
-};
-
-export const NecroUnits: Record<NecroUnit, UnitData> = {
-  Skeleton: {
+  [UnitName.Skeleton]: {
     name: "Skeleton",
     type: Faction.Necro,
     url: "skele.png",
@@ -152,7 +144,7 @@ export const NecroUnits: Record<NecroUnit, UnitData> = {
       critDamage: 1.5,
     },
   },
-  Necromancer: {
+  [UnitName.Necromancer]: {
     name: "Necromancer",
     type: Faction.Necro,
     url: "necro.png",
@@ -169,5 +161,3 @@ export const NecroUnits: Record<NecroUnit, UnitData> = {
     },
   },
 };
-
-export const AllUnits = { ...CrownUnits, ...NecroUnits };

@@ -26,6 +26,7 @@ import { GameObjects, Scene } from "phaser";
 import { createUnitEntity } from "../entities";
 import { checkIfWithinDistance, getPositionFromEid } from "../utils";
 import { gameEvents } from "../events";
+import { UnitName } from "../types";
 
 export const createSpellcastingSystem = () => {
   const spellcasterQuery = defineQuery([
@@ -147,7 +148,7 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
               removeEntity(world, boneEntity);
               const eid = createUnitEntity(
                 world,
-                "Skeleton",
+                UnitName.Skeleton,
                 bonePosition.x,
                 bonePosition.y,
               );

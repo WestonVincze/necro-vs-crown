@@ -1,3 +1,4 @@
+import { gameEvents } from "../events";
 import {
   Armor,
   AttackBonus,
@@ -16,14 +17,35 @@ import {
   MoveSpeed,
   StatName,
   UpdateStatsRequest,
+  Unit,
 } from "../components";
 import {
   addComponent,
   defineQuery,
   entityExists,
   hasComponent,
+  query,
   removeComponent,
 } from "bitecs";
+import { UnitName } from "../types";
+
+/**
+ * updates the stats for all unit entities with the given `UnitName`
+ */
+export const updateStatsForUnitsOfType = (
+  world: World,
+  unitName: UnitName,
+  updates: { stat: StatName; value: number }[],
+) => {
+  const units = query(world, [Unit]).filter(
+    (eid) => Unit.name[eid] === unitName,
+  );
+  console.log(units);
+
+  for (let i = 0; i < units.length; i++) {
+    requestStatUpdate(world, units[i], updates);
+  }
+};
 
 export const requestStatUpdate = (
   world: World,
@@ -53,7 +75,7 @@ export const requestStatUpdate = (
   }
 };
 
-export const createUpgradeSystem = () => {
+export const createStatUpdateSystem = () => {
   const query = defineQuery([UpdateStatsRequest]);
 
   const updateStat = (
