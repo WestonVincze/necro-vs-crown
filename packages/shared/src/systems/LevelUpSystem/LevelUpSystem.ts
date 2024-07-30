@@ -1,6 +1,6 @@
 import { gameEvents } from "../../events";
-import { Faction, Upgrade } from "../../types";
-import { Experience, Level, StatName } from "../../components";
+import { Faction, UnitName, Upgrade } from "../../types";
+import { Experience, Level, StatName, UpgradeRequest } from "../../components";
 import { addComponent, defineQuery, removeComponent } from "bitecs";
 import { getRandomElements } from "../../helpers";
 
@@ -32,21 +32,10 @@ export const createLevelUpSystem = () => {
 
         Level.expToNextLevel[eid] = getExpForNextLevel(Level.currentLevel[eid]);
 
-        // TODO: upgrade option selected by AI if not main player
-        gameEvents.emitLevelUp({
-          eid,
-          newLevel: Level.currentLevel[eid],
-          faction: Faction.Necro,
+        addComponent(world, UpgradeRequest, eid);
+        UpgradeRequest[eid] = {
           upgrades: getRandomElements(upgradeOptions, 3),
-        });
-
-        // perform "onLevelUp" callback
-        /**
-         * upgrade request is sent - this should be processed at the end of the frame
-         * UI is shown
-         * once a selection is made, system needs to process the decision
-         * game resumes
-         */
+        };
       } else {
         Level.currentExp[eid] = newExperience;
       }
@@ -87,21 +76,37 @@ export const getExpForNextLevel = (currentLevel: number) => {
 
 const upgradeOptions: Upgrade[] = [
   {
-    stat: StatName.MaxHealth,
-    value: 5,
-    title: "Max HP",
-    description: "Increases max HP of ALL {unit} by 5",
+    id: 1,
+    unitName: UnitName.Skeleton,
+    statUpdates: [
+      {
+        stat: StatName.MaxHealth,
+        value: 5,
+      },
+    ],
   },
   {
-    stat: StatName.Armor,
-    value: 1,
-    title: "Armor",
-    description: "Increases Armor of ALL {unit} by 1",
+    id: 2,
+    unitName: UnitName.Skeleton,
+    statUpdates: [
+      {
+        stat: StatName.MaxMoveSpeed,
+        value: 1,
+      },
+      {
+        stat: StatName.MoveSpeed,
+        value: 1,
+      },
+    ],
   },
   {
-    stat: StatName.HealthRegeneration,
-    value: 0.1,
-    title: "HP Regen",
-    description: "Increases HP Regen of ALL {unit} by 0.1",
+    id: 3,
+    unitName: UnitName.Skeleton,
+    statUpdates: [
+      {
+        stat: StatName.Armor,
+        value: 1,
+      },
+    ],
   },
 ];

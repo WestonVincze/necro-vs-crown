@@ -1,4 +1,12 @@
-import { gameEvents } from "../events";
+import {
+  addComponent,
+  defineQuery,
+  entityExists,
+  hasComponent,
+  query,
+  removeComponent,
+} from "bitecs";
+
 import {
   Armor,
   AttackBonus,
@@ -19,38 +27,29 @@ import {
   UpdateStatsRequest,
   Unit,
 } from "../components";
-import {
-  addComponent,
-  defineQuery,
-  entityExists,
-  hasComponent,
-  query,
-  removeComponent,
-} from "bitecs";
-import { UnitName } from "../types";
+import { StatUpdate, UnitName } from "../types";
 
 /**
  * updates the stats for all unit entities with the given `UnitName`
  */
-export const updateStatsForUnitsOfType = (
+export const updateStatsByUnitType = (
   world: World,
   unitName: UnitName,
-  updates: { stat: StatName; value: number }[],
+  updates: StatUpdate[],
 ) => {
   const units = query(world, [Unit]).filter(
     (eid) => Unit.name[eid] === unitName,
   );
-  console.log(units);
 
   for (let i = 0; i < units.length; i++) {
-    requestStatUpdate(world, units[i], updates);
+    updateStatsByEid(world, units[i], updates);
   }
 };
 
-export const requestStatUpdate = (
+export const updateStatsByEid = (
   world: World,
   eid: number,
-  updates: { stat: StatName; value: number }[],
+  updates: StatUpdate[],
 ) => {
   if (!entityExists(world, eid)) {
     console.warn(`StatUpdate was requested for ${eid}, but it does not exist.`);

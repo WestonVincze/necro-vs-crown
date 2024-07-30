@@ -1,21 +1,23 @@
 <script lang="ts">
-  import { StatName, type Upgrade } from "@necro-crown/shared";
-
-  type Option = {
-    id: string;
-    title: string;
-    description: string;
-    imageURL?: string;
-  }
+  import { StatName, UnitName, type Upgrade } from "@necro-crown/shared";
 
   export let options: Upgrade[];
-  export let onSelect: (stat: StatName) => void = (stat: StatName) => console.log(StatName[stat]);
+  export let onSelect: (upgradeId: number) => void = (upgradeId: number) => console.log(upgradeId);
 </script>
 
 <div class="upgrade-select">
   <div class="upgrade-options">
     {#each options as option}
-      <button class="option" on:click={() => onSelect(option.stat)}>{option.title}</button>
+      <button class="option" on:click={() => onSelect(option.id)}>
+        <header>
+          All {UnitName[option.unitName]} Units
+        </header>
+        {#each option.statUpdates as update}
+          <span>
+            + {update.value} {StatName[update.stat]}
+          </span>
+        {/each}
+      </button>
     {/each}
   </div>
 </div>
@@ -34,11 +36,17 @@
         gap: 15px;
 
       .option {
-        width: 50%;
+        width: 200px;
         background-color: #333;
         border-radius: 5px;
         border: 2px solid black;
         padding: 20px 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        header {
+          font-weight: bold;
+        }
       }
     }
   }

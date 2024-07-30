@@ -46,7 +46,9 @@ import {
   createTargetSpawnerEntity,
   createStatUpdateSystem,
   createLevelUpSystem,
-  createProcessUpgradeEventSystem,
+  createUpgradeSelectionSystem,
+  createEmitUpgradeRequestEventSystem,
+  createHandleUpgradeSelectEventSystem,
   UnitName,
 } from "@necro-crown/shared";
 import { createCameraControlSystem } from "$game/systems";
@@ -76,6 +78,9 @@ const createPhysicsPipeline = ({
 }: PipelineFactory) =>
   pipe(
     ...pre,
+    createEmitUpgradeRequestEventSystem(),
+    createUpgradeSelectionSystem(),
+    createHandleUpgradeSelectEventSystem(),
     createLevelUpSystem(),
     createDestroyAfterDelaySystem(),
     createUnitSpawnerSystem(),
@@ -102,7 +107,6 @@ const createReactivePipeline = ({
 }: PipelineFactory) =>
   pipe(
     ...pre,
-    createProcessUpgradeEventSystem(),
     createAIEventsSystem(),
     createHitSplatSystem(scene),
     createHealthSystem(),

@@ -13,27 +13,22 @@
     active: false,
     options: [] as Upgrade[],
   }
-  let handleUpgradeSelect: (stat: StatName) => void;
-
+  let handleUpgradeSelect: (upgradeId: number) => void;
 
   onMount(() => {
     game = StartGame("game-container");
   })
-    const levelUpSubscription = gameEvents.onLevelUp.subscribe(({ eid, upgrades }) => {
 
-      console.log('lvl up')
-      console.log(upgrades);
+  const levelUpSubscription = gameEvents.onLevelUp.subscribe(({ eid, upgrades }) => {
+    upgrade.active = true;
+    upgrade.options = upgrades;
 
-      upgrade.active = true;
-      upgrade.options = upgrades;
-
-      handleUpgradeSelect = (stat: StatName) => {
-        upgrade.options = [];
-        upgrade.active = false;
-        console.log(`${StatName[stat]} was selected.`);
-        gameEvents.emitUpgradeSelect({ eid, stat, value: 5})
-      }
-    });
+    handleUpgradeSelect = (upgradeId: number) => {
+      upgrade.options = [];
+      upgrade.active = false;
+      gameEvents.emitUpgradeSelect({ eid, upgradeId });
+    }
+  });
 
 
   const handlePlayAs = (player: Faction, gameMode: "solo" | "versus") => {
@@ -50,14 +45,6 @@
   $: currentScene = "MainMenu";
 
 
-  /* testing 
-  let healthUpdates = 0;
-  const healthUpdatesSubscription = gameEvents.healthChanges.subscribe(({ amount }) => healthUpdates = amount)
-
-  onDestroy(() => {
-    healthUpdatesSubscription.unsubscribe();
-  })
-  */
   let currentPlayer: Faction;
 
   onDestroy(() => {

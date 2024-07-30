@@ -22,6 +22,7 @@ import {
   SpriteType,
   Level,
   Unit,
+  Player,
 } from "../components";
 import {
   Armor,
@@ -67,6 +68,7 @@ export const createUnitEntity = (
     addComponent(world, Behavior, eid);
     Behavior.type[eid] = Behaviors.AutoTarget;
   } else {
+    addComponent(world, Player, eid);
     addComponent(world, Level, eid);
     Level.currentLevel[eid] = 0;
     Level.currentExp[eid] = 0;

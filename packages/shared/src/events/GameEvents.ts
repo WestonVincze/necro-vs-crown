@@ -1,5 +1,5 @@
 import { Observable, Subject, buffer, distinct, filter } from "rxjs";
-import { AIEvent, Faction, Upgrade } from "../types";
+import { AIEvent, Faction, StatUpdate, Upgrade } from "../types";
 import { StatName } from "../components";
 
 interface EntityEvent {
@@ -11,17 +11,15 @@ interface HealthChange extends EntityEvent {
   isCrit?: boolean;
 }
 
-interface LevelUpEvent {
+export interface UpgradeOptionsEvent {
   eid: number;
-  newLevel: number;
-  faction: Faction;
   upgrades: Upgrade[];
 }
 
-interface UpgradeSelectEvent {
+// TODO: handle other types of upgrades
+export interface UpgradeSelectEvent {
   eid: number;
-  stat: StatName;
-  value: number;
+  upgradeId: number;
 }
 
 // TODO: refactor health and death systems into ECS components instead of subjects
@@ -37,7 +35,7 @@ class GameEvents {
 
   #AIEvents: Subject<AIEvent>;
 
-  #onLevelUp: Subject<LevelUpEvent>;
+  #onLevelUp: Subject<UpgradeOptionsEvent>;
 
   #onUpgradeSelect: Subject<UpgradeSelectEvent>;
 
@@ -46,7 +44,7 @@ class GameEvents {
     this.#healthChanges = new Subject<HealthChange>();
     this.#onDeath = new Subject<EntityEvent>();
     this.#AIEvents = new Subject<AIEvent>();
-    this.#onLevelUp = new Subject<LevelUpEvent>();
+    this.#onLevelUp = new Subject<UpgradeOptionsEvent>();
     this.#onUpgradeSelect = new Subject<UpgradeSelectEvent>();
   }
 
@@ -55,7 +53,7 @@ class GameEvents {
     return this.#healthChanges.asObservable();
   }
 
-  get onLevelUp(): Observable<LevelUpEvent> {
+  get onLevelUp(): Observable<UpgradeOptionsEvent> {
     return this.#onLevelUp.asObservable();
   }
 
@@ -91,7 +89,7 @@ class GameEvents {
     this.#healthChanges.next(change);
   }
 
-  emitLevelUp(event: LevelUpEvent): void {
+  emitLevelUp(event: UpgradeOptionsEvent): void {
     this.#onLevelUp.next(event);
   }
 
