@@ -11,7 +11,7 @@ interface HealthChange extends EntityEvent {
   isCrit?: boolean;
 }
 
-export interface UpgradeOptionsEvent {
+export interface UpgradeRequestEvent {
   eid: number;
   upgrades: Upgrade[];
 }
@@ -35,17 +35,17 @@ class GameEvents {
 
   #AIEvents: Subject<AIEvent>;
 
-  #onLevelUp: Subject<UpgradeOptionsEvent>;
+  #upgradeRequest: Subject<UpgradeRequestEvent>;
 
-  #onUpgradeSelect: Subject<UpgradeSelectEvent>;
+  #upgradeSelect: Subject<UpgradeSelectEvent>;
 
   constructor() {
     this.#endOfFrame = new Subject<void>();
     this.#healthChanges = new Subject<HealthChange>();
     this.#onDeath = new Subject<EntityEvent>();
     this.#AIEvents = new Subject<AIEvent>();
-    this.#onLevelUp = new Subject<UpgradeOptionsEvent>();
-    this.#onUpgradeSelect = new Subject<UpgradeSelectEvent>();
+    this.#upgradeRequest = new Subject<UpgradeRequestEvent>();
+    this.#upgradeSelect = new Subject<UpgradeSelectEvent>();
   }
 
   /** OBSERVABLES */
@@ -53,12 +53,12 @@ class GameEvents {
     return this.#healthChanges.asObservable();
   }
 
-  get onLevelUp(): Observable<UpgradeOptionsEvent> {
-    return this.#onLevelUp.asObservable();
+  get onUpgradeRequest(): Observable<UpgradeRequestEvent> {
+    return this.#upgradeRequest.asObservable();
   }
 
   get onUpgradeSelect(): Observable<UpgradeSelectEvent> {
-    return this.#onUpgradeSelect.asObservable();
+    return this.#upgradeSelect.asObservable();
   }
 
   /**
@@ -89,12 +89,12 @@ class GameEvents {
     this.#healthChanges.next(change);
   }
 
-  emitLevelUp(event: UpgradeOptionsEvent): void {
-    this.#onLevelUp.next(event);
+  emitUpgradeRequest(event: UpgradeRequestEvent): void {
+    this.#upgradeRequest.next(event);
   }
 
   emitUpgradeSelect(event: UpgradeSelectEvent): void {
-    this.#onUpgradeSelect.next(event);
+    this.#upgradeSelect.next(event);
   }
 
   emitDeath(eid: number) {

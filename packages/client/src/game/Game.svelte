@@ -19,7 +19,7 @@
     game = StartGame("game-container");
   })
 
-  const levelUpSubscription = gameEvents.onLevelUp.subscribe(({ eid, upgrades }) => {
+  const levelUpSubscription = gameEvents.onUpgradeRequest.subscribe(({ eid, upgrades }) => {
     upgrade.active = true;
     upgrade.options = upgrades;
 
