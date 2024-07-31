@@ -58,7 +58,10 @@ export const createEmitUpgradeRequestEventSystem = () => {
     const playerEntitiesEntered = playerUpgradeEnterQueue(world);
     for (let i = 0; i < playerEntitiesEntered.length; i++) {
       const eid = playerEntitiesEntered[i];
-      gameEvents.emitLevelUp({ eid, upgrades: UpgradeRequest[eid].upgrades });
+      gameEvents.emitUpgradeRequest({
+        eid,
+        upgrades: UpgradeRequest[eid].upgrades,
+      });
     }
 
     return world;
