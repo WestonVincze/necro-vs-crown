@@ -108,6 +108,18 @@ describe("MovementSystem", () => {
     expect(diagonalMovementPositionY).toBeLessThan(verticalMovementPositionY);
   });
 
+  it("should do nothing if there is no input", () => {
+    Input.moveX[eid] = 0;
+    Input.moveY[eid] = 0;
+
+    movementSystem(world);
+
+    expect(Position.x[eid]).toBe(0);
+    expect(Velocity.x[eid]).toBe(0);
+    expect(Position.y[eid]).toBe(0);
+    expect(Velocity.y[eid]).toBe(0);
+  });
+
   it("should do nothing if movement speed is 0", () => {
     Input.moveX[eid] = 1;
     Input.moveY[eid] = 1;
