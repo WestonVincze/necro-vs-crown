@@ -15,6 +15,7 @@ import {
   CritChance,
   CritDamage,
   Crown,
+  Damage,
   DamageBonus,
   Health,
   MaxHit,
@@ -43,6 +44,7 @@ export const createCombatSystem = () => {
 
   return (world: World) => {
     for (const eid of attackerQuery(world)) {
+      let wasAttackMade = false;
       const targetEid = getRelationTargets(world, CombatTarget, eid)[0];
       const attackerPosition = getPositionFromEid(eid);
       const targetPosition = getPositionFromEid(targetEid);
@@ -82,9 +84,12 @@ export const createCombatSystem = () => {
           attackBonus,
           damage,
         );
+        wasAttackMade = true;
       } else {
-        attackEntity(world, targetEid, attackBonus, damage);
+        wasAttackMade = attackEntity(world, targetEid, attackBonus, damage);
       }
+
+      if (!wasAttackMade) continue;
       addComponent(world, AttackCooldown, eid);
       // TODO: move AttackSpeed (and perhaps other cooldowns) to a tick based system?
       AttackCooldown.ready[eid] =
@@ -96,6 +101,8 @@ export const createCombatSystem = () => {
 };
 
 /**
+ * If `targetEid` does not exist or does not have `Health` and `Armor` components the attack will not be rolled
+ * Adds a `Damage` component to the target if the attack is rolled
  * @returns `true` if the attack was **rolled**, `false` otherwise
  */
 export const attackEntity = (
@@ -105,7 +112,7 @@ export const attackEntity = (
   damage: number,
 ): boolean => {
   if (!entityExists(world, targetEid)) {
-    console.debug(`Attack Failed: Target ${targetEid} does not exist.`);
+    console.warn(`Attack Failed: Target ${targetEid} does not exist.`);
     return false;
   }
 
@@ -115,17 +122,21 @@ export const attackEntity = (
     !hasComponent(world, Armor, targetEid) ||
     !hasComponent(world, Health, targetEid)
   ) {
-    console.debug(
+    console.warn(
       `Attack Failed: Target ${targetEid} is missing Health or Armor.`,
     );
     return false;
   }
 
-  const amount = rollToHit(Armor.current[targetEid], attackBonus)
-    ? damage * -1
-    : 0;
+  const amount = rollToHit(Armor.current[targetEid], attackBonus) ? damage : 0;
 
-  gameEvents.emitHealthChange({ eid: targetEid, amount });
+  // TODO: switch to Damage component after HealthSystem refactor
+  gameEvents.emitHealthChange({ eid: targetEid, amount: amount * -1 });
+
+  /*
+  addComponent(world, Damage, targetEid);
+  Damage.amount[targetEid] = amount;
+  */
 
   return true;
 };
