@@ -5,7 +5,7 @@ import {
   entityExists,
   removeComponent,
 } from "bitecs";
-import { updateStatsByUnitType } from "..";
+import { updateStatsByUnitType } from "../StatUpdateSystem";
 import { gameEvents, UpgradeSelectEvent } from "../../events";
 import { Player, SelectedUpgrade, UpgradeRequest } from "../../components";
 

@@ -4,13 +4,7 @@ import {
   createEmitUpgradeRequestEventSystem,
   createHandleUpgradeSelectEventSystem,
 } from "./UpgradesSystems";
-import {
-  addComponent,
-  addEntity,
-  createWorld,
-  hasComponent,
-  removeComponent,
-} from "bitecs";
+import { addComponent, addEntity, createWorld, hasComponent } from "bitecs";
 import { gameEvents } from "../../events";
 import {
   Player,
@@ -18,7 +12,7 @@ import {
   StatName,
   UpgradeRequest,
 } from "../../components";
-import { UnitName, Upgrade } from "types";
+import { UnitName, Upgrade } from "../../types";
 
 const MOCK_UPGRADES: Upgrade[] = [
   {
@@ -38,7 +32,7 @@ const MOCK_UPGRADES: Upgrade[] = [
   },
 ];
 
-describe("Upgrade Systems", () => {
+describe("UpgradeSystems", () => {
   let world: World;
 
   beforeEach(() => {
@@ -62,21 +56,6 @@ describe("Upgrade Systems", () => {
       expect(hasComponent(world, UpgradeRequest, eid)).toBe(false);
       expect(hasComponent(world, SelectedUpgrade, eid)).toBe(false);
     });
-
-    /*
-    it("should do nothing if the upgradeId is not found", () => {
-      const system = createUpgradeSelectionSystem();
-      const eid = addEntity(world);
-      const upgradeId = 5;
-
-      addComponent(world, UpgradeRequest, eid);
-      UpgradeRequest[eid] = { upgrades: MOCK_UPGRADES };
-
-      system(world);
-
-      expect(SelectedUpgrade.upgradeId[eid]).toBe(upgradeId);
-    });
-    */
   });
 
   describe("createEmitUpgradeRequestEventSystem", () => {
@@ -88,12 +67,12 @@ describe("Upgrade Systems", () => {
       addComponent(world, Player, eid);
       UpgradeRequest[eid] = { upgrades: MOCK_UPGRADES };
 
-      const emitSpy = vi.spyOn(gameEvents.onUpgradeRequest, "subscribe");
+      const emitSpy = vi.spyOn(gameEvents, "emitUpgradeRequest");
 
       system(world);
 
       expect(emitSpy).toHaveBeenCalledWith({
-        entityId: eid,
+        eid,
         upgrades: MOCK_UPGRADES,
       });
     });
