@@ -8,29 +8,19 @@ import {
 } from "bitecs";
 
 import {
-  Armor,
-  AttackBonus,
-  Knockback,
-  AttackRange,
-  AttackSpeed,
-  CastingRange,
-  CastingSpeed,
-  CritChance,
-  CritDamage,
-  DamageBonus,
-  HealthRegeneration,
-  MaxHealth,
-  MaxHit,
-  MaxMoveSpeed,
-  MoveSpeed,
   StatName,
   UpdateStatsRequest,
   Unit,
+  getStatComponentByName,
 } from "../../components";
-import { StatUpdate, UnitName } from "../../types";
+import { Stats, StatUpdate, UnitName } from "../../types";
+
+// TODO: improve state management - change from globally accessible object
+export const unitUpgrades: Partial<Record<UnitName, Stats>> = {};
 
 /**
  * updates the stats for all unit entities with the given `UnitName`
+ * also updates `unitUpgrades` for all
  */
 export const updateStatsByUnitType = (
   world: World,
@@ -44,6 +34,19 @@ export const updateStatsByUnitType = (
   for (let i = 0; i < units.length; i++) {
     updateStatsByEid(world, units[i], updates);
   }
+
+  const updatesObject = updates.reduce(
+    (acc, { stat, value }) => {
+      const current = unitUpgrades[unitName]?.[stat] || 0;
+      acc[stat] = value + current;
+      return acc;
+    },
+    {} as Record<StatName, number>,
+  );
+  unitUpgrades[unitName] = {
+    ...unitUpgrades[unitName],
+    ...updatesObject,
+  };
 };
 
 export const updateStatsByEid = (
@@ -85,7 +88,7 @@ export const createStatUpdateSystem = () => {
   ) => {
     if (amount === 0) return;
 
-    const statComponent = getStatByStatName(stat);
+    const statComponent = getStatComponentByName(stat);
 
     if (!hasComponent(world, statComponent, eid)) {
       console.warn(
@@ -106,67 +109,9 @@ export const createStatUpdateSystem = () => {
       for (const { stat, value } of UpdateStatsRequest[eid].statUpdates) {
         updateStat(world, eid, stat, value);
       }
-
-      /* AoS solution... 
-      updateStat(eid, MaxHealth, UpdateStatRequest.MaxHealth[eid]);
-      updateStat(eid, Armor, UpdateStatRequest.Armor[eid]);
-      updateStat(
-        eid,
-        HealthRegeneration,
-        UpdateStatRequest.HealthRegeneration[eid],
-      );
-      updateStat(eid, MoveSpeed, UpdateStatRequest.MoveSpeed[eid]);
-      updateStat(eid, MaxMoveSpeed, UpdateStatRequest.MaxMoveSpeed[eid]);
-      updateStat(eid, AttackBonus, UpdateStatRequest.AttackBonus[eid]);
-      updateStat(eid, AttackSpeed, UpdateStatRequest.AttackSpeed[eid]);
-      updateStat(eid, AttackRange, UpdateStatRequest.AttackRange[eid]);
-      updateStat(eid, MaxHit, UpdateStatRequest.MaxHit[eid]);
-      updateStat(eid, DamageBonus, UpdateStatRequest.DamageBonus[eid]);
-      updateStat(eid, CritChance, UpdateStatRequest.CritChance[eid]);
-      updateStat(eid, CritDamage, UpdateStatRequest.CritDamage[eid]);
-      updateStat(eid, CastingSpeed, UpdateStatRequest.CastingSpeed[eid]);
-      updateStat(eid, CastingRange, UpdateStatRequest.CastingRange[eid]);
-      updateStat(eid, Knockback, UpdateStatRequest.Knockback[eid]);
-      */
-
       removeComponent(world, UpdateStatsRequest, eid);
     }
 
     return world;
   };
-};
-
-const getStatByStatName = (statName: StatName) => {
-  switch (statName) {
-    case StatName.MaxHealth:
-      return MaxHealth;
-    case StatName.Armor:
-      return Armor;
-    case StatName.HealthRegeneration:
-      return HealthRegeneration;
-    case StatName.MoveSpeed:
-      return MoveSpeed;
-    case StatName.MaxMoveSpeed:
-      return MaxMoveSpeed;
-    case StatName.AttackBonus:
-      return AttackBonus;
-    case StatName.AttackSpeed:
-      return AttackSpeed;
-    case StatName.AttackRange:
-      return AttackRange;
-    case StatName.MaxHit:
-      return MaxHit;
-    case StatName.DamageBonus:
-      return DamageBonus;
-    case StatName.CritChance:
-      return CritChance;
-    case StatName.CritDamage:
-      return CritDamage;
-    case StatName.CastingSpeed:
-      return CastingSpeed;
-    case StatName.CastingRange:
-      return CastingRange;
-    case StatName.Knockback:
-      return Knockback;
-  }
 };

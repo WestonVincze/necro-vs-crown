@@ -1,3 +1,5 @@
+import { StatName } from "../components";
+
 export type Vector2 = { x: number; y: number };
 
 export enum Faction {
@@ -41,19 +43,19 @@ export type DropTable = {
 };
 
 export type Stats = {
-  maxHP: number;
-  armor: number;
-  HPregeneration?: number;
-  moveSpeed?: number;
-  maxSpeed?: number;
-  attackSpeed?: number;
-  attackRange?: number;
-  attackBonus?: number;
-  maxHit?: number;
-  damageBonus?: number;
-  critChance?: number;
-  critDamage?: number;
-  castingSpeed?: number;
-  spellRadius?: number; // TODO: this should be spell data, not a stat
-  knockback?: number;
+  [StatName.MaxHealth]: number;
+  [StatName.Armor]: number;
+  [StatName.HealthRegeneration]?: number;
+  [StatName.MoveSpeed]?: number;
+  [StatName.MaxMoveSpeed]?: number;
+  [StatName.AttackSpeed]?: number;
+  [StatName.AttackRange]?: number;
+  [StatName.AttackBonus]?: number;
+  [StatName.MaxHit]?: number;
+  [StatName.DamageBonus]?: number;
+  [StatName.CritChance]?: number;
+  [StatName.CritDamage]?: number;
+  [StatName.CastingSpeed]?: number;
+  [StatName.CastingRange]?: number;
+  [StatName.Knockback]?: number;
 };

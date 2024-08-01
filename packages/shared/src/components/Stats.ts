@@ -30,6 +30,63 @@ export enum StatName {
 }
 
 /**
+ *
+ * @param statName the name of the desired stat
+ * @returns the related Stat component
+ */
+export const getStatComponentByName = (statName: StatName) => {
+  switch (statName) {
+    case StatName.MaxHealth:
+      return MaxHealth;
+    case StatName.Armor:
+      return Armor;
+    case StatName.HealthRegeneration:
+      return HealthRegeneration;
+    case StatName.MoveSpeed:
+      return MoveSpeed;
+    case StatName.MaxMoveSpeed:
+      return MaxMoveSpeed;
+    case StatName.AttackBonus:
+      return AttackBonus;
+    case StatName.AttackSpeed:
+      return AttackSpeed;
+    case StatName.AttackRange:
+      return AttackRange;
+    case StatName.MaxHit:
+      return MaxHit;
+    case StatName.DamageBonus:
+      return DamageBonus;
+    case StatName.CritChance:
+      return CritChance;
+    case StatName.CritDamage:
+      return CritDamage;
+    case StatName.CastingSpeed:
+      return CastingSpeed;
+    case StatName.CastingRange:
+      return CastingRange;
+    case StatName.Knockback:
+      return Knockback;
+  }
+};
+
+/** Stat Components **/
+export const MaxHealth = defineComponent(Stat);
+export const Armor = defineComponent(Stat);
+export const HealthRegeneration = defineComponent(DecimalStat);
+export const MoveSpeed = defineComponent(DecimalStat);
+export const MaxMoveSpeed = defineComponent(DecimalStat);
+export const AttackBonus = defineComponent(Stat);
+export const AttackSpeed = defineComponent(Stat);
+export const AttackRange = defineComponent(Stat);
+export const MaxHit = defineComponent(Stat);
+export const DamageBonus = defineComponent(Stat);
+export const CritChance = defineComponent(DecimalStat);
+export const CritDamage = defineComponent(DecimalStat);
+export const CastingSpeed = defineComponent(Stat);
+export const CastingRange = defineComponent(Stat);
+export const Knockback = defineComponent(Stat);
+
+/**
  * updates only the current value of a stat until `timeUntilReset` reaches 0, at which point the stat reverts to its base value
  */
 export const UpdateCurrentStats = [] as {
@@ -50,37 +107,7 @@ export const UpdateStatsRequest = [] as {
   }[];
 }[];
 
-/** Stat Components **/
-export const MaxHealth = defineComponent(Stat);
-
-export const Armor = defineComponent(Stat);
-
-export const HealthRegeneration = defineComponent(DecimalStat);
-
-export const MoveSpeed = defineComponent(DecimalStat);
-
-export const MaxMoveSpeed = defineComponent(DecimalStat);
-
-export const AttackBonus = defineComponent(Stat);
-
-export const AttackSpeed = defineComponent(Stat);
-
-export const AttackRange = defineComponent(Stat);
-
-export const MaxHit = defineComponent(Stat);
-
-export const DamageBonus = defineComponent(Stat);
-
-export const CritChance = defineComponent(DecimalStat);
-
-export const CritDamage = defineComponent(DecimalStat);
-
-export const CastingSpeed = defineComponent(Stat);
-
-export const CastingRange = defineComponent(Stat);
-
-export const Knockback = defineComponent(Stat);
-
+/** single component approach - not used **/
 const AllStats = {
   MaxHealth: Types.i32,
   Armor: Types.i32,
@@ -99,4 +126,4 @@ const AllStats = {
   Knockback: Types.i32,
 };
 
-export const BaseStats = defineComponent(AllStats);
+const BaseStats = defineComponent(AllStats);
