@@ -1,27 +1,15 @@
-import { defineQuery, defineSystem } from "bitecs";
+import { defineQuery } from "bitecs";
 import {
   Position,
   Velocity,
   Input,
   MoveSpeed,
   MaxMoveSpeed,
-} from "../components";
-import { normalizeForce } from "../helpers";
+} from "../../components";
+import { normalizeForce } from "../../helpers";
+import { MAP_HEIGHT_PIXELS, MAP_WIDTH_PIXELS } from "../../constants";
 
 const FRICTION = 0.05;
-
-const screenWidth = 1536 - 30; // 3072;
-const screenHeight = 1152 - 60; // 2304;
-
-/**
- * MovementSystem
- * read from inputPayload -> { moveX, moveY }
- * read from stats -> moveSpeed, maxMoveSpeed
- * normalize forces
- * apply force with moveSpeed
- * apply friction
- * cap speed
- */
 
 /**
  * Creates a movement system that updates the position and velocity of entities based on their input and movement speed.
@@ -78,12 +66,12 @@ export const createMovementSystem = () => {
 
       // clamp to screen size
       Position.x[eid] = Math.max(
-        -screenWidth,
-        Math.min(screenWidth, Position.x[eid]),
+        -MAP_WIDTH_PIXELS / 2,
+        Math.min(MAP_WIDTH_PIXELS / 2, Position.x[eid]),
       );
       Position.y[eid] = Math.max(
-        -screenHeight,
-        Math.min(screenHeight, Position.y[eid]),
+        -MAP_HEIGHT_PIXELS / 2,
+        Math.min(MAP_HEIGHT_PIXELS / 2, Position.y[eid]),
       );
     }
     return world;
