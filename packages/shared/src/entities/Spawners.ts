@@ -1,6 +1,6 @@
 import { addComponent, addEntity } from "bitecs";
 import { BuildingSpawner, Spawner, SpawnTarget } from "../components";
-import { type Unit } from "../types";
+import { UnitName } from "../types";
 
 export const createTargetSpawnerEntity = (world: World, targetEid: number) => {
   const eid = addEntity(world);
@@ -12,7 +12,10 @@ export const createTargetSpawnerEntity = (world: World, targetEid: number) => {
   return eid;
 };
 
-export const createBuildingSpawnerEntity = (world: World, units: Unit[]) => {
+export const createBuildingSpawnerEntity = (
+  world: World,
+  units: UnitName[],
+) => {
   const eid = addEntity(world);
   addComponent(world, Spawner, eid);
   Spawner.timeUntilSpawn[eid] = 500;

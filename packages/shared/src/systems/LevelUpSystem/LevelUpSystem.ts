@@ -1,11 +1,8 @@
-import { gameEvents } from "../../events";
-import { Faction, UnitName, Upgrade } from "../../types";
-import { Experience, Level, StatName, UpgradeRequest } from "../../components";
+import { Experience, Level, UpgradeRequest } from "../../components";
 import { addComponent, defineQuery, removeComponent } from "bitecs";
 import { getRandomElements } from "../../helpers";
-
-export const BASE_EXP = 35;
-export const MAX_LEVEL = 50;
+import { BASE_EXP, MAX_LEVEL } from "../../constants";
+import { StatUpgrades } from "../../data";
 
 /**
  * query for entities with "Level" and "Experience" components
@@ -34,7 +31,7 @@ export const createLevelUpSystem = () => {
 
         addComponent(world, UpgradeRequest, eid);
         UpgradeRequest[eid] = {
-          upgrades: getRandomElements(upgradeOptions, 3),
+          upgrades: getRandomElements(StatUpgrades, 3),
         };
       } else {
         Level.currentExp[eid] = newExperience;
@@ -73,40 +70,3 @@ export const getExpForNextLevel = (currentLevel: number) => {
   if (currentLevel >= MAX_LEVEL) return 0;
   return BASE_EXP + currentLevel * 10;
 };
-
-const upgradeOptions: Upgrade[] = [
-  {
-    id: 1,
-    unitName: UnitName.Skeleton,
-    statUpdates: [
-      {
-        stat: StatName.MaxHealth,
-        value: 5,
-      },
-    ],
-  },
-  {
-    id: 2,
-    unitName: UnitName.Skeleton,
-    statUpdates: [
-      {
-        stat: StatName.MaxMoveSpeed,
-        value: 1,
-      },
-      {
-        stat: StatName.MoveSpeed,
-        value: 1,
-      },
-    ],
-  },
-  {
-    id: 3,
-    unitName: UnitName.Skeleton,
-    statUpdates: [
-      {
-        stat: StatName.Armor,
-        value: 1,
-      },
-    ],
-  },
-];

@@ -8,3 +8,4 @@ export * from "./src/helpers";
 export * from "./src/events";
 export * from "./src/managers";
 export * from "./src/constants";
+export * from "./src/stores";

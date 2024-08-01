@@ -23,8 +23,9 @@ import {
   Level,
   Unit,
   Player,
+  StatName,
+  getStatComponentByName,
 } from "../components";
-import { StatName, getStatComponentByName } from "../components/Stats";
 import {
   AIState,
   AIType,
@@ -34,9 +35,9 @@ import {
   type Stats,
 } from "../types";
 import { Units } from "../data";
-import { SpriteTexture } from "../constants";
+import { unitUpgrades } from "../stores";
+import { SpriteTexture, BASE_EXP } from "../constants";
 import { ProjectileName } from "./Projectiles";
-import { BASE_EXP, unitUpgrades } from "../systems";
 
 export const createUnitEntity = (
   world: World,

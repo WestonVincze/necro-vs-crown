@@ -1,3 +1,4 @@
+import { addComponent, addEntity } from "bitecs";
 import { SpriteTexture } from "../constants";
 import { Vector2 } from "../types";
 import {
@@ -14,7 +15,6 @@ import {
   Transform,
   Velocity,
 } from "../components";
-import { addComponent, addEntity } from "bitecs";
 import { normalizeForce } from "../helpers";
 
 export enum ProjectileName {

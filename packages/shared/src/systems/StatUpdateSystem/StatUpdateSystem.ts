@@ -13,10 +13,8 @@ import {
   Unit,
   getStatComponentByName,
 } from "../../components";
-import { Stats, StatUpdate, UnitName } from "../../types";
-
-// TODO: improve state management - change from globally accessible object
-export const unitUpgrades: Partial<Record<UnitName, Stats>> = {};
+import { StatUpdate, UnitName } from "../../types";
+import { unitUpgrades } from "../../stores";
 
 /**
  * updates the stats for all unit entities with the given `UnitName`
