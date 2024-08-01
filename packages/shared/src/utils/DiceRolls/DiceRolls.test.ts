@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
-import { rollDice, rollToHit, rollToCrit, rollDamage } from "./CombatSystem";
+import { rollDice, rollToHit, rollToCrit, rollDamage } from "./DiceRolls";
 
-describe("CombatSystem", () => {
+describe("Dice Roll Utility Functions", () => {
   describe("rollDice", () => {
     it("should return a number between 1 and the number of sides inclusive", () => {
       const sides = 6;
