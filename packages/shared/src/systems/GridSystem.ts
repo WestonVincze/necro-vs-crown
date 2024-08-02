@@ -33,6 +33,7 @@ const createGrid = (
   };
 
   const addEntity = (x: number, y: number, eid: number) => {
+    // TODO: fix bug that crashes game when "cells[y]" is undefined
     cells[y][x].entities.push(eid);
     if (cells[y][x].entities.length > 0) onCellFill(x, y);
   };

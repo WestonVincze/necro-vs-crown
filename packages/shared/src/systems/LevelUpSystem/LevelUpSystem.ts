@@ -1,8 +1,7 @@
 import { Experience, Level, UpgradeRequest } from "../../components";
 import { addComponent, defineQuery, removeComponent } from "bitecs";
-import { getRandomElements } from "../../helpers";
 import { BASE_EXP, MAX_LEVEL } from "../../constants";
-import { StatUpgrades } from "../../data";
+import { getUpgradeOptions } from "../../data";
 
 /**
  * query for entities with "Level" and "Experience" components
@@ -31,7 +30,7 @@ export const createLevelUpSystem = () => {
 
         addComponent(world, UpgradeRequest, eid);
         UpgradeRequest[eid] = {
-          upgrades: getRandomElements(StatUpgrades, 3),
+          upgrades: getUpgradeOptions(),
         };
       } else {
         Level.currentExp[eid] = newExperience;
