@@ -92,8 +92,7 @@ export const createCombatSystem = () => {
       if (!wasAttackMade) continue;
       addComponent(world, AttackCooldown, eid);
       // TODO: move AttackSpeed (and perhaps other cooldowns) to a tick based system?
-      AttackCooldown.ready[eid] =
-        AttackSpeed.current[eid] * 200 + world.time.elapsed;
+      AttackCooldown.timeUntilReady[eid] = AttackSpeed.current[eid] * 200;
     }
 
     return world;

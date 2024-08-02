@@ -21,6 +21,10 @@ export interface UpgradeSelectEvent {
   upgradeId: number;
 }
 
+interface TogglePauseEvent {
+  remainingPauseTime?: number;
+}
+
 // TODO: refactor health and death systems into ECS components instead of subjects
 class GameEvents {
   /** SUBJECTS */
@@ -38,6 +42,9 @@ class GameEvents {
 
   #upgradeSelect: Subject<UpgradeSelectEvent>;
 
+  // TODO: add separate pause/resume functions, perhaps change to BehaviorSubject
+  #togglePause: Subject<TogglePauseEvent>;
+
   constructor() {
     this.#endOfFrame = new Subject<void>();
     this.#healthChanges = new Subject<HealthChange>();
@@ -45,6 +52,7 @@ class GameEvents {
     this.#AIEvents = new Subject<AIEvent>();
     this.#upgradeRequest = new Subject<UpgradeRequestEvent>();
     this.#upgradeSelect = new Subject<UpgradeSelectEvent>();
+    this.#togglePause = new Subject<TogglePauseEvent>();
   }
 
   /** OBSERVABLES */
@@ -79,6 +87,10 @@ class GameEvents {
     return this.#AIEvents.asObservable();
   }
 
+  get onTogglePause(): Observable<TogglePauseEvent> {
+    return this.#togglePause.asObservable();
+  }
+
   /** EMITTERS */
   emitEndOfFrame() {
     this.#endOfFrame.next();
@@ -102,6 +114,10 @@ class GameEvents {
 
   emitAIEvent(event: AIEvent) {
     this.#AIEvents.next(event);
+  }
+
+  emitTogglePause(event?: TogglePauseEvent) {
+    this.#togglePause.next(event || {});
   }
 }
 

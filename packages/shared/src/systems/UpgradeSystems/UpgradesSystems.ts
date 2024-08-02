@@ -62,6 +62,7 @@ export const createEmitUpgradeRequestEventSystem = () => {
         eid,
         upgrades: UpgradeRequest[eid].upgrades,
       });
+      gameEvents.emitTogglePause();
     }
 
     return world;
@@ -75,6 +76,7 @@ export const createHandleUpgradeSelectEventSystem = () => {
   const upgradeEventQueue: UpgradeSelectEvent[] = [];
 
   gameEvents.onUpgradeSelect.subscribe((event) => {
+    gameEvents.emitTogglePause();
     upgradeEventQueue.push(event);
   });
 

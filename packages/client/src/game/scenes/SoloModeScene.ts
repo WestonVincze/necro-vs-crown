@@ -309,6 +309,8 @@ export class SoloModeScene extends Scene {
 
     /** RUN TICK SYSTEMS */
     setInterval(() => {
+      if (GameState.isPaused()) return;
+
       this.tickSystems(this.world);
       if (GameState.isDebugMode()) profiler.logResults();
     }, 200);
@@ -319,6 +321,8 @@ export class SoloModeScene extends Scene {
 
   /** RUN PHYSICS SYSTEMS */
   update(time: number, delta: number): void {
+    if (GameState.isPaused()) return;
+
     profiler.start("FRAME_TIMER");
     this.physicsSystems(this.world);
     profiler.end("FRAME_TIMER");

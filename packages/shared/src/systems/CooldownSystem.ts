@@ -7,13 +7,15 @@ export const createCooldownSystem = () => {
 
   return (world: World) => {
     for (const eid of attackCooldownQuery(world)) {
-      if (AttackCooldown.ready[eid] <= world.time.elapsed) {
+      AttackCooldown.timeUntilReady[eid] -= world.time.delta;
+      if (AttackCooldown.timeUntilReady[eid] <= 0) {
         removeComponent(world, AttackCooldown, eid);
       }
     }
 
     for (const eid of spellCooldownQuery(world)) {
-      if (SpellCooldown.ready[eid] <= world.time.elapsed) {
+      SpellCooldown.timeUntilReady[eid] -= world.time.delta;
+      if (SpellCooldown.timeUntilReady[eid] <= 0) {
         removeComponent(world, SpellCooldown, eid);
       }
     }
