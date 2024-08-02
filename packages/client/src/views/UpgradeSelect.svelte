@@ -5,12 +5,13 @@
   export let onSelect: (upgradeId: number) => void = (upgradeId: number) => console.log(upgradeId);
 </script>
 
-<div class="upgrade-select">
+<div class="overlay">
+  <h1>LEVEL UP!</h1>
   <div class="upgrade-options">
     {#each options as option}
       <button class="option" on:click={() => onSelect(option.id)}>
         <header>
-          All {UnitName[option.unitName]} Units
+          Upgrade {UnitName[option.unitName]} Stats
         </header>
         {#each option.statUpdates as update}
           <span>
@@ -23,30 +24,28 @@
 </div>
 
 <style lang="scss">
-  .upgrade-select {
-    width: 100%;
-    height: 100%;
+  h1 {
+    margin-bottom: var(--size-3);
+  }
+  .overlay {
+    flex-direction: column;
+  }
+  .upgrade-options {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(0,0,0,0.4);
+      gap: 15px;
 
-    .upgrade-options {
+    .option {
+      width: 240px;
+      background-color: var(--necro);
+      border-radius: 5px;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      padding: 20px 15px;
       display: flex;
-        gap: 15px;
-
-      .option {
-        width: 200px;
-        background-color: #333;
-        border-radius: 5px;
-        border: 2px solid black;
-        padding: 20px 15px;
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        header {
-          font-weight: bold;
-        }
+      flex-direction: column;
+      gap: 15px;
+      header {
+        font-weight: bold;
       }
     }
   }

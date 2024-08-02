@@ -44,7 +44,6 @@
 
   $: currentScene = "MainMenu";
 
-
   let currentPlayer: Faction;
 
   onDestroy(() => {
