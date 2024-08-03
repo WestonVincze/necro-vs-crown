@@ -1,5 +1,10 @@
 import { Experience, Level, UpgradeRequest } from "../../components";
-import { addComponent, defineQuery, removeComponent } from "bitecs";
+import {
+  addComponent,
+  defineQuery,
+  hasComponent,
+  removeComponent,
+} from "bitecs";
 import { BASE_EXP, MAX_LEVEL } from "../../constants";
 import { getUpgradeOptions } from "../../data";
 
@@ -54,8 +59,12 @@ export const giveExpToEntity = (
   experience: number,
 ) => {
   try {
-    addComponent(world, Experience, eid);
-    Experience.amount[eid] = experience;
+    if (!hasComponent(world, Experience, eid)) {
+      addComponent(world, Experience, eid);
+      Experience.amount[eid] = experience;
+    } else {
+      Experience.amount[eid] += experience;
+    }
   } catch (e) {
     console.warn(e);
   }

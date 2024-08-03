@@ -129,6 +129,7 @@ export const Units: Record<UnitName, UnitData> = {
     name: "Skeleton",
     type: Faction.Necro,
     url: "skele.png",
+    expReward: 50,
     width: 40,
     height: 60,
     stats: {

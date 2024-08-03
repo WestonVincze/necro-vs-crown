@@ -25,6 +25,7 @@ import {
   Player,
   StatName,
   getStatComponentByName,
+  ExpReward,
 } from "../components";
 import {
   AIState,
@@ -95,6 +96,11 @@ export const createUnitEntity = (
   Collider.ignoreLayers[eid] = CollisionLayers.CROWN;
   Collider.radius[eid] = data.width / 2;
   Collider.offsetY[eid] = data.height / -2;
+
+  if (data.expReward) {
+    addComponent(world, ExpReward, eid);
+    ExpReward.amount[eid] = data.expReward;
+  }
 
   switch (data.type) {
     case Faction.Crown:
