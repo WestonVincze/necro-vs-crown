@@ -50,9 +50,11 @@ import {
   createEmitUpgradeRequestEventSystem,
   createHandleUpgradeSelectEventSystem,
   UnitName,
+  Level,
 } from "@necro-crown/shared";
 import { createCameraControlSystem } from "$game/systems";
 import {
+  BASE_EXP,
   MAP_X_MAX,
   MAP_X_MIN,
   MAP_Y_MAX,
@@ -82,7 +84,6 @@ const createPhysicsPipeline = ({
     createUpgradeSelectionSystem(),
     createHandleUpgradeSelectEventSystem(),
     createLevelUpSystem(),
-    createDestroyAfterDelaySystem(),
     createUnitSpawnerSystem(),
     createDrawCollisionSystem(scene),
     createMovementSystem(),
@@ -94,8 +95,11 @@ const createPhysicsPipeline = ({
     createProjectileCollisionSystem(),
     createSpellcastingSystem(),
     createDrawSpellEffectSystem(scene),
-    createHealthBarSystem(scene),
     createStatUpdateSystem(),
+    createHealthSystem(),
+    createHealthBarSystem(scene),
+    createDestroyAfterDelaySystem(),
+    createDeathSystem(),
     ...post,
     createTimeSystem(), // time should always be last
   );
@@ -109,7 +113,7 @@ const createReactivePipeline = ({
     ...pre,
     createAIEventsSystem(),
     createHitSplatSystem(scene),
-    createHealthSystem(),
+    // createHealthSystem(),
     createItemEquipSystem(),
     ...post,
   );
@@ -216,6 +220,14 @@ export class SoloModeScene extends Scene {
     // Faction specific configurations
     switch (this.playerType) {
       case Faction.Crown:
+        // create player
+        const crown = addEntity(this.world);
+        addComponent(this.world, Player, crown);
+        addComponent(this.world, Level, crown);
+        Level.currentLevel[crown] = 0;
+        Level.currentExp[crown] = 0;
+        Level.expToNextLevel[crown] = BASE_EXP;
+
         // create starting units
         for (let i = 0; i < 5; i++) {
           const eid = createUnitEntity(
@@ -235,8 +247,6 @@ export class SoloModeScene extends Scene {
         ];
 
         reactiveSystems.pre = [createCameraControlSystem(this)];
-
-        reactiveSystems.post = [createDeathSystem(this.playerType)];
         break;
 
       case Faction.Necro:
@@ -280,8 +290,6 @@ export class SoloModeScene extends Scene {
         ];
 
         reactiveSystems.pre = [createCursorTargetSystem(this)];
-
-        reactiveSystems.post = [createDeathSystem(this.playerType)];
         break;
     }
 

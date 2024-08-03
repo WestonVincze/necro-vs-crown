@@ -7,7 +7,7 @@ export * from "./FollowTargetSystem";
 export * from "./CollisionSystem";
 export * from "./ItemEquipSystem";
 export * from "./SpellcastingSystem";
-export * from "./HealthSystem";
+export * from "./HealthSystems";
 export * from "./TimeSystem";
 export * from "./CombatSystem";
 export * from "./DeathSystem";
