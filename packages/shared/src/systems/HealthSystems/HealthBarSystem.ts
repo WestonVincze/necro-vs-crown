@@ -1,4 +1,4 @@
-import { Health, Position, Transform } from "$components";
+import { Health, Position, Transform } from "../../components";
 import { defineQuery, enterQuery, exitQuery } from "bitecs";
 import { GameObjects, Scene } from "phaser";
 
