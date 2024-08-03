@@ -7,4 +7,9 @@ export const Health = defineComponent({
 
 export const Damage = defineComponent({
   amount: Types.f32,
+  isCrit: Types.ui8,
+});
+
+export const Heal = defineComponent({
+  amount: Types.f32,
 });

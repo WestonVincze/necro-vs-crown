@@ -129,13 +129,8 @@ export const attackEntity = (
 
   const amount = rollToHit(Armor.current[targetEid], attackBonus) ? damage : 0;
 
-  // TODO: switch to Damage component after HealthSystem refactor
-  gameEvents.emitHealthChange({ eid: targetEid, amount: amount * -1 });
-
-  /*
   addComponent(world, Damage, targetEid);
   Damage.amount[targetEid] = amount;
-  */
 
   return true;
 };
