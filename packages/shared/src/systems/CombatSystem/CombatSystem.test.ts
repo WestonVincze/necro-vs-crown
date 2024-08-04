@@ -58,7 +58,6 @@ describe("Combat System and helpers", () => {
       addComponent(world, Position, attacker);
       Position.x[attacker] = 0;
       Position.y[attacker] = 0;
-      console.log(getAllEntities(world));
 
       vi.clearAllMocks();
     });
@@ -115,7 +114,6 @@ describe("Combat System and helpers", () => {
       expect(query(world, [Projectile]).length).toBe(1);
     });
 
-    /* TODO: re-add test after HealthSystem refactor
     it("adds Damage component and amount when an attack is rolled", () => {
       const MOCK_DAMAGE = 5;
       rollDamageSpy.mockReturnValue(MOCK_DAMAGE);
@@ -130,6 +128,5 @@ describe("Combat System and helpers", () => {
       expect(hasComponent(world, Damage, target)).toBe(true);
       expect(Damage.amount[target]).toBe(MOCK_DAMAGE);
     });
-    */
   });
 });
