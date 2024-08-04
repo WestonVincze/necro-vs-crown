@@ -2,11 +2,12 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { addComponents, addEntity, createWorld, hasComponent } from "bitecs";
 import {
   createSpellcastingSystem,
-  createSpellResolveSystem,
+  createSpellEffectSystem,
 } from "./SpellcastingSystem";
 import {
   Input,
   Position,
+  ResolveSpell,
   Spell,
   SpellCooldown,
   SpellEffect,
@@ -37,14 +38,14 @@ describe("SpellcastingSystems", () => {
       expect(hasComponent(world, SpellEffect, eid)).toBe(true);
     });
 
-    it("removes [SpellEffect] when [Input] is not casting and [Spell] state is casting", () => {
+    it("adds [ResolveSpell] when [Input] is not casting and [Spell] state is casting", () => {
       addComponents(world, [Input, Position, Spell, SpellEffect], eid);
 
       Input.castingSpell[eid] = -1;
       Spell.state[eid] = SpellState.Casting;
 
       spellcastingSystem(world);
-      expect(hasComponent(world, SpellEffect, eid)).toBe(false);
+      expect(hasComponent(world, ResolveSpell, eid)).toBe(true);
     });
 
     it("does nothing if the [Input] is not casting and spell is not currently casting", () => {
@@ -76,7 +77,7 @@ describe("SpellcastingSystems", () => {
   });
 
   describe("SpellResolveSystem", () => {
-    const spellResolveSystem = createSpellResolveSystem();
+    const spellResolveSystem = createSpellEffectSystem();
 
     it("increases [SpellEffect] size by growth rate", () => {
       addComponents(world, [SpellEffect, Position], eid);

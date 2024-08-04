@@ -6,6 +6,7 @@ import {
   removeEntity,
   defineExitQueue,
   Not,
+  removeComponents,
 } from "bitecs";
 import { GameObjects, Scene } from "phaser";
 import {
@@ -21,6 +22,8 @@ import {
   Health,
   SpellName,
   SpellCooldown,
+  ResolveSpell,
+  Damage,
 } from "../../components";
 import { createUnitEntity } from "../../entities";
 import { checkIfWithinDistance, getPositionFromEid } from "../../utils";
@@ -47,11 +50,12 @@ export const createSpellcastingSystem = () => {
         SpellEffect.maxSize[eid] = 100;
         SpellEffect.growthRate[eid] = 1;
         SpellEffect.name[eid] = Spell.name[eid];
+        console.log(SpellEffect.name[eid], Spell.name[eid]);
       } else if (
         spellState === SpellState.Casting &&
         Input.castingSpell[eid] !== 1
       ) {
-        removeComponent(world, SpellEffect, eid);
+        addComponent(world, ResolveSpell, eid);
         Spell.state[eid] = SpellState.Ready;
       }
     }
@@ -60,15 +64,15 @@ export const createSpellcastingSystem = () => {
   };
 };
 
-const spellEffectQuery = defineQuery([SpellEffect, Position]);
-const spellEffectEnterQueue = defineEnterQueue(spellEffectQuery);
-const spellEffectExitQueue = defineExitQueue(spellEffectQuery);
+export const createSpellEffectSystem = () => {
+  const spellEffectQuery = defineQuery([SpellEffect, Position]);
+  const spellResolveQuery = defineQuery([SpellEffect, Position, ResolveSpell]);
+  const spellResolveQueue = defineEnterQueue(spellResolveQuery);
 
-// TODO: avoid defining queries for every type of spell... this works for now though
-const bonesQuery = defineQuery([Bones, Position]);
-const necroUnitQuery = defineQuery([Necro, Position, Health]);
+  // TODO: avoid defining queries for every type of spell... this works for now though
+  const bonesQuery = defineQuery([Bones, Position]);
+  const necroUnitQuery = defineQuery([Necro, Position, Health]);
 
-export const createSpellResolveSystem = () => {
   return (world: World) => {
     for (const eid of spellEffectQuery(world)) {
       // grow spell effect
@@ -79,12 +83,12 @@ export const createSpellResolveSystem = () => {
         );
       } else if (SpellEffect.name[eid] === SpellName.HolyNova) {
         // TODO: generalize this for auto-resolving spell effects
-        removeComponent(world, SpellEffect, eid, false);
+        removeComponent(world, SpellEffect, eid);
         Spell.state[eid] = SpellState.Ready;
       }
     }
 
-    for (const eid of spellEffectExitQueue(world)) {
+    for (const eid of spellResolveQuery(world)) {
       const position = getPositionFromEid(eid);
       addComponent(world, SpellCooldown, eid);
       SpellCooldown.timeUntilReady[eid] = 1000;
@@ -127,11 +131,14 @@ export const createSpellResolveSystem = () => {
                 SpellEffect.size[eid] + 50,
               )
             ) {
-              gameEvents.emitHealthChange({ eid: necroEid, amount: -10 });
+              addComponent(world, Damage, necroEid);
+              Damage.amount[eid] = 10;
             }
           }
           break;
       }
+
+      removeComponents(world, [SpellEffect, ResolveSpell], eid);
     }
 
     return world;
@@ -142,6 +149,12 @@ export const createSpellResolveSystem = () => {
 export const createDrawSpellEffectSystem = (scene: Scene) => {
   // TODO: make this compatible with other shapes and sprites
   const circlesById = new Map<number, GameObjects.Arc>();
+
+  const spellEffectQuery = defineQuery([SpellEffect, Position]);
+  const spellEffectEnterQueue = defineEnterQueue(spellEffectQuery);
+
+  const spellResolveQuery = defineQuery([SpellEffect, ResolveSpell]);
+  const spellResolveQueue = defineExitQueue(spellResolveQuery);
 
   return (world: World) => {
     for (const eid of spellEffectEnterQueue(world)) {
@@ -168,7 +181,7 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
       circle.radius = SpellEffect.size[eid];
     }
 
-    for (const eid of spellEffectExitQueue(world)) {
+    for (const eid of spellResolveQueue(world)) {
       const circle = circlesById.get(eid);
 
       if (!circle) {

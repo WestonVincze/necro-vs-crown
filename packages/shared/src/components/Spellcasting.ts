@@ -6,7 +6,7 @@ export enum SpellState {
 }
 
 export enum SpellName {
-  Summon,
+  Summon = 1,
   HolyNova,
 }
 
@@ -25,3 +25,5 @@ export const SpellEffect = defineComponent({
   maxSize: Types.f32,
   growthRate: Types.f32,
 });
+
+export const ResolveSpell = defineComponent();

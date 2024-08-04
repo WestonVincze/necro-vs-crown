@@ -21,6 +21,7 @@ import {
   createItemEquipSystem,
   createBonesEntity,
   createSpellcastingSystem,
+  createSpellEffectSystem,
   createDrawSpellEffectSystem,
   Spell,
   SpellState,
@@ -94,6 +95,7 @@ const createPhysicsPipeline = ({
     // createCollisionSystem(),
     createProjectileCollisionSystem(),
     createSpellcastingSystem(),
+    createSpellEffectSystem(),
     createDrawSpellEffectSystem(scene),
     createStatUpdateSystem(),
     createHealthSystem(),
@@ -257,10 +259,6 @@ export class SoloModeScene extends Scene {
           300,
           300,
         );
-        addComponent(this.world, Player, necro);
-        addComponent(this.world, Spell, necro);
-        Spell.state[necro] = SpellState.Ready;
-        Spell.name[necro] = SpellName.HolyNova;
 
         // create Bones entity (for testing)
         createBonesEntity(this.world, 500, 500);

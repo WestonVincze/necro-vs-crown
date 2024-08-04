@@ -79,6 +79,10 @@ export const createUnitEntity = (
     Level.currentLevel[eid] = 0;
     Level.currentExp[eid] = 0;
     Level.expToNextLevel[eid] = BASE_EXP;
+    addComponent(world, Player, eid);
+    addComponent(world, Spell, eid);
+    Spell.state[eid] = SpellState.Ready;
+    Spell.name[eid] = SpellName.Summon;
   }
 
   if (name === UnitName.Skeleton) {
