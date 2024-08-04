@@ -34,7 +34,7 @@ class GameEvents {
   // TODO: reject healthChange events that occur after an entity is killed
   #healthChanges: Subject<HealthChange>;
 
-  #onDeath: Subject<EntityEvent>;
+  // #onDeath: Subject<EntityEvent>;
 
   #AIEvents: Subject<AIEvent>;
 
@@ -48,7 +48,7 @@ class GameEvents {
   constructor() {
     this.#endOfFrame = new Subject<void>();
     this.#healthChanges = new Subject<HealthChange>();
-    this.#onDeath = new Subject<EntityEvent>();
+    // this.#onDeath = new Subject<EntityEvent>();
     this.#AIEvents = new Subject<AIEvent>();
     this.#upgradeRequest = new Subject<UpgradeRequestEvent>();
     this.#upgradeSelect = new Subject<UpgradeSelectEvent>();
@@ -70,7 +70,6 @@ class GameEvents {
 
   /**
    * this should likely never be used - see "bufferedOnDeath"
-   */
   get onDeath(): Observable<EntityEvent> {
     return this.#onDeath.asObservable();
   }
@@ -82,6 +81,7 @@ class GameEvents {
       filter((events) => events.length > 0),
     );
   }
+  */
 
   get AIEvents(): Observable<AIEvent> {
     return this.#AIEvents.asObservable();
@@ -108,9 +108,11 @@ class GameEvents {
     this.#upgradeSelect.next(event);
   }
 
+  /*
   emitDeath(eid: number) {
     this.#onDeath.next({ eid });
   }
+  */
 
   emitAIEvent(event: AIEvent) {
     this.#AIEvents.next(event);
