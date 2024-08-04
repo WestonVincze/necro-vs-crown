@@ -87,6 +87,4 @@ describe("DeathSystem", () => {
     expect(getAllEntities(world).length).toBe(1);
     expect(Experience.amount[player]).toBe(10000);
   });
-
-  it("should handle ");
 });

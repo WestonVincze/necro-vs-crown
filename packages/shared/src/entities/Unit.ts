@@ -26,6 +26,7 @@ import {
   StatName,
   getStatComponentByName,
   ExpReward,
+  ItemDrops,
 } from "../components";
 import {
   AIState,
@@ -70,6 +71,8 @@ export const createUnitEntity = (
     AI.type[eid] = AIType.MELEE;
     addComponent(world, Behavior, eid);
     Behavior.type[eid] = Behaviors.AutoTarget;
+    // TODO: add items from drop table
+    addComponent(world, ItemDrops, eid);
   } else {
     addComponent(world, Player, eid);
     addComponent(world, Level, eid);
