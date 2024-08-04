@@ -50,7 +50,6 @@ export const createSpellcastingSystem = () => {
         SpellEffect.maxSize[eid] = 100;
         SpellEffect.growthRate[eid] = 1;
         SpellEffect.name[eid] = Spell.name[eid];
-        console.log(SpellEffect.name[eid], Spell.name[eid]);
       } else if (
         spellState === SpellState.Casting &&
         Input.castingSpell[eid] !== 1
