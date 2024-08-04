@@ -6,8 +6,8 @@ import {
   removeEntity,
   defineExitQueue,
   Not,
-  entityExists,
 } from "bitecs";
+import { GameObjects, Scene } from "phaser";
 import {
   Spell,
   Input,
@@ -21,12 +21,11 @@ import {
   Health,
   SpellName,
   SpellCooldown,
-} from "../components";
-import { GameObjects, Scene } from "phaser";
-import { createUnitEntity } from "../entities";
-import { checkIfWithinDistance, getPositionFromEid } from "../utils";
-import { gameEvents } from "../events";
-import { UnitName } from "../types";
+} from "../../components";
+import { createUnitEntity } from "../../entities";
+import { checkIfWithinDistance, getPositionFromEid } from "../../utils";
+import { gameEvents } from "../../events";
+import { UnitName } from "../../types";
 
 export const createSpellcastingSystem = () => {
   const spellcasterQuery = defineQuery([
@@ -61,35 +60,17 @@ export const createSpellcastingSystem = () => {
   };
 };
 
-// TODO: abstract the client (Phaser related) logic into separate system
-export const createDrawSpellEffectSystem = (scene: Scene) => {
-  // TODO: make this compatible with other shapes and sprites
-  const circlesById = new Map<number, GameObjects.Arc>();
+const spellEffectQuery = defineQuery([SpellEffect, Position]);
+const spellEffectEnterQueue = defineEnterQueue(spellEffectQuery);
+const spellEffectExitQueue = defineExitQueue(spellEffectQuery);
 
-  const query = defineQuery([SpellEffect, Position]);
-  const onEnter = defineEnterQueue(query);
-  const onExit = defineExitQueue(query);
+// TODO: avoid defining queries for every type of spell... this works for now though
+const bonesQuery = defineQuery([Bones, Position]);
+const necroUnitQuery = defineQuery([Necro, Position, Health]);
 
-  // TODO: avoid defining queries for every type of spell... this works for now though
-  const bonesQuery = defineQuery([Bones, Position]);
-  const necroUnitQuery = defineQuery([Necro, Position, Health]);
-
+export const createSpellResolveSystem = () => {
   return (world: World) => {
-    for (const eid of onEnter(world)) {
-      const x = Position.x[eid];
-      const y = Position.y[eid];
-
-      const circle = scene.add.circle(
-        x,
-        y,
-        SpellEffect.size[eid],
-        0xc360eb,
-        0.5,
-      );
-      circlesById.set(eid, circle);
-    }
-
-    for (const eid of query(world)) {
+    for (const eid of spellEffectQuery(world)) {
       // grow spell effect
       if (SpellEffect.size[eid] < SpellEffect.maxSize[eid]) {
         SpellEffect.size[eid] += Math.min(
@@ -101,32 +82,9 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
         removeComponent(world, SpellEffect, eid, false);
         Spell.state[eid] = SpellState.Ready;
       }
-
-      const circle = circlesById.get(eid);
-      if (!circle) {
-        console.warn(
-          `Circle not found: Unable to modify spellEffect for ${eid}`,
-        );
-        continue;
-      }
-
-      circle.setPosition(Position.x[eid], Position.y[eid]);
-      circle.radius = SpellEffect.size[eid];
     }
 
-    for (const eid of onExit(world)) {
-      const circle = circlesById.get(eid);
-
-      if (!circle) {
-        console.warn(`Circle not found: Unable to delete circle for ${eid}`);
-      } else {
-        circle.destroy();
-      }
-
-      circlesById.delete(eid);
-
-      if (!entityExists(world, eid)) continue;
-
+    for (const eid of spellEffectExitQueue(world)) {
       const position = getPositionFromEid(eid);
       addComponent(world, SpellCooldown, eid);
       SpellCooldown.timeUntilReady[eid] = 1000;
@@ -174,6 +132,52 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
           }
           break;
       }
+    }
+
+    return world;
+  };
+};
+
+// TODO: abstract the client (Phaser related) logic into separate system
+export const createDrawSpellEffectSystem = (scene: Scene) => {
+  // TODO: make this compatible with other shapes and sprites
+  const circlesById = new Map<number, GameObjects.Arc>();
+
+  return (world: World) => {
+    for (const eid of spellEffectEnterQueue(world)) {
+      const circle = scene.add.circle(
+        Position.x[eid],
+        Position.y[eid],
+        SpellEffect.size[eid],
+        0xc360eb,
+        0.5,
+      );
+      circlesById.set(eid, circle);
+    }
+
+    for (const eid of spellEffectQuery(world)) {
+      const circle = circlesById.get(eid);
+      if (!circle) {
+        console.warn(
+          `Circle not found: Unable to modify spellEffect for ${eid}`,
+        );
+        continue;
+      }
+
+      circle.setPosition(Position.x[eid], Position.y[eid]);
+      circle.radius = SpellEffect.size[eid];
+    }
+
+    for (const eid of spellEffectExitQueue(world)) {
+      const circle = circlesById.get(eid);
+
+      if (!circle) {
+        console.warn(`Circle not found: Unable to delete circle for ${eid}`);
+      } else {
+        circle.destroy();
+      }
+
+      circlesById.delete(eid);
     }
 
     return world;
