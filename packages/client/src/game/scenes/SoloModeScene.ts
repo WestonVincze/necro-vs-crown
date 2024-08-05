@@ -23,8 +23,6 @@ import {
   createSpellcastingSystem,
   createSpellEffectSystem,
   createDrawSpellEffectSystem,
-  Spell,
-  SpellState,
   createHealthBarSystem,
   createCombatSystem,
   createHealthSystem,
@@ -36,7 +34,6 @@ import {
   Behaviors,
   createAssignFollowTargetSystem,
   createGridSystem,
-  SpellName,
   createTimeSystem,
   createAIEventsSystem,
   createDestroyAfterDelaySystem,
@@ -54,6 +51,7 @@ import {
   Level,
   CoinAccumulator,
   Coin,
+  createAutoSummonSkeletonsSystem,
 } from "@necro-crown/shared";
 import { createCameraControlSystem } from "$game/systems";
 import {
@@ -254,6 +252,7 @@ export class SoloModeScene extends Scene {
         physicsSystems.pre = [
           createGridSystem(map),
           createFollowTargetSystem(this, gridData),
+          createAutoSummonSkeletonsSystem(),
         ];
 
         reactiveSystems.pre = [createCameraControlSystem(this)];

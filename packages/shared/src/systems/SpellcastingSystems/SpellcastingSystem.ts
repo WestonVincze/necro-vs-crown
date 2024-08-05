@@ -27,7 +27,6 @@ import {
 } from "../../components";
 import { createUnitEntity } from "../../entities";
 import { checkIfWithinDistance, getPositionFromEid } from "../../utils";
-import { gameEvents } from "../../events";
 import { UnitName } from "../../types";
 
 export const createSpellcastingSystem = () => {
@@ -87,7 +86,7 @@ export const createSpellEffectSystem = () => {
       }
     }
 
-    for (const eid of spellResolveQuery(world)) {
+    for (const eid of spellResolveQueue(world)) {
       const position = getPositionFromEid(eid);
       addComponent(world, SpellCooldown, eid);
       SpellCooldown.timeUntilReady[eid] = 1000;
@@ -107,13 +106,13 @@ export const createSpellEffectSystem = () => {
               )
             ) {
               removeEntity(world, boneEntity);
-              const eid = createUnitEntity(
+              const skeleton = createUnitEntity(
                 world,
                 UnitName.Skeleton,
                 bonePosition.x,
                 bonePosition.y,
               );
-              Behavior.type[eid] = Behaviors.FollowCursor;
+              Behavior.type[skeleton] = Behaviors.FollowCursor;
             }
           }
           break;
