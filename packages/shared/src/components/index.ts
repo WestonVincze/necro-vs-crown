@@ -19,3 +19,4 @@ export * from "./Spawner";
 export * from "./Level";
 export * from "./Unit";
 export * from "./Upgrade";
+export * from "./Coins";

@@ -52,6 +52,8 @@ import {
   createHandleUpgradeSelectEventSystem,
   UnitName,
   Level,
+  CoinAccumulator,
+  Coin,
 } from "@necro-crown/shared";
 import { createCameraControlSystem } from "$game/systems";
 import {
@@ -229,6 +231,12 @@ export class SoloModeScene extends Scene {
         Level.currentLevel[crown] = 0;
         Level.currentExp[crown] = 0;
         Level.expToNextLevel[crown] = BASE_EXP;
+        addComponent(this.world, Coin, crown);
+        addComponent(this.world, CoinAccumulator, crown);
+        Coin.current[crown] = 0;
+        Coin.max[crown] = 10;
+        CoinAccumulator.amount[crown] = 1;
+        CoinAccumulator.frequency[crown] = 1000;
 
         // create starting units
         for (let i = 0; i < 5; i++) {
