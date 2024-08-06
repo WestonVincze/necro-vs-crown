@@ -41,7 +41,6 @@ export const createItemEquipSystem = () => {
 };
 
 const equipItem = (world: World, entity: number, item: number) => {
-  console.log(`${entity} is equipping ${item}`);
   const itemId = Item.itemId[item];
 
   // Get item effects from the itemEffects map

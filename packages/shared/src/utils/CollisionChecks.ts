@@ -3,7 +3,6 @@ import { type Vector2 } from "../types";
 /*
 export const isIntersectingRect = (a, b, range = 0) => {
   if (!a.isSprite || !b.isSprite) {
-    console.log('WARNING')
     return false;
   }
   const aBox = a.getBounds();
@@ -15,6 +14,7 @@ export const isIntersectingRect = (a, b, range = 0) => {
          aBox.y - aBox.height / 2 < bBox.y + bBox.height / 2 + range;
 }
 */
+
 export const getDistance = (a: Vector2, b: Vector2) => {
   const dx = a.x - b.x;
   const dy = a.y - b.y;

@@ -12,9 +12,6 @@ export const createAIEventsSystem = () => {
   return (world: World) => {
     // react to state transitions and call related logic
     gameEvents.AIEvents.subscribe((event) => {
-      console.log(event.eid);
-      console.log(event.type);
-
       const stateMachine = stateMachines.get(AI.type[event.eid]);
       if (!stateMachine) return;
 

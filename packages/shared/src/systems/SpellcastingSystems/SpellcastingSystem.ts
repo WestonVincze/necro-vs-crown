@@ -90,7 +90,6 @@ export const createSpellEffectSystem = () => {
       const position = getPositionFromEid(eid);
       addComponent(world, SpellCooldown, eid);
       SpellCooldown.timeUntilReady[eid] = 1000;
-      // TODO: figure out why summon spell sometimes casts holy nova
       switch (SpellEffect.name[eid]) {
         case SpellName.Summon:
           const boneEntities = bonesQuery(world);
