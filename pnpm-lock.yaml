@@ -14,12 +14,15 @@ importers:
       pathfinding:
         specifier: github:WestonVincze/PathFinding.js
         version: https://codeload.github.com/WestonVincze/PathFinding.js/tar.gz/a90278847febc15ca4bd1e88a2c1918ab4535e31
+      typescript:
+        specifier: ^5.5.4
+        version: 5.5.4
     devDependencies:
       '@types/pathfinding':
         specifier: ^0.0.9
         version: 0.0.9
       '@typescript-eslint/parser':
-        specifier: ^7.16.1
+        specifier: ^7.18.0
         version: 7.18.0(eslint@8.57.0)(typescript@5.5.4)
       eslint:
         specifier: ^8.57.0
@@ -31,7 +34,7 @@ importers:
         specifier: ^16.3.0
         version: 16.3.0
       sass:
-        specifier: ^1.77.4
+        specifier: ^1.77.8
         version: 1.77.8
       vitest:
         specifier: ^1.6.0

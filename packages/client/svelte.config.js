@@ -15,6 +15,18 @@ const config = {
       "$UI/*": "src/UI/*",
       $icons: "src/icons",
       "$game/*": "src/game/*",
+      /** this sucks but it works... */
+      $entities: "../shared/src/entities/*",
+      $components: "../shared/src/components/*",
+      $systems: "../shared/src/systems/*",
+      $data: "../shared/src/data/*",
+      $relations: "../shared/src/relations/*",
+      $types: "../shared/src/types/*",
+      $helpers: "../shared/src/helpers/*",
+      $events: "../shared/src/events/*",
+      $managers: "../shared/src/managers/*",
+      $constants: "../shared/src/constants/*",
+      $stores: "../shared/src/stores/*",
     },
     adapter: adapter({
       precompress: false,
