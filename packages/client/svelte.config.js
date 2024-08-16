@@ -27,6 +27,8 @@ const config = {
       $managers: "../shared/src/managers/*",
       $constants: "../shared/src/constants/*",
       $stores: "../shared/src/stores/*",
+      $utils: "../shared/src/utils/*",
+      $schemas: "../shared/src/schemas/*",
     },
     adapter: adapter({
       precompress: false,

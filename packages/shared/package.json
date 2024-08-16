@@ -4,6 +4,7 @@
   "description": "Shared Resources for NecroCrown",
   "author": "Weston Vincze",
   "packageManager": "pnpm@9.7.0",
+  "type": "module",
   "dependencies": {
     "dat.gui": "^0.7.9",
     "phaser": "^3.80.1",
@@ -16,6 +17,9 @@
   },
   "license": "ISC",
   "devDependencies": {
-    "@types/dat.gui": "^0.7.13"
+    "@types/dat.gui": "^0.7.13",
+    "vite": "^5.0.3",
+    "vite-tsconfig-paths": "^5.0.1",
+    "vitest": "^1.6.0"
   }
 }

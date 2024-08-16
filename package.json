@@ -10,7 +10,8 @@
     "client:build": "pnpm --filter @necro-crown/client build",
     "client:start": "pnpm --filter @necro-crown/client dev",
     "server:build": "pnpm --filter @necro-crown/server build",
-    "server:start": "pnpm --filter @necro-crown/server start"
+    "server:start": "pnpm --filter @necro-crown/server start",
+    "test": "pnpm --filter @necro-crown/shared exec npx vitest"
   },
   "pnpm": {
     "packages": [
