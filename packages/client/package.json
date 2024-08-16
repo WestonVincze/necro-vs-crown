@@ -3,7 +3,7 @@
   "author": "Weston Vincze",
   "version": "0.0.1",
   "private": true,
-  "packageManager": "pnpm@9.0.0",
+  "packageManager": "pnpm@9.7.0",
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
@@ -15,6 +15,7 @@
     "@sveltejs/adapter-auto": "^3.0.0",
     "@sveltejs/kit": "^2.0.0",
     "@sveltejs/vite-plugin-svelte": "^3.0.0",
+    "@types/dat.gui": "^0.7.13",
     "dat.gui": "^0.7.9",
     "svelte": "^4.2.7",
     "svelte-check": "^3.6.0",
@@ -24,7 +25,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@necro-crown/shared": "^0.0.1",
+    "@necro-crown/shared": "workspace:*",
     "bitecs": "github:NateTheGreatt/bitECS#v0.0.1-alpha.3",
     "colyseus.js": "^0.15.19",
     "phaser": "^3.80.1",

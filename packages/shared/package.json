@@ -3,8 +3,9 @@
   "version": "0.0.1",
   "description": "Shared Resources for NecroCrown",
   "author": "Weston Vincze",
-  "packageManager": "pnpm@9.0.0",
+  "packageManager": "pnpm@9.7.0",
   "dependencies": {
+    "dat.gui": "^0.7.9",
     "phaser": "^3.80.1",
     "rxjs": "^7.8.1",
     "typescript": "^5.4.5"
@@ -13,5 +14,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@types/dat.gui": "^0.7.13"
+  }
 }

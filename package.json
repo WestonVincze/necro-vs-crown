@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Necro Crown Monorepo",
   "author": "Weston Vincze",
-  "packageManager": "pnpm@9.0.0",
+  "packageManager": "pnpm@9.7.0",
   "scripts": {
     "start": "npm run server:start",
     "dev": "pnpm --filter @necro-crown/client dev",
