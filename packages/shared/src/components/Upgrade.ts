@@ -1,5 +1,5 @@
 import { defineComponent, Types } from "bitecs";
-import { Upgrade } from "../types";
+import { Upgrade } from "$types";
 
 export const UpgradeRequest = [] as {
   upgrades: Upgrade[];

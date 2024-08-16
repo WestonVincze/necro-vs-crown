@@ -6,11 +6,11 @@ import {
   hasComponent,
   removeComponent,
 } from "bitecs";
-import { Position, Behavior, Behaviors, Input, AI } from "../components";
-import { Crown, Necro } from "../components";
+import { Position, Behavior, Behaviors, Input, AI } from "$components";
+import { Crown, Necro } from "$components";
 import { getCursorEid } from "./CursorTargetSystem";
-import { MoveTarget, CombatTarget } from "../relations";
-import { getDistanceSquared, getPositionFromEid } from "../utils";
+import { MoveTarget, CombatTarget } from "$relations";
+import { getDistanceSquared, getPositionFromEid } from "$utils";
 
 // THOUGHT: we could change this system to be reactive or include some dirty/clean flags to skip over target search when not required
 export const createTargetingSystem = () => {

@@ -1,6 +1,6 @@
-import { getRandomElements } from "../../helpers";
-import { StatName } from "../../components";
-import { UnitName, Upgrade } from "../../types";
+import { getRandomElements } from "$utils";
+import { StatName } from "$components";
+import { UnitName, Upgrade } from "$types";
 
 export const getUpgradeOptions = (): Upgrade[] => {
   const randomUpgrades = getRandomElements(StatUpgrades, 3);

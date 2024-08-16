@@ -1,6 +1,6 @@
 import { addComponent, addEntity } from "bitecs";
-import { SpriteTexture } from "../constants";
-import { Vector2 } from "../types";
+import { SpriteTexture } from "$constants";
+import { Vector2 } from "$types";
 import {
   Collider,
   CollisionLayers,
@@ -14,8 +14,8 @@ import {
   SpriteType,
   Transform,
   Velocity,
-} from "../components";
-import { normalizeForce } from "../helpers";
+} from "$components";
+import { normalizeForce } from "$utils";
 
 export enum ProjectileName {
   Arrow,

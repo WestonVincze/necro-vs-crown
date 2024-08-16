@@ -1,7 +1,7 @@
 import { addComponent, addEntity, defineQuery } from "bitecs";
-import { fromEvent, map } from "rxjs";
-import { Cursor, GridCell, Position } from "../components";
 import type { Scene } from "phaser";
+import { fromEvent, map } from "rxjs";
+import { Cursor, GridCell, Position } from "$components";
 
 // TODO: this system feels a bit awkward, let's revisit later and see if we can come up with a better solution
 export const createCursorTargetSystem = (scene: Scene) => {

@@ -1,14 +1,6 @@
 import { addComponent, addEntity } from "bitecs";
-import {
-  Bones,
-  Collider,
-  CollisionLayers,
-  Position,
-  Sprite,
-  SpriteType,
-  Transform,
-} from "../components";
-import { SpriteTexture } from "../constants";
+import { Bones, Position, Sprite, SpriteType, Transform } from "$components";
+import { SpriteTexture } from "$constants";
 
 const BONE_LIFETIME = 15000;
 

@@ -1,13 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { addComponent, addEntity, createWorld, getAllEntities } from "bitecs";
 import { createUnitSpawnerSystem } from "./UnitSpawnerSystem";
-import {
-  BuildingSpawner,
-  Position,
-  Spawner,
-  SpawnTarget,
-} from "../../components";
-import { UnitName } from "../../types";
+import { BuildingSpawner, Position, Spawner, SpawnTarget } from "$components";
+import { UnitName } from "$types";
 import * as utils from "./decideEnemyToSpawn";
 
 describe("UnitSpawnerSystems", () => {

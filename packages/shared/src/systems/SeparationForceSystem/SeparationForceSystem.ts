@@ -1,7 +1,7 @@
 import { defineQuery } from "bitecs";
-import { Vector2 } from "../../types";
-import { GridCell, Position, SeparationForce } from "../../components";
-import { getGridCellFromEid, getPositionFromEid, profiler } from "../../utils";
+import { Vector2 } from "$types";
+import { GridCell, Position, SeparationForce } from "$components";
+import { getGridCellFromEid, getPositionFromEid, profiler } from "$utils";
 
 export const SEPARATION_THRESHOLD = 50;
 const SEPARATION_THRESHOLD_SQUARED = SEPARATION_THRESHOLD ** 2;
@@ -33,7 +33,6 @@ export const createSeparationForceSystem = () => {
   const query = defineQuery([Position, GridCell, SeparationForce]);
 
   return (world: World) => {
-    profiler.start("SEPARATION FORCE");
     const entities = query(world);
 
     for (let i = 0; i < entities.length; i++) {
@@ -63,7 +62,6 @@ export const createSeparationForceSystem = () => {
       }
     }
 
-    profiler.end("SEPARATION FORCE");
     return world;
   };
 };

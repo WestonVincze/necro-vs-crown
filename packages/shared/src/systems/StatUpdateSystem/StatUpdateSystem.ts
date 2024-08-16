@@ -12,9 +12,9 @@ import {
   UpdateStatsRequest,
   Unit,
   getStatComponentByName,
-} from "../../components";
-import { StatUpdate, UnitName } from "../../types";
-import { unitUpgrades } from "../../stores";
+} from "$components";
+import { StatUpdate, UnitName } from "$types";
+import { unitUpgrades } from "$stores";
 
 /**
  * updates the stats for all unit entities with the given `UnitName`

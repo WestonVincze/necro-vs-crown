@@ -1,5 +1,5 @@
 import { defineQuery, defineSystem } from "bitecs";
-import { Position } from "../../components";
+import { Position } from "$components";
 
 /**
  * Performance optimization concept

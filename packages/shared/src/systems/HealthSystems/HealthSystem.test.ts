@@ -1,7 +1,7 @@
 import { addComponent, addEntity, createWorld, hasComponent } from "bitecs";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createHealthSystem } from "./HealthSystem";
-import { Damage, Heal, Health } from "../../components";
+import { Damage, Heal, Health } from "$components";
 
 const BASE_HP = 10;
 

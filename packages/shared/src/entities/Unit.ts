@@ -28,7 +28,7 @@ import {
   ExpReward,
   ItemDrops,
   SeparationForce,
-} from "../components";
+} from "$components";
 import {
   AIState,
   AIType,
@@ -36,10 +36,10 @@ import {
   UnitData,
   UnitName,
   type Stats,
-} from "../types";
-import { Units } from "../data";
-import { unitUpgrades } from "../stores";
-import { SpriteTexture, BASE_EXP } from "../constants";
+} from "$types";
+import { Units } from "$data";
+import { unitUpgrades } from "$stores";
+import { SpriteTexture, BASE_EXP } from "$constants";
 import { ProjectileName } from "./Projectiles";
 
 export const createUnitEntity = (

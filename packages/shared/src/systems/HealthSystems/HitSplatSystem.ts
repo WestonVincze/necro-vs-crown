@@ -1,9 +1,9 @@
 import { hasComponent } from "bitecs";
 import { GameObjects, Scene } from "phaser";
-import { Necro, Transform } from "../../components";
-import { gameEvents } from "../../events";
-import { Faction } from "../../types";
-import { getPositionFromEid } from "../../utils";
+import { Necro, Transform } from "$components";
+import { gameEvents } from "$events";
+import { Faction } from "$types";
+import { getPositionFromEid } from "$utils";
 
 const hitSplatColors = {
   [Faction.Crown]: {

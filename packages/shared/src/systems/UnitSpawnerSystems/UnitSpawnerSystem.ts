@@ -1,12 +1,7 @@
 import { defineQuery, getRelationTargets, hasComponent } from "bitecs";
-import { createUnitEntity } from "../../entities";
-import {
-  BuildingSpawner,
-  Position,
-  Spawner,
-  SpawnTarget,
-} from "../../components";
-import { getRandomElement } from "../../utils";
+import { createUnitEntity } from "$entities";
+import { BuildingSpawner, Position, Spawner, SpawnTarget } from "$components";
+import { getRandomElement } from "$utils";
 import { decideEnemyToSpawn } from "./decideEnemyToSpawn";
 
 const MIN_RANGE = 300;

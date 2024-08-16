@@ -24,10 +24,10 @@ import {
   SpellCooldown,
   ResolveSpell,
   Damage,
-} from "../../components";
-import { createUnitEntity } from "../../entities";
-import { checkIfWithinDistance, getPositionFromEid } from "../../utils";
-import { UnitName } from "../../types";
+} from "$components";
+import { createUnitEntity } from "$entities";
+import { checkIfWithinDistance, getPositionFromEid } from "$utils";
+import { UnitName } from "$types";
 
 export const createSpellcastingSystem = () => {
   const spellcasterQuery = defineQuery([

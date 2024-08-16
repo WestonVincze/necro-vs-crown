@@ -1,5 +1,5 @@
 import { defineComponent, defineRelation, Types } from "bitecs";
-import { UnitName } from "../types";
+import { UnitName } from "$types";
 
 export const Spawner = defineComponent({
   timeUntilSpawn: Types.f32,

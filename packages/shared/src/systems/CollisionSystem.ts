@@ -2,9 +2,9 @@ import { defineQuery, enterQuery, exitQuery, removeEntity } from "bitecs";
 import { GameObjects } from "phaser";
 import { Subject } from "rxjs";
 
-import { Position, Collider, Projectile } from "../components";
+import { Position, Collider, Projectile } from "$components";
+import { GameState } from "$managers";
 import { attackEntity } from "./CombatSystem";
-import { GameState } from "../managers";
 /**
  * Another option is to create a collisionSystem factory that accepts
  * - a primary collider

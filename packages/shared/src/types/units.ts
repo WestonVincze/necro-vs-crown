@@ -1,4 +1,4 @@
-import { StatName } from "../components";
+import { StatName } from "$components";
 
 export type Vector2 = { x: number; y: number };
 

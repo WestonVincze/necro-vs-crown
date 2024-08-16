@@ -1,6 +1,6 @@
 import { defineQuery, removeEntity } from "bitecs";
-import { DestroyEntity } from "../../components";
-import { type World } from "../../types";
+import { DestroyEntity } from "$components";
+import { type World } from "$types";
 
 /**
  * Destroys entities when the world time is equal to the components destroyTime

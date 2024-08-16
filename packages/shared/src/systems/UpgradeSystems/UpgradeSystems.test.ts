@@ -5,14 +5,9 @@ import {
   createHandleUpgradeSelectEventSystem,
 } from "./UpgradesSystems";
 import { addComponent, addEntity, createWorld, hasComponent } from "bitecs";
-import { gameEvents } from "../../events";
-import {
-  Player,
-  SelectedUpgrade,
-  StatName,
-  UpgradeRequest,
-} from "../../components";
-import { UnitName, Upgrade } from "../../types";
+import { gameEvents } from "$events";
+import { Player, SelectedUpgrade, StatName, UpgradeRequest } from "$components";
+import { UnitName, Upgrade } from "$types";
 
 const MOCK_UPGRADES: Upgrade[] = [
   {

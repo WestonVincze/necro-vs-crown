@@ -5,7 +5,7 @@ import {
   query,
   removeEntity,
 } from "bitecs";
-import { createBonesEntity, createUnitEntity } from "../../entities";
+import { createBonesEntity } from "$entities";
 import {
   Crown,
   Dead,
@@ -14,7 +14,7 @@ import {
   Necro,
   Player,
   Position,
-} from "../../components";
+} from "$components";
 import { giveExpToEntity } from "../LevelUpSystem";
 
 const giveExpToEnemyPlayers = (

@@ -1,8 +1,8 @@
-import { AIType } from "../../types";
-import { gameEvents } from "../../events";
-import { AI, AIAction, FollowTarget } from "../../components";
-import { AIStateMachine, createStateMachines } from "./AIStateMachine";
 import { addComponent, defineQuery, removeComponent } from "bitecs";
+import { AIType } from "$types";
+import { gameEvents } from "$events";
+import { AI, AIAction, FollowTarget } from "$components";
+import { AIStateMachine, createStateMachines } from "./AIStateMachine";
 
 export const createAIEventsSystem = () => {
   const stateMachines: Map<AIType, AIStateMachine> = new Map();

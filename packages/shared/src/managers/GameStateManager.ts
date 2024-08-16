@@ -1,6 +1,5 @@
-// @ts-expect-error - no declaration file
 import * as dat from "dat.gui";
-import { gameEvents } from "../events";
+import { gameEvents } from "$events";
 import { BehaviorSubject, distinctUntilChanged, filter, skip } from "rxjs";
 
 // right now this is only used for debugging, we may not ever need a global game state

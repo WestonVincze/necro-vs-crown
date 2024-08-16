@@ -1,4 +1,4 @@
-import { StatName } from "../components";
+import { StatName } from "$components";
 import { UnitName } from "./units";
 
 export type StatUpdate = {

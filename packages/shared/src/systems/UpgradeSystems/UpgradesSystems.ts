@@ -5,9 +5,9 @@ import {
   entityExists,
   removeComponent,
 } from "bitecs";
+import { gameEvents, UpgradeSelectEvent } from "$events";
+import { Player, SelectedUpgrade, UpgradeRequest } from "$components";
 import { updateStatsByUnitType } from "../StatUpdateSystem";
-import { gameEvents, UpgradeSelectEvent } from "../../events";
-import { Player, SelectedUpgrade, UpgradeRequest } from "../../components";
 
 /**
  * Fulfill's `UpgradeRequest` when an entity has a `SelectedUpgrade`

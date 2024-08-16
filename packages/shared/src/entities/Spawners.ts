@@ -1,6 +1,6 @@
 import { addComponent, addEntity } from "bitecs";
-import { BuildingSpawner, Spawner, SpawnTarget } from "../components";
-import { UnitName } from "../types";
+import { BuildingSpawner, Spawner, SpawnTarget } from "$components";
+import { UnitName } from "$types";
 
 export const createTargetSpawnerEntity = (world: World, targetEid: number) => {
   const eid = addEntity(world);

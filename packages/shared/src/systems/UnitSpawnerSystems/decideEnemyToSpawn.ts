@@ -1,4 +1,4 @@
-import { UnitName } from "../../types";
+import { UnitName } from "$types";
 
 export const decideEnemyToSpawn = (scale: number): UnitName => {
   const randomRoll = Math.random();

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { addComponent, addEntity, createWorld, entityExists } from "bitecs";
 import { createDestroyAfterDelaySystem } from "./DestroyAfterDelaySystem";
-import { DestroyEntity } from "../../components";
+import { DestroyEntity } from "$components";
 
 describe("DestroyAfterDelaySystem", () => {
   let world: World;

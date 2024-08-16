@@ -1,6 +1,6 @@
-import { type Vector2 } from "../types";
-import { GridCell, Position } from "../components";
-import { MAP_HEIGHT_PIXELS, MAP_WIDTH_PIXELS, TILE_SIZE } from "../constants";
+import { type Vector2 } from "$types";
+import { GridCell, Position } from "$components";
+import { MAP_HEIGHT_PIXELS, MAP_WIDTH_PIXELS, TILE_SIZE } from "$constants";
 
 /**
  * Returns the position vector (in pixels) based on the provided GridCell coordinates

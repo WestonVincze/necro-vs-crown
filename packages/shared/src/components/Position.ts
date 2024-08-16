@@ -1,5 +1,5 @@
 import { type ComponentType, defineComponent, Types } from "bitecs";
-import { Vector2 } from "../schemas";
+import { Vector2 } from "$schemas";
 
 // TODO: consider using native arrays instead of typed
 // export const Position = { x: [] as number[], y: [] as number[] };

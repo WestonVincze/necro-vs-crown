@@ -6,8 +6,8 @@ import {
   Position,
   Sprite,
   Transform,
-} from "../components";
-import { SpriteTexture } from "../constants";
+} from "$components";
+import { SpriteTexture } from "$constants";
 
 export const createItemEntity = (
   world: World,

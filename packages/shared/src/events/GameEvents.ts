@@ -1,5 +1,5 @@
 import { Observable, Subject, buffer, distinct, filter } from "rxjs";
-import { AIEvent, Upgrade } from "../types";
+import { AIEvent, Upgrade } from "$types";
 
 interface EntityEvent {
   eid: number;

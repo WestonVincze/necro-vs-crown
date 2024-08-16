@@ -12,7 +12,7 @@ import {
   SpellCooldown,
   SpellEffect,
   SpellState,
-} from "../../components";
+} from "$components";
 
 // TODO: add tests for specific spells
 describe("SpellcastingSystems", () => {

@@ -1,5 +1,5 @@
-import { StatName } from "../components";
-import { type UnitData, Faction, UnitName } from "../types";
+import { StatName } from "$components";
+import { type UnitData, Faction, UnitName } from "$types";
 
 export const Units: Record<UnitName, UnitData> = {
   [UnitName.Peasant]: {

@@ -1,12 +1,12 @@
+import { beforeEach, describe, expect, it } from "vitest";
+import { addComponent, addEntity, createWorld } from "bitecs";
 import {
   Input,
   MaxMoveSpeed,
   MoveSpeed,
   Position,
   Velocity,
-} from "../../components";
-import { addComponent, addEntity, createWorld } from "bitecs";
-import { beforeEach, describe, expect, it } from "vitest";
+} from "$components";
 import { createMovementSystem } from "./MovementSystem";
 
 describe("MovementSystem", () => {

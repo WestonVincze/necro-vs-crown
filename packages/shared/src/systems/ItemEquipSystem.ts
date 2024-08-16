@@ -1,5 +1,5 @@
 import { addComponent, hasComponent, removeEntity } from "bitecs";
-import { Item, Equipped, Inventory } from "../components";
+import { Item, Equipped, Inventory } from "$components";
 
 import { collisionEvents } from "./CollisionSystem";
 

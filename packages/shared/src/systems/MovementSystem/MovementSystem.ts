@@ -6,9 +6,9 @@ import {
   MoveSpeed,
   MaxMoveSpeed,
   SeparationForce,
-} from "../../components";
-import { normalizeForce } from "../../helpers";
-import { MAP_HEIGHT_PIXELS, MAP_WIDTH_PIXELS } from "../../constants";
+} from "$components";
+import { normalizeForce } from "$utils";
+import { MAP_HEIGHT_PIXELS, MAP_WIDTH_PIXELS } from "$constants";
 
 const FRICTION = 0.05;
 

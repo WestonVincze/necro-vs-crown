@@ -1,5 +1,5 @@
 import { defineQuery, removeComponent } from "bitecs";
-import { AttackCooldown, SpellCooldown } from "../../components";
+import { AttackCooldown, SpellCooldown } from "$components";
 
 export const createCooldownSystem = () => {
   const attackCooldownQuery = defineQuery([AttackCooldown]);

@@ -1,13 +1,13 @@
 import { defineQuery, exitQuery } from "bitecs";
-import { Position, GridCell } from "../components";
 import type { Tilemaps } from "phaser";
+import { Position, GridCell } from "$components";
 import {
   getGridCellFromPosition,
   getGridCellFromEid,
   getPositionFromEid,
-} from "../utils";
-import { GameState } from "../managers";
-import { MAP_HEIGHT_TILES, MAP_WIDTH_TILES } from "../constants";
+} from "$utils";
+import { GameState } from "$managers";
+import { MAP_HEIGHT_TILES, MAP_WIDTH_TILES } from "$constants";
 
 type Cell = {
   walkable: boolean;

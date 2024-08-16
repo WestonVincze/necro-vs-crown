@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { addComponent, addEntity, createWorld, hasComponent } from "bitecs";
-import { Experience, Level } from "../../components";
+import { Experience, Level } from "$components";
 import {
   createLevelUpSystem,
   getExpForNextLevel,
   giveExpToEntity,
 } from "./LevelUpSystem";
-import { MAX_LEVEL } from "../../constants";
+import { MAX_LEVEL } from "$constants";
 
 describe("LevelUpSystem", () => {
   describe("createLevelUpSystem", () => {

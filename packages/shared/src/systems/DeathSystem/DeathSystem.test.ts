@@ -19,7 +19,7 @@ import {
   Necro,
   Player,
   Position,
-} from "../../components";
+} from "$components";
 import { createDeathSystem } from "./DeathSystem";
 
 describe("DeathSystem", () => {

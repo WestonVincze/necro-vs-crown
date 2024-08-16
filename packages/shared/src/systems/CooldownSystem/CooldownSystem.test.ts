@@ -7,7 +7,7 @@ import {
 } from "bitecs";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createCooldownSystem } from "./CooldownSystem";
-import { AttackCooldown, Spell, SpellCooldown } from "../../components";
+import { AttackCooldown, Spell, SpellCooldown } from "$components";
 
 describe("CooldownSystem", () => {
   let world: World;

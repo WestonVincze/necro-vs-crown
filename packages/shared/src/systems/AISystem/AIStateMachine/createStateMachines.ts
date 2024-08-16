@@ -1,5 +1,5 @@
 import { AIStateMachine } from "./AIStateMachine";
-import { AIEventType, AIState, AIType, StateTransition } from "../../../types";
+import { AIEventType, AIState, AIType, StateTransition } from "$types";
 
 // TODO: move state machine definitions to independent files
 /** MELEE STATE MACHINE */

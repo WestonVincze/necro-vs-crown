@@ -1,7 +1,7 @@
 import { defineQuery, removeEntity } from "bitecs";
-import { Bones, Position } from "../../components";
-import { createUnitEntity } from "../../entities";
-import { UnitName } from "../../types";
+import { Bones, Position } from "$components";
+import { createUnitEntity } from "$entities";
+import { UnitName } from "$types";
 
 /**
  * used for testing Solo Crown Mode

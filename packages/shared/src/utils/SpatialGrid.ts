@@ -1,5 +1,5 @@
 import { World } from "bitecs";
-import { Position } from "../components";
+import { Position } from "$components";
 
 /**
  ** NOT YET REQUIRED, USED, OR TESTED **

@@ -22,13 +22,12 @@ import {
   Necro,
   Position,
   Transform,
-} from "../../components";
-import { checkIfWithinDistance, getPositionFromEid } from "../../utils";
-import { CombatTarget } from "../../relations";
-import { gameEvents } from "../../events";
-import { RangedUnit } from "../../components";
-import { createProjectileEntity, ProjectileName } from "../../entities";
-import { rollDamage, rollToHit } from "../../utils";
+  RangedUnit,
+} from "$components";
+import { checkIfWithinDistance, getPositionFromEid } from "$utils";
+import { CombatTarget } from "$relations";
+import { createProjectileEntity, ProjectileName } from "$entities";
+import { rollDamage, rollToHit } from "$utils";
 
 export const createCombatSystem = () => {
   const attackerQuery = defineQuery([

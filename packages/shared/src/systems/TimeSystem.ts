@@ -1,4 +1,4 @@
-import { gameEvents } from "../events";
+import { gameEvents } from "$events";
 
 export const createTimeSystem = () => {
   return (world: World) => {

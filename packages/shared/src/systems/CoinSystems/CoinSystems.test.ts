@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { addComponents, addEntity, createWorld, hasComponent } from "bitecs";
-import { CoinAccumulator, Coin, AddCoin, SpendCoin } from "../../components";
+import { CoinAccumulator, Coin, AddCoin, SpendCoin } from "$components";
 import { createCoinAccumulationSystem, createCoinSystem } from "./CoinSystems";
 
 describe("CoinSystems", () => {

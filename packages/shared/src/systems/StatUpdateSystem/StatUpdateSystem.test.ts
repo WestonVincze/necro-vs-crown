@@ -4,8 +4,8 @@ import {
   StatName,
   Unit,
   UpdateStatsRequest,
-} from "../../components";
-import { StatUpdate, UnitName } from "../../types";
+} from "$components";
+import { StatUpdate, UnitName } from "$types";
 import { addComponent, addEntity, createWorld, hasComponent } from "bitecs";
 import { beforeEach, describe, expect, it } from "vitest";
 import {

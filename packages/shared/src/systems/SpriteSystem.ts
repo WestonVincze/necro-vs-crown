@@ -1,7 +1,7 @@
-import { GameObjects, Scene } from "phaser";
-import { Player, Position, Sprite, SpriteType, Transform } from "../components";
-import { TextureNames } from "../constants";
 import { defineQuery, enterQuery, exitQuery, hasComponent } from "bitecs";
+import { GameObjects, Scene } from "phaser";
+import { Player, Position, Sprite, SpriteType, Transform } from "$components";
+import { TextureNames } from "$constants";
 
 /**
  * @param scene Reference to Phaser Scene

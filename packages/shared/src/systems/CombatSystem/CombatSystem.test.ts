@@ -23,9 +23,9 @@ import {
   Position,
   Projectile,
   RangedUnit,
-} from "../../components";
-import { CombatTarget } from "../../relations";
-import * as utils from "../../utils";
+} from "$components";
+import { CombatTarget } from "$relations";
+import * as utils from "$utils";
 
 describe("Combat System and helpers", () => {
   describe("CombatSystem", () => {
