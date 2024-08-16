@@ -52,6 +52,7 @@ import {
   CoinAccumulator,
   Coin,
   createAutoSummonSkeletonsSystem,
+  createSeparationForceSystem,
 } from "@necro-crown/shared";
 import { createCameraControlSystem } from "$game/systems";
 import {
@@ -87,6 +88,7 @@ const createPhysicsPipeline = ({
     createLevelUpSystem(),
     createUnitSpawnerSystem(),
     createDrawCollisionSystem(scene),
+    createSeparationForceSystem(),
     createMovementSystem(),
     createSpriteSystem(scene),
     // createFollowTargetSystem(scene),

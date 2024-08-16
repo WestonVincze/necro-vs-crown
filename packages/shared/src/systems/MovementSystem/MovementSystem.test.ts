@@ -89,7 +89,6 @@ describe("MovementSystem", () => {
   it("should move less on one axis if moving diagonally", () => {
     Input.moveX[eid] = 1;
     Input.moveY[eid] = 1;
-
     movementSystem(world);
 
     const diagonalMovementPositionY = Position.y[eid];
@@ -99,8 +98,9 @@ describe("MovementSystem", () => {
 
     Position.x[eid] = 0;
     Velocity.x[eid] = 0;
-    Input.moveX[eid] = 0;
 
+    Input.moveX[eid] = 0;
+    Input.moveY[eid] = 1;
     movementSystem(world);
 
     const verticalMovementPositionY = Position.y[eid];
@@ -149,22 +149,25 @@ describe("MovementSystem", () => {
   });
 
   it("should not let Velocity surpass maxSpeed", () => {
-    Input.moveX[eid] = 1;
     MoveSpeed.base[eid] = 1000;
     MoveSpeed.current[eid] = 1000;
     MaxMoveSpeed.base[eid] = 1;
     MaxMoveSpeed.current[eid] = 1;
 
+    Input.moveX[eid] = 1;
     movementSystem(world);
+    Input.moveX[eid] = 1;
     movementSystem(world);
+    Input.moveX[eid] = 1;
     movementSystem(world);
 
     expect(Velocity.x[eid]).toBe(1);
 
     Input.moveX[eid] = -1;
-
     movementSystem(world);
+    Input.moveX[eid] = -1;
     movementSystem(world);
+    Input.moveX[eid] = -1;
     movementSystem(world);
 
     expect(Velocity.x[eid]).toBe(-1);

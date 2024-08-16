@@ -14,6 +14,8 @@ const FRICTION = 0.05;
 /**
  * Creates a movement system that updates the position and velocity of entities based on their input and movement speed.
  * @returns The movement system function.
+ *
+ * [Input] is reset after movement calculation
  */
 export const createMovementSystem = () => {
   const movementQuery = defineQuery([
@@ -63,6 +65,9 @@ export const createMovementSystem = () => {
 
       Position.x[eid] += Velocity.x[eid];
       Position.y[eid] += Velocity.y[eid];
+
+      Input.moveX[eid] = 0;
+      Input.moveY[eid] = 0;
 
       // clamp to screen size
       Position.x[eid] = Math.max(

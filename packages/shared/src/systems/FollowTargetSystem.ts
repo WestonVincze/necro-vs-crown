@@ -6,7 +6,6 @@ import {
   Position,
   Velocity,
 } from "../components";
-import { type Vector2 } from "../types";
 import { Grid, AStarFinder, DiagonalMovement, Util } from "pathfinding";
 import { type Scene, GameObjects, Geom } from "phaser";
 import { MoveTarget } from "../relations";
@@ -17,9 +16,6 @@ import {
   getPositionFromGridCell,
 } from "../utils";
 import { GameState } from "../managers";
-
-const SEPARATION_THRESHOLD = 50;
-const SEPARATION_THRESHOLD_SQUARED = SEPARATION_THRESHOLD ** 2;
 
 const drawPathLines = (
   path: number[][],
@@ -48,38 +44,6 @@ const drawPathLines = (
     graphics?.lineStyle(2, color);
     graphics?.strokeLineShape(line);
   }
-};
-
-// TODO: change Vector2 to Transform to compensate for height/width
-const calculateSeparationForce = (self: Vector2, target: Vector2): Vector2 => {
-  const separationForce = { x: 0, y: 0 };
-
-  const dx = target.x - self.x;
-  const dy = target.y - self.y;
-
-  const distanceSquared = dx ** 2 + dy ** 2;
-
-  if (distanceSquared > SEPARATION_THRESHOLD_SQUARED) return separationForce;
-
-  const distance = Math.sqrt(distanceSquared);
-
-  return { x: dx / distance, y: dy / distance };
-};
-
-const calculateFollowForce = (
-  self: Vector2,
-  target: Vector2,
-  range: number,
-): Vector2 => {
-  const followForce = { x: 0, y: 0 };
-  const dx = target.x - self.x;
-  const dy = target.y - self.y;
-  const distance = Math.sqrt(dx * dx + dy * dy);
-
-  // TODO: figure out how precise we need to be
-  if (distance > range + 25) return { x: dx, y: dy };
-
-  return followForce;
 };
 
 // TODO: remove scene reference or make it optional for debugging
@@ -185,29 +149,13 @@ export const createFollowTargetSystem = (
             Math.abs(gridCell.x - nextGridCell.x) < 1 &&
             Math.abs(gridCell.y - nextGridCell.y) < 1
           ) {
-            // console.log(`reached ${nextPoint[0]}, ${nextPoint[1]}`)
             pathsByEntityId.get(eid)?.shift();
           }
         }
       }
 
-      // calculate separation force
-      const separationForce: Vector2 = { x: 0, y: 0 };
-
-      // TODO: apply (half?) force to self and target, otherwise we only apply force to self and skip the calculation when the other entity targets self
-      for (const otherEid of entities) {
-        if (eid === otherEid) continue;
-        const ox = Position.x[otherEid];
-        const oy = Position.y[otherEid];
-        const otherPosition = { x: ox, y: oy };
-
-        const force = calculateSeparationForce(position, otherPosition);
-        separationForce.x -= force.x;
-        separationForce.y -= force.y;
-      }
-
-      Input.moveX[eid] = followForce.x + separationForce.x;
-      Input.moveY[eid] = followForce.y + separationForce.y;
+      Input.moveX[eid] = followForce.x;
+      Input.moveY[eid] = followForce.y;
     }
 
     for (const eid of exitQuery(followTargetQuery)(world)) {

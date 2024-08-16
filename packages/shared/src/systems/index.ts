@@ -19,4 +19,5 @@ export * from "./UnitSpawnerSystems";
 export * from "./StatUpdateSystem";
 export * from "./LevelUpSystem";
 export * from "./UpgradeSystems";
+export * from "./SeparationForceSystem";
 export * from "./temp";
