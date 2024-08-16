@@ -1,7 +1,7 @@
 import { defineQuery } from "bitecs";
 import { Vector2 } from "../../types";
-import { Input, Position } from "../../components";
-import { getPositionFromEid } from "../../utils";
+import { GridCell, Position, SeparationForce } from "../../components";
+import { getGridCellFromEid, getPositionFromEid, profiler } from "../../utils";
 
 export const SEPARATION_THRESHOLD = 50;
 const SEPARATION_THRESHOLD_SQUARED = SEPARATION_THRESHOLD ** 2;
@@ -30,30 +30,40 @@ const calculateSeparationForce = (
  * * SeparationForce should be applied after Input is set and before it is applied
  */
 export const createSeparationForceSystem = () => {
-  const query = defineQuery([Position, Input]);
+  const query = defineQuery([Position, GridCell, SeparationForce]);
+
   return (world: World) => {
+    profiler.start("SEPARATION FORCE");
     const entities = query(world);
+
     for (let i = 0; i < entities.length; i++) {
       const eid = entities[i];
       const position = getPositionFromEid(eid);
+      const gridCell = getGridCellFromEid(eid);
 
-      // calculate separation force
-      const separationForce: Vector2 = { x: 0, y: 0 };
-
-      // TODO: apply (half?) force to self and target, otherwise we only apply force to self and skip the calculation when the other entity targets self
-      for (const otherEid of entities) {
+      for (let j = i + 1; j < entities.length; j++) {
+        const otherEid = entities[j];
         if (eid === otherEid) continue;
+
+        const otherGridCell = getGridCellFromEid(otherEid);
+        if (
+          Math.abs(gridCell.x - otherGridCell.x) > 1 ||
+          Math.abs(gridCell.y - otherGridCell.y) > 1
+        )
+          continue;
+
         const otherPosition = getPositionFromEid(otherEid);
-
         const force = calculateSeparationForce(position, otherPosition);
-        separationForce.x -= force.x;
-        separationForce.y -= force.y;
-      }
 
-      Input.moveX[eid] += separationForce.x;
-      Input.moveY[eid] += separationForce.y;
+        SeparationForce.x[eid] -= force.x;
+        SeparationForce.y[eid] -= force.y;
+
+        SeparationForce.x[otherEid] += force.x;
+        SeparationForce.y[otherEid] += force.y;
+      }
     }
 
+    profiler.end("SEPARATION FORCE");
     return world;
   };
 };

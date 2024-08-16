@@ -27,6 +27,7 @@ import {
   getStatComponentByName,
   ExpReward,
   ItemDrops,
+  SeparationForce,
 } from "../components";
 import {
   AIState,
@@ -103,6 +104,10 @@ export const createUnitEntity = (
   Collider.ignoreLayers[eid] = CollisionLayers.CROWN;
   Collider.radius[eid] = data.width / 2;
   Collider.offsetY[eid] = data.height / -2;
+
+  addComponent(world, SeparationForce, eid);
+  SeparationForce.x[eid] = 0;
+  SeparationForce.y[eid] = 0;
 
   if (data.expReward) {
     addComponent(world, ExpReward, eid);

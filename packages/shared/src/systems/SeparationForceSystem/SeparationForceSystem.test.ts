@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { addComponents, addEntity, createWorld } from "bitecs";
 import { createSeparationForceSystem } from "./SeparationForceSystem";
-import { Input, Position } from "../../components";
+import { SeparationForce, Position, GridCell } from "../../components";
 
 describe("SeparationForceSystem", () => {
   let world: World;
@@ -11,31 +11,31 @@ describe("SeparationForceSystem", () => {
   beforeEach(() => {
     world = createWorld();
     eid = addEntity(world);
-    addComponents(world, [Position, Input], eid);
+    addComponents(world, [Position, GridCell, SeparationForce], eid);
   });
 
-  it("Modifies [Input] of entities that are too close to each other", () => {
+  it("Modifies [SeparationForce] of entities that are too close to each other", () => {
     Position.x[eid] = 25;
     Position.y[eid] = 25;
 
     const target = addEntity(world);
-    addComponents(world, [Position, Input], target);
+    addComponents(world, [Position, GridCell, SeparationForce], target);
     Position.x[target] = 20;
     Position.y[target] = 20;
 
-    expect(Input.moveX[eid]).toBe(0);
-    expect(Input.moveY[eid]).toBe(0);
+    expect(SeparationForce.x[eid]).toBe(0);
+    expect(SeparationForce.y[eid]).toBe(0);
 
-    expect(Input.moveX[target]).toBe(0);
-    expect(Input.moveY[target]).toBe(0);
+    expect(SeparationForce.x[target]).toBe(0);
+    expect(SeparationForce.y[target]).toBe(0);
 
     separationForceSystem(world);
 
-    expect(Input.moveX[eid]).not.toBe(0);
-    expect(Input.moveY[eid]).not.toBe(0);
+    expect(SeparationForce.x[eid]).not.toBe(0);
+    expect(SeparationForce.y[eid]).not.toBe(0);
 
-    expect(Input.moveX[target]).not.toBe(0);
-    expect(Input.moveY[target]).not.toBe(0);
+    expect(SeparationForce.x[target]).not.toBe(0);
+    expect(SeparationForce.y[target]).not.toBe(0);
   });
 
   it("Applies opposite force to separating entities", () => {
@@ -43,14 +43,14 @@ describe("SeparationForceSystem", () => {
     Position.y[eid] = 20;
 
     const target = addEntity(world);
-    addComponents(world, [Position, Input], target);
+    addComponents(world, [Position, GridCell, SeparationForce], target);
     Position.x[target] = 10;
     Position.y[target] = 10;
 
     separationForceSystem(world);
 
-    expect(Input.moveX[eid] + Input.moveX[target]).toBe(0);
-    expect(Input.moveY[eid] + Input.moveY[target]).toBe(0);
+    expect(SeparationForce.x[eid] + SeparationForce.x[target]).toBe(0);
+    expect(SeparationForce.y[eid] + SeparationForce.y[target]).toBe(0);
   });
 
   it("Does nothing to entities when they are too far away", () => {
@@ -58,41 +58,41 @@ describe("SeparationForceSystem", () => {
     Position.y[eid] = 15;
 
     const target = addEntity(world);
-    addComponents(world, [Position, Input], target);
+    addComponents(world, [Position, GridCell, SeparationForce], target);
     Position.x[target] = 75;
     Position.y[target] = 75;
 
     separationForceSystem(world);
 
-    expect(Input.moveX[eid]).toBe(0);
-    expect(Input.moveX[target]).toBe(0);
-    expect(Input.moveY[eid]).toBe(0);
-    expect(Input.moveY[target]).toBe(0);
+    expect(SeparationForce.x[eid]).toBe(0);
+    expect(SeparationForce.x[target]).toBe(0);
+    expect(SeparationForce.y[eid]).toBe(0);
+    expect(SeparationForce.y[target]).toBe(0);
   });
 
-  it("Has 0 impact on [Input] when two entities are positioned on opposite sides of X axis", () => {
+  it("Has 0 impact on [SeparationForce] when two entities are positioned on opposite sides of X axis", () => {
     Position.x[eid] = 10;
     Position.y[eid] = 15;
 
     const target1 = addEntity(world);
-    addComponents(world, [Position, Input], target1);
+    addComponents(world, [Position, GridCell, SeparationForce], target1);
     Position.x[target1] = 0;
     Position.y[target1] = 15;
 
     const target2 = addEntity(world);
-    addComponents(world, [Position, Input], target2);
+    addComponents(world, [Position, GridCell, SeparationForce], target2);
     Position.x[target2] = 20;
     Position.y[target2] = 15;
 
     separationForceSystem(world);
 
-    expect(Input.moveX[eid]).toBe(0);
-    expect(Input.moveY[eid]).toBe(0);
+    expect(SeparationForce.x[eid]).toBe(0);
+    expect(SeparationForce.y[eid]).toBe(0);
 
-    expect(Input.moveX[target1]).toBeLessThan(0);
-    expect(Input.moveY[target1]).toBe(0);
+    expect(SeparationForce.x[target1]).toBeLessThan(0);
+    expect(SeparationForce.y[target1]).toBe(0);
 
-    expect(Input.moveX[target2]).toBeGreaterThan(0);
-    expect(Input.moveY[target2]).toBe(0);
+    expect(SeparationForce.x[target2]).toBeGreaterThan(0);
+    expect(SeparationForce.y[target2]).toBe(0);
   });
 });

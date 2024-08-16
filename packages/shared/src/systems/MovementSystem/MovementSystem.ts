@@ -1,10 +1,11 @@
-import { defineQuery } from "bitecs";
+import { defineQuery, hasComponent } from "bitecs";
 import {
   Position,
   Velocity,
   Input,
   MoveSpeed,
   MaxMoveSpeed,
+  SeparationForce,
 } from "../../components";
 import { normalizeForce } from "../../helpers";
 import { MAP_HEIGHT_PIXELS, MAP_WIDTH_PIXELS } from "../../constants";
@@ -33,6 +34,13 @@ export const createMovementSystem = () => {
       const x = Input.moveX[eid];
       const y = Input.moveY[eid];
       const newVelocity = { x: Velocity.x[eid], y: Velocity.y[eid] };
+
+      if (hasComponent(world, SeparationForce, eid)) {
+        newVelocity.x += SeparationForce.x[eid];
+        newVelocity.y += SeparationForce.y[eid];
+        SeparationForce.x[eid] = 0;
+        SeparationForce.y[eid] = 0;
+      }
 
       const force = normalizeForce({ x, y });
 
