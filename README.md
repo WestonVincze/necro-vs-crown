@@ -22,6 +22,22 @@ pnpm run dev
 
 Open a browser and navigate to [http://localhost:7373]()
 
+## Testing
+
+There are unit tests for systems within the shared package, which contains the core of the game logic.
+
+Test suite can be run from the root
+
+```bash
+pnpm run test
+```
+
+or by navigating to the shared package
+
+```bash
+npx vitest
+```
+
 ## Project Information
 
 Built with phaser, colyseus, svelte, bitecs, rxjs, and love.
