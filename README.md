@@ -1,65 +1,64 @@
-# NECRO VS CROWN
+# Necro VS Crown
 
-Extension of `Necro Cursor` (a.k.a `Necro`).
+This project is a complete rebuild and extension of a POC project `Necro Cursor`.
 
-[Play Original Necro](https://necro-cursor.vercel.app/)
+[Play Necro Cursor](https://necro-cursor.vercel.app/)
 
-[View Source](https://github.com/WestonVincze/necro-cursor)
+[View Source Code](https://github.com/WestonVincze/necro-cursor)
+
+## Installation Instructions
+
+Clone repo & install dependencies
+
+```bash
+pnpm install
+```
+
+Start single player client
+
+```bash
+pnpm run dev
+```
+
+Open a browser and navigate to [http://localhost:7373]()
+
+## Project Information
 
 Built with phaser, colyseus, svelte, bitecs, rxjs, and love.
 
-## Packages
+[bitECS](https://github.com/NateTheGreatt/bitECS) - ECS library
 
-### Client - Svelte / Phaser / RxJS
+[Phaser](https://phaser.io/) - WebGL rendering engine
 
-Contains the UI and game frontend.
+[Colyseus](https://colyseus.io/) - websocket based multiplayer
 
-- handles user input
-- listens to server state and renders entities
+[Svelte](https://svelte.dev/) - UI and menus
 
-### Server - Colyseus / RxJS
+[RxJS](https://rxjs.dev/) - event management
 
-Contains core gameplay and multiplayer logic.
+## Monorepo Packages
+
+### Shared
+
+Contains the core of the game written in bitECS and other resources used in both client and server.
+
+- entity blueprints (prefabs)
+- component data
+- system logic and pipelines
+- unit tests for systems
+- shared types
+
+### Client
+
+- UI and menus
+- contains game scenes and local state
+- sends requests to server
+- listens to server state updates
+- renders game state
+
+### Server
 
 - creates rooms and connects clients
 - listens to client messages (input)
 - sends state to clients
 - calculates entity interactions
-
-### Shared - TypeScript / RxJS
-
-Contains utilities and types that are used in both client and server.
-
-- shared types
-- entity data
-- components (like Movement)
-
-## Setting Up
-
-Clone repo & install dependencies
-
-```bash
-npm install
-```
-
-Once dependencies for each package are installed, start the server.
-
-From the root or within the `server` package:
-
-```bash
-npm run start
-```
-
-Open a separate terminal and run
-
-```bash
-npm run start:client
-```
-
-from the client, or navigate to the client package and run
-
-```bash
-npm run dev
-```
-
-Open a browser (preferably chrome) and navigate to [http://localhost:7373]()
