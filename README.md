@@ -1,10 +1,14 @@
 # Necro VS Crown
 
-This project is a complete rebuild and extension of a POC project `Necro Cursor`.
+## What is Necro VS Crown?
 
-[Play Necro Cursor](https://necro-cursor.vercel.app/)
+Necro VS Crown is an ambitious multiplayer browser game. It was originally a single player POC known as `Necro Cursor`.
 
-[View Source Code](https://github.com/WestonVincze/necro-cursor)
+You can [play the live demo](https://necro-cursor.vercel.app/) and [view the source code](https://github.com/WestonVincze/necro-cursor).
+
+Necro VS Crown has two distinct factions with opposing goals and distinct mechanics. While playing as the Necro, you control a lowly necromancer and amass an army of skeletons that you control with your mouse. While playing as the Crown, you collect gold over time that can be spent to spawn units that will automatically chase and attack Necro units.
+
+So far, only solo modes are playable. Multiplayer is in the early stages of development but will feature a 1v1 versus mode where each player controls an opposing faction.
 
 ## Installation Instructions
 
