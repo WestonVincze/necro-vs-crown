@@ -6,6 +6,7 @@
   "packageManager": "pnpm@9.7.0",
   "scripts": {
     "start": "npm run server:start",
+    "build": "npm run client:build",
     "dev": "pnpm --filter @necro-crown/client dev",
     "client:build": "pnpm --filter @necro-crown/client build",
     "client:start": "pnpm --filter @necro-crown/client dev",
