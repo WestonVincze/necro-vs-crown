@@ -26,6 +26,7 @@
   "type": "module",
   "dependencies": {
     "@necro-crown/shared": "workspace:*",
+    "@sveltejs/adapter-vercel": "^5.4.3",
     "bitecs": "github:NateTheGreatt/bitECS#v0.0.1-alpha.3",
     "colyseus.js": "^0.15.19",
     "phaser": "^3.80.1",
