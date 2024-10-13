@@ -82,7 +82,7 @@ export class OldVersusModeScene extends Scene {
 
             playCard(() => {
               this.room?.send("add_crown_unit", {
-                name: selectedCard.UnitID,
+                name: selectedCard.name,
                 xPos,
                 yPos,
               });

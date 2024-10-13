@@ -18,9 +18,9 @@
 <div class="UI">
   <div class="actions">
     <h2>Debug Buttons</h2>
-    <button on:click={() => addNewCards([ { UnitID: UnitName.Paladin, cost: 5 }])}>Add Paladin</button>
-    <button on:click={() => addNewCards([ { UnitID: UnitName.Doppelsoldner, cost: 6 }])}>Add Doppelsoldner</button>
-    <button on:click={() => addNewCards([ { UnitID: UnitName.Archer, cost: 6 }])}>Add Archer</button>
+    <button on:click={() => addNewCards([ { name: UnitName.Paladin, cost: 5 }])}>Add Paladin</button>
+    <button on:click={() => addNewCards([ { name: UnitName.Doppelsoldner, cost: 6 }])}>Add Doppelsoldner</button>
+    <button on:click={() => addNewCards([ { name: UnitName.Archer, cost: 6 }])}>Add Archer</button>
   </div>
   <div class="bottom">
     <div class="coins">
@@ -39,7 +39,7 @@
             e.key === "spacebar" && discardCard(card.id)
           }
         >
-          <Token cost={card.cost} unitID={card.UnitID} />
+          <Token cost={card.cost} unitID={card.name} />
         </span>
       {/each}
     </div>

@@ -8,8 +8,6 @@ import {
 } from "rxjs";
 import { actions } from "./Actions";
 
-// TODO: something is
-
 const createMouseManager = (
   element: HTMLElement = document.documentElement,
 ) => {

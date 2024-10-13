@@ -31,7 +31,7 @@ export const createCameraControlSystem = (scene: Scene) => {
         );
 
         playCard(() => {
-          createUnitEntity(world, selectedCard.UnitID, x, y);
+          createUnitEntity(world, selectedCard.name, x, y);
         });
       },
       binding: { mouseEvents: ["mouseup", "dragend"] },

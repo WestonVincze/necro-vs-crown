@@ -23,7 +23,7 @@ const generateMockCards = (count: number): Card[] => {
 
     cards.push({
       id: i,
-      UnitID: roll > 0.5 ? UnitName.Guard : UnitName.Peasant,
+      name: roll > 0.5 ? UnitName.Guard : UnitName.Peasant,
       cost: roll > 0.5 ? 4 : 3,
     });
   }
@@ -32,7 +32,7 @@ const generateMockCards = (count: number): Card[] => {
 
 export type Card = {
   id?: number;
-  UnitID: UnitName; // TODO: change to name
+  name: UnitName;
   cost: number;
 };
 
