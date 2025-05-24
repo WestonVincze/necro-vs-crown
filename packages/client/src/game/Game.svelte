@@ -7,6 +7,7 @@
   import { CrownUI } from "../views/Crown";
   import { Faction, gameEvents, StatName, type Upgrade } from "@necro-crown/shared";
   import UpgradeSelect from "../views/UpgradeSelect.svelte";
+  import GameOver from "../views/GameOver.svelte";
 
   let game: Game;
   $: upgrade = {
@@ -30,6 +31,10 @@
     }
   });
 
+  const gameOverSubscription = gameEvents.onGameOver.subscribe(() => {
+    game.scene.start("GameOverScene");
+    currentScene = "GameOver";
+  });
 
   const handlePlayAs = (player: Faction, gameMode: "solo" | "versus") => {
     currentPlayer = player;
@@ -42,6 +47,11 @@
     }
   }
 
+  const handleMainMenu = () => {
+    game.scene.start("MainMenuScene");
+    currentScene = "MainMenu";
+  }
+
   $: currentScene = "MainMenu";
 
   let currentPlayer: Faction;
@@ -50,6 +60,7 @@
     // emit scene's destroy event for cleanup
     game.scene.destroy();
     levelUpSubscription.unsubscribe();
+    gameOverSubscription.unsubscribe();
   });
 </script>
 
@@ -59,16 +70,19 @@
       <MainMenu
         playAs={handlePlayAs}
       />
-    {/if}
+    {:else if currentScene === "GameOver"}
+      <GameOver
+        onMainMenu={handleMainMenu}
+      />
+    {:else}
+      {#if currentPlayer === Faction.Crown}
+        <CrownUI />
+      {/if}
 
-    {#if currentPlayer === Faction.Crown}
-      <CrownUI />
+      {#if upgrade.active}
+        <UpgradeSelect options={upgrade.options} onSelect={handleUpgradeSelect} />
+      {/if}
     {/if}
-
-    {#if upgrade.active}
-      <UpgradeSelect options={upgrade.options} onSelect={handleUpgradeSelect} />
-    {/if}
-
   </div>
 </div>
 
@@ -77,6 +91,7 @@
     position: relative;
     max-width: 1024px;
     max-height: 768px;
+    height: 640px;
     margin: 0 auto;
     filter: drop-shadow(0 0 25px var(--bg-primary))
   }

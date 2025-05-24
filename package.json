@@ -14,13 +14,11 @@
     "server:start": "pnpm --filter @necro-crown/server start",
     "test": "pnpm --filter @necro-crown/shared exec npx vitest"
   },
-  "pnpm": {
-    "packages": [
-      "packages/client",
-      "packages/server",
-      "packages/shared"
-    ]
-  },
+  "workspaces": [
+    "packages/client",
+    "packages/server",
+    "packages/shared"
+  ],
   "devDependencies": {
     "@types/pathfinding": "^0.0.9",
     "@typescript-eslint/parser": "^7.18.0",

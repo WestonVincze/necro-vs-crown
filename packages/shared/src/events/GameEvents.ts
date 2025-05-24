@@ -31,6 +31,8 @@ class GameEvents {
   // emitted at the very end of the update loop
   #endOfFrame: Subject<void>;
 
+  #gameOver: Subject<void>;
+
   // TODO: reject healthChange events that occur after an entity is killed
   #healthChanges: Subject<HealthChange>;
 
@@ -47,6 +49,7 @@ class GameEvents {
 
   constructor() {
     this.#endOfFrame = new Subject<void>();
+    this.#gameOver = new Subject<void>();
     this.#healthChanges = new Subject<HealthChange>();
     // this.#onDeath = new Subject<EntityEvent>();
     this.#AIEvents = new Subject<AIEvent>();
@@ -91,9 +94,18 @@ class GameEvents {
     return this.#togglePause.asObservable();
   }
 
+  get onGameOver(): Observable<void> {
+    return this.#gameOver.asObservable();
+  }
+
+
   /** EMITTERS */
   emitEndOfFrame() {
     this.#endOfFrame.next();
+  }
+
+  emitGameOver() {
+    this.#gameOver.next();
   }
 
   emitHealthChange(change: HealthChange) {

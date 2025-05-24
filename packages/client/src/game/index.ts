@@ -4,6 +4,7 @@ import {
   MainMenuScene,
   PreloaderScene,
   SoloModeScene,
+  GameOverScene,
 } from "./scenes";
 import { OldVersusModeScene } from "./scenes/OldVersusModeScene";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@necro-crown/shared";
@@ -18,7 +19,7 @@ const config: Types.Core.GameConfig = {
   fps: { smoothStep: true, limit: 60 },
   // physics: { default: "arcade" },
   // TODO: update versusModeScene (new VersusModeScene seems to break mouse inputs)
-  scene: [PreloaderScene, MainMenuScene, OldVersusModeScene, SoloModeScene],
+  scene: [PreloaderScene, MainMenuScene, OldVersusModeScene, SoloModeScene, GameOverScene],
 };
 
 export const StartGame = (parent: string) => {

@@ -16,6 +16,7 @@ import {
   Position,
 } from "$components";
 import { giveExpToEntity } from "../LevelUpSystem";
+import { gameEvents } from "$events";
 
 const giveExpToEnemyPlayers = (
   world: World,
@@ -70,6 +71,7 @@ export const createDeathSystem = () => {
     for (let i = 0; i < deadPlayers.length; i++) {
       const eid = deadPlayers[i];
       // emit game over event
+      gameEvents.emitGameOver();
     }
 
     const deadEntities = deadEntitiesQuery(world);
