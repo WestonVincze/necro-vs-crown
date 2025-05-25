@@ -262,12 +262,7 @@ export class SoloModeScene extends Scene {
 
       case Faction.Necro:
         // create Necro player
-        const necro = createUnitEntity(
-          this.world,
-          UnitName.Necromancer,
-          300,
-          300,
-        );
+        const necro = createUnitEntity(this.world, UnitName.Necromancer, 0, 0);
 
         // create Bones entity (for testing)
         createBonesEntity(this.world, 500, 500);

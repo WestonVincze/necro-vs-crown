@@ -41,6 +41,7 @@ import { Units } from "$data";
 import { unitUpgrades } from "$stores";
 import { SpriteTexture, BASE_EXP } from "$constants";
 import { ProjectileName } from "./Projectiles";
+import { clampToScreenSize } from "$utils";
 
 export const createUnitEntity = (
   world: World,
@@ -135,8 +136,12 @@ export const createUnitEntity = (
   }
 
   addComponent(world, Position, eid);
-  Position.x[eid] = x;
-  Position.y[eid] = y;
+  const position = clampToScreenSize(
+    { x, y },
+    { width: data.width, height: data.height },
+  );
+  Position.x[eid] = position.x;
+  Position.y[eid] = position.y;
   addComponent(world, GridCell, eid);
   addComponent(world, Transform, eid);
   Transform.width[eid] = data.width;

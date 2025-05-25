@@ -33,11 +33,23 @@ const createGrid = (
   };
 
   const addEntity = (x: number, y: number, eid: number) => {
+    if (!cells[y][x]) {
+      console.error(
+        `Attempted to add entity to invalid grid cell (${x},${y}).`,
+      );
+      return;
+    }
     cells[y][x].entities.push(eid);
     if (cells[y][x].entities.length > 0) onCellFill(x, y);
   };
 
   const removeEntity = (x: number, y: number, eid: number) => {
+    if (!cells[y][x]) {
+      console.error(
+        `Attempted to remove entity to invalid grid cell (${x},${y}).`,
+      );
+      return;
+    }
     const index = cells[y][x].entities.indexOf(eid);
     if (eid < 0) return;
 

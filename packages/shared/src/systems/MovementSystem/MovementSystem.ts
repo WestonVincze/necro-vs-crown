@@ -6,9 +6,9 @@ import {
   MoveSpeed,
   MaxMoveSpeed,
   SeparationForce,
+  Transform,
 } from "$components";
-import { normalizeForce } from "$utils";
-import { MAP_HEIGHT_PIXELS, MAP_WIDTH_PIXELS } from "$constants";
+import { clampToScreenSize, normalizeForce } from "$utils";
 
 const FRICTION = 0.05;
 
@@ -77,15 +77,18 @@ export const createMovementSystem = () => {
       Input.moveX[eid] = 0;
       Input.moveY[eid] = 0;
 
-      // clamp to screen size
-      Position.x[eid] = Math.max(
-        -MAP_WIDTH_PIXELS / 2,
-        Math.min(MAP_WIDTH_PIXELS / 2, Position.x[eid]),
+      const bounds = { width: 0, height: 0 };
+      if (hasComponent(world, Transform, eid)) {
+        bounds.width = Transform.width[eid];
+        bounds.height = Transform.height[eid];
+      }
+
+      const position = clampToScreenSize(
+        { x: Position.x[eid], y: Position.y[eid] },
+        bounds,
       );
-      Position.y[eid] = Math.max(
-        -MAP_HEIGHT_PIXELS / 2,
-        Math.min(MAP_HEIGHT_PIXELS / 2, Position.y[eid]),
-      );
+      Position.x[eid] = position.x;
+      Position.y[eid] = position.y;
     }
     return world;
   };

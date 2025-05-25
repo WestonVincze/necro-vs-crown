@@ -1,3 +1,4 @@
+import { MAP_HEIGHT_PIXELS, MAP_WIDTH_PIXELS, SCREEN_WIDTH } from "$constants";
 import type { Vector2 } from "$types";
 
 export const getRandomElement = <T>(array: T[]) => {
@@ -36,4 +37,24 @@ export const normalizeForce = ({ x, y }: Vector2) => {
   }
 
   return { x, y };
+};
+
+/**
+ * @param position the original position
+ * @param bounds optional additional bounds for the position to factor its height and width
+ * @returns a Vector2 with x and y values within the bounds of the screen
+ */
+export const clampToScreenSize = (
+  position: Vector2,
+  bounds: { width: number; height: number } = { width: 0, height: 0 },
+): Vector2 => {
+  const minX = -MAP_WIDTH_PIXELS / 2 + bounds.width / 2;
+  const maxX = MAP_WIDTH_PIXELS / 2 - bounds.width / 2;
+  const minY = -MAP_HEIGHT_PIXELS / 2 + bounds.height / 2;
+  const maxY = MAP_HEIGHT_PIXELS / 2 - bounds.height / 4;
+
+  return {
+    x: Math.max(minX, Math.min(position.x, maxX)),
+    y: Math.max(minY, Math.min(position.y, maxY)),
+  };
 };
