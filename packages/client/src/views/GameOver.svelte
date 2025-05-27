@@ -1,14 +1,13 @@
 <script lang="ts">
   export let onMainMenu: () => void;
-  // game state needs to fully reset for this to work
-  // export let onPlayAgain: () => void;
+  export let onPlayAgain: () => void;
 </script>
 
 <div class="overlay">
   <h1>Death and Damnation.</h1>
   <p>Next time for sure...</p>
   <!-- death art -->
-  <!--button on:click={onPlayAgain}>Play Again</button-->
+  <button on:click={onPlayAgain}>Play Again</button>
   <button on:click={onMainMenu}>Main Menu</button>
   <svg class="blood-drip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 70" preserveAspectRatio="none">
     <path

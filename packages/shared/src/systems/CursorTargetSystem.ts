@@ -25,11 +25,16 @@ export const createCursorTargetSystem = (scene: Scene) => {
     addComponent(world, Position, cursorEid);
     addComponent(world, GridCell, cursorEid);
 
-    mouseClick$.subscribe(({ x, y }) => {
+    const mouseClickSubscription = mouseClick$.subscribe(({ x, y }) => {
       Cursor.eid[cursorEid] = cursorEid;
       Position.x[cursorEid] = x;
       Position.y[cursorEid] = y;
     });
+
+    scene.events.once("shutdown", () => {
+      mouseClickSubscription.unsubscribe();
+    });
+
     return world;
   };
 };

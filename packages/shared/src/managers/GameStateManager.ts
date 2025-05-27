@@ -1,4 +1,4 @@
-import * as dat from "dat.gui";
+// import * as dat from "dat.gui";
 import { gameEvents } from "$events";
 import { BehaviorSubject, distinctUntilChanged, filter, skip } from "rxjs";
 
@@ -6,7 +6,7 @@ import { BehaviorSubject, distinctUntilChanged, filter, skip } from "rxjs";
 const InitializeGameState = () => {
   let _paused = false;
   let _debugMode = new BehaviorSubject<boolean>(false);
-  let gui = new dat.GUI();
+  // let gui = new dat.GUI();
 
   const pauseSubscription = gameEvents.onTogglePause.subscribe(
     () => (_paused = !_paused),
@@ -20,15 +20,17 @@ const InitializeGameState = () => {
 
   if (window !== undefined) window.addEventListener("keydown", toggleDebug);
 
+  /*
   const resetGUI = () => {
     gui = new dat.GUI();
   };
+  */
 
   const destroyGameState = () => {
     pauseSubscription.unsubscribe();
     if (window !== undefined)
       window.removeEventListener("keydown", toggleDebug);
-    gui.destroy();
+    // gui.destroy();
   };
 
   const onDebugEnabled$ = _debugMode.pipe(
@@ -43,8 +45,8 @@ const InitializeGameState = () => {
   );
 
   return {
-    gui,
-    resetGUI,
+    // gui,
+    // resetGUI,
     isDebugMode: () => _debugMode.value,
     isPaused: () => _paused,
     destroyGameState,

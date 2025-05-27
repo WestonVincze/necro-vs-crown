@@ -72,6 +72,7 @@
       />
     {:else if currentScene === "GameOver"}
       <GameOver
+        onPlayAgain={() => handlePlayAs(currentPlayer, "solo")}
         onMainMenu={handleMainMenu}
       />
     {:else}

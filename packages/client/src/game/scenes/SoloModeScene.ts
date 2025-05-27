@@ -175,6 +175,7 @@ export class SoloModeScene extends Scene {
     };
     let tickSystems: { pre: System[]; post: System[] } = { pre: [], post: [] };
 
+    /* 
     const { gui } = GameState;
 
     const main = gui.addFolder("Main Camera");
@@ -193,6 +194,7 @@ export class SoloModeScene extends Scene {
     entityData
       .add(entityMethods, "printComponents")
       .name("Print Entity Components");
+    */
 
     /** Add global debug functions */
     /*
@@ -325,8 +327,7 @@ export class SoloModeScene extends Scene {
       if (GameState.isDebugMode()) profiler.logResults();
     }, 200);
 
-    // this.events.once("shutdown", GameState.destroyGameState, this);
-    // this.events.once("destroy", GameState.destroyGameState, this);
+    this.events.once("shutdown", GameState.destroyGameState, this);
   }
 
   /** RUN PHYSICS SYSTEMS */
