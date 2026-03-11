@@ -16,12 +16,12 @@ describe("LevelUpSystem", () => {
       const player = addEntity(world);
 
       const expToLevelUp = getExpForNextLevel(0);
-      addComponent(world, Level, player);
+      addComponent(world, player, Level);
       Level.currentExp[player] = 0;
       Level.currentLevel[player] = 0;
       Level.expToNextLevel[player] = expToLevelUp;
 
-      addComponent(world, Experience, player);
+      addComponent(world, player, Experience);
       Experience.amount[player] = 9;
 
       const levelUpSystem = createLevelUpSystem();
@@ -30,7 +30,7 @@ describe("LevelUpSystem", () => {
 
       expect(Level.currentLevel[player]).toBe(0);
       expect(Level.currentExp[player]).toBe(9);
-      expect(hasComponent(world, Experience, player)).toBe(false);
+      expect(hasComponent(world, player, Experience)).toBe(false);
     });
 
     it("should level up when currentExp reaches expToNextLevel", () => {
@@ -39,12 +39,12 @@ describe("LevelUpSystem", () => {
       const player = addEntity(world);
 
       const expToLevelUp = getExpForNextLevel(0);
-      addComponent(world, Level, player);
+      addComponent(world, player, Level);
       Level.currentExp[player] = 0;
       Level.currentLevel[player] = 0;
       Level.expToNextLevel[player] = expToLevelUp;
 
-      addComponent(world, Experience, player);
+      addComponent(world, player, Experience);
       Experience.amount[player] = expToLevelUp;
 
       const levelUpSystem = createLevelUpSystem();
@@ -61,12 +61,12 @@ describe("LevelUpSystem", () => {
       const player = addEntity(world);
 
       let expToLevelUp = getExpForNextLevel(0);
-      addComponent(world, Level, player);
+      addComponent(world, player, Level);
       Level.currentExp[player] = 0;
       Level.currentLevel[player] = 0;
       Level.expToNextLevel[player] = expToLevelUp;
 
-      addComponent(world, Experience, player);
+      addComponent(world, player, Experience);
       Experience.amount[player] = expToLevelUp + 5;
 
       const levelUpSystem = createLevelUpSystem();
@@ -77,7 +77,7 @@ describe("LevelUpSystem", () => {
       expect(Level.currentExp[player]).toBe(5);
 
       expToLevelUp = getExpForNextLevel(1);
-      addComponent(world, Experience, player);
+      addComponent(world, player, Experience);
       Experience.amount[player] = expToLevelUp + 5;
 
       levelUpSystem(world);
@@ -92,12 +92,12 @@ describe("LevelUpSystem", () => {
       const player = addEntity(world);
 
       let expToLevelUp = getExpForNextLevel(MAX_LEVEL);
-      addComponent(world, Level, player);
+      addComponent(world, player, Level);
       Level.currentExp[player] = 0;
       Level.currentLevel[player] = MAX_LEVEL;
       Level.expToNextLevel[player] = expToLevelUp;
 
-      addComponent(world, Experience, player);
+      addComponent(world, player, Experience);
       Experience.amount[player] = 5000;
 
       const levelUpSystem = createLevelUpSystem();
@@ -115,7 +115,7 @@ describe("LevelUpSystem", () => {
       const eid = addEntity(world);
 
       giveExpToEntity(world, eid, 9);
-      expect(hasComponent(world, Experience, eid)).toBe(true);
+      expect(hasComponent(world, eid, Experience)).toBe(true);
       expect(Experience.amount[eid]).toBe(9);
     });
 
@@ -130,11 +130,11 @@ describe("LevelUpSystem", () => {
     it("should not add Experience to an entity that is already at max level", () => {
       const world: World = createWorld();
       const eid = addEntity(world);
-      addComponent(world, Level, eid);
+      addComponent(world, eid, Level);
       Level.currentLevel[eid] = MAX_LEVEL;
 
       giveExpToEntity(world, eid, 1);
-      expect(hasComponent(world, Experience, eid)).toBe(false);
+      expect(hasComponent(world, eid, Experience)).toBe(false);
     });
     */
   });

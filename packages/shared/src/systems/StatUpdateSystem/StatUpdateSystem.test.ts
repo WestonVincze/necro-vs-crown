@@ -44,7 +44,7 @@ describe("StatUpdateSystem", () => {
       const eid = addEntity(world);
       updateStatsByEid(world, eid, MOCK_STAT_UPDATE_INCREASE);
 
-      expect(hasComponent(world, UpdateStatsRequest, eid)).toBe(true);
+      expect(hasComponent(world, eid, UpdateStatsRequest)).toBe(true);
       expect(UpdateStatsRequest[eid].statUpdates).toEqual(
         MOCK_STAT_UPDATE_INCREASE,
       );
@@ -54,7 +54,7 @@ describe("StatUpdateSystem", () => {
       const eid = 1;
       updateStatsByEid(world, eid, MOCK_STAT_UPDATE_INCREASE);
 
-      expect(hasComponent(world, UpdateStatsRequest, eid)).toBe(false);
+      expect(hasComponent(world, eid, UpdateStatsRequest)).toBe(false);
     });
 
     it("accumulates value if multiple requests are made to the same entity and stat", () => {
@@ -76,11 +76,11 @@ describe("StatUpdateSystem", () => {
       const skeleton2 = addEntity(world);
       const skeleton3 = addEntity(world);
 
-      addComponent(world, Unit, skeleton1);
+      addComponent(world, skeleton1, Unit);
       Unit.name[skeleton1] = UnitName.Skeleton;
-      addComponent(world, Unit, skeleton2);
+      addComponent(world, skeleton2, Unit);
       Unit.name[skeleton2] = UnitName.Skeleton;
-      addComponent(world, Unit, skeleton3);
+      addComponent(world, skeleton3, Unit);
       Unit.name[skeleton3] = UnitName.Skeleton;
 
       updateStatsByUnitType(
@@ -89,15 +89,15 @@ describe("StatUpdateSystem", () => {
         MOCK_STAT_UPDATE_INCREASE,
       );
 
-      expect(hasComponent(world, UpdateStatsRequest, skeleton1)).toBe(true);
+      expect(hasComponent(world, skeleton1, UpdateStatsRequest)).toBe(true);
       expect(UpdateStatsRequest[skeleton1].statUpdates).toEqual(
         MOCK_STAT_UPDATE_INCREASE,
       );
-      expect(hasComponent(world, UpdateStatsRequest, skeleton2)).toBe(true);
+      expect(hasComponent(world, skeleton2, UpdateStatsRequest)).toBe(true);
       expect(UpdateStatsRequest[skeleton2].statUpdates).toEqual(
         MOCK_STAT_UPDATE_INCREASE,
       );
-      expect(hasComponent(world, UpdateStatsRequest, skeleton3)).toBe(true);
+      expect(hasComponent(world, skeleton3, UpdateStatsRequest)).toBe(true);
       expect(UpdateStatsRequest[skeleton3].statUpdates).toEqual(
         MOCK_STAT_UPDATE_INCREASE,
       );
@@ -108,11 +108,11 @@ describe("StatUpdateSystem", () => {
       const guard = addEntity(world);
       const paladin = addEntity(world);
 
-      addComponent(world, Unit, skeleton);
+      addComponent(world, skeleton, Unit);
       Unit.name[skeleton] = UnitName.Skeleton;
-      addComponent(world, Unit, guard);
+      addComponent(world, guard, Unit);
       Unit.name[guard] = UnitName.Guard;
-      addComponent(world, Unit, paladin);
+      addComponent(world, paladin, Unit);
       Unit.name[paladin] = UnitName.Paladin;
 
       updateStatsByUnitType(
@@ -121,12 +121,12 @@ describe("StatUpdateSystem", () => {
         MOCK_STAT_UPDATE_INCREASE,
       );
 
-      expect(hasComponent(world, UpdateStatsRequest, skeleton)).toBe(true);
+      expect(hasComponent(world, skeleton, UpdateStatsRequest)).toBe(true);
       expect(UpdateStatsRequest[skeleton].statUpdates).toEqual(
         MOCK_STAT_UPDATE_INCREASE,
       );
-      expect(hasComponent(world, UpdateStatsRequest, guard)).toBe(false);
-      expect(hasComponent(world, UpdateStatsRequest, paladin)).toBe(false);
+      expect(hasComponent(world, guard, UpdateStatsRequest)).toBe(false);
+      expect(hasComponent(world, paladin, UpdateStatsRequest)).toBe(false);
     });
 
     it("does not break if no units are found", () => {
@@ -145,8 +145,8 @@ describe("StatUpdateSystem", () => {
     beforeEach(() => {
       statUpdateSystem = createStatUpdateSystem();
       eid = addEntity(world);
-      addComponent(world, Armor, eid);
-      addComponent(world, UpdateStatsRequest, eid);
+      addComponent(world, eid, Armor);
+      addComponent(world, eid, UpdateStatsRequest);
     });
 
     it("modifies the stat of a unit and removes the UpdateStatsRequest component", () => {
@@ -159,17 +159,17 @@ describe("StatUpdateSystem", () => {
 
       expect(Armor.base[eid]).toBe(BASE_STAT_VALUE + STAT_INCREASE_VALUE);
       expect(Armor.current[eid]).toBe(BASE_STAT_VALUE + STAT_INCREASE_VALUE);
-      expect(hasComponent(world, UpdateStatsRequest, eid)).toBe(false);
+      expect(hasComponent(world, eid, UpdateStatsRequest)).toBe(false);
     });
 
     it("does not error and removes the UpdateStatsRequest component if the entity doesn't have the stat", () => {
       UpdateStatsRequest[eid] = { statUpdates: MOCK_STAT_UPDATE_INCREASE };
 
-      expect(hasComponent(world, UpdateStatsRequest, eid)).toBe(true);
+      expect(hasComponent(world, eid, UpdateStatsRequest)).toBe(true);
 
       statUpdateSystem(world);
 
-      expect(hasComponent(world, UpdateStatsRequest, eid)).toBe(false);
+      expect(hasComponent(world, eid, UpdateStatsRequest)).toBe(false);
     });
 
     it("handles multiple stat updates at once", () => {
@@ -189,9 +189,9 @@ describe("StatUpdateSystem", () => {
       expect(Armor.current[eid]).toBe(
         BASE_STAT_VALUE + STAT_INCREASE_VALUE * 2,
       );
-      expect(hasComponent(world, UpdateStatsRequest, eid)).toBe(false);
+      expect(hasComponent(world, eid, UpdateStatsRequest)).toBe(false);
 
-      addComponent(world, UpdateStatsRequest, eid);
+      addComponent(world, eid, UpdateStatsRequest);
       UpdateStatsRequest[eid] = { statUpdates: MOCK_STAT_UPDATE_INCREASE };
 
       statUpdateSystem(world);
@@ -200,14 +200,14 @@ describe("StatUpdateSystem", () => {
       expect(Armor.current[eid]).toBe(
         BASE_STAT_VALUE + STAT_INCREASE_VALUE * 3,
       );
-      expect(hasComponent(world, UpdateStatsRequest, eid)).toBe(false);
+      expect(hasComponent(world, eid, UpdateStatsRequest)).toBe(false);
     });
 
     it("handles multiple distinct stat updates at once", () => {
       Armor.base[eid] = BASE_STAT_VALUE;
       Armor.current[eid] = BASE_STAT_VALUE;
 
-      addComponent(world, MaxHealth, eid);
+      addComponent(world, eid, MaxHealth);
       MaxHealth.base[eid] = BASE_STAT_VALUE;
       MaxHealth.current[eid] = BASE_STAT_VALUE;
 
@@ -226,7 +226,7 @@ describe("StatUpdateSystem", () => {
       expect(MaxHealth.current[eid]).toBe(
         BASE_STAT_VALUE + STAT_INCREASE_VALUE,
       );
-      expect(hasComponent(world, UpdateStatsRequest, eid)).toBe(false);
+      expect(hasComponent(world, eid, UpdateStatsRequest)).toBe(false);
     });
 
     it("handles negative stat updates", () => {
@@ -239,7 +239,7 @@ describe("StatUpdateSystem", () => {
 
       expect(Armor.base[eid]).toBe(BASE_STAT_VALUE + STAT_DECREASE_VALUE);
       expect(Armor.current[eid]).toBe(BASE_STAT_VALUE + STAT_DECREASE_VALUE);
-      expect(hasComponent(world, UpdateStatsRequest, eid)).toBe(false);
+      expect(hasComponent(world, eid, UpdateStatsRequest)).toBe(false);
     });
 
     it("does not allow stats to fall below 0", () => {
@@ -272,7 +272,7 @@ describe("StatUpdateSystem", () => {
       expect(Armor.current[eid]).toBe(
         BASE_STAT_VALUE + STAT_INCREASE_VALUE + STAT_DECREASE_VALUE,
       );
-      expect(hasComponent(world, UpdateStatsRequest, eid)).toBe(false);
+      expect(hasComponent(world, eid, UpdateStatsRequest)).toBe(false);
     });
   });
 });

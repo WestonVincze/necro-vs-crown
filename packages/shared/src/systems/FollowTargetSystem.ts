@@ -1,4 +1,4 @@
-import { defineQuery, exitQuery, getRelationTargets } from "bitecs";
+import { query, exitQuery, getRelationTargets } from "bitecs";
 import { AttackRange, GridCell, Input, Position, Velocity } from "$components";
 import { Grid, AStarFinder, DiagonalMovement, Util } from "pathfinding";
 import { type Scene, GameObjects, Geom } from "phaser";
@@ -45,14 +45,15 @@ export const createFollowTargetSystem = (
   scene: Scene,
   gridData: number[][],
 ) => {
-  const followTargetQuery = defineQuery([
-    Position,
-    GridCell,
-    Input,
-    Velocity,
-    MoveTarget("*"),
-    AttackRange,
-  ]);
+  const followTargetQuery = (world: World) =>
+    query(world, [
+      Position,
+      GridCell,
+      Input,
+      Velocity,
+      MoveTarget("*"),
+      AttackRange,
+    ]);
 
   const grid = new Grid(gridData);
   const finder = new AStarFinder({
@@ -74,7 +75,7 @@ export const createFollowTargetSystem = (
       const gridCell = getGridCellFromEid(eid);
 
       // get target position data
-      const targetEid = getRelationTargets(world, MoveTarget, eid)[0];
+      const targetEid = getRelationTargets(world, eid, MoveTarget)[0];
       const targetGridCell = getGridCellFromEid(targetEid);
 
       let followForce = { x: 0, y: 0 };

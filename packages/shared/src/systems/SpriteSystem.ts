@@ -1,4 +1,4 @@
-import { defineQuery, enterQuery, exitQuery, hasComponent } from "bitecs";
+import { query, enterQuery, exitQuery, hasComponent } from "bitecs";
 import { GameObjects, Scene } from "phaser";
 import { Player, Position, Sprite, SpriteType, Transform } from "$components";
 import { TextureNames } from "$constants";
@@ -10,12 +10,12 @@ export const createSpriteSystem = (scene: Scene) => {
   const countById = new Map<number, number>();
   const spriteById = new Map<number, GameObjects.Sprite | GameObjects.Rope>();
 
-  const spriteQuery = defineQuery([Position, Sprite]);
+  const spriteQuery = (world: World) => query(world, [Position, Sprite]);
 
-  const spriteQueryEnter = enterQuery(
-    defineQuery([Position, Transform, Sprite]),
+  const spriteQueryEnter = enterQuery((world: World) =>
+    query(world, [Position, Transform, Sprite]),
   );
-  const spriteQueryExit = exitQuery(defineQuery([Sprite]));
+  const spriteQueryExit = exitQuery((world: World) => query(world, [Sprite]));
 
   return (world: World) => {
     for (const eid of spriteQueryEnter(world)) {
@@ -40,7 +40,7 @@ export const createSpriteSystem = (scene: Scene) => {
           break;
       }
 
-      if (hasComponent(world, Player, eid)) {
+      if (hasComponent(world, eid, Player)) {
         scene.cameras.main.startFollow(sprite);
       }
       sprite.height = width;

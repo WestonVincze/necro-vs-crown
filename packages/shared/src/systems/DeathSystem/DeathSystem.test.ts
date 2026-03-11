@@ -31,7 +31,7 @@ describe("DeathSystem", () => {
     world = createWorld();
     deathSystem = createDeathSystem();
     eid = addEntity(world);
-    addComponent(world, Dead, eid);
+    addComponent(world, eid, Dead);
   });
 
   it("removes [Dead] entities", () => {
@@ -42,23 +42,23 @@ describe("DeathSystem", () => {
 
   it("adds [Experience] to enemy players", () => {
     const player = addEntity(world);
-    addComponent(world, Player, player);
-    addComponent(world, Necro, player);
+    addComponent(world, player, Player);
+    addComponent(world, player, Necro);
 
-    addComponent(world, ExpReward, eid);
+    addComponent(world, eid, ExpReward);
     ExpReward.amount[eid] = 50;
-    addComponent(world, Crown, eid);
+    addComponent(world, eid, Crown);
 
     deathSystem(world);
 
-    expect(hasComponent(world, Experience, player)).toBe(true);
+    expect(hasComponent(world, player, Experience)).toBe(true);
     expect(Experience.amount[player]).toBe(50);
   });
 
   it("creates [Bones] when a [Crown] unit dies", () => {
-    addComponent(world, Crown, eid);
-    addComponent(world, ItemDrops, eid);
-    addComponent(world, Position, eid);
+    addComponent(world, eid, Crown);
+    addComponent(world, eid, ItemDrops);
+    addComponent(world, eid, Position);
     Position.x[eid] = 50;
     Position.y[eid] = 50;
 
@@ -72,11 +72,11 @@ describe("DeathSystem", () => {
 
   it("should handle multiple deaths at once", () => {
     const player = addEntity(world);
-    addComponents(world, [Player, Necro], player);
+    addComponents(world, player, [Player, Necro]);
 
     for (let i = 0; i < 1000; i++) {
       const entity = addEntity(world);
-      addComponents(world, [Dead, ExpReward, Crown], entity);
+      addComponents(world, entity, [Dead, ExpReward, Crown]);
       ExpReward.amount[entity] = 10;
     }
 

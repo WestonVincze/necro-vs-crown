@@ -21,7 +21,7 @@ describe("CoinSystems", () => {
 
   describe("CoinAccumulationSystem", () => {
     beforeEach(() => {
-      addComponents(world, [Coin, CoinAccumulator], eid);
+      addComponents(world, eid, [Coin, CoinAccumulator]);
     });
 
     it("increases [Coins] by [CoinAccumulator] amount and sets timeUntilNextPay", () => {
@@ -30,11 +30,11 @@ describe("CoinSystems", () => {
       CoinAccumulator.amount[eid] = 1;
       CoinAccumulator.timeUntilNextPay[eid] = 1;
 
-      expect(hasComponent(world, AddCoin, eid)).toBe(false);
+      expect(hasComponent(world, eid, AddCoin)).toBe(false);
 
       coinAccumulationSystem(world);
 
-      expect(hasComponent(world, AddCoin, eid)).toBe(true);
+      expect(hasComponent(world, eid, AddCoin)).toBe(true);
 
       expect(AddCoin.amount[eid]).toBe(1);
       expect(CoinAccumulator.timeUntilNextPay[eid]).toBe(
@@ -66,14 +66,14 @@ describe("CoinSystems", () => {
 
       coinAccumulationSystem(world);
 
-      expect(hasComponent(world, AddCoin, eid)).toBe(false);
+      expect(hasComponent(world, eid, AddCoin)).toBe(false);
       expect(CoinAccumulator.timeUntilNextPay[eid]).toBe(99);
     });
   });
 
   describe("CoinSystem", () => {
     it("handles [AddCoin] requests", () => {
-      addComponents(world, [Coin, AddCoin], eid);
+      addComponents(world, eid, [Coin, AddCoin]);
       Coin.current[eid] = 0;
       Coin.max[eid] = 10;
 
@@ -82,11 +82,11 @@ describe("CoinSystems", () => {
       coinSystem(world);
 
       expect(Coin.current[eid]).toBe(5);
-      expect(hasComponent(world, AddCoin, eid)).toBe(false);
+      expect(hasComponent(world, eid, AddCoin)).toBe(false);
     });
 
     it("does not allow [Coin] amount to exceed max", () => {
-      addComponents(world, [Coin, AddCoin], eid);
+      addComponents(world, eid, [Coin, AddCoin]);
       Coin.current[eid] = 0;
       Coin.max[eid] = 10;
 
@@ -98,7 +98,7 @@ describe("CoinSystems", () => {
     });
 
     it("handles [SpendCoin] requests", () => {
-      addComponents(world, [Coin, SpendCoin], eid);
+      addComponents(world, eid, [Coin, SpendCoin]);
       Coin.current[eid] = 5;
       Coin.max[eid] = 10;
 
@@ -107,11 +107,11 @@ describe("CoinSystems", () => {
       coinSystem(world);
 
       expect(Coin.current[eid]).toBe(0);
-      expect(hasComponent(world, SpendCoin, eid)).toBe(false);
+      expect(hasComponent(world, eid, SpendCoin)).toBe(false);
     });
 
     it("does not allow [Coin] to be less than 0", () => {
-      addComponents(world, [Coin, SpendCoin], eid);
+      addComponents(world, eid, [Coin, SpendCoin]);
       Coin.current[eid] = 5;
 
       SpendCoin.amount[eid] = 10;
@@ -122,7 +122,7 @@ describe("CoinSystems", () => {
     });
 
     it("handles [SpendCoin] and [AddCoin] requests simultaneously", () => {
-      addComponents(world, [Coin, AddCoin, SpendCoin], eid);
+      addComponents(world, eid, [Coin, AddCoin, SpendCoin]);
       Coin.current[eid] = 0;
       Coin.max[eid] = 10;
 
@@ -132,8 +132,8 @@ describe("CoinSystems", () => {
       coinSystem(world);
 
       expect(Coin.current[eid]).toBe(4);
-      expect(hasComponent(world, AddCoin, eid)).toBe(false);
-      expect(hasComponent(world, SpendCoin, eid)).toBe(false);
+      expect(hasComponent(world, eid, AddCoin)).toBe(false);
+      expect(hasComponent(world, eid, SpendCoin)).toBe(false);
     });
   });
 });

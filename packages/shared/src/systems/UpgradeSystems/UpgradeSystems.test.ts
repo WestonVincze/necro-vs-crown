@@ -41,15 +41,15 @@ describe("UpgradeSystems", () => {
       const eid = addEntity(world);
       const upgradeId = 1;
 
-      addComponent(world, UpgradeRequest, eid);
-      addComponent(world, SelectedUpgrade, eid);
+      addComponent(world, eid, UpgradeRequest);
+      addComponent(world, eid, SelectedUpgrade);
       UpgradeRequest[eid] = { upgrades: MOCK_UPGRADES };
       SelectedUpgrade.upgradeId[eid] = upgradeId;
 
       system(world);
 
-      expect(hasComponent(world, UpgradeRequest, eid)).toBe(false);
-      expect(hasComponent(world, SelectedUpgrade, eid)).toBe(false);
+      expect(hasComponent(world, eid, UpgradeRequest)).toBe(false);
+      expect(hasComponent(world, eid, SelectedUpgrade)).toBe(false);
     });
   });
 
@@ -58,8 +58,8 @@ describe("UpgradeSystems", () => {
       const system = createEmitUpgradeRequestEventSystem();
       const eid = addEntity(world);
 
-      addComponent(world, UpgradeRequest, eid);
-      addComponent(world, Player, eid);
+      addComponent(world, eid, UpgradeRequest);
+      addComponent(world, eid, Player);
       UpgradeRequest[eid] = { upgrades: MOCK_UPGRADES };
 
       const emitSpy = vi.spyOn(gameEvents, "emitUpgradeRequest");
@@ -79,7 +79,7 @@ describe("UpgradeSystems", () => {
       const eid = addEntity(world);
       const upgradeId = 1;
 
-      addComponent(world, UpgradeRequest, eid);
+      addComponent(world, eid, UpgradeRequest);
       UpgradeRequest[eid] = { upgrades: MOCK_UPGRADES };
 
       gameEvents.emitUpgradeSelect({ eid, upgradeId });

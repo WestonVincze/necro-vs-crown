@@ -11,7 +11,7 @@ describe("SeparationForceSystem", () => {
   beforeEach(() => {
     world = createWorld();
     eid = addEntity(world);
-    addComponents(world, [Position, GridCell, SeparationForce], eid);
+    addComponents(world, eid, [Position, GridCell, SeparationForce]);
   });
 
   it("Modifies [SeparationForce] of entities that are too close to each other", () => {
@@ -19,7 +19,7 @@ describe("SeparationForceSystem", () => {
     Position.y[eid] = 25;
 
     const target = addEntity(world);
-    addComponents(world, [Position, GridCell, SeparationForce], target);
+    addComponents(world, target, [Position, GridCell, SeparationForce]);
     Position.x[target] = 20;
     Position.y[target] = 20;
 
@@ -43,7 +43,7 @@ describe("SeparationForceSystem", () => {
     Position.y[eid] = 20;
 
     const target = addEntity(world);
-    addComponents(world, [Position, GridCell, SeparationForce], target);
+    addComponents(world, target, [Position, GridCell, SeparationForce]);
     Position.x[target] = 10;
     Position.y[target] = 10;
 
@@ -58,7 +58,7 @@ describe("SeparationForceSystem", () => {
     Position.y[eid] = 15;
 
     const target = addEntity(world);
-    addComponents(world, [Position, GridCell, SeparationForce], target);
+    addComponents(world, target, [Position, GridCell, SeparationForce]);
     Position.x[target] = 75;
     Position.y[target] = 75;
 
@@ -75,12 +75,12 @@ describe("SeparationForceSystem", () => {
     Position.y[eid] = 15;
 
     const target1 = addEntity(world);
-    addComponents(world, [Position, GridCell, SeparationForce], target1);
+    addComponents(world, target1, [Position, GridCell, SeparationForce]);
     Position.x[target1] = 0;
     Position.y[target1] = 15;
 
     const target2 = addEntity(world);
-    addComponents(world, [Position, GridCell, SeparationForce], target2);
+    addComponents(world, target2, [Position, GridCell, SeparationForce]);
     Position.x[target2] = 20;
     Position.y[target2] = 15;
 

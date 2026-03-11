@@ -1,9 +1,4 @@
-import {
-  addComponent,
-  defineQuery,
-  hasComponent,
-  removeComponent,
-} from "bitecs";
+import { addComponent, query, hasComponent, removeComponent } from "bitecs";
 import { Experience, Level, UpgradeRequest } from "$components";
 import { BASE_EXP, MAX_LEVEL } from "$constants";
 import { getUpgradeOptions } from "$data";
@@ -16,10 +11,10 @@ import { getUpgradeOptions } from "$data";
  *
  */
 export const createLevelUpSystem = () => {
-  const query = defineQuery([Level, Experience]);
+  const levelUpQuery = (world: World) => query(world, [Level, Experience]);
 
   return (world: World) => {
-    for (const eid of query(world)) {
+    for (const eid of levelUpQuery(world)) {
       const newExperience = Level.currentExp[eid] + Experience.amount[eid];
 
       if (
@@ -33,7 +28,7 @@ export const createLevelUpSystem = () => {
 
         Level.expToNextLevel[eid] = getExpForNextLevel(Level.currentLevel[eid]);
 
-        addComponent(world, UpgradeRequest, eid);
+        addComponent(world, eid, UpgradeRequest);
         UpgradeRequest[eid] = {
           upgrades: getUpgradeOptions(),
         };
@@ -41,7 +36,7 @@ export const createLevelUpSystem = () => {
         Level.currentExp[eid] = newExperience;
       }
 
-      removeComponent(world, Experience, eid);
+      removeComponent(world, eid, Experience);
     }
 
     return world;
@@ -59,8 +54,8 @@ export const giveExpToEntity = (
   experience: number,
 ) => {
   try {
-    if (!hasComponent(world, Experience, eid)) {
-      addComponent(world, Experience, eid);
+    if (!hasComponent(world, eid, Experience)) {
+      addComponent(world, eid, Experience);
       Experience.amount[eid] = experience;
     } else {
       Experience.amount[eid] += experience;

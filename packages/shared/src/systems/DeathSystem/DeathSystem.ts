@@ -1,10 +1,4 @@
-import {
-  defineEnterQueue,
-  defineQuery,
-  hasComponent,
-  query,
-  removeEntity,
-} from "bitecs";
+import { defineEnterQueue, query, hasComponent, removeEntity } from "bitecs";
 import { createBonesEntity } from "$entities";
 import {
   Crown,
@@ -25,9 +19,9 @@ const giveExpToEnemyPlayers = (
 ) => {
   let enemyPlayers: readonly number[] = [];
 
-  if (hasComponent(world, Crown, eid)) {
+  if (hasComponent(world, eid, Crown)) {
     enemyPlayers = query(world, [Necro, Player]);
-  } else if (hasComponent(world, Necro, eid)) {
+  } else if (hasComponent(world, eid, Necro)) {
     enemyPlayers = query(world, [Crown, Player]);
   }
 
@@ -43,7 +37,7 @@ const giveExpToEnemyPlayers = (
 };
 
 export const createDeathSystem = () => {
-  const deadEntitiesQuery = defineQuery([Dead]);
+  const deadEntitiesQuery = (world: World) => query(world, [Dead]);
 
   // death "effects" occur before the entity is deleted
   const expRewardQueue = defineEnterQueue([Dead, ExpReward]);

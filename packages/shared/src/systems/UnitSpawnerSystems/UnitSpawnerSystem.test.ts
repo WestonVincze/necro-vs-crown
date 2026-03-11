@@ -19,7 +19,7 @@ describe("UnitSpawnerSystems", () => {
     };
     eid = addEntity(world);
     unitSpawnerSystem = createUnitSpawnerSystem();
-    addComponent(world, Spawner, eid);
+    addComponent(world, eid, Spawner);
   });
 
   afterEach(() => {
@@ -41,7 +41,7 @@ describe("UnitSpawnerSystems", () => {
     });
 
     it("can spawn a unit", () => {
-      addComponent(world, Position, target);
+      addComponent(world, target, Position);
 
       Spawner.timeUntilSpawn[eid] = 1;
 
@@ -52,7 +52,7 @@ describe("UnitSpawnerSystems", () => {
     });
 
     it("sets timeUntilSpawn after spawning", () => {
-      addComponent(world, Position, target);
+      addComponent(world, target, Position);
 
       Spawner.timeUntilSpawn[eid] = 1;
 
@@ -62,7 +62,7 @@ describe("UnitSpawnerSystems", () => {
 
     it("increases difficultyScale after each call", () => {
       const spyOnDecideEnemyToSpawn = vi.spyOn(utils, "decideEnemyToSpawn");
-      addComponent(world, Position, target);
+      addComponent(world, target, Position);
 
       Spawner.timeUntilSpawn[eid] = 1;
 
@@ -75,7 +75,7 @@ describe("UnitSpawnerSystems", () => {
     });
 
     it("does nothing if timeUntilSpawn is greater than 0", () => {
-      addComponent(world, Position, target);
+      addComponent(world, target, Position);
 
       Spawner.timeUntilSpawn[eid] = 5;
 
@@ -98,7 +98,7 @@ describe("UnitSpawnerSystems", () => {
 
   describe("SpawnAtBuildingSystem", () => {
     beforeEach(() => {
-      addComponent(world, BuildingSpawner, eid);
+      addComponent(world, eid, BuildingSpawner);
     });
 
     it("can spawn a unit", () => {

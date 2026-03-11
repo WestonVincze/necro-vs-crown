@@ -51,12 +51,12 @@ export const createProjectileEntity = (
   const eid = addEntity(world);
   const data = ProjectileData[name];
 
-  addComponent(world, Position, eid);
+  addComponent(world, eid, Position);
   Position.x[eid] = position.x;
   Position.y[eid] = position.y;
 
   // add sprite URL
-  addComponent(world, Sprite, eid);
+  addComponent(world, eid, Sprite);
   Sprite.texture[eid] =
     SpriteTexture[ProjectileName[name] as keyof typeof SpriteTexture];
   Sprite.type[eid] = SpriteType.Sprite;
@@ -69,29 +69,29 @@ export const createProjectileEntity = (
   // calculate rotation
   const rotation = Math.atan2(dy, dx);
 
-  addComponent(world, Transform, eid);
+  addComponent(world, eid, Transform);
   Transform.width[eid] = data.width;
   Transform.height[eid] = data.height;
   Transform.rotation[eid] = rotation;
 
-  addComponent(world, Input, eid);
+  addComponent(world, eid, Input);
   Input.moveX[eid] = normalizedDirection.x;
   Input.moveY[eid] = normalizedDirection.y;
 
-  addComponent(world, Velocity, eid);
+  addComponent(world, eid, Velocity);
   Velocity.x[eid] = 0;
   Velocity.y[eid] = 0;
 
-  addComponent(world, MoveSpeed, eid);
+  addComponent(world, eid, MoveSpeed);
   MoveSpeed.current[eid] = data.speed;
 
-  addComponent(world, MaxMoveSpeed, eid);
+  addComponent(world, eid, MaxMoveSpeed);
   MaxMoveSpeed.current[eid] = data.speed;
 
-  addComponent(world, DestroyEntity, eid);
+  addComponent(world, eid, DestroyEntity);
   DestroyEntity.timeUntilDestroy[eid] = data.lifetime;
 
-  addComponent(world, Collider, eid);
+  addComponent(world, eid, Collider);
   Collider.radius[eid] = data.height;
   // TODO: get the Faction of the projectile owner (NECRO is fine for now)
   Collider.collisionLayers[eid] = CollisionLayers.NECRO;
@@ -104,7 +104,7 @@ export const createProjectileEntity = (
   Collider.offsetY[eid] =
     baseOffsetX * Math.sin(rotation) + baseOffsetY * Math.cos(rotation);
 
-  addComponent(world, Projectile, eid);
+  addComponent(world, eid, Projectile);
   Projectile.attackBonus[eid] = attackBonus;
   Projectile.damage[eid] = damage;
 };

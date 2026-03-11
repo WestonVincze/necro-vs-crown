@@ -1,12 +1,5 @@
-import {
-  addComponent,
-  defineQuery,
-  defineSystem,
-  getRelationTargets,
-  hasComponent,
-  removeComponent,
-} from "bitecs";
-import { Position, Behavior, Behaviors, Input, AI } from "$components";
+import { addComponent, query, getRelationTargets, hasComponent } from "bitecs";
+import { Position, Behavior, Behaviors, AI } from "$components";
 import { Crown, Necro } from "$components";
 import { getCursorEid } from "./CursorTargetSystem";
 import { MoveTarget, CombatTarget } from "$relations";
@@ -14,11 +7,13 @@ import { getDistanceSquared, getPositionFromEid } from "$utils";
 
 // THOUGHT: we could change this system to be reactive or include some dirty/clean flags to skip over target search when not required
 export const createTargetingSystem = () => {
-  const necroTargetQuery = defineQuery([AI, Behavior, Position, Necro]);
-  const crownTargetQuery = defineQuery([AI, Behavior, Position, Crown]);
+  const necroTargetQuery = (world: World) =>
+    query(world, [AI, Behavior, Position, Necro]);
+  const crownTargetQuery = (world: World) =>
+    query(world, [AI, Behavior, Position, Crown]);
 
-  const necroEnemiesQuery = defineQuery([Crown, Position]);
-  const crownEnemiesQuery = defineQuery([Necro, Position]);
+  const necroEnemiesQuery = (world: World) => query(world, [Crown, Position]);
+  const crownEnemiesQuery = (world: World) => query(world, [Necro, Position]);
 
   return defineSystem((world) => {
     const necroEntities = necroTargetQuery(world);
@@ -67,7 +62,7 @@ export const createAssignFollowTargetSystem = () => {
    * example: with no behavior, the followTarget should just be the Target
    */
 
-  const query = defineQuery([Behavior]);
+  const query = (world: World) => query(world, [Behavior]);
 
   return (world: World) => {
     for (const eid of query(world)) {

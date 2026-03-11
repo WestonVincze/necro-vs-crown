@@ -23,7 +23,7 @@ export const createHitSplatSystem = (scene: Scene) => {
     // TODO: this needs to unsubscribe when the scene changes
     const hitSplatSubscription = gameEvents.healthChanges.subscribe(
       ({ amount, isCrit, eid }) => {
-        const tag = hasComponent(world, Necro, eid)
+        const tag = hasComponent(world, eid, Necro)
           ? Faction.Necro
           : Faction.Crown;
         const position = getPositionFromEid(eid);

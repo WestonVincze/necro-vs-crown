@@ -1,4 +1,4 @@
-import { defineQuery, defineSystem } from "bitecs";
+import { query, defineSystem } from "bitecs";
 import { Position } from "$components";
 
 /**
@@ -8,7 +8,7 @@ import { Position } from "$components";
 export const DistanceMap = new Map<number, Map<number, number>>();
 
 export const createDistanceMapSystem = () => {
-  const positionQuery = defineQuery([Position]);
+  const positionQuery = (world: World) => query(world, [Position]);
 
   return defineSystem((world) => {
     const entities = positionQuery(world);

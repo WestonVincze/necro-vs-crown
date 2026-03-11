@@ -1,10 +1,8 @@
 import {
-  defineEnterQueue,
   addComponent,
-  defineQuery,
+  query,
   removeComponent,
   removeEntity,
-  defineExitQueue,
   Not,
   removeComponents,
 } from "bitecs";
@@ -30,12 +28,8 @@ import { checkIfWithinDistance, getPositionFromEid } from "$utils";
 import { UnitName } from "$types";
 
 export const createSpellcastingSystem = () => {
-  const spellcasterQuery = defineQuery([
-    Input,
-    Position,
-    Spell,
-    Not(SpellCooldown),
-  ]);
+  const spellcasterQuery = (world: World) =>
+    query(world, [Input, Position, Spell, Not(SpellCooldown)]);
 
   return (world: World) => {
     for (const eid of spellcasterQuery(world)) {
@@ -43,7 +37,7 @@ export const createSpellcastingSystem = () => {
 
       if (spellState === SpellState.Ready && Input.castingSpell[eid] === 1) {
         Spell.state[eid] = SpellState.Casting;
-        addComponent(world, SpellEffect, eid);
+        addComponent(world, eid, SpellEffect);
 
         SpellEffect.size[eid] = 30;
         SpellEffect.maxSize[eid] = 100;
@@ -53,7 +47,7 @@ export const createSpellcastingSystem = () => {
         spellState === SpellState.Casting &&
         Input.castingSpell[eid] !== 1
       ) {
-        addComponent(world, ResolveSpell, eid);
+        addComponent(world, eid, ResolveSpell);
         Spell.state[eid] = SpellState.Ready;
       }
     }
@@ -63,13 +57,16 @@ export const createSpellcastingSystem = () => {
 };
 
 export const createSpellEffectSystem = () => {
-  const spellEffectQuery = defineQuery([SpellEffect, Position]);
-  const spellResolveQuery = defineQuery([SpellEffect, Position, ResolveSpell]);
+  const spellEffectQuery = (world: World) =>
+    query(world, [SpellEffect, Position]);
+  const spellResolveQuery = (world: World) =>
+    query(world, [SpellEffect, Position, ResolveSpell]);
   const spellResolveQueue = defineEnterQueue(spellResolveQuery);
 
   // TODO: avoid defining queries for every type of spell... this works for now though
-  const bonesQuery = defineQuery([Bones, Position]);
-  const necroUnitQuery = defineQuery([Necro, Position, Health]);
+  const bonesQuery = (world: World) => query(world, [Bones, Position]);
+  const necroUnitQuery = (world: World) =>
+    query(world, [Necro, Position, Health]);
 
   return (world: World) => {
     for (const eid of spellEffectQuery(world)) {
@@ -81,14 +78,14 @@ export const createSpellEffectSystem = () => {
         );
       } else if (SpellEffect.name[eid] === SpellName.HolyNova) {
         // TODO: generalize this for auto-resolving spell effects
-        removeComponent(world, SpellEffect, eid);
+        removeComponent(world, eid, SpellEffect);
         Spell.state[eid] = SpellState.Ready;
       }
     }
 
     for (const eid of spellResolveQueue(world)) {
       const position = getPositionFromEid(eid);
-      addComponent(world, SpellCooldown, eid);
+      addComponent(world, eid, SpellCooldown);
       SpellCooldown.timeUntilReady[eid] = 1000;
       switch (SpellEffect.name[eid]) {
         case SpellName.Summon:
@@ -128,14 +125,14 @@ export const createSpellEffectSystem = () => {
                 SpellEffect.size[eid] + 50,
               )
             ) {
-              addComponent(world, Damage, necroEid);
+              addComponent(world, necroEid, Damage);
               Damage.amount[eid] = 10;
             }
           }
           break;
       }
 
-      removeComponents(world, [SpellEffect, ResolveSpell], eid);
+      removeComponents(world, eid, [SpellEffect, ResolveSpell]);
     }
 
     return world;
@@ -147,10 +144,12 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
   // TODO: make this compatible with other shapes and sprites
   const circlesById = new Map<number, GameObjects.Arc>();
 
-  const spellEffectQuery = defineQuery([SpellEffect, Position]);
+  const spellEffectQuery = (world: World) =>
+    query(world, [SpellEffect, Position]);
   const spellEffectEnterQueue = defineEnterQueue(spellEffectQuery);
 
-  const spellResolveQuery = defineQuery([SpellEffect, ResolveSpell]);
+  const spellResolveQuery = (world: World) =>
+    query(world, [SpellEffect, ResolveSpell]);
   const spellResolveQueue = defineExitQueue(spellResolveQuery);
 
   return (world: World) => {

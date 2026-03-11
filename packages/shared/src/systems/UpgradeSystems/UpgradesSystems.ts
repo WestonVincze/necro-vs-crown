@@ -1,7 +1,7 @@
 import {
   addComponent,
+  query,
   defineEnterQueue,
-  defineQuery,
   entityExists,
   removeComponent,
 } from "bitecs";
@@ -13,10 +13,11 @@ import { updateStatsByUnitType } from "../StatUpdateSystem";
  * Fulfill's `UpgradeRequest` when an entity has a `SelectedUpgrade`
  */
 export const createUpgradeSelectionSystem = () => {
-  const query = defineQuery([UpgradeRequest, SelectedUpgrade]);
+  const upgradeSelectionQuery = (world: World) =>
+    query(world, [UpgradeRequest, SelectedUpgrade]);
 
   return (world: World) => {
-    const entities = query(world);
+    const entities = upgradeSelectionQuery(world);
     for (let i = 0; i < entities.length; i++) {
       const eid = entities[i];
       const upgrades = UpgradeRequest[eid].upgrades;
@@ -39,8 +40,8 @@ export const createUpgradeSelectionSystem = () => {
         selectedUpgrade.statUpdates,
       );
 
-      removeComponent(world, UpgradeRequest, eid);
-      removeComponent(world, SelectedUpgrade, eid);
+      removeComponent(world, eid, UpgradeRequest);
+      removeComponent(world, eid, SelectedUpgrade);
     }
 
     return world;
@@ -51,7 +52,8 @@ export const createUpgradeSelectionSystem = () => {
  * Emits an `UpgradeOptionsEvent` event through `gameEvents` when a `Player` entity has and `UpgradeRequest`
  */
 export const createEmitUpgradeRequestEventSystem = () => {
-  const playerUpgradeQuery = defineQuery([UpgradeRequest, Player]);
+  const playerUpgradeQuery = (world: World) =>
+    query(world, [UpgradeRequest, Player]);
   const playerUpgradeEnterQueue = defineEnterQueue(playerUpgradeQuery);
 
   return (world: World) => {
@@ -73,6 +75,7 @@ export const createEmitUpgradeRequestEventSystem = () => {
  * pools `UpgradeSelectEvent` events from `onUpgradeSelect` in a queue
  */
 export const createHandleUpgradeSelectEventSystem = () => {
+  // TODO: this is part of the physics pipeline and should not subscribe to events
   const upgradeEventQueue: UpgradeSelectEvent[] = [];
 
   gameEvents.onUpgradeSelect.subscribe((event) => {
@@ -92,7 +95,7 @@ export const createHandleUpgradeSelectEventSystem = () => {
         continue;
       }
 
-      addComponent(world, SelectedUpgrade, eid);
+      addComponent(world, eid, SelectedUpgrade);
       SelectedUpgrade.upgradeId[eid] = upgradeId;
     }
 

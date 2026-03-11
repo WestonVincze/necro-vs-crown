@@ -43,19 +43,19 @@ describe("Combat System and helpers", () => {
       attacker = addEntity(world);
       combatSystem = createCombatSystem();
 
-      addComponent(world, AttackSpeed, attacker);
+      addComponent(world, attacker, AttackSpeed);
       AttackSpeed.base[attacker] = 1;
       AttackSpeed.current[attacker] = 1;
 
-      addComponent(world, AttackRange, attacker);
+      addComponent(world, attacker, AttackRange);
       AttackRange.base[attacker] = 1;
       AttackRange.current[attacker] = 1;
 
-      addComponent(world, MaxHit, attacker);
+      addComponent(world, attacker, MaxHit);
       MaxHit.base[attacker] = 5;
       MaxHit.current[attacker] = 5;
 
-      addComponent(world, Position, attacker);
+      addComponent(world, attacker, Position);
       Position.x[attacker] = 0;
       Position.y[attacker] = 0;
 
@@ -80,11 +80,11 @@ describe("Combat System and helpers", () => {
       const target = addEntity(world);
       addComponent(world, CombatTarget(target), attacker);
 
-      addComponents(world, [Armor, Health], target);
+      addComponents(world, target, [Armor, Health]);
 
       combatSystem(world);
 
-      expect(hasComponent(world, AttackCooldown, attacker)).toBe(true);
+      expect(hasComponent(world, attacker, AttackCooldown)).toBe(true);
     });
 
     it("displays a warning if the target entity does not exist", () => {
@@ -99,15 +99,15 @@ describe("Combat System and helpers", () => {
 
     it("creates a projectile if the attacker is a RangedUnit", () => {
       const target = addEntity(world);
-      addComponents(world, [Armor, Health], target);
+      addComponents(world, target, [Armor, Health]);
       addComponent(world, CombatTarget(target), attacker);
 
       combatSystem(world);
 
       expect(query(world, [Projectile]).length).toBe(0);
 
-      removeComponent(world, AttackCooldown, attacker);
-      addComponent(world, RangedUnit, attacker);
+      removeComponent(world, attacker, AttackCooldown);
+      addComponent(world, attacker, RangedUnit);
 
       combatSystem(world);
 
@@ -120,12 +120,12 @@ describe("Combat System and helpers", () => {
       const target = addEntity(world);
       addComponent(world, CombatTarget(target), attacker);
 
-      addComponents(world, [Armor, Health], target);
+      addComponents(world, target, [Armor, Health]);
       Armor.current[target] = 0;
 
       combatSystem(world);
 
-      expect(hasComponent(world, Damage, target)).toBe(true);
+      expect(hasComponent(world, target, Damage)).toBe(true);
       expect(Damage.amount[target]).toBe(MOCK_DAMAGE);
     });
   });

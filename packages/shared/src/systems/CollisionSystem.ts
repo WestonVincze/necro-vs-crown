@@ -1,4 +1,4 @@
-import { defineQuery, enterQuery, exitQuery, removeEntity } from "bitecs";
+import { query, enterQuery, exitQuery, removeEntity } from "bitecs";
 import { GameObjects } from "phaser";
 import { Subject } from "rxjs";
 
@@ -25,10 +25,11 @@ import { attackEntity } from "./CombatSystem";
 export const collisionEvents = new Subject<{ eid1: number; eid2: number }>();
 
 // base collision query
-const colliderQuery = defineQuery([Position, Collider]);
+const colliderQuery = (world: World) => query(world, [Position, Collider]);
 
 export const createProjectileCollisionSystem = () => {
-  const projectileQuery = defineQuery([Position, Collider, Projectile]);
+  const projectileQuery = (world: World) =>
+    query(world, [Position, Collider, Projectile]);
 
   return (world: World) => {
     for (const projectileEid of projectileQuery(world)) {

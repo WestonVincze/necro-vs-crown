@@ -1,10 +1,10 @@
-import { addComponent, defineQuery, removeComponent } from "bitecs";
+import { addComponent, query, removeComponent } from "bitecs";
 import { Damage, Dead, Heal, Health } from "$components";
 import { gameEvents } from "$events";
 
 export const createHealthSystem = () => {
-  const damageQuery = defineQuery([Health, Damage]);
-  const healQuery = defineQuery([Health, Heal]);
+  const damageQuery = (world: World) => query(world, [Health, Damage]);
+  const healQuery = (world: World) => query(world, [Health, Heal]);
 
   return (world: World) => {
     const damagedEntities = damageQuery(world);
@@ -27,10 +27,10 @@ export const createHealthSystem = () => {
         isCrit: Damage.isCrit[eid] !== 0,
       });
 
-      removeComponent(world, Damage, eid);
+      removeComponent(world, eid, Damage);
 
       if (Health.current[eid] <= 0) {
-        addComponent(world, Dead, eid);
+        addComponent(world, eid, Dead);
       }
     }
 
@@ -48,7 +48,7 @@ export const createHealthSystem = () => {
         Health.current[eid] + Heal.amount[eid],
       );
 
-      removeComponent(world, Heal, eid);
+      removeComponent(world, eid, Heal);
     }
 
     return world;

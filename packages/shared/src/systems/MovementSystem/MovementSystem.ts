@@ -1,4 +1,4 @@
-import { defineQuery, hasComponent } from "bitecs";
+import { query, hasComponent } from "bitecs";
 import {
   Position,
   Velocity,
@@ -19,13 +19,8 @@ const FRICTION = 0.05;
  * [Input] is reset after movement calculation
  */
 export const createMovementSystem = () => {
-  const movementQuery = defineQuery([
-    Position,
-    Input,
-    Velocity,
-    MoveSpeed,
-    MaxMoveSpeed,
-  ]);
+  const movementQuery = (world: World) =>
+    query(world, [Position, Input, Velocity, MoveSpeed, MaxMoveSpeed]);
 
   return (world: World) => {
     const entities = movementQuery(world);
@@ -35,7 +30,7 @@ export const createMovementSystem = () => {
       const y = Input.moveY[eid];
       const newVelocity = { x: Velocity.x[eid], y: Velocity.y[eid] };
 
-      if (hasComponent(world, SeparationForce, eid)) {
+      if (hasComponent(world, eid, SeparationForce)) {
         newVelocity.x += SeparationForce.x[eid];
         newVelocity.y += SeparationForce.y[eid];
         SeparationForce.x[eid] = 0;
@@ -78,7 +73,7 @@ export const createMovementSystem = () => {
       Input.moveY[eid] = 0;
 
       const bounds = { width: 0, height: 0 };
-      if (hasComponent(world, Transform, eid)) {
+      if (hasComponent(world, eid, Transform)) {
         bounds.width = Transform.width[eid];
         bounds.height = Transform.height[eid];
       }

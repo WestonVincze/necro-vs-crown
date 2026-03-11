@@ -1,4 +1,4 @@
-import { defineQuery, enterQuery, exitQuery } from "bitecs";
+import { query, enterQuery, exitQuery } from "bitecs";
 import { GameObjects, Scene } from "phaser";
 import { Health, Position, Transform } from "$components";
 
@@ -6,7 +6,8 @@ const HEALTH_BAR_HEIGHT = 5;
 
 export const createHealthBarSystem = (scene: Scene) => {
   const healthBarsById = new Map<number, GameObjects.Graphics>();
-  const healthQuery = defineQuery([Health, Position, Transform]);
+  const healthQuery = (world: World) =>
+    query(world, [Health, Position, Transform]);
   const onEnterQuery = enterQuery(healthQuery);
   const onExitQuery = exitQuery(healthQuery);
 

@@ -1,4 +1,4 @@
-import { defineQuery, removeEntity } from "bitecs";
+import { query, removeEntity } from "bitecs";
 import { Bones, Position } from "$components";
 import { createUnitEntity } from "$entities";
 import { UnitName } from "$types";
@@ -7,7 +7,7 @@ import { UnitName } from "$types";
  * used for testing Solo Crown Mode
  */
 export const createAutoSummonSkeletonsSystem = () => {
-  const bonesQuery = defineQuery([Bones, Position]);
+  const bonesQuery = (world: World) => query(world, [Bones, Position]);
   return (world: World) => {
     for (const eid of bonesQuery(world)) {
       createUnitEntity(
