@@ -1,5 +1,3 @@
-import { Types, defineComponent } from "bitecs";
-
 export const CollisionLayers = {
   DEFAULT: 1 << 0,
   NECRO: 1 << 1,
@@ -14,19 +12,19 @@ export const CollisionLayers = {
  * for multiple ignoreLayers:
  * Collider.ignoreLayers[eid] = CollisionLayers.ITEMS | CollisionLayers.NECRO
  */
-export const Collider = defineComponent({
-  radius: Types.f32,
-  layer: Types.ui32,
-  collisionLayers: Types.ui32,
-  ignoreLayers: Types.ui32,
-  offsetX: Types.f32,
-  offsetY: Types.f32,
-});
+export const Collider = {
+  radius: [] as number[],
+  layer: [] as number[],
+  collisionLayers: [] as number[],
+  ignoreLayers: [] as number[],
+  offsetX: [] as number[],
+  offsetY: [] as number[],
+};
 
 /**
  * let's see if using a spherical collider is enough
  */
-export const BoxCollider = defineComponent({
-  xRange: Types.f32,
-  yRange: Types.f32,
-});
+export const BoxCollider = {
+  xRange: [] as number[],
+  yRange: [] as number[],
+};

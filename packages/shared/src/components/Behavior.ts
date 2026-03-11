@@ -1,16 +1,14 @@
-import { Types, defineComponent } from "bitecs";
-
 export enum Behaviors {
   FollowCursor,
   AutoTarget,
 }
 
-export const Behavior = defineComponent({
-  type: Types.i8,
-});
+export const Behavior = {
+  type: [] as number[],
+};
 
-export const FollowCursor = defineComponent();
+export const FollowCursor = {};
 
-export const FollowTarget = defineComponent();
+export const FollowTarget = {};
 
-export const AvoidTarget = defineComponent();
+export const AvoidTarget = {};

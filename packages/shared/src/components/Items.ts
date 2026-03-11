@@ -1,15 +1,13 @@
-import { Types, defineComponent } from "bitecs";
+export const Item = {
+  itemId: [] as number[],
+};
 
-export const Item = defineComponent({
-  itemId: Types.ui32,
-});
+export const Equipped = {
+  itemId: [] as number[],
+};
 
-export const Equipped = defineComponent({
-  itemId: Types.ui32,
-});
-
-export const Inventory = defineComponent({
+export const Inventory = {
   // array of slots?
   // named slots?
-  slot: Types.ui32,
-});
+  slot: [] as number[],
+};
