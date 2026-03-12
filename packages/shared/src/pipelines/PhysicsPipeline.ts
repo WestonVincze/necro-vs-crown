@@ -21,6 +21,7 @@ import {
   createUnitSpawnerSystem,
   createUpgradeSelectionSystem,
 } from "$systems";
+import { type Pipeline } from "$types";
 
 import { pipeline } from "./helpers";
 import { PipelineFactory } from "./types";
@@ -29,10 +30,10 @@ export const buildPhysicsPipeline = ({
   scene,
   pre = [],
   post = [],
-}: PipelineFactory) => {
+}: PipelineFactory): Pipeline => {
   if (!scene) {
     console.error("Error: scene is required to build physics pipeline.");
-    return;
+    return pipeline([]);
   }
 
   const corePhysicsSystems = [

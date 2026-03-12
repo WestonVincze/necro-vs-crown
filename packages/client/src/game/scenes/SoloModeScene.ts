@@ -1,58 +1,27 @@
-import {
-  addComponent,
-  addEntity,
-  createWorld,
-  getAllEntities,
-  getEntityComponents,
-  pipe,
-} from "bitecs";
+import { addComponent, addEntity, createWorld } from "bitecs";
 import { Scene } from "phaser";
 import {
   type Pipeline,
+  type System,
   Player,
   createCursorTargetSystem,
   createInputHandlerSystem,
-  createMovementSystem,
-  createTargetingSystem,
   createUnitEntity,
   createFollowTargetSystem,
-  createSpriteSystem,
-  createCollisionSystem,
-  createItemEquipSystem,
   createBonesEntity,
-  createSpellcastingSystem,
-  createSpellEffectSystem,
-  createDrawSpellEffectSystem,
-  createHealthBarSystem,
-  createCombatSystem,
-  createHealthSystem,
-  createDeathSystem,
-  createCooldownSystem,
-  createHitSplatSystem,
   Faction,
   Behavior,
   Behaviors,
-  createAssignFollowTargetSystem,
   createGridSystem,
-  createTimeSystem,
-  createAIEventsSystem,
-  createDestroyAfterDelaySystem,
-  createProjectileCollisionSystem,
-  createDrawCollisionSystem,
-  createUnitSpawnerSystem,
-  BuildingSpawner,
   createTargetSpawnerEntity,
-  createStatUpdateSystem,
-  createLevelUpSystem,
-  createUpgradeSelectionSystem,
-  createEmitUpgradeRequestEventSystem,
-  createHandleUpgradeSelectEventSystem,
   UnitName,
   Level,
   CoinAccumulator,
   Coin,
   createAutoSummonSkeletonsSystem,
-  createSeparationForceSystem,
+  buildPhysicsPipeline,
+  buildReactivePipeline,
+  buildTickPipeline,
 } from "@necro-crown/shared";
 import { createCameraControlSystem } from "$game/systems";
 import {
@@ -66,69 +35,6 @@ import {
 } from "@necro-crown/shared/src/constants";
 import { type World, GameState } from "@necro-crown/shared";
 import { profiler } from "@necro-crown/shared/src/utils";
-
-type System = (world: World) => World;
-
-type PipelineFactory = {
-  scene: Scene;
-  pre?: System[];
-  post?: System[];
-};
-
-const createPhysicsPipeline = ({
-  scene,
-  pre = [],
-  post = [],
-}: PipelineFactory) =>
-  pipe(
-    ...pre,
-    createEmitUpgradeRequestEventSystem(),
-    createUpgradeSelectionSystem(),
-    createHandleUpgradeSelectEventSystem(),
-    createLevelUpSystem(),
-    createUnitSpawnerSystem(),
-    createDrawCollisionSystem(scene),
-    createSeparationForceSystem(),
-    createMovementSystem(),
-    createSpriteSystem(scene),
-    // createFollowTargetSystem(scene),
-    createCooldownSystem(),
-    createCombatSystem(),
-    // createCollisionSystem(),
-    createProjectileCollisionSystem(),
-    createSpellcastingSystem(),
-    createSpellEffectSystem(),
-    createDrawSpellEffectSystem(scene),
-    createStatUpdateSystem(),
-    createHealthSystem(),
-    createHealthBarSystem(scene),
-    createDestroyAfterDelaySystem(),
-    createDeathSystem(),
-    ...post,
-    createTimeSystem(), // time should always be last
-  );
-
-const createReactivePipeline = ({
-  scene,
-  pre = [],
-  post = [],
-}: PipelineFactory) =>
-  pipe(
-    ...pre,
-    createAIEventsSystem(),
-    createHitSplatSystem(scene),
-    // createHealthSystem(),
-    createItemEquipSystem(),
-    ...post,
-  );
-
-const createTickPipeline = ({ pre = [], post = [] }: PipelineFactory) =>
-  pipe(
-    ...pre,
-    createTargetingSystem(),
-    createAssignFollowTargetSystem(),
-    ...post,
-  );
 
 export class SoloModeScene extends Scene {
   /**
@@ -173,7 +79,6 @@ export class SoloModeScene extends Scene {
       pre: [],
       post: [],
     };
-    let tickSystems: { pre: System[]; post: System[] } = { pre: [], post: [] };
 
     /* 
     const { gui } = GameState;
@@ -228,13 +133,13 @@ export class SoloModeScene extends Scene {
       case Faction.Crown:
         // create player
         const crown = addEntity(this.world);
-        addComponent(this.world, Player, crown);
-        addComponent(this.world, Level, crown);
+        addComponent(this.world, crown, Player);
+        addComponent(this.world, crown, Level);
         Level.currentLevel[crown] = 0;
         Level.currentExp[crown] = 0;
         Level.expToNextLevel[crown] = BASE_EXP;
-        addComponent(this.world, Coin, crown);
-        addComponent(this.world, CoinAccumulator, crown);
+        addComponent(this.world, crown, Coin);
+        addComponent(this.world, crown, CoinAccumulator);
         Coin.current[crown] = 0;
         Coin.max[crown] = 10;
         CoinAccumulator.amount[crown] = 1;
@@ -248,7 +153,7 @@ export class SoloModeScene extends Scene {
             Math.random() * SCREEN_HEIGHT,
             Math.random() * SCREEN_WIDTH,
           );
-          addComponent(this.world, Behavior, eid);
+          addComponent(this.world, eid, Behavior);
           Behavior.type[eid] = Behaviors.AutoTarget;
         }
 
@@ -298,23 +203,19 @@ export class SoloModeScene extends Scene {
     }
 
     // initialize systems with overrides
-    this.physicsSystems = createPhysicsPipeline({
+    this.physicsSystems = buildPhysicsPipeline({
       scene: this,
       pre: physicsSystems.pre,
       post: physicsSystems.post,
     });
 
-    this.reactiveSystems = createReactivePipeline({
+    this.reactiveSystems = buildReactivePipeline({
       scene: this,
       pre: reactiveSystems.pre,
       post: reactiveSystems.post,
     });
 
-    this.tickSystems = createTickPipeline({
-      scene: this,
-      pre: tickSystems.pre,
-      post: tickSystems.post,
-    });
+    this.tickSystems = buildTickPipeline();
 
     /** RUN REACTIVE SYSTEMS */
     this.reactiveSystems(this.world);
@@ -327,7 +228,7 @@ export class SoloModeScene extends Scene {
       if (GameState.isDebugMode()) profiler.logResults();
     }, 200);
 
-    this.events.once("shutdown", GameState.destroyGameState, this);
+    this.events.once("shutdown", GameState.destroyGameState);
   }
 
   /** RUN PHYSICS SYSTEMS */
