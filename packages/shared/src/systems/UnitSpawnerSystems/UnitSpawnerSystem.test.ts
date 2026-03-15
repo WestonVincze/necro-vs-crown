@@ -37,7 +37,7 @@ describe("UnitSpawnerSystems", () => {
     let target: number;
     beforeEach(() => {
       target = addEntity(world);
-      addComponent(world, SpawnTarget(target), eid);
+      addComponent(world, eid, SpawnTarget(target));
     });
 
     it("can spawn a unit", () => {
@@ -88,7 +88,7 @@ describe("UnitSpawnerSystems", () => {
       const consoleWarnSpy = vi.spyOn(console, "warn");
       const target = addEntity(world);
 
-      addComponent(world, SpawnTarget(target), eid);
+      addComponent(world, eid, SpawnTarget(target));
       Spawner.timeUntilSpawn[eid] = 1;
 
       unitSpawnerSystem(world);

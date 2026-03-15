@@ -1,15 +1,7 @@
-import { defineRelation, removeComponent } from "bitecs";
+import { createRelation, makeExclusive, withAutoRemoveSubject } from "bitecs";
 
-export const CombatTarget = defineRelation({
-  exclusive: true,
-  onTargetRemoved: (world, subject, target) => {
-    removeComponent(world, CombatTarget(target), subject);
-  },
-});
-
-export const MoveTarget = defineRelation({
-  exclusive: true,
-  onTargetRemoved: (world, subject, target) => {
-    removeComponent(world, MoveTarget(target), subject);
-  },
-});
+export const CombatTarget = createRelation(
+  makeExclusive,
+  withAutoRemoveSubject,
+);
+export const MoveTarget = createRelation(makeExclusive, withAutoRemoveSubject);

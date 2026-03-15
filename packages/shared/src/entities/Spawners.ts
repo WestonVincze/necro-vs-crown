@@ -7,7 +7,7 @@ export const createTargetSpawnerEntity = (world: World, targetEid: number) => {
   addComponent(world, eid, Spawner);
   Spawner.timeUntilSpawn[eid] = 500;
 
-  addComponent(world, SpawnTarget(targetEid), eid);
+  addComponent(world, eid, SpawnTarget(targetEid));
 
   return eid;
 };

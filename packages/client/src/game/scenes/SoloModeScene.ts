@@ -159,8 +159,8 @@ export class SoloModeScene extends Scene {
 
         // system overrides
         physicsSystems.pre = [
-          createGridSystem(map),
-          createFollowTargetSystem(this, gridData),
+          createGridSystem(this.world, map),
+          createFollowTargetSystem(this.world, this, gridData),
           createAutoSummonSkeletonsSystem(),
         ];
 
@@ -194,8 +194,8 @@ export class SoloModeScene extends Scene {
         // system overrides
         physicsSystems.pre = [
           createInputHandlerSystem(),
-          createGridSystem(map),
-          createFollowTargetSystem(this, gridData),
+          createGridSystem(this.world, map),
+          createFollowTargetSystem(this.world, this, gridData),
         ];
 
         reactiveSystems.pre = [createCursorTargetSystem(this)];
@@ -204,6 +204,7 @@ export class SoloModeScene extends Scene {
 
     // initialize systems with overrides
     this.physicsSystems = buildPhysicsPipeline({
+      world: this.world,
       scene: this,
       pre: physicsSystems.pre,
       post: physicsSystems.post,

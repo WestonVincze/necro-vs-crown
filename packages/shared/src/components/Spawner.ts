@@ -1,4 +1,5 @@
 import { UnitName } from "$types";
+import { createRelation, makeExclusive } from "bitecs";
 
 export const Spawner = {
   timeUntilSpawn: [] as number[],
@@ -8,7 +9,7 @@ export const Spawner = {
   yMax: [] as number[],
 };
 
-export const SpawnTarget = defineRelation({ exclusive: true });
+export const SpawnTarget = createRelation(makeExclusive);
 
 export const BuildingSpawner = [] as {
   spawnableUnits: UnitName[];

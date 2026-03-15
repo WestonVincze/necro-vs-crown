@@ -41,7 +41,7 @@ import { Units } from "$data";
 import { unitUpgrades } from "$stores";
 import { SpriteTexture, BASE_EXP } from "$constants";
 import { ProjectileName } from "./Projectiles";
-import { clampToScreenSize } from "$utils";
+import { clampToScreenSize, getGridCellFromPosition } from "$utils";
 
 export const createUnitEntity = (
   world: World,
@@ -143,6 +143,9 @@ export const createUnitEntity = (
   Position.x[eid] = position.x;
   Position.y[eid] = position.y;
   addComponent(world, eid, GridCell);
+  const gridPosition = getGridCellFromPosition(position);
+  GridCell.x[eid] = gridPosition.x;
+  GridCell.y[eid] = gridPosition.y;
   addComponent(world, eid, Transform);
   Transform.width[eid] = data.width;
   Transform.height[eid] = data.height;

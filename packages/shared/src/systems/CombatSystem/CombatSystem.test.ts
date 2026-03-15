@@ -5,11 +5,9 @@ import {
   addEntity,
   createWorld,
   entityExists,
-  getAllEntities,
   hasComponent,
   query,
   removeComponent,
-  resetGlobals,
 } from "bitecs";
 import { createCombatSystem } from "./CombatSystem";
 import {
@@ -63,12 +61,12 @@ describe("Combat System and helpers", () => {
     });
 
     afterEach(() => {
-      resetGlobals();
+      // resetGlobals();
     });
 
     it("calls each of the helper functions", () => {
       const target = addEntity(world);
-      addComponent(world, CombatTarget(target), attacker);
+      addComponent(world, attacker, CombatTarget(target));
 
       combatSystem(world);
 
@@ -78,7 +76,7 @@ describe("Combat System and helpers", () => {
 
     it("adds AttackCooldown when an attack is made", () => {
       const target = addEntity(world);
-      addComponent(world, CombatTarget(target), attacker);
+      addComponent(world, attacker, CombatTarget(target));
 
       addComponents(world, target, [Armor, Health]);
 
@@ -91,7 +89,7 @@ describe("Combat System and helpers", () => {
       const fake_entity = 5;
       expect(entityExists(world, fake_entity)).toBe(false);
 
-      addComponent(world, CombatTarget(fake_entity), attacker);
+      addComponent(world, attacker, CombatTarget(fake_entity));
 
       combatSystem(world);
       expect(consoleWarnSpy).toHaveBeenCalledOnce();
@@ -100,7 +98,7 @@ describe("Combat System and helpers", () => {
     it("creates a projectile if the attacker is a RangedUnit", () => {
       const target = addEntity(world);
       addComponents(world, target, [Armor, Health]);
-      addComponent(world, CombatTarget(target), attacker);
+      addComponent(world, attacker, CombatTarget(target));
 
       combatSystem(world);
 
@@ -118,7 +116,7 @@ describe("Combat System and helpers", () => {
       const MOCK_DAMAGE = 5;
       rollDamageSpy.mockReturnValue(MOCK_DAMAGE);
       const target = addEntity(world);
-      addComponent(world, CombatTarget(target), attacker);
+      addComponent(world, attacker, CombatTarget(target));
 
       addComponents(world, target, [Armor, Health]);
       Armor.current[target] = 0;
