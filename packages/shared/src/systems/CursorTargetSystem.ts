@@ -25,6 +25,11 @@ export const createCursorTargetSystem = (scene: Scene) => {
     addComponent(world, cursorEid, Position);
     addComponent(world, cursorEid, GridCell);
 
+    Position.x[cursorEid] = 0;
+    Position.y[cursorEid] = 0;
+    GridCell.x[cursorEid] = 0;
+    GridCell.y[cursorEid] = 0;
+
     const mouseClickSubscription = mouseClick$.subscribe(({ x, y }) => {
       Cursor.eid[cursorEid] = cursorEid;
       Position.x[cursorEid] = x;

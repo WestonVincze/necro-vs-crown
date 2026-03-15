@@ -1,4 +1,4 @@
-import { query, exitQuery, getRelationTargets } from "bitecs";
+import { query, getRelationTargets, observe, onRemove } from "bitecs";
 import { AttackRange, GridCell, Input, Position, Velocity } from "$components";
 import { Grid, AStarFinder, DiagonalMovement, Util } from "pathfinding";
 import { type Scene, GameObjects, Geom } from "phaser";
@@ -42,6 +42,7 @@ const drawPathLines = (
 
 // TODO: remove scene reference or make it optional for debugging
 export const createFollowTargetSystem = (
+  world: World,
   scene: Scene,
   gridData: number[][],
 ) => {
@@ -65,6 +66,13 @@ export const createFollowTargetSystem = (
 
   GameState.onDebugDisabled$.subscribe(() =>
     graphicsById.forEach((graphics) => graphics.destroy()),
+  );
+
+  const followTargetExitQueue: number[] = [];
+  observe(
+    world,
+    onRemove(Position, GridCell, Input, Velocity, MoveTarget("*"), AttackRange),
+    (eid) => followTargetExitQueue.push(eid),
   );
 
   return (world: World) => {
@@ -153,7 +161,8 @@ export const createFollowTargetSystem = (
       Input.moveY[eid] = followForce.y;
     }
 
-    for (const eid of exitQuery(followTargetQuery)(world)) {
+    const followTargetsExited = followTargetExitQueue.splice(0);
+    for (const eid of followTargetsExited) {
       Input.moveX[eid] = 0;
       Input.moveY[eid] = 0;
       pathsByEntityId.delete(eid);

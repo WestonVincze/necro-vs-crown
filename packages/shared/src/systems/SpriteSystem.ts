@@ -1,24 +1,29 @@
-import { query, enterQuery, exitQuery, hasComponent } from "bitecs";
+import { query, hasComponent, observe, onAdd, onRemove } from "bitecs";
 import { GameObjects, Scene } from "phaser";
 import { Player, Position, Sprite, SpriteType, Transform } from "$components";
 import { TextureNames } from "$constants";
+import { World } from "$types";
 
 /**
  * @param scene Reference to Phaser Scene
  */
-export const createSpriteSystem = (scene: Scene) => {
+export const createSpriteSystem = (world: World, scene: Scene) => {
   const countById = new Map<number, number>();
   const spriteById = new Map<number, GameObjects.Sprite | GameObjects.Rope>();
 
   const spriteQuery = (world: World) => query(world, [Position, Sprite]);
 
-  const spriteQueryEnter = enterQuery((world: World) =>
-    query(world, [Position, Transform, Sprite]),
+  const spriteEnterQueue: number[] = [];
+  observe(world, onAdd(Position, Transform, Sprite), (eid) =>
+    spriteEnterQueue.push(eid),
   );
-  const spriteQueryExit = exitQuery((world: World) => query(world, [Sprite]));
+
+  const spriteExitQueue: number[] = [];
+  observe(world, onRemove(Sprite), (eid) => spriteExitQueue.push(eid));
 
   return (world: World) => {
-    for (const eid of spriteQueryEnter(world)) {
+    const spritesEntered = spriteEnterQueue.splice(0);
+    for (const eid of spritesEntered) {
       const textureId = Sprite.texture[eid];
       const texture = TextureNames[textureId];
       const width = Transform.width[eid];
@@ -90,7 +95,8 @@ export const createSpriteSystem = (scene: Scene) => {
       sprite.depth = Position.y[eid] + 1200;
     }
 
-    for (const eid of spriteQueryExit(world)) {
+    const spritesExited = spriteExitQueue.splice(0);
+    for (const eid of spritesExited) {
       const sprite = spriteById.get(eid);
 
       if (!sprite) {

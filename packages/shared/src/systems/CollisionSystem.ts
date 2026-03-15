@@ -1,4 +1,4 @@
-import { query, enterQuery, exitQuery, removeEntity } from "bitecs";
+import { observe, onAdd, onRemove, query, removeEntity } from "bitecs";
 import { GameObjects } from "phaser";
 import { Subject } from "rxjs";
 
@@ -80,9 +80,16 @@ export const createCollisionSystem = () => {
   };
 };
 
-export const createDrawCollisionSystem = (scene: Phaser.Scene) => {
-  const onEnter = enterQuery(colliderQuery);
-  const onExit = exitQuery(colliderQuery);
+export const createDrawCollisionSystem = (
+  world: World,
+  scene: Phaser.Scene,
+) => {
+  const enterQueue: number[] = [];
+  const exitQueue: number[] = [];
+
+  observe(world, onAdd(Position, Collider), (eid) => enterQueue.push(eid));
+  observe(world, onRemove(Position, Collider), (eid) => exitQueue.push(eid));
+
   const colliderGraphicsMap = new Map<number, GameObjects.Arc | null>();
 
   GameState.onDebugEnabled$.subscribe(() => {
@@ -106,7 +113,8 @@ export const createDrawCollisionSystem = (scene: Phaser.Scene) => {
 
   return (world: World) => {
     // TODO: create a "debugSystem" to enable/disable debugging features without having to create custom debug actions for each system
-    for (const eid of onEnter(world)) {
+    const collisionsEntered = enterQueue.splice(0);
+    for (const eid of collisionsEntered) {
       const arc = GameState.isDebugMode()
         ? scene.add.circle(
             Position.x[eid] + Collider.offsetX[eid],
@@ -130,7 +138,8 @@ export const createDrawCollisionSystem = (scene: Phaser.Scene) => {
         );
     }
 
-    for (const eid of onExit(world)) {
+    const collisionsExited = exitQueue.splice(0);
+    for (const eid of collisionsExited) {
       colliderGraphicsMap.get(eid)?.destroy();
       colliderGraphicsMap.delete(eid);
     }

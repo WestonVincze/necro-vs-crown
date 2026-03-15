@@ -5,6 +5,9 @@ import {
   removeEntity,
   Not,
   removeComponents,
+  observe,
+  onAdd,
+  onRemove,
 } from "bitecs";
 import { GameObjects, Scene } from "phaser";
 import {
@@ -56,12 +59,16 @@ export const createSpellcastingSystem = () => {
   };
 };
 
-export const createSpellEffectSystem = () => {
+export const createSpellEffectSystem = (world: World) => {
   const spellEffectQuery = (world: World) =>
     query(world, [SpellEffect, Position]);
   const spellResolveQuery = (world: World) =>
     query(world, [SpellEffect, Position, ResolveSpell]);
-  const spellResolveQueue = defineEnterQueue(spellResolveQuery);
+
+  const spellResolveQueue: number[] = [];
+  observe(world, onAdd(SpellEffect, Position, ResolveSpell), (eid) =>
+    spellResolveQueue.push(eid),
+  );
 
   // TODO: avoid defining queries for every type of spell... this works for now though
   const bonesQuery = (world: World) => query(world, [Bones, Position]);
@@ -83,7 +90,8 @@ export const createSpellEffectSystem = () => {
       }
     }
 
-    for (const eid of spellResolveQueue(world)) {
+    const spellResolvesEntered = spellResolveQueue.splice(0);
+    for (const eid of spellResolvesEntered) {
       const position = getPositionFromEid(eid);
       addComponent(world, eid, SpellCooldown);
       SpellCooldown.timeUntilReady[eid] = 1000;
@@ -140,20 +148,28 @@ export const createSpellEffectSystem = () => {
 };
 
 // TODO: abstract the client (Phaser related) logic into separate system
-export const createDrawSpellEffectSystem = (scene: Scene) => {
+export const createDrawSpellEffectSystem = (world: World, scene: Scene) => {
   // TODO: make this compatible with other shapes and sprites
   const circlesById = new Map<number, GameObjects.Arc>();
 
   const spellEffectQuery = (world: World) =>
     query(world, [SpellEffect, Position]);
-  const spellEffectEnterQueue = defineEnterQueue(spellEffectQuery);
-
   const spellResolveQuery = (world: World) =>
     query(world, [SpellEffect, ResolveSpell]);
-  const spellResolveQueue = defineExitQueue(spellResolveQuery);
+
+  const spellEffectEnterQueue: number[] = [];
+  observe(world, onAdd(SpellEffect, Position), (eid) =>
+    spellEffectEnterQueue.push(eid),
+  );
+
+  const spellResolveQueue: number[] = [];
+  observe(world, onRemove(SpellEffect, ResolveSpell), (eid) =>
+    spellResolveQueue.push(eid),
+  );
 
   return (world: World) => {
-    for (const eid of spellEffectEnterQueue(world)) {
+    const spellEffectsEntered = spellEffectEnterQueue.splice(0);
+    for (const eid of spellEffectsEntered) {
       const circle = scene.add.circle(
         Position.x[eid],
         Position.y[eid],
@@ -177,7 +193,8 @@ export const createDrawSpellEffectSystem = (scene: Scene) => {
       circle.radius = SpellEffect.size[eid];
     }
 
-    for (const eid of spellResolveQueue(world)) {
+    const spellResolvesEntered = spellResolveQueue.splice(0);
+    for (const eid of spellResolvesEntered) {
       const circle = circlesById.get(eid);
 
       if (!circle) {

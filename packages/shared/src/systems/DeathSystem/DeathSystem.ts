@@ -1,4 +1,4 @@
-import { defineEnterQueue, query, hasComponent, removeEntity } from "bitecs";
+import { query, hasComponent, removeEntity, observe, onAdd } from "bitecs";
 import { createBonesEntity } from "$entities";
 import {
   Crown,
@@ -17,15 +17,13 @@ const giveExpToEnemyPlayers = (
   eid: number,
   experience: number,
 ) => {
-  let enemyPlayers: readonly number[] = [];
+  const enemyComponents = hasComponent(world, eid, Crown)
+    ? [Necro, Player]
+    : [Crown, Player];
 
-  if (hasComponent(world, eid, Crown)) {
-    enemyPlayers = query(world, [Necro, Player]);
-  } else if (hasComponent(world, eid, Necro)) {
-    enemyPlayers = query(world, [Crown, Player]);
-  }
+  const enemyPlayers = query(world, enemyComponents);
 
-  if (!enemyPlayers) {
+  if (enemyPlayers.length === 0) {
     console.warn(
       `Experience could not be awarded. No enemy players found for ${eid}.`,
     );
@@ -36,34 +34,36 @@ const giveExpToEnemyPlayers = (
   }
 };
 
-export const createDeathSystem = () => {
+export const createDeathSystem = (world: World) => {
   const deadEntitiesQuery = (world: World) => query(world, [Dead]);
 
   // death "effects" occur before the entity is deleted
-  const expRewardQueue = defineEnterQueue([Dead, ExpReward]);
-  const itemDropQueue = defineEnterQueue([Dead, Position, ItemDrops, Crown]);
-  const deadPlayerQueue = defineEnterQueue([Dead, Player]);
+  const expRewardQueue: number[] = [];
+  const itemDropQueue: number[] = [];
+  const deadPlayerQueue: number[] = [];
+
+  observe(world, onAdd(Dead, ExpReward), (eid) => expRewardQueue.push(eid));
+  observe(world, onAdd(Dead, Position, ItemDrops, Crown), (eid) =>
+    itemDropQueue.push(eid),
+  );
+  observe(world, onAdd(Dead, Player), (eid) => deadPlayerQueue.push(eid));
 
   return (world: World) => {
-    const expRewards = expRewardQueue(world);
-    for (let i = 0; i < expRewards.length; i++) {
-      const eid = expRewards[i];
+    const expRewardsEntered = expRewardQueue.splice(0);
+    for (const eid of expRewardsEntered) {
       giveExpToEnemyPlayers(world, eid, ExpReward.amount[eid]);
     }
 
-    const itemDrops = itemDropQueue(world);
-    for (let i = 0; i < itemDrops.length; i++) {
-      const eid = itemDrops[i];
-
+    const itemDropsEntered = itemDropQueue.splice(0);
+    for (const eid of itemDropsEntered) {
       const x = Position.x[eid];
       const y = Position.y[eid];
       // TODO: implement item drops
       createBonesEntity(world, x, y);
     }
 
-    const deadPlayers = deadPlayerQueue(world);
-    for (let i = 0; i < deadPlayers.length; i++) {
-      const eid = deadPlayers[i];
+    const deadPlayersEntered = deadPlayerQueue.splice(0);
+    for (const eid of deadPlayersEntered) {
       // emit game over event
       gameEvents.emitGameOver();
     }

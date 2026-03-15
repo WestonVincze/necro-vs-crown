@@ -1,6 +1,6 @@
-import { query, exitQuery } from "bitecs";
+import { Not, observe, onRemove, query } from "bitecs";
 import type { Tilemaps } from "phaser";
-import { Position, GridCell } from "$components";
+import { Position, GridCell, Cursor } from "$components";
 import {
   getGridCellFromPosition,
   getGridCellFromEid,
@@ -33,6 +33,11 @@ const createGrid = (
   };
 
   const addEntity = (x: number, y: number, eid: number) => {
+    console.log(x, y);
+    if (x === undefined || y === undefined) {
+      console.error("couldn't addEntity... something terrible occurred");
+      return;
+    }
     if (!cells[y][x]) {
       console.error(
         `Attempted to add entity to invalid grid cell (${x},${y}).`,
@@ -44,6 +49,10 @@ const createGrid = (
   };
 
   const removeEntity = (x: number, y: number, eid: number) => {
+    if (x === undefined || y === undefined) {
+      console.error("couldn't removeEntity... something terrible occurred");
+      return;
+    }
     if (!cells[y][x]) {
       console.error(
         `Attempted to remove entity to invalid grid cell (${x},${y}).`,
@@ -64,12 +73,11 @@ const createGrid = (
   };
 };
 
-export const createGridSystem = (map: Tilemaps.Tilemap) => {
+export const createGridSystem = (world: World, map: Tilemaps.Tilemap) => {
   const setTileAlpha = (x: number, y: number, alpha: number) => {
     if (!GameState.isDebugMode()) return;
     map.getTileAt(x, y, false, "Ground")?.setAlpha(alpha);
   };
-  const gridQuery = (world: World) => query(world, [Position, GridCell]);
   const grid = createGrid(
     (x: number, y: number) => setTileAlpha(x, y, 0.5),
     (x, y) => setTileAlpha(x, y, 1),
@@ -98,11 +106,23 @@ export const createGridSystem = (map: Tilemaps.Tilemap) => {
       ?.forEach((tile) => tile.setAlpha(1)),
   );
 
+  const onExitQueue: number[] = [];
+  observe(world, onRemove(Position, GridCell), (eid) => onExitQueue.push(eid));
+
   return (world: World) => {
-    for (const eid of gridQuery(world)) {
+    for (const eid of query(world, [Position, GridCell, Not(Cursor)])) {
+      console.log(`grid query eid ${eid}`);
+      console.log(`Position: ${Position.x[eid]}, ${Position.y[eid]}`);
       const currentGridCell = getGridCellFromEid(eid);
+      if (currentGridCell.x === undefined || currentGridCell.y === undefined) {
+        console.error(`somthing didn't work in our grid system`);
+        continue;
+      }
       const newPosition = getPositionFromEid(eid);
       const newGridCell = getGridCellFromPosition(newPosition);
+
+      console.log(currentGridCell);
+      console.log(newGridCell);
 
       if (
         currentGridCell.x !== newGridCell.x ||
@@ -115,7 +135,8 @@ export const createGridSystem = (map: Tilemaps.Tilemap) => {
       }
     }
 
-    for (const eid of exitQuery(gridQuery)(world)) {
+    const exited = onExitQueue.splice(0);
+    for (const eid of exited) {
       grid.removeEntity(GridCell.x[eid], GridCell.y[eid], eid);
     }
     return world;

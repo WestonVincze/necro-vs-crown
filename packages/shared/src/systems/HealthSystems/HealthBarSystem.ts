@@ -1,18 +1,26 @@
-import { query, enterQuery, exitQuery } from "bitecs";
+import { observe, onAdd, onRemove, query } from "bitecs";
 import { GameObjects, Scene } from "phaser";
 import { Health, Position, Transform } from "$components";
 
 const HEALTH_BAR_HEIGHT = 5;
 
-export const createHealthBarSystem = (scene: Scene) => {
+export const createHealthBarSystem = (world: World, scene: Scene) => {
   const healthBarsById = new Map<number, GameObjects.Graphics>();
   const healthQuery = (world: World) =>
     query(world, [Health, Position, Transform]);
-  const onEnterQuery = enterQuery(healthQuery);
-  const onExitQuery = exitQuery(healthQuery);
+  const onEnterQueue: number[] = [];
+  observe(world, onAdd(Health, Position, Transform), (eid) =>
+    onEnterQueue.push(eid),
+  );
+
+  const onExitQueue: number[] = [];
+  observe(world, onRemove(Health, Position, Transform), (eid) =>
+    onExitQueue.push(eid),
+  );
 
   return (world: World) => {
-    for (const eid of onEnterQuery(world)) {
+    const entered = onEnterQueue.splice(0);
+    for (const eid of entered) {
       const { x, y, width, height } = getHealthBarProps(eid);
 
       // create graphics reference for healthBar
@@ -44,7 +52,8 @@ export const createHealthBarSystem = (scene: Scene) => {
       //scene.add.rectangle
     }
 
-    for (const eid of onExitQuery(world)) {
+    const exited = onExitQueue.splice(0);
+    for (const eid of exited) {
       const healthBar = healthBarsById.get(eid);
 
       if (!healthBar) {

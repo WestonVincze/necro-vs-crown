@@ -27,38 +27,41 @@ import { pipeline } from "./helpers";
 import { PipelineFactory } from "./types";
 
 export const buildPhysicsPipeline = ({
+  world,
   scene,
   pre = [],
   post = [],
 }: PipelineFactory): Pipeline => {
-  if (!scene) {
-    console.error("Error: scene is required to build physics pipeline.");
+  if (!scene || !world) {
+    console.error(
+      "Error: scene and world are required to build physics pipeline.",
+    );
     return pipeline([]);
   }
 
   const corePhysicsSystems = [
-    createEmitUpgradeRequestEventSystem(),
+    createEmitUpgradeRequestEventSystem(world),
     createUpgradeSelectionSystem(),
     createHandleUpgradeSelectEventSystem(), // subscribes to game events...
     createLevelUpSystem(),
     createUnitSpawnerSystem(),
-    createDrawCollisionSystem(scene),
+    createDrawCollisionSystem(world, scene),
     createSeparationForceSystem(),
     createMovementSystem(),
-    createSpriteSystem(scene),
+    createSpriteSystem(world, scene),
     // createFollowTargetSystem(scene),
     createCooldownSystem(),
     createCombatSystem(),
     // createCollisionSystem(),
     createProjectileCollisionSystem(),
     createSpellcastingSystem(),
-    createSpellEffectSystem(),
-    createDrawSpellEffectSystem(scene),
+    createSpellEffectSystem(world),
+    createDrawSpellEffectSystem(world, scene),
     createStatUpdateSystem(),
     createHealthSystem(),
-    createHealthBarSystem(scene),
+    createHealthBarSystem(world, scene),
     createDestroyAfterDelaySystem(),
-    createDeathSystem(),
+    createDeathSystem(world),
   ];
   return pipeline([
     ...pre,

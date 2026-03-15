@@ -1,9 +1,10 @@
 import {
   addComponent,
   query,
-  defineEnterQueue,
   entityExists,
   removeComponent,
+  observe,
+  onAdd,
 } from "bitecs";
 import { gameEvents, UpgradeSelectEvent } from "$events";
 import { Player, SelectedUpgrade, UpgradeRequest } from "$components";
@@ -51,15 +52,16 @@ export const createUpgradeSelectionSystem = () => {
 /**
  * Emits an `UpgradeOptionsEvent` event through `gameEvents` when a `Player` entity has and `UpgradeRequest`
  */
-export const createEmitUpgradeRequestEventSystem = () => {
-  const playerUpgradeQuery = (world: World) =>
-    query(world, [UpgradeRequest, Player]);
-  const playerUpgradeEnterQueue = defineEnterQueue(playerUpgradeQuery);
+export const createEmitUpgradeRequestEventSystem = (world: World) => {
+  const playerUpgradeEnterQueue: number[] = [];
+
+  observe(world, onAdd(UpgradeRequest, Player), (eid) =>
+    playerUpgradeEnterQueue.push(eid),
+  );
 
   return (world: World) => {
-    const playerEntitiesEntered = playerUpgradeEnterQueue(world);
-    for (let i = 0; i < playerEntitiesEntered.length; i++) {
-      const eid = playerEntitiesEntered[i];
+    const playerEntitiesEntered = playerUpgradeEnterQueue.splice(0);
+    for (const eid of playerEntitiesEntered) {
       gameEvents.emitUpgradeRequest({
         eid,
         upgrades: UpgradeRequest[eid].upgrades,
