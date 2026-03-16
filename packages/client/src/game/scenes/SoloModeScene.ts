@@ -48,6 +48,8 @@ export class SoloModeScene extends Scene {
   // entity container (context)
   private world!: World;
 
+  private initializeEntities: () => void = () => {};
+
   // system references
   private reactiveSystems!: Pipeline;
   private tickSystems!: Pipeline;
@@ -131,32 +133,33 @@ export class SoloModeScene extends Scene {
     // Faction specific configurations
     switch (this.playerType) {
       case Faction.Crown:
-        // create player
-        const crown = addEntity(this.world);
-        addComponent(this.world, crown, Player);
-        addComponent(this.world, crown, Level);
-        Level.currentLevel[crown] = 0;
-        Level.currentExp[crown] = 0;
-        Level.expToNextLevel[crown] = BASE_EXP;
-        addComponent(this.world, crown, Coin);
-        addComponent(this.world, crown, CoinAccumulator);
-        Coin.current[crown] = 0;
-        Coin.max[crown] = 10;
-        CoinAccumulator.amount[crown] = 1;
-        CoinAccumulator.frequency[crown] = 1000;
+        this.initializeEntities = () => {
+          // create player
+          const crown = addEntity(this.world);
+          addComponent(this.world, crown, Player);
+          addComponent(this.world, crown, Level);
+          Level.currentLevel[crown] = 0;
+          Level.currentExp[crown] = 0;
+          Level.expToNextLevel[crown] = BASE_EXP;
+          addComponent(this.world, crown, Coin);
+          addComponent(this.world, crown, CoinAccumulator);
+          Coin.current[crown] = 0;
+          Coin.max[crown] = 10;
+          CoinAccumulator.amount[crown] = 1;
+          CoinAccumulator.frequency[crown] = 1000;
 
-        // create starting units
-        for (let i = 0; i < 5; i++) {
-          const eid = createUnitEntity(
-            this.world,
-            UnitName.Skeleton,
-            Math.random() * SCREEN_HEIGHT,
-            Math.random() * SCREEN_WIDTH,
-          );
-          addComponent(this.world, eid, Behavior);
-          Behavior.type[eid] = Behaviors.AutoTarget;
-        }
-
+          // create starting units
+          for (let i = 0; i < 5; i++) {
+            const eid = createUnitEntity(
+              this.world,
+              UnitName.Skeleton,
+              Math.random() * SCREEN_HEIGHT,
+              Math.random() * SCREEN_WIDTH,
+            );
+            addComponent(this.world, eid, Behavior);
+            Behavior.type[eid] = Behaviors.AutoTarget;
+          }
+        };
         // system overrides
         physicsSystems.pre = [
           createGridSystem(this.world, map),
@@ -168,28 +171,37 @@ export class SoloModeScene extends Scene {
         break;
 
       case Faction.Necro:
-        // create Necro player
-        const necro = createUnitEntity(this.world, UnitName.Necromancer, 0, 0);
-
-        // create Bones entity (for testing)
-        createBonesEntity(this.world, 500, 500);
-
-        createTargetSpawnerEntity(this.world, necro);
-
-        for (let i = 0; i < 10; i++) {
-          const randomEntity =
-            Math.random() > 0.5 ? UnitName.Peasant : UnitName.Skeleton;
-          const eid = createUnitEntity(
+        this.initializeEntities = () => {
+          // create Necro player
+          const necro = createUnitEntity(
             this.world,
-            randomEntity,
-            Math.random() * 1024,
-            Math.random() * 1024,
+            UnitName.Necromancer,
+            500,
+            500,
           );
 
-          if (randomEntity === UnitName.Skeleton) {
-            Behavior.type[eid] = Behaviors.FollowCursor;
+          console.log(`necro is ${necro}`);
+
+          // create Bones entity (for testing)
+          createBonesEntity(this.world, 500, 500);
+
+          createTargetSpawnerEntity(this.world, necro);
+
+          for (let i = 0; i < 10; i++) {
+            const randomEntity =
+              Math.random() > 0.5 ? UnitName.Peasant : UnitName.Skeleton;
+            const eid = createUnitEntity(
+              this.world,
+              randomEntity,
+              Math.random() * 1024,
+              Math.random() * 1024,
+            );
+
+            if (randomEntity === UnitName.Skeleton) {
+              Behavior.type[eid] = Behaviors.FollowCursor;
+            }
           }
-        }
+        };
 
         // system overrides
         physicsSystems.pre = [
@@ -217,6 +229,9 @@ export class SoloModeScene extends Scene {
     });
 
     this.tickSystems = buildTickPipeline();
+
+    /** INITIALIZE ENTITIES */
+    this.initializeEntities();
 
     /** RUN REACTIVE SYSTEMS */
     this.reactiveSystems(this.world);
