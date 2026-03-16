@@ -47,6 +47,7 @@ describe("CoinSystems", () => {
       Coin.max[eid] = 10;
       CoinAccumulator.amount[eid] = 1;
       CoinAccumulator.timeUntilNextPay[eid] = 1;
+      CoinAccumulator.frequency[eid] = 1;
 
       coinAccumulationSystem(world);
       coinAccumulationSystem(world);
