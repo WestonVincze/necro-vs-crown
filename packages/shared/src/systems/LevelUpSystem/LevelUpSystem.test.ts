@@ -110,7 +110,7 @@ describe("LevelUpSystem", () => {
   });
 
   describe("addExpToEntity", () => {
-    it("should create add an Experience component to an existing entity", () => {
+    it("should create an Experience component to an existing entity", () => {
       const world: World = createWorld();
       const eid = addEntity(world);
 
@@ -123,7 +123,7 @@ describe("LevelUpSystem", () => {
       const world: World = createWorld();
 
       giveExpToEntity(world, 0, 9);
-      expect(Experience.amount[0]).toBe(0);
+      expect(Experience.amount[0]).toBe(undefined);
     });
 
     /* well... maybe it should?

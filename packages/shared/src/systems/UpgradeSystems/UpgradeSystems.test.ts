@@ -55,7 +55,7 @@ describe("UpgradeSystems", () => {
 
   describe("createEmitUpgradeRequestEventSystem", () => {
     it("should emit upgrade request event", () => {
-      const system = createEmitUpgradeRequestEventSystem();
+      const system = createEmitUpgradeRequestEventSystem(world);
       const eid = addEntity(world);
 
       addComponent(world, eid, UpgradeRequest);

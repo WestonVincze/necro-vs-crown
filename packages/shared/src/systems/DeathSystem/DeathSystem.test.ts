@@ -29,7 +29,7 @@ describe("DeathSystem", () => {
 
   beforeEach(() => {
     world = createWorld();
-    deathSystem = createDeathSystem();
+    deathSystem = createDeathSystem(world);
     eid = addEntity(world);
     addComponent(world, eid, Dead);
   });

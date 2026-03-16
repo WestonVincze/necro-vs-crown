@@ -6,9 +6,7 @@
  * current: base + the current modifications (items, status effects, etc)
  */
 
-const Stat = { base: [] as number[], current: [] as number[] };
-// TODO: refactor all stats to use whole numbers
-const DecimalStat = { base: [] as number[], current: [] as number[] };
+const createStat = () => ({ base: [] as number[], current: [] as number[] });
 
 export enum StatName {
   MaxHealth,
@@ -69,21 +67,21 @@ export const getStatComponentByName = (statName: StatName) => {
 };
 
 /** Stat Components **/
-export const MaxHealth = { ...Stat };
-export const Armor = { ...Stat };
-export const HealthRegeneration = { ...DecimalStat };
-export const MoveSpeed = { ...DecimalStat };
-export const MaxMoveSpeed = { ...DecimalStat };
-export const AttackBonus = { ...Stat };
-export const AttackSpeed = { ...Stat };
-export const AttackRange = { ...Stat };
-export const MaxHit = { ...Stat };
-export const DamageBonus = { ...Stat };
-export const CritChance = { ...DecimalStat };
-export const CritDamage = { ...DecimalStat };
-export const CastingSpeed = { ...Stat };
-export const CastingRange = { ...Stat };
-export const Knockback = { ...Stat };
+export const MaxHealth = createStat();
+export const Armor = createStat();
+export const HealthRegeneration = createStat();
+export const MoveSpeed = createStat();
+export const MaxMoveSpeed = createStat();
+export const AttackBonus = createStat();
+export const AttackSpeed = createStat();
+export const AttackRange = createStat();
+export const MaxHit = createStat();
+export const DamageBonus = createStat();
+export const CritChance = createStat();
+export const CritDamage = createStat();
+export const CastingSpeed = createStat();
+export const CastingRange = createStat();
+export const Knockback = createStat();
 
 /**
  * updates only the current value of a stat until `timeUntilReset` reaches 0, at which point the stat reverts to its base value

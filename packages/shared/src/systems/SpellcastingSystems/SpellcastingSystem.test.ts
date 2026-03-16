@@ -77,7 +77,7 @@ describe("SpellcastingSystems", () => {
   });
 
   describe("SpellResolveSystem", () => {
-    const spellResolveSystem = createSpellEffectSystem();
+    const spellResolveSystem = createSpellEffectSystem(world);
 
     it("increases [SpellEffect] size by growth rate", () => {
       addComponents(world, eid, [SpellEffect, Position]);

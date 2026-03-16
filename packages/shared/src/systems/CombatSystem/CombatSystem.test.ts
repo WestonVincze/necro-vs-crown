@@ -66,6 +66,9 @@ describe("Combat System and helpers", () => {
 
     it("calls each of the helper functions", () => {
       const target = addEntity(world);
+      addComponent(world, target, Position);
+      Position.x[target] = 0;
+      Position.y[target] = 0;
       addComponent(world, attacker, CombatTarget(target));
 
       combatSystem(world);
@@ -76,9 +79,10 @@ describe("Combat System and helpers", () => {
 
     it("adds AttackCooldown when an attack is made", () => {
       const target = addEntity(world);
+      addComponents(world, target, [Position, Armor, Health]);
+      Position.x[target] = 0;
+      Position.y[target] = 0;
       addComponent(world, attacker, CombatTarget(target));
-
-      addComponents(world, target, [Armor, Health]);
 
       combatSystem(world);
 
@@ -89,10 +93,13 @@ describe("Combat System and helpers", () => {
       const fake_entity = 5;
       expect(entityExists(world, fake_entity)).toBe(false);
 
-      addComponent(world, attacker, CombatTarget(fake_entity));
-
-      combatSystem(world);
-      expect(consoleWarnSpy).toHaveBeenCalledOnce();
+      expect(() =>
+        addComponent(world, attacker, CombatTarget(fake_entity)),
+      ).toThrowError(
+        new Error(
+          "Cannot add component - entity 5 does not exist in the world.",
+        ),
+      );
     });
 
     it("creates a projectile if the attacker is a RangedUnit", () => {
