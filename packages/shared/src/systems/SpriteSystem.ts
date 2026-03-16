@@ -48,11 +48,11 @@ export const createSpriteSystem = (world: World, scene: Scene) => {
       if (hasComponent(world, eid, Player)) {
         scene.cameras.main.startFollow(sprite);
       }
-      sprite.height = width;
-      sprite.width = height;
-      sprite.rotation = rotation;
+      sprite.width = width;
       sprite.displayWidth = width;
+      sprite.height = height;
       sprite.displayHeight = height;
+      sprite.rotation = rotation;
       countById.set(eid, eid);
     }
 
