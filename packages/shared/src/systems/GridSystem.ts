@@ -33,11 +33,6 @@ const createGrid = (
   };
 
   const addEntity = (x: number, y: number, eid: number) => {
-    console.log(x, y);
-    if (x === undefined || y === undefined) {
-      console.error("couldn't addEntity... something terrible occurred");
-      return;
-    }
     if (!cells[y][x]) {
       console.error(
         `Attempted to add entity to invalid grid cell (${x},${y}).`,
@@ -49,10 +44,6 @@ const createGrid = (
   };
 
   const removeEntity = (x: number, y: number, eid: number) => {
-    if (x === undefined || y === undefined) {
-      console.error("couldn't removeEntity... something terrible occurred");
-      return;
-    }
     if (!cells[y][x]) {
       console.error(
         `Attempted to remove entity to invalid grid cell (${x},${y}).`,
@@ -111,18 +102,15 @@ export const createGridSystem = (world: World, map: Tilemaps.Tilemap) => {
 
   return (world: World) => {
     for (const eid of query(world, [Position, GridCell, Not(Cursor)])) {
-      console.log(`grid query eid ${eid}`);
-      console.log(`Position: ${Position.x[eid]}, ${Position.y[eid]}`);
       const currentGridCell = getGridCellFromEid(eid);
       if (currentGridCell.x === undefined || currentGridCell.y === undefined) {
-        console.error(`somthing didn't work in our grid system`);
+        console.error(
+          `Invalid GridCell values for ${eid}. Skipping GridSystem call.`,
+        );
         continue;
       }
       const newPosition = getPositionFromEid(eid);
       const newGridCell = getGridCellFromPosition(newPosition);
-
-      console.log(currentGridCell);
-      console.log(newGridCell);
 
       if (
         currentGridCell.x !== newGridCell.x ||

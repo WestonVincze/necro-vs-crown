@@ -19,11 +19,14 @@ const FRICTION = 0.05;
  * [Input] is reset after movement calculation
  */
 export const createMovementSystem = () => {
-  const movementQuery = (world: World) =>
-    query(world, [Position, Input, Velocity, MoveSpeed, MaxMoveSpeed]);
-
   return (world: World) => {
-    const entities = movementQuery(world);
+    const entities = query(world, [
+      Position,
+      Input,
+      Velocity,
+      MoveSpeed,
+      MaxMoveSpeed,
+    ]);
     for (let i = 0; i < entities.length; i++) {
       const eid = entities[i];
       const x = Input.moveX[eid];

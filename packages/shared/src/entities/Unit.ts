@@ -127,6 +127,9 @@ export const createUnitEntity = (
   }
 
   addComponent(world, eid, Input);
+  Input.castingSpell[eid] = 0;
+  Input.moveX[eid] = 0;
+  Input.moveY[eid] = 0;
   // TODO: add spell data to unit data to avoid this mess
   if (name === UnitName.Paladin) {
     addComponent(world, eid, Spell);
@@ -150,6 +153,8 @@ export const createUnitEntity = (
   Transform.width[eid] = data.width;
   Transform.height[eid] = data.height;
   addComponent(world, eid, Velocity);
+  Velocity.x[eid] = 0;
+  Velocity.y[eid] = 0;
 
   addComponent(world, eid, Health);
   Health.current[eid] = stats[StatName.MaxHealth];
