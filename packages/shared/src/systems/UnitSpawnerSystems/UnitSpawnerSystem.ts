@@ -4,6 +4,7 @@ import { BuildingSpawner, Position, Spawner, SpawnTarget } from "$components";
 import { getRandomElement } from "$utils";
 import { decideEnemyToSpawn } from "./decideEnemyToSpawn";
 
+const SPAWN_INTERVAL = 3000;
 const MIN_RANGE = 300;
 const MAX_RANGE = 500;
 
@@ -33,7 +34,7 @@ export const createUnitSpawnerSystem = () => {
         );
 
         createUnitEntity(world, decideEnemyToSpawn(difficultyScale), x, y);
-        Spawner.timeUntilSpawn[eid] = 500;
+        Spawner.timeUntilSpawn[eid] = SPAWN_INTERVAL;
         difficultyScale += 0.02;
       }
     }

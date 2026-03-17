@@ -2,12 +2,9 @@ import {
   addComponent,
   query,
   removeComponent,
-  removeEntity,
   Not,
-  removeComponents,
   observe,
   onAdd,
-  onRemove,
 } from "bitecs";
 import { GameObjects, Scene } from "phaser";
 import {
@@ -25,6 +22,7 @@ import {
   SpellCooldown,
   ResolveSpell,
   Damage,
+  Dead,
 } from "$components";
 import { createUnitEntity } from "$entities";
 import { checkIfWithinDistance, getPositionFromEid } from "$utils";
@@ -60,15 +58,8 @@ export const createSpellcastingSystem = () => {
 };
 
 export const createSpellEffectSystem = (world: World) => {
-  const spellEffectQuery = (world: World) =>
-    query(world, [SpellEffect, Position]);
-  const spellResolveQuery = (world: World) =>
-    query(world, [SpellEffect, Position, ResolveSpell]);
-
   const spellResolveQueue: number[] = [];
-  observe(world, onAdd(SpellEffect, Position, ResolveSpell), (eid) =>
-    spellResolveQueue.push(eid),
-  );
+  observe(world, onAdd(ResolveSpell), (eid) => spellResolveQueue.push(eid));
 
   // TODO: avoid defining queries for every type of spell... this works for now though
   const bonesQuery = (world: World) => query(world, [Bones, Position]);
@@ -76,7 +67,7 @@ export const createSpellEffectSystem = (world: World) => {
     query(world, [Necro, Position, Health]);
 
   return (world: World) => {
-    for (const eid of spellEffectQuery(world)) {
+    for (const eid of query(world, [SpellEffect, Position])) {
       // grow spell effect
       if (SpellEffect.size[eid] < SpellEffect.maxSize[eid]) {
         SpellEffect.size[eid] += Math.min(
@@ -85,7 +76,7 @@ export const createSpellEffectSystem = (world: World) => {
         );
       } else if (SpellEffect.name[eid] === SpellName.HolyNova) {
         // TODO: generalize this for auto-resolving spell effects
-        removeComponent(world, eid, SpellEffect);
+        addComponent(world, eid, ResolveSpell);
         Spell.state[eid] = SpellState.Ready;
       }
     }
@@ -109,7 +100,7 @@ export const createSpellEffectSystem = (world: World) => {
                 SpellEffect.size[eid] + 50,
               )
             ) {
-              removeEntity(world, boneEntity);
+              addComponent(world, boneEntity, Dead);
               const skeleton = createUnitEntity(
                 world,
                 UnitName.Skeleton,
@@ -120,7 +111,6 @@ export const createSpellEffectSystem = (world: World) => {
             }
           }
           break;
-
         case SpellName.HolyNova:
           const necroEntities = necroUnitQuery(world);
           for (const necroEid of necroEntities) {
@@ -130,7 +120,7 @@ export const createSpellEffectSystem = (world: World) => {
               checkIfWithinDistance(
                 position,
                 necroPosition,
-                SpellEffect.size[eid] + 50,
+                SpellEffect.size[eid] + 25,
               )
             ) {
               addComponent(world, necroEid, Damage);
@@ -140,7 +130,7 @@ export const createSpellEffectSystem = (world: World) => {
           break;
       }
 
-      removeComponents(world, eid, [SpellEffect, ResolveSpell]);
+      removeComponent(world, eid, SpellEffect, ResolveSpell);
     }
 
     return world;
@@ -152,20 +142,13 @@ export const createDrawSpellEffectSystem = (world: World, scene: Scene) => {
   // TODO: make this compatible with other shapes and sprites
   const circlesById = new Map<number, GameObjects.Arc>();
 
-  const spellEffectQuery = (world: World) =>
-    query(world, [SpellEffect, Position]);
-  const spellResolveQuery = (world: World) =>
-    query(world, [SpellEffect, ResolveSpell]);
-
   const spellEffectEnterQueue: number[] = [];
-  observe(world, onAdd(SpellEffect, Position), (eid) =>
-    spellEffectEnterQueue.push(eid),
-  );
+  observe(world, onAdd(SpellEffect), (eid) => {
+    spellEffectEnterQueue.push(eid);
+  });
 
   const spellResolveQueue: number[] = [];
-  observe(world, onRemove(SpellEffect, ResolveSpell), (eid) =>
-    spellResolveQueue.push(eid),
-  );
+  observe(world, onAdd(ResolveSpell), (eid) => spellResolveQueue.push(eid));
 
   return (world: World) => {
     const spellEffectsEntered = spellEffectEnterQueue.splice(0);
@@ -180,7 +163,7 @@ export const createDrawSpellEffectSystem = (world: World, scene: Scene) => {
       circlesById.set(eid, circle);
     }
 
-    for (const eid of spellEffectQuery(world)) {
+    for (const eid of query(world, [SpellEffect, Position])) {
       const circle = circlesById.get(eid);
       if (!circle) {
         console.warn(

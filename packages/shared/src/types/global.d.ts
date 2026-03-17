@@ -1,4 +1,4 @@
-import { World as IWorld } from "bitecs";
+import { type World as IWorld } from "bitecs";
 
 declare global {
   type World = IWorld & {
