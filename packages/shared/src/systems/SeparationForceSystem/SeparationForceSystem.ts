@@ -12,6 +12,8 @@ const calculateSeparationForce = (
   targetPosition: Vector2,
 ): Vector2 => {
   const separationForce = { x: 0, y: 0 };
+  if (position.x === targetPosition.x && position.y === targetPosition.y)
+    return separationForce;
 
   const dx = targetPosition.x - position.x;
   const dy = targetPosition.y - position.y;

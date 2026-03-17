@@ -2,6 +2,7 @@ import { addComponent, addEntity, query } from "bitecs";
 import type { Scene } from "phaser";
 import { fromEvent, map } from "rxjs";
 import { Cursor, GridCell, Position } from "$components";
+import { getGridCellFromPosition } from "$utils";
 
 // TODO: this system feels a bit awkward, let's revisit later and see if we can come up with a better solution
 export const createCursorTargetSystem = (scene: Scene) => {
@@ -34,6 +35,9 @@ export const createCursorTargetSystem = (scene: Scene) => {
       Cursor.eid[cursorEid] = cursorEid;
       Position.x[cursorEid] = x;
       Position.y[cursorEid] = y;
+      const gridCellPosition = getGridCellFromPosition({ x, y });
+      GridCell.x[cursorEid] = gridCellPosition.x;
+      GridCell.y[cursorEid] = gridCellPosition.y;
     });
 
     scene.events.once("shutdown", () => {

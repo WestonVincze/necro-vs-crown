@@ -1,4 +1,4 @@
-import { addComponent, query, removeComponent } from "bitecs";
+import { addComponent, entityExists, query, removeComponent } from "bitecs";
 import { Damage, Dead, Heal, Health } from "$components";
 import { gameEvents } from "$events";
 
@@ -21,11 +21,13 @@ export const createHealthSystem = () => {
         Health.current[eid] - Damage.amount[eid],
       );
 
-      gameEvents.emitHealthChange({
-        eid,
-        amount: Damage.amount[eid],
-        isCrit: Damage.isCrit[eid] !== 0,
-      });
+      if (entityExists(world, eid)) {
+        gameEvents.emitHealthChange({
+          eid,
+          amount: Damage.amount[eid],
+          isCrit: Damage.isCrit[eid] !== 0,
+        });
+      }
 
       removeComponent(world, eid, Damage);
 
