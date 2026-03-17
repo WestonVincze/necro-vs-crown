@@ -124,7 +124,7 @@ export const createSpellEffectSystem = (world: World) => {
               )
             ) {
               addComponent(world, necroEid, Damage);
-              Damage.amount[eid] = 10;
+              Damage.amount[necroEid] = 10;
             }
           }
           break;
