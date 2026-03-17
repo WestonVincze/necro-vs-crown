@@ -101,10 +101,9 @@ export const createUnitEntity = (
   }
 
   addComponent(world, eid, Collider);
-  Collider.ignoreLayers[eid] = CollisionLayers.NECRO;
-  Collider.ignoreLayers[eid] = CollisionLayers.CROWN;
   Collider.radius[eid] = data.width / 2;
   Collider.offsetY[eid] = data.height / -2;
+  Collider.offsetX[eid] = 0;
 
   addComponent(world, eid, SeparationForce);
   SeparationForce.x[eid] = 0;
@@ -119,10 +118,12 @@ export const createUnitEntity = (
     case Faction.Crown:
       addComponent(world, eid, Crown);
       Collider.layer[eid] = CollisionLayers.CROWN;
+      Collider.ignoreLayers[eid] = CollisionLayers.NECRO;
       break;
     case Faction.Necro:
       addComponent(world, eid, Necro);
       Collider.layer[eid] = CollisionLayers.NECRO;
+      Collider.ignoreLayers[eid] = CollisionLayers.CROWN;
       break;
   }
 

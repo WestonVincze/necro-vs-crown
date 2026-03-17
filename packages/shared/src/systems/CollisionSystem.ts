@@ -1,4 +1,4 @@
-import { observe, onAdd, onRemove, query, removeEntity } from "bitecs";
+import { Not, observe, onAdd, onRemove, query, removeEntity } from "bitecs";
 import { GameObjects } from "phaser";
 import { Subject } from "rxjs";
 
@@ -24,16 +24,18 @@ import { attackEntity } from "./CombatSystem";
 // TODO: define collisionTypes or create specific collision messages to provide context to subscribers of collisionEvents
 export const collisionEvents = new Subject<{ eid1: number; eid2: number }>();
 
-// base collision query
-const colliderQuery = (world: World) => query(world, [Position, Collider]);
-
 export const createProjectileCollisionSystem = () => {
-  const projectileQuery = (world: World) =>
-    query(world, [Position, Collider, Projectile]);
-
   return (world: World) => {
-    for (const projectileEid of projectileQuery(world)) {
-      for (const colliderEid of colliderQuery(world)) {
+    for (const projectileEid of query(world, [
+      Position,
+      Collider,
+      Projectile,
+    ])) {
+      for (const colliderEid of query(world, [
+        Position,
+        Collider,
+        Not(Projectile),
+      ])) {
         if (checkCollision(projectileEid, colliderEid)) {
           // TODO: handle collisions for other types of entities (walls)
           // projectile collided with something
@@ -56,30 +58,6 @@ export const createProjectileCollisionSystem = () => {
   };
 };
 
-/**
- * DEPRECATED
- */
-export const createCollisionSystem = () => {
-  return (world: World) => {
-    const entities = colliderQuery(world);
-
-    for (let i = 0; i < entities.length; i++) {
-      for (let j = i + 1; j < entities.length; j++) {
-        const eid1 = entities[i];
-        const eid2 = entities[j];
-
-        if (checkCollision(eid1, eid2)) {
-          // Collision detected, emit an event
-          console.log("collision detected");
-          collisionEvents.next({ eid1, eid2 });
-        }
-      }
-    }
-
-    return world;
-  };
-};
-
 export const createDrawCollisionSystem = (
   world: World,
   scene: Phaser.Scene,
@@ -87,8 +65,8 @@ export const createDrawCollisionSystem = (
   const enterQueue: number[] = [];
   const exitQueue: number[] = [];
 
-  observe(world, onAdd(Position, Collider), (eid) => enterQueue.push(eid));
-  observe(world, onRemove(Position, Collider), (eid) => exitQueue.push(eid));
+  observe(world, onAdd(Collider), (eid) => enterQueue.push(eid));
+  observe(world, onRemove(Collider), (eid) => exitQueue.push(eid));
 
   const colliderGraphicsMap = new Map<number, GameObjects.Arc | null>();
 
@@ -128,7 +106,7 @@ export const createDrawCollisionSystem = (
       colliderGraphicsMap.set(eid, arc);
     }
 
-    for (const eid of colliderQuery(world)) {
+    for (const eid of query(world, [Collider, Position])) {
       if (!GameState.isDebugMode()) continue;
       colliderGraphicsMap
         .get(eid)
