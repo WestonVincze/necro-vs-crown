@@ -1,4 +1,5 @@
 import { World as IWorld } from "bitecs";
+import { Grid } from "pathfinding";
 
 export type Pipeline = (world: World) => void;
 
@@ -10,4 +11,5 @@ export type World = IWorld & {
     elapsed: number;
     then: number;
   };
+  grid: Grid;
 };

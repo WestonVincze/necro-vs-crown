@@ -1,4 +1,5 @@
 import { type World as IWorld } from "bitecs";
+import { Grid } from "pathfinding";
 
 declare global {
   type World = IWorld & {
@@ -7,6 +8,7 @@ declare global {
       elapsed: number;
       then: number;
     };
+    grid: Grid;
   };
 
   export type World = World;

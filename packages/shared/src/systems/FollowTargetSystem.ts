@@ -41,11 +41,7 @@ const drawPathLines = (
 };
 
 // TODO: remove scene reference or make it optional for debugging
-export const createFollowTargetSystem = (
-  world: World,
-  scene: Scene,
-  gridData: number[][],
-) => {
+export const createFollowTargetSystem = (world: World, scene: Scene) => {
   const followTargetQuery = (world: World) =>
     query(world, [
       Position,
@@ -56,7 +52,6 @@ export const createFollowTargetSystem = (
       AttackRange,
     ]);
 
-  const grid = new Grid(gridData);
   const finder = new AStarFinder({
     diagonalMovement: DiagonalMovement.Always,
   });
@@ -93,7 +88,7 @@ export const createFollowTargetSystem = (
       // check if we are already at the target position
       if (
         !areVectorsIdentical(gridCell, targetGridCell) &&
-        grid.isWalkableAt(targetGridCell.x, targetGridCell.y)
+        world.grid.isWalkableAt(targetGridCell.x, targetGridCell.y)
       ) {
         // find a new path if no path exits, no steps remain, or the target position changed since initial calculation
         if (
@@ -107,7 +102,7 @@ export const createFollowTargetSystem = (
             gridCell.y,
             targetGridCell.x,
             targetGridCell.y,
-            grid.clone(),
+            world.grid.clone(),
           );
 
           if (newPath.length === 0) {
@@ -115,7 +110,7 @@ export const createFollowTargetSystem = (
             continue;
           }
 
-          const smoothPath = Util.smoothenPath(grid.clone(), newPath);
+          const smoothPath = Util.smoothenPath(world.grid.clone(), newPath);
           pathsByEntityId.set(eid, smoothPath);
 
           if (GameState.isDebugMode()) {

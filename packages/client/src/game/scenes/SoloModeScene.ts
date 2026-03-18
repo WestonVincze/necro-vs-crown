@@ -18,7 +18,6 @@ import {
   Level,
   CoinAccumulator,
   Coin,
-  createAutoSummonSkeletonsSystem,
   buildPhysicsPipeline,
   buildReactivePipeline,
   buildTickPipeline,
@@ -36,6 +35,7 @@ import {
 } from "@necro-crown/shared/src/constants";
 import { type World, GameState } from "@necro-crown/shared";
 import { profiler } from "@necro-crown/shared/src/utils";
+import { Grid } from "pathfinding";
 
 export class SoloModeScene extends Scene {
   /**
@@ -130,6 +130,8 @@ export class SoloModeScene extends Scene {
       gridData.push(row);
     }
 
+    this.world.grid = new Grid(gridData);
+
     // somehow this is necessary to prevent a bug with targeting
     const zero = addEntity(this.world);
 
@@ -166,7 +168,7 @@ export class SoloModeScene extends Scene {
         // system overrides
         physicsSystems.pre = [
           createGridSystem(this.world, map),
-          createFollowTargetSystem(this.world, this, gridData),
+          createFollowTargetSystem(this.world, this),
         ];
 
         physicsSystems.post = [createDeathSystem(this.world, Faction.Crown)];
@@ -188,7 +190,6 @@ export class SoloModeScene extends Scene {
           createBonesEntity(this.world, 500, 500);
 
           createTargetSpawnerEntity(this.world, necro);
-
           for (let i = 0; i < 10; i++) {
             const randomEntity =
               Math.random() > 0.5 ? UnitName.Peasant : UnitName.Skeleton;
@@ -209,7 +210,7 @@ export class SoloModeScene extends Scene {
         physicsSystems.pre = [
           createInputHandlerSystem(),
           createGridSystem(this.world, map),
-          createFollowTargetSystem(this.world, this, gridData),
+          createFollowTargetSystem(this.world, this),
         ];
 
         physicsSystems.post = [createDeathSystem(this.world, Faction.Necro)];
