@@ -22,8 +22,9 @@ import {
   buildPhysicsPipeline,
   buildReactivePipeline,
   buildTickPipeline,
+  createDeathSystem,
 } from "@necro-crown/shared";
-import { createCameraControlSystem } from "$game/systems";
+import { createCrownControlsSystem } from "$game/systems";
 import {
   BASE_EXP,
   MAP_X_MAX,
@@ -56,6 +57,8 @@ export class SoloModeScene extends Scene {
   private physicsSystems!: Pipeline;
 
   public globalState: any;
+
+  private timeSinceLastTick: number = 0;
 
   constructor() {
     super("SoloModeScene");
@@ -164,10 +167,11 @@ export class SoloModeScene extends Scene {
         physicsSystems.pre = [
           createGridSystem(this.world, map),
           createFollowTargetSystem(this.world, this, gridData),
-          createAutoSummonSkeletonsSystem(),
         ];
 
-        reactiveSystems.pre = [createCameraControlSystem(this)];
+        physicsSystems.post = [createDeathSystem(this.world, Faction.Crown)];
+
+        reactiveSystems.pre = [createCrownControlsSystem(this)];
         break;
 
       case Faction.Necro:
@@ -179,8 +183,6 @@ export class SoloModeScene extends Scene {
             500,
             500,
           );
-
-          console.log(`necro is ${necro}`);
 
           // create Bones entity (for testing)
           createBonesEntity(this.world, 500, 500);
@@ -210,6 +212,8 @@ export class SoloModeScene extends Scene {
           createFollowTargetSystem(this.world, this, gridData),
         ];
 
+        physicsSystems.post = [createDeathSystem(this.world, Faction.Necro)];
+
         reactiveSystems.pre = [createCursorTargetSystem(this)];
         break;
     }
@@ -236,22 +240,20 @@ export class SoloModeScene extends Scene {
     /** RUN REACTIVE SYSTEMS */
     this.reactiveSystems(this.world);
 
-    /** RUN TICK SYSTEMS */
-    setInterval(() => {
-      if (GameState.isPaused()) return;
-
-      this.tickSystems(this.world);
-      if (GameState.isDebugMode()) profiler.logResults();
-    }, 200);
-
     this.events.once("shutdown", GameState.destroyGameState);
   }
 
   /** RUN PHYSICS SYSTEMS */
   update(time: number, delta: number): void {
     if (GameState.isPaused()) return;
-
     profiler.start("FRAME_TIMER");
+    this.timeSinceLastTick += delta;
+
+    if (this.timeSinceLastTick > 200) {
+      this.tickSystems(this.world);
+      this.timeSinceLastTick = 0;
+      if (GameState.isDebugMode()) profiler.logResults();
+    }
     this.physicsSystems(this.world);
     profiler.end("FRAME_TIMER");
   }

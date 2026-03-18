@@ -58,3 +58,16 @@ export const clampToScreenSize = (
     y: Math.max(minY, Math.min(position.y, maxY)),
   };
 };
+
+/**
+ * @param position the position (x,y) to validate
+ * @returns false if x or y are undefined or NaN
+ */
+export const isValidPosition = (position: Vector2) => {
+  return (
+    position.x === undefined ||
+    Number.isNaN(position.x) ||
+    position.y === undefined ||
+    Number.isNaN(position.y)
+  );
+};
