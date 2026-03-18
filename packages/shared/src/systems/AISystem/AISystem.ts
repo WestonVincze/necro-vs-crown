@@ -1,4 +1,4 @@
-import { addComponent, defineQuery, removeComponent } from "bitecs";
+import { addComponent, removeComponent, query } from "bitecs";
 import { AIType } from "$types";
 import { gameEvents } from "$events";
 import { AI, AIAction, FollowTarget } from "$components";
@@ -53,7 +53,7 @@ const ActionMap: Map<AIType, Action[]> = new Map();
 const UTILITY_CALCULATION_INTERVAL = 10;
 
 const createUtilityAISystem = () => {
-  const aiQuery = defineQuery([AI]);
+  const aiQuery = (world: World) => query(world, [AI]);
   let frameCount = 0;
 
   return (world: World) => {
@@ -80,12 +80,12 @@ const createUtilityAISystem = () => {
         // remove components for old action
         for (const component of actions[AIAction.currentAction[eid]]
           .components) {
-          removeComponent(world, component, eid);
+          removeComponent(world, eid, component);
         }
 
         // add components for new action
         for (const component of actions[bestActionIndex].components) {
-          addComponent(world, component, eid);
+          addComponent(world, eid, component);
         }
 
         AIAction.currentAction[eid] = bestActionIndex;

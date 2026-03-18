@@ -1,23 +1,27 @@
-import { defineQuery, getRelationTargets, hasComponent } from "bitecs";
+import { query, getRelationTargets, hasComponent } from "bitecs";
 import { createUnitEntity } from "$entities";
 import { BuildingSpawner, Position, Spawner, SpawnTarget } from "$components";
 import { getRandomElement } from "$utils";
 import { decideEnemyToSpawn } from "./decideEnemyToSpawn";
 
+const SPAWN_INTERVAL = 3000;
 const MIN_RANGE = 300;
 const MAX_RANGE = 500;
 
 export const createUnitSpawnerSystem = () => {
   let difficultyScale = 1.0;
-  const spawnNearTargetQuery = defineQuery([Spawner, SpawnTarget("*")]);
-  const spawnAtBuildingQuery = defineQuery([Spawner, BuildingSpawner]);
 
   return (world: World) => {
+    const spawnNearTargetQuery = (world: World) =>
+      query(world, [Spawner, SpawnTarget("*")]);
+    const spawnAtBuildingQuery = (world: World) =>
+      query(world, [Spawner, BuildingSpawner]);
+
     for (const eid of spawnNearTargetQuery(world)) {
       Spawner.timeUntilSpawn[eid] -= world.time.delta;
       if (Spawner.timeUntilSpawn[eid] <= 0) {
-        const target = getRelationTargets(world, SpawnTarget, eid)[0];
-        if (!hasComponent(world, Position, target)) {
+        const target = getRelationTargets(world, eid, SpawnTarget)[0];
+        if (!hasComponent(world, target, Position)) {
           console.warn(`SpawnTarget ${target} does not have a Position`);
           continue;
         }
@@ -30,7 +34,7 @@ export const createUnitSpawnerSystem = () => {
         );
 
         createUnitEntity(world, decideEnemyToSpawn(difficultyScale), x, y);
-        Spawner.timeUntilSpawn[eid] = 5000;
+        Spawner.timeUntilSpawn[eid] = SPAWN_INTERVAL;
         difficultyScale += 0.02;
       }
     }

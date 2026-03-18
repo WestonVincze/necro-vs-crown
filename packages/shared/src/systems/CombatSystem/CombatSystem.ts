@@ -1,6 +1,6 @@
 import {
   addComponent,
-  defineQuery,
+  query,
   entityExists,
   getRelationTargets,
   hasComponent,
@@ -30,21 +30,24 @@ import { createProjectileEntity, ProjectileName } from "$entities";
 import { rollDamage, rollToHit } from "$utils";
 
 export const createCombatSystem = () => {
-  const attackerQuery = defineQuery([
-    CombatTarget("*"),
-    AttackSpeed,
-    AttackRange,
-    MaxHit,
-    Position,
-    Not(AttackCooldown),
-  ]);
-  const necroQuery = defineQuery([Necro, Health, Position, Armor]);
-  const crownQuery = defineQuery([Crown, Health, Position, Armor]);
+  const attackerQuery = (world: World) =>
+    query(world, [
+      CombatTarget("*"),
+      AttackSpeed,
+      AttackRange,
+      MaxHit,
+      Position,
+      Not(AttackCooldown),
+    ]);
+  const necroQuery = (world: World) =>
+    query(world, [Necro, Health, Position, Armor]);
+  const crownQuery = (world: World) =>
+    query(world, [Crown, Health, Position, Armor]);
 
   return (world: World) => {
     for (const eid of attackerQuery(world)) {
       let wasAttackMade = false;
-      const targetEid = getRelationTargets(world, CombatTarget, eid)[0];
+      const targetEid = getRelationTargets(world, eid, CombatTarget)[0];
       const attackerPosition = getPositionFromEid(eid);
       const targetPosition = getPositionFromEid(targetEid);
 
@@ -67,7 +70,7 @@ export const createCombatSystem = () => {
 
       const damage = rollDamage(maxHit, damageBonus, critChance, critDamage);
 
-      if (hasComponent(world, RangedUnit, eid)) {
+      if (hasComponent(world, eid, RangedUnit)) {
         // TODO: store data for commonly used offsets or create helper functions
         targetPosition.y -= Transform.height[targetEid] / 2;
         // set spawn point of the projectile based on entity position and spawn position offset
@@ -89,7 +92,7 @@ export const createCombatSystem = () => {
       }
 
       if (!wasAttackMade) continue;
-      addComponent(world, AttackCooldown, eid);
+      addComponent(world, eid, AttackCooldown);
       // TODO: move AttackSpeed (and perhaps other cooldowns) to a tick based system?
       AttackCooldown.timeUntilReady[eid] = AttackSpeed.current[eid] * 200;
     }
@@ -117,8 +120,8 @@ export const attackEntity = (
   // TODO: consider using a "targetQuery" to check for Armor and Health, then use targets.includes(targetEid) (potentially better performance)
   // alternatively, we could add an "AttackRoll" component to queue the attack and defer the rest of this logic to another system
   if (
-    !hasComponent(world, Armor, targetEid) ||
-    !hasComponent(world, Health, targetEid)
+    !hasComponent(world, targetEid, Armor) ||
+    !hasComponent(world, targetEid, Health)
   ) {
     console.warn(
       `Attack Failed: Target ${targetEid} is missing Health or Armor.`,
@@ -128,7 +131,7 @@ export const attackEntity = (
 
   const amount = rollToHit(Armor.current[targetEid], attackBonus) ? damage : 0;
 
-  addComponent(world, Damage, targetEid);
+  addComponent(world, targetEid, Damage);
   Damage.amount[targetEid] = amount;
 
   return true;

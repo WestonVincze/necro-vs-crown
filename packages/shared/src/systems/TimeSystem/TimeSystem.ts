@@ -1,5 +1,3 @@
-import { gameEvents } from "$events";
-
 export const createTimeSystem = () => {
   return (world: World) => {
     const { time } = world;
@@ -8,7 +6,6 @@ export const createTimeSystem = () => {
     time.delta = delta;
     time.elapsed += delta;
     time.then = now;
-    gameEvents.emitEndOfFrame();
 
     return world;
   };

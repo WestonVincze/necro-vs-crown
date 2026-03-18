@@ -1,13 +1,9 @@
-import {
-  addComponent,
-  defineQuery,
-  hasComponent,
-  removeComponent,
-} from "bitecs";
+import { addComponent, query, hasComponent, removeComponent } from "bitecs";
 import { AddCoin, CoinAccumulator, Coin, SpendCoin } from "$components";
 
 export const createCoinAccumulationSystem = () => {
-  const coinAccumulatorQuery = defineQuery([Coin, CoinAccumulator]);
+  const coinAccumulatorQuery = (world: World) =>
+    query(world, [Coin, CoinAccumulator]);
 
   return (world: World) => {
     for (const eid of coinAccumulatorQuery(world)) {
@@ -24,8 +20,8 @@ export const createCoinAccumulationSystem = () => {
 };
 
 export const createCoinSystem = () => {
-  const addCoinQuery = defineQuery([Coin, AddCoin]);
-  const spendCoinQuery = defineQuery([Coin, SpendCoin]);
+  const addCoinQuery = (world: World) => query(world, [Coin, AddCoin]);
+  const spendCoinQuery = (world: World) => query(world, [Coin, SpendCoin]);
   return (world: World) => {
     for (const eid of addCoinQuery(world)) {
       Coin.current[eid] = Math.min(
@@ -33,7 +29,7 @@ export const createCoinSystem = () => {
         Coin.max[eid],
       );
 
-      removeComponent(world, AddCoin, eid);
+      removeComponent(world, eid, AddCoin);
     }
 
     for (const eid of spendCoinQuery(world)) {
@@ -42,7 +38,7 @@ export const createCoinSystem = () => {
         0,
       );
 
-      removeComponent(world, SpendCoin, eid);
+      removeComponent(world, eid, SpendCoin);
     }
     return world;
   };
@@ -50,19 +46,19 @@ export const createCoinSystem = () => {
 
 // TODO: see if this can be generic
 export const giveCoins = (world: World, eid: number, amount: number) => {
-  if (hasComponent(world, AddCoin, eid)) {
+  if (hasComponent(world, eid, AddCoin)) {
     AddCoin.amount[eid] += amount;
   } else {
-    addComponent(world, AddCoin, eid);
+    addComponent(world, eid, AddCoin);
     AddCoin.amount[eid] = amount;
   }
 };
 
 export const spendCoins = (world: World, eid: number, amount: number) => {
-  if (hasComponent(world, AddCoin, eid)) {
+  if (hasComponent(world, eid, AddCoin)) {
     SpendCoin.amount[eid] += amount;
   } else {
-    addComponent(world, AddCoin, eid);
+    addComponent(world, eid, AddCoin);
     SpendCoin.amount[eid] = amount;
   }
 };

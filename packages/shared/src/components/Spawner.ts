@@ -1,15 +1,15 @@
-import { defineComponent, defineRelation, Types } from "bitecs";
 import { UnitName } from "$types";
+import { createRelation, makeExclusive } from "bitecs";
 
-export const Spawner = defineComponent({
-  timeUntilSpawn: Types.f32,
-  xMin: Types.f32,
-  xMax: Types.f32,
-  yMin: Types.f32,
-  yMax: Types.f32,
-});
+export const Spawner = {
+  timeUntilSpawn: [] as number[],
+  xMin: [] as number[],
+  xMax: [] as number[],
+  yMin: [] as number[],
+  yMax: [] as number[],
+};
 
-export const SpawnTarget = defineRelation({ exclusive: true });
+export const SpawnTarget = createRelation(makeExclusive);
 
 export const BuildingSpawner = [] as {
   spawnableUnits: UnitName[];

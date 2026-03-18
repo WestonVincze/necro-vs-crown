@@ -1,6 +1,9 @@
-import { defineComponent } from "bitecs";
-import { Vector2 } from "$schemas";
+export const Velocity = {
+  x: [] as number[],
+  y: [] as number[],
+};
 
-export const Velocity = defineComponent(Vector2);
-
-export const SeparationForce = defineComponent(Vector2);
+export const SeparationForce = {
+  x: [] as number[],
+  y: [] as number[],
+};

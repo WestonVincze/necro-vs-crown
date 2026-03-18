@@ -1,6 +1,6 @@
-import { defineQuery, exitQuery } from "bitecs";
+import { Not, observe, onRemove, query } from "bitecs";
 import type { Tilemaps } from "phaser";
-import { Position, GridCell } from "$components";
+import { Position, GridCell, Cursor } from "$components";
 import {
   getGridCellFromPosition,
   getGridCellFromEid,
@@ -64,12 +64,11 @@ const createGrid = (
   };
 };
 
-export const createGridSystem = (map: Tilemaps.Tilemap) => {
+export const createGridSystem = (world: World, map: Tilemaps.Tilemap) => {
   const setTileAlpha = (x: number, y: number, alpha: number) => {
     if (!GameState.isDebugMode()) return;
     map.getTileAt(x, y, false, "Ground")?.setAlpha(alpha);
   };
-  const gridQuery = defineQuery([Position, GridCell]);
   const grid = createGrid(
     (x: number, y: number) => setTileAlpha(x, y, 0.5),
     (x, y) => setTileAlpha(x, y, 1),
@@ -98,9 +97,18 @@ export const createGridSystem = (map: Tilemaps.Tilemap) => {
       ?.forEach((tile) => tile.setAlpha(1)),
   );
 
+  const onExitQueue: number[] = [];
+  observe(world, onRemove(Position, GridCell), (eid) => onExitQueue.push(eid));
+
   return (world: World) => {
-    for (const eid of gridQuery(world)) {
+    for (const eid of query(world, [Position, GridCell, Not(Cursor)])) {
       const currentGridCell = getGridCellFromEid(eid);
+      if (currentGridCell.x === undefined || currentGridCell.y === undefined) {
+        console.error(
+          `Invalid GridCell values for ${eid}. Skipping GridSystem call.`,
+        );
+        continue;
+      }
       const newPosition = getPositionFromEid(eid);
       const newGridCell = getGridCellFromPosition(newPosition);
 
@@ -115,7 +123,8 @@ export const createGridSystem = (map: Tilemaps.Tilemap) => {
       }
     }
 
-    for (const eid of exitQuery(gridQuery)(world)) {
+    const exited = onExitQueue.splice(0);
+    for (const eid of exited) {
       grid.removeEntity(GridCell.x[eid], GridCell.y[eid], eid);
     }
     return world;

@@ -1,3 +1,1 @@
-import { defineComponent, Types } from "bitecs";
-
-export const Unit = defineComponent({ name: Types.ui8 });
+export const Unit = { name: [] as number[] };

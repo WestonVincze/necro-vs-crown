@@ -1,4 +1,4 @@
-import { defineQuery, exitQuery, getRelationTargets } from "bitecs";
+import { query, getRelationTargets, observe, onRemove } from "bitecs";
 import { AttackRange, GridCell, Input, Position, Velocity } from "$components";
 import { Grid, AStarFinder, DiagonalMovement, Util } from "pathfinding";
 import { type Scene, GameObjects, Geom } from "phaser";
@@ -41,20 +41,17 @@ const drawPathLines = (
 };
 
 // TODO: remove scene reference or make it optional for debugging
-export const createFollowTargetSystem = (
-  scene: Scene,
-  gridData: number[][],
-) => {
-  const followTargetQuery = defineQuery([
-    Position,
-    GridCell,
-    Input,
-    Velocity,
-    MoveTarget("*"),
-    AttackRange,
-  ]);
+export const createFollowTargetSystem = (world: World, scene: Scene) => {
+  const followTargetQuery = (world: World) =>
+    query(world, [
+      Position,
+      GridCell,
+      Input,
+      Velocity,
+      MoveTarget("*"),
+      AttackRange,
+    ]);
 
-  const grid = new Grid(gridData);
   const finder = new AStarFinder({
     diagonalMovement: DiagonalMovement.Always,
   });
@@ -66,6 +63,13 @@ export const createFollowTargetSystem = (
     graphicsById.forEach((graphics) => graphics.destroy()),
   );
 
+  const followTargetExitQueue: number[] = [];
+  observe(
+    world,
+    onRemove(Position, GridCell, Input, Velocity, MoveTarget("*"), AttackRange),
+    (eid) => followTargetExitQueue.push(eid),
+  );
+
   return (world: World) => {
     const entities = followTargetQuery(world);
     for (const eid of entities) {
@@ -74,7 +78,7 @@ export const createFollowTargetSystem = (
       const gridCell = getGridCellFromEid(eid);
 
       // get target position data
-      const targetEid = getRelationTargets(world, MoveTarget, eid)[0];
+      const targetEid = getRelationTargets(world, eid, MoveTarget)[0];
       const targetGridCell = getGridCellFromEid(targetEid);
 
       let followForce = { x: 0, y: 0 };
@@ -84,7 +88,7 @@ export const createFollowTargetSystem = (
       // check if we are already at the target position
       if (
         !areVectorsIdentical(gridCell, targetGridCell) &&
-        grid.isWalkableAt(targetGridCell.x, targetGridCell.y)
+        world.grid.isWalkableAt(targetGridCell.x, targetGridCell.y)
       ) {
         // find a new path if no path exits, no steps remain, or the target position changed since initial calculation
         if (
@@ -98,7 +102,7 @@ export const createFollowTargetSystem = (
             gridCell.y,
             targetGridCell.x,
             targetGridCell.y,
-            grid.clone(),
+            world.grid.clone(),
           );
 
           if (newPath.length === 0) {
@@ -106,7 +110,7 @@ export const createFollowTargetSystem = (
             continue;
           }
 
-          const smoothPath = Util.smoothenPath(grid.clone(), newPath);
+          const smoothPath = Util.smoothenPath(world.grid.clone(), newPath);
           pathsByEntityId.set(eid, smoothPath);
 
           if (GameState.isDebugMode()) {
@@ -152,7 +156,8 @@ export const createFollowTargetSystem = (
       Input.moveY[eid] = followForce.y;
     }
 
-    for (const eid of exitQuery(followTargetQuery)(world)) {
+    const followTargetsExited = followTargetExitQueue.splice(0);
+    for (const eid of followTargetsExited) {
       Input.moveX[eid] = 0;
       Input.moveY[eid] = 0;
       pathsByEntityId.delete(eid);

@@ -29,7 +29,7 @@
     "vitest": "^1.6.0"
   },
   "dependencies": {
-    "bitecs": "github:NateTheGreatt/bitECS#v0.0.1-alpha.3",
+    "bitecs": "^0.4.0",
     "pathfinding": "github:WestonVincze/PathFinding.js",
     "typescript": "^5.5.4"
   }

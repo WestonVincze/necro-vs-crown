@@ -1,4 +1,4 @@
-import { defineQuery } from "bitecs";
+import { query } from "bitecs";
 import { Input, Player } from "$components";
 // TODO: move InputHandlerSystem to client, it won't be shared
 import {
@@ -21,7 +21,7 @@ export const createInputHandlerSystem = () => {
   let activeKeys: Partial<Record<action, boolean>> = {};
   activeActions$.subscribe((activeActions) => (activeKeys = activeActions));
 
-  const inputQuery = defineQuery([Input, Player]);
+  const inputQuery = (world: World) => query(world, [Input, Player]);
 
   return (world: World) => {
     const entities = inputQuery(world);

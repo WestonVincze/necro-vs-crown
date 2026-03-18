@@ -1,6 +1,5 @@
 import {
   addComponent,
-  defineQuery,
   entityExists,
   hasComponent,
   query,
@@ -57,8 +56,8 @@ export const updateStatsByEid = (
     return;
   }
 
-  if (!hasComponent(world, UpdateStatsRequest, eid)) {
-    addComponent(world, UpdateStatsRequest, eid);
+  if (!hasComponent(world, eid, UpdateStatsRequest)) {
+    addComponent(world, eid, UpdateStatsRequest);
     UpdateStatsRequest[eid] = { statUpdates: [] };
   }
 
@@ -76,7 +75,7 @@ export const updateStatsByEid = (
 };
 
 export const createStatUpdateSystem = () => {
-  const query = defineQuery([UpdateStatsRequest]);
+  const stateUpdateQuery = (world: World) => query(world, [UpdateStatsRequest]);
 
   const updateStat = (
     world: World,
@@ -88,7 +87,7 @@ export const createStatUpdateSystem = () => {
 
     const statComponent = getStatComponentByName(stat);
 
-    if (!hasComponent(world, statComponent, eid)) {
+    if (!hasComponent(world, eid, statComponent)) {
       console.warn(
         `${eid} attempted to update ${StatName[stat]}, but no component was found.`,
       );
@@ -103,11 +102,11 @@ export const createStatUpdateSystem = () => {
   };
 
   return (world: World) => {
-    for (const eid of query(world)) {
+    for (const eid of stateUpdateQuery(world)) {
       for (const { stat, value } of UpdateStatsRequest[eid].statUpdates) {
         updateStat(world, eid, stat, value);
       }
-      removeComponent(world, UpdateStatsRequest, eid);
+      removeComponent(world, eid, UpdateStatsRequest);
     }
 
     return world;

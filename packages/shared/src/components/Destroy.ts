@@ -1,19 +1,17 @@
-import { Types, defineComponent } from "bitecs";
-
 /**
  * Used to destroy entities after a delay
  */
-export const DestroyEntity = defineComponent({ timeUntilDestroy: Types.f32 });
+export const DestroyEntity = { timeUntilDestroy: [] as number[] };
 
 /**
  * Marks an entity as Dead
  */
-export const Dead = defineComponent();
+export const Dead = {};
 
-export const ItemDrops = defineComponent({
-  item1: Types.ui8,
-  item2: Types.ui8,
-  item3: Types.ui8,
-});
+export const ItemDrops = {
+  item1: [] as number[],
+  item2: [] as number[],
+  item3: [] as number[],
+};
 
-export const ExpReward = defineComponent({ amount: Types.ui8 });
+export const ExpReward = { amount: [] as number[] };

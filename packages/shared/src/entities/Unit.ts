@@ -41,7 +41,7 @@ import { Units } from "$data";
 import { unitUpgrades } from "$stores";
 import { SpriteTexture, BASE_EXP } from "$constants";
 import { ProjectileName } from "./Projectiles";
-import { clampToScreenSize } from "$utils";
+import { clampToScreenSize, getGridCellFromPosition } from "$utils";
 
 export const createUnitEntity = (
   world: World,
@@ -64,96 +64,106 @@ export const createUnitEntity = (
     });
   }
 
-  addComponent(world, Unit, eid);
+  addComponent(world, eid, Unit);
   Unit.name[eid] = name;
 
   if (name !== UnitName.Necromancer) {
-    addComponent(world, AI, eid);
+    addComponent(world, eid, AI);
     AI.state[eid] = AIState.IDLE;
     AI.type[eid] = AIType.MELEE;
-    addComponent(world, Behavior, eid);
+    addComponent(world, eid, Behavior);
     Behavior.type[eid] = Behaviors.AutoTarget;
     // TODO: add items from drop table
-    addComponent(world, ItemDrops, eid);
+    addComponent(world, eid, ItemDrops);
   } else {
-    addComponent(world, Player, eid);
-    addComponent(world, Level, eid);
+    addComponent(world, eid, Player);
+    addComponent(world, eid, Level);
     Level.currentLevel[eid] = 0;
     Level.currentExp[eid] = 0;
     Level.expToNextLevel[eid] = BASE_EXP;
-    addComponent(world, Player, eid);
-    addComponent(world, Spell, eid);
+    addComponent(world, eid, Player);
+    addComponent(world, eid, Spell);
     Spell.state[eid] = SpellState.Ready;
     Spell.name[eid] = SpellName.Summon;
   }
 
   if (name === UnitName.Skeleton) {
-    addComponent(world, Inventory, eid);
+    addComponent(world, eid, Inventory);
     Collider.collisionLayers[eid] = CollisionLayers.ITEM;
   }
 
   // TODO: create an enum to define UnitType
   if (name === UnitName.Archer) {
-    addComponent(world, RangedUnit, eid);
+    addComponent(world, eid, RangedUnit);
     RangedUnit.projectileType[eid] = ProjectileName.Arrow;
     RangedUnit.spawnPositionOffsetX[eid] = data.width / -4;
     RangedUnit.spawnPositionOffsetY[eid] = data.height / -2;
   }
 
-  addComponent(world, Collider, eid);
-  Collider.ignoreLayers[eid] = CollisionLayers.NECRO;
-  Collider.ignoreLayers[eid] = CollisionLayers.CROWN;
+  addComponent(world, eid, Collider);
   Collider.radius[eid] = data.width / 2;
   Collider.offsetY[eid] = data.height / -2;
+  Collider.offsetX[eid] = 0;
 
-  addComponent(world, SeparationForce, eid);
+  addComponent(world, eid, SeparationForce);
   SeparationForce.x[eid] = 0;
   SeparationForce.y[eid] = 0;
 
   if (data.expReward) {
-    addComponent(world, ExpReward, eid);
+    addComponent(world, eid, ExpReward);
     ExpReward.amount[eid] = data.expReward;
   }
 
   switch (data.type) {
     case Faction.Crown:
-      addComponent(world, Crown, eid);
+      addComponent(world, eid, Crown);
       Collider.layer[eid] = CollisionLayers.CROWN;
+      Collider.ignoreLayers[eid] = CollisionLayers.NECRO;
       break;
     case Faction.Necro:
-      addComponent(world, Necro, eid);
+      addComponent(world, eid, Necro);
       Collider.layer[eid] = CollisionLayers.NECRO;
+      Collider.ignoreLayers[eid] = CollisionLayers.CROWN;
       break;
   }
 
-  addComponent(world, Input, eid);
+  addComponent(world, eid, Input);
+  Input.castingSpell[eid] = 0;
+  Input.moveX[eid] = 0;
+  Input.moveY[eid] = 0;
   // TODO: add spell data to unit data to avoid this mess
   if (name === UnitName.Paladin) {
-    addComponent(world, Spell, eid);
+    addComponent(world, eid, Spell);
     Spell.state[eid] = SpellState.Ready;
     Spell.name[eid] = SpellName.HolyNova;
     Input.castingSpell[eid] = 1;
   }
 
-  addComponent(world, Position, eid);
+  addComponent(world, eid, Position);
   const position = clampToScreenSize(
     { x, y },
     { width: data.width, height: data.height },
   );
   Position.x[eid] = position.x;
   Position.y[eid] = position.y;
-  addComponent(world, GridCell, eid);
-  addComponent(world, Transform, eid);
+  addComponent(world, eid, GridCell);
+  const gridPosition = getGridCellFromPosition(position);
+  GridCell.x[eid] = gridPosition.x;
+  GridCell.y[eid] = gridPosition.y;
+  addComponent(world, eid, Transform);
   Transform.width[eid] = data.width;
   Transform.height[eid] = data.height;
-  addComponent(world, Velocity, eid);
+  Transform.rotation[eid] = 0;
+  addComponent(world, eid, Velocity);
+  Velocity.x[eid] = 0;
+  Velocity.y[eid] = 0;
 
-  addComponent(world, Health, eid);
+  addComponent(world, eid, Health);
   Health.current[eid] = stats[StatName.MaxHealth];
   Health.max[eid] = stats[StatName.MaxHealth];
   initializeStats(world, eid, stats);
 
-  addComponent(world, Sprite, eid);
+  addComponent(world, eid, Sprite);
   Sprite.texture[eid] = SpriteTexture[data.name as keyof typeof SpriteTexture];
   Sprite.type[eid] = SpriteType.Rope;
 
@@ -166,7 +176,7 @@ export const createUnitEntity = (
 const initializeStats = (world: World, eid: number, stats: Stats) => {
   Object.entries(stats).forEach(([stat, value]) => {
     const Stat = getStatComponentByName(parseInt(stat) as StatName);
-    addComponent(world, Stat, eid);
+    addComponent(world, eid, Stat);
     Stat.base[eid] = value;
     Stat.current[eid] = value;
   });

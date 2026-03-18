@@ -1,5 +1,3 @@
-import { Types, defineComponent } from "bitecs";
-
 /**
  * Input could contain a map of current player inputs
  * An input stream would handle updating this state and systems would process
@@ -7,10 +5,10 @@ import { Types, defineComponent } from "bitecs";
  */
 
 // boolean values
-export const Input = defineComponent({
-  moveX: Types.f32,
-  moveY: Types.f32,
-  castingSpell: Types.ui8,
+export const Input = {
+  moveX: [] as number[],
+  moveY: [] as number[],
+  castingSpell: [] as number[],
   /**
    * ** reference to current abilities **
    * ** -1 means no ability, otherwise map
@@ -18,4 +16,4 @@ export const Input = defineComponent({
    * ability2: Types.i8
    * ability3: Types.i8
    */
-});
+};

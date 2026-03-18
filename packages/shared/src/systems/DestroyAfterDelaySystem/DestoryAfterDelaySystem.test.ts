@@ -16,7 +16,7 @@ describe("DestroyAfterDelaySystem", () => {
       then: 0,
     };
     eid = addEntity(world);
-    addComponent(world, DestroyEntity, eid);
+    addComponent(world, eid, DestroyEntity);
   });
 
   it("destroys an entity after the delay", () => {

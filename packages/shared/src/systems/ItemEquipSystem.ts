@@ -24,13 +24,13 @@ export const createItemEquipSystem = () => {
   return (world: World) => {
     collisionEvents.subscribe(({ eid1, eid2 }) => {
       if (
-        hasComponent(world, Item, eid1) &&
-        hasComponent(world, Inventory, eid2)
+        hasComponent(world, eid1, Item) &&
+        hasComponent(world, eid2, Inventory)
       ) {
         equipItem(world, eid2, eid1);
       } else if (
-        hasComponent(world, Item, eid2) &&
-        hasComponent(world, Inventory, eid1)
+        hasComponent(world, eid2, Item) &&
+        hasComponent(world, eid1, Inventory)
       ) {
         equipItem(world, eid1, eid2);
       }
@@ -49,7 +49,7 @@ const equipItem = (world: World, entity: number, item: number) => {
   Inventory.slot[entity] = itemId;
 
   // Mark item as equipped
-  addComponent(world, Equipped, entity);
+  addComponent(world, entity, Equipped);
   Equipped.itemId[entity] = itemId;
 
   // Remove item from the world (and all components)

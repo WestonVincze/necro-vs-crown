@@ -19,23 +19,23 @@ describe("MovementSystem", () => {
     movementSystem = createMovementSystem();
     eid = addEntity(world);
 
-    addComponent(world, Position, eid);
+    addComponent(world, eid, Position);
     Position.x[eid] = 0;
     Position.y[eid] = 0;
 
-    addComponent(world, Velocity, eid);
+    addComponent(world, eid, Velocity);
     Velocity.x[eid] = 0;
     Velocity.y[eid] = 0;
 
-    addComponent(world, MoveSpeed, eid);
+    addComponent(world, eid, MoveSpeed);
     MoveSpeed.current[eid] = 1;
     MoveSpeed.base[eid] = 1;
 
-    addComponent(world, MaxMoveSpeed, eid);
+    addComponent(world, eid, MaxMoveSpeed);
     MaxMoveSpeed.current[eid] = 1;
     MaxMoveSpeed.current[eid] = 1;
 
-    addComponent(world, Input, eid);
+    addComponent(world, eid, Input);
   });
 
   it("can move to the right", () => {

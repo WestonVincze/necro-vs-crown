@@ -1,4 +1,3 @@
-import { Types, defineComponent } from "bitecs";
 /**
  * STAT COMPONENTS
  * ===============
@@ -7,9 +6,7 @@ import { Types, defineComponent } from "bitecs";
  * current: base + the current modifications (items, status effects, etc)
  */
 
-const Stat = { base: Types.i32, current: Types.i32 };
-// TODO: refactor all stats to use whole numbers
-const DecimalStat = { base: Types.f32, current: Types.f32 };
+const createStat = () => ({ base: [] as number[], current: [] as number[] });
 
 export enum StatName {
   MaxHealth,
@@ -70,21 +67,21 @@ export const getStatComponentByName = (statName: StatName) => {
 };
 
 /** Stat Components **/
-export const MaxHealth = defineComponent(Stat);
-export const Armor = defineComponent(Stat);
-export const HealthRegeneration = defineComponent(DecimalStat);
-export const MoveSpeed = defineComponent(DecimalStat);
-export const MaxMoveSpeed = defineComponent(DecimalStat);
-export const AttackBonus = defineComponent(Stat);
-export const AttackSpeed = defineComponent(Stat);
-export const AttackRange = defineComponent(Stat);
-export const MaxHit = defineComponent(Stat);
-export const DamageBonus = defineComponent(Stat);
-export const CritChance = defineComponent(DecimalStat);
-export const CritDamage = defineComponent(DecimalStat);
-export const CastingSpeed = defineComponent(Stat);
-export const CastingRange = defineComponent(Stat);
-export const Knockback = defineComponent(Stat);
+export const MaxHealth = createStat();
+export const Armor = createStat();
+export const HealthRegeneration = createStat();
+export const MoveSpeed = createStat();
+export const MaxMoveSpeed = createStat();
+export const AttackBonus = createStat();
+export const AttackSpeed = createStat();
+export const AttackRange = createStat();
+export const MaxHit = createStat();
+export const DamageBonus = createStat();
+export const CritChance = createStat();
+export const CritDamage = createStat();
+export const CastingSpeed = createStat();
+export const CastingRange = createStat();
+export const Knockback = createStat();
 
 /**
  * updates only the current value of a stat until `timeUntilReset` reaches 0, at which point the stat reverts to its base value
@@ -109,21 +106,21 @@ export const UpdateStatsRequest = [] as {
 
 /** single component approach - not used **/
 const AllStats = {
-  MaxHealth: Types.i32,
-  Armor: Types.i32,
-  HealthRegeneration: Types.f32,
-  MoveSpeed: Types.f32,
-  MaxMoveSpeed: Types.f32,
-  AttackBonus: Types.i32,
-  AttackSpeed: Types.i32,
-  AttackRange: Types.i32,
-  MaxHit: Types.i32,
-  DamageBonus: Types.i32,
-  CritChance: Types.f32,
-  CritDamage: Types.f32,
-  CastingSpeed: Types.i32,
-  CastingRange: Types.i32,
-  Knockback: Types.i32,
+  MaxHealth: [] as number[],
+  Armor: [] as number[],
+  HealthRegeneration: [] as number[],
+  MoveSpeed: [] as number[],
+  MaxMoveSpeed: [] as number[],
+  AttackBonus: [] as number[],
+  AttackSpeed: [] as number[],
+  AttackRange: [] as number[],
+  MaxHit: [] as number[],
+  DamageBonus: [] as number[],
+  CritChance: [] as number[],
+  CritDamage: [] as number[],
+  CastingSpeed: [] as number[],
+  CastingRange: [] as number[],
+  Knockback: [] as number[],
 };
 
-const BaseStats = defineComponent(AllStats);
+const BaseStats = { ...AllStats };

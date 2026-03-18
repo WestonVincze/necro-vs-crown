@@ -1,15 +1,18 @@
-import { Types, defineComponent } from "bitecs";
+export const Health = {
+  current: [] as number[],
+  max: [] as number[],
+};
 
-export const Health = defineComponent({
-  current: Types.f32,
-  max: Types.f32,
-});
+export const Damage = {
+  amount: [] as number[],
+  isCrit: [] as boolean[],
+};
 
-export const Damage = defineComponent({
-  amount: Types.f32,
-  isCrit: Types.ui8,
-});
+export const Heal = {
+  amount: [] as number[],
+};
 
-export const Heal = defineComponent({
-  amount: Types.f32,
-});
+export const HitSplat = {
+  amount: [] as number[],
+  isCrit: [] as boolean[],
+};

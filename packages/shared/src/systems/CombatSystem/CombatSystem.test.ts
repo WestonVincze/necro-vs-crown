@@ -5,11 +5,9 @@ import {
   addEntity,
   createWorld,
   entityExists,
-  getAllEntities,
   hasComponent,
   query,
   removeComponent,
-  resetGlobals,
 } from "bitecs";
 import { createCombatSystem } from "./CombatSystem";
 import {
@@ -43,19 +41,19 @@ describe("Combat System and helpers", () => {
       attacker = addEntity(world);
       combatSystem = createCombatSystem();
 
-      addComponent(world, AttackSpeed, attacker);
+      addComponent(world, attacker, AttackSpeed);
       AttackSpeed.base[attacker] = 1;
       AttackSpeed.current[attacker] = 1;
 
-      addComponent(world, AttackRange, attacker);
+      addComponent(world, attacker, AttackRange);
       AttackRange.base[attacker] = 1;
       AttackRange.current[attacker] = 1;
 
-      addComponent(world, MaxHit, attacker);
+      addComponent(world, attacker, MaxHit);
       MaxHit.base[attacker] = 5;
       MaxHit.current[attacker] = 5;
 
-      addComponent(world, Position, attacker);
+      addComponent(world, attacker, Position);
       Position.x[attacker] = 0;
       Position.y[attacker] = 0;
 
@@ -63,12 +61,15 @@ describe("Combat System and helpers", () => {
     });
 
     afterEach(() => {
-      resetGlobals();
+      // resetGlobals();
     });
 
     it("calls each of the helper functions", () => {
       const target = addEntity(world);
-      addComponent(world, CombatTarget(target), attacker);
+      addComponent(world, target, Position);
+      Position.x[target] = 0;
+      Position.y[target] = 0;
+      addComponent(world, attacker, CombatTarget(target));
 
       combatSystem(world);
 
@@ -78,36 +79,40 @@ describe("Combat System and helpers", () => {
 
     it("adds AttackCooldown when an attack is made", () => {
       const target = addEntity(world);
-      addComponent(world, CombatTarget(target), attacker);
-
-      addComponents(world, [Armor, Health], target);
+      addComponents(world, target, [Position, Armor, Health]);
+      Position.x[target] = 0;
+      Position.y[target] = 0;
+      addComponent(world, attacker, CombatTarget(target));
 
       combatSystem(world);
 
-      expect(hasComponent(world, AttackCooldown, attacker)).toBe(true);
+      expect(hasComponent(world, attacker, AttackCooldown)).toBe(true);
     });
 
     it("displays a warning if the target entity does not exist", () => {
       const fake_entity = 5;
       expect(entityExists(world, fake_entity)).toBe(false);
 
-      addComponent(world, CombatTarget(fake_entity), attacker);
-
-      combatSystem(world);
-      expect(consoleWarnSpy).toHaveBeenCalledOnce();
+      expect(() =>
+        addComponent(world, attacker, CombatTarget(fake_entity)),
+      ).toThrowError(
+        new Error(
+          "Cannot add component - entity 5 does not exist in the world.",
+        ),
+      );
     });
 
     it("creates a projectile if the attacker is a RangedUnit", () => {
       const target = addEntity(world);
-      addComponents(world, [Armor, Health], target);
-      addComponent(world, CombatTarget(target), attacker);
+      addComponents(world, target, [Armor, Health]);
+      addComponent(world, attacker, CombatTarget(target));
 
       combatSystem(world);
 
       expect(query(world, [Projectile]).length).toBe(0);
 
-      removeComponent(world, AttackCooldown, attacker);
-      addComponent(world, RangedUnit, attacker);
+      removeComponent(world, attacker, AttackCooldown);
+      addComponent(world, attacker, RangedUnit);
 
       combatSystem(world);
 
@@ -118,14 +123,14 @@ describe("Combat System and helpers", () => {
       const MOCK_DAMAGE = 5;
       rollDamageSpy.mockReturnValue(MOCK_DAMAGE);
       const target = addEntity(world);
-      addComponent(world, CombatTarget(target), attacker);
+      addComponent(world, attacker, CombatTarget(target));
 
-      addComponents(world, [Armor, Health], target);
+      addComponents(world, target, [Armor, Health]);
       Armor.current[target] = 0;
 
       combatSystem(world);
 
-      expect(hasComponent(world, Damage, target)).toBe(true);
+      expect(hasComponent(world, target, Damage)).toBe(true);
       expect(Damage.amount[target]).toBe(MOCK_DAMAGE);
     });
   });

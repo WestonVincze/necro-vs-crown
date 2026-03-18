@@ -13,28 +13,28 @@ describe("HealthSystem", () => {
   beforeEach(() => {
     world = createWorld();
     eid = addEntity(world);
-    addComponent(world, Health, eid);
+    addComponent(world, eid, Health);
     Health.current[eid] = BASE_HP;
     Health.max[eid] = BASE_HP;
   });
 
   it("Can subtract [Damage] from [Health]", () => {
-    addComponent(world, Damage, eid);
+    addComponent(world, eid, Damage);
     Damage.amount[eid] = 5;
 
     healthSystem(world);
-    expect(hasComponent(world, Damage, eid)).toBe(false);
+    expect(hasComponent(world, eid, Damage)).toBe(false);
     expect(Health.current[eid]).toBe(BASE_HP - 5);
   });
 
   it("Can add [Heal] to [Health]", () => {
     Health.current[eid] = BASE_HP - 5;
-    addComponent(world, Heal, eid);
+    addComponent(world, eid, Heal);
     Heal.amount[eid] = 5;
 
     healthSystem(world);
 
-    expect(hasComponent(world, Heal, eid)).toBe(false);
+    expect(hasComponent(world, eid, Heal)).toBe(false);
     expect(Health.current[eid]).toBe(BASE_HP);
   });
 });

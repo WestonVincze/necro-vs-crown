@@ -16,11 +16,11 @@ export const createItemEntity = (
   itemId: number,
 ) => {
   const eid = addEntity(world);
-  addComponent(world, Position, eid);
-  addComponent(world, Item, eid);
-  addComponent(world, Sprite, eid);
-  addComponent(world, Transform, eid);
-  addComponent(world, Collider, eid);
+  addComponent(world, eid, Position);
+  addComponent(world, eid, Item);
+  addComponent(world, eid, Sprite);
+  addComponent(world, eid, Transform);
+  addComponent(world, eid, Collider);
 
   Position.x[eid] = x;
   Position.y[eid] = y;

@@ -1,4 +1,4 @@
-import { defineQuery, removeEntity } from "bitecs";
+import { query, removeEntity } from "bitecs";
 import { DestroyEntity } from "$components";
 import { type World } from "$types";
 
@@ -6,10 +6,8 @@ import { type World } from "$types";
  * Destroys entities when the world time is equal to the components destroyTime
  */
 export const createDestroyAfterDelaySystem = () => {
-  const query = defineQuery([DestroyEntity]);
-
   return (world: World) => {
-    for (const eid of query(world)) {
+    for (const eid of query(world, [DestroyEntity])) {
       DestroyEntity.timeUntilDestroy[eid] -= world.time.delta;
       if (DestroyEntity.timeUntilDestroy[eid] <= 0) {
         removeEntity(world, eid);

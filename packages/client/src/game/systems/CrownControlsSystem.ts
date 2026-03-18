@@ -4,7 +4,7 @@ import { crownState$, playCard } from "$game/Crown";
 import { createUnitEntity } from "@necro-crown/shared";
 import { type World } from "@necro-crown/shared";
 
-export const createCameraControlSystem = (scene: Scene) => {
+export const createCrownControlsSystem = (scene: Scene) => {
   const canvas =
     document.getElementById("game-container") || document.documentElement;
 

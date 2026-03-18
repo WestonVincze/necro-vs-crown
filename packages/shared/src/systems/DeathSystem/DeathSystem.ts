@@ -1,37 +1,22 @@
-import {
-  defineEnterQueue,
-  defineQuery,
-  hasComponent,
-  query,
-  removeEntity,
-} from "bitecs";
-import { createBonesEntity } from "$entities";
-import {
-  Crown,
-  Dead,
-  ExpReward,
-  ItemDrops,
-  Necro,
-  Player,
-  Position,
-} from "$components";
+import { query, hasComponent, removeEntity, observe, onAdd } from "bitecs";
+import { createBonesEntity, createUnitEntity } from "$entities";
+import { Crown, Dead, ExpReward, Necro, Player, Position } from "$components";
 import { giveExpToEntity } from "../LevelUpSystem";
 import { gameEvents } from "$events";
+import { Faction, UnitName } from "$types";
 
 const giveExpToEnemyPlayers = (
   world: World,
   eid: number,
   experience: number,
 ) => {
-  let enemyPlayers: readonly number[] = [];
+  const enemyComponents = hasComponent(world, eid, Crown)
+    ? [Necro, Player]
+    : [Crown, Player];
 
-  if (hasComponent(world, Crown, eid)) {
-    enemyPlayers = query(world, [Necro, Player]);
-  } else if (hasComponent(world, Necro, eid)) {
-    enemyPlayers = query(world, [Crown, Player]);
-  }
+  const enemyPlayers = query(world, enemyComponents);
 
-  if (!enemyPlayers) {
+  if (enemyPlayers.length === 0) {
     console.warn(
       `Experience could not be awarded. No enemy players found for ${eid}.`,
     );
@@ -42,41 +27,37 @@ const giveExpToEnemyPlayers = (
   }
 };
 
-export const createDeathSystem = () => {
-  const deadEntitiesQuery = defineQuery([Dead]);
-
+export const createDeathSystem = (world: World, faction: Faction) => {
   // death "effects" occur before the entity is deleted
-  const expRewardQueue = defineEnterQueue([Dead, ExpReward]);
-  const itemDropQueue = defineEnterQueue([Dead, Position, ItemDrops, Crown]);
-  const deadPlayerQueue = defineEnterQueue([Dead, Player]);
+  const deadPlayerQueue: number[] = [];
+
+  observe(world, onAdd(Dead, Player), (eid) => deadPlayerQueue.push(eid));
 
   return (world: World) => {
-    const expRewards = expRewardQueue(world);
-    for (let i = 0; i < expRewards.length; i++) {
-      const eid = expRewards[i];
-      giveExpToEnemyPlayers(world, eid, ExpReward.amount[eid]);
-    }
-
-    const itemDrops = itemDropQueue(world);
-    for (let i = 0; i < itemDrops.length; i++) {
-      const eid = itemDrops[i];
-
-      const x = Position.x[eid];
-      const y = Position.y[eid];
-      // TODO: implement item drops
-      createBonesEntity(world, x, y);
-    }
-
-    const deadPlayers = deadPlayerQueue(world);
-    for (let i = 0; i < deadPlayers.length; i++) {
-      const eid = deadPlayers[i];
+    const deadPlayersEntered = deadPlayerQueue.splice(0);
+    for (const eid of deadPlayersEntered) {
       // emit game over event
       gameEvents.emitGameOver();
     }
 
-    const deadEntities = deadEntitiesQuery(world);
-    for (let i = 0; i < deadEntities.length; i++) {
-      const eid = deadEntities[i];
+    for (const eid of query(world, [Dead])) {
+      // TODO: implement item drops
+      if (hasComponent(world, eid, Crown)) {
+        const x = Position.x[eid];
+        const y = Position.y[eid];
+        // spawn bones or skeleton depending on mode
+        if (faction === Faction.Necro) {
+          createBonesEntity(world, x, y);
+        } else {
+          createUnitEntity(world, UnitName.Skeleton, x, y);
+        }
+      }
+
+      // reward exp if applicable
+      if (hasComponent(world, eid, ExpReward)) {
+        giveExpToEnemyPlayers(world, eid, ExpReward.amount[eid]);
+      }
+
       removeEntity(world, eid);
     }
 

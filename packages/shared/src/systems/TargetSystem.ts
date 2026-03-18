@@ -1,12 +1,11 @@
 import {
   addComponent,
-  defineQuery,
-  defineSystem,
+  query,
   getRelationTargets,
   hasComponent,
-  removeComponent,
+  QueryResult,
 } from "bitecs";
-import { Position, Behavior, Behaviors, Input, AI } from "$components";
+import { Position, Behavior, Behaviors, AI } from "$components";
 import { Crown, Necro } from "$components";
 import { getCursorEid } from "./CursorTargetSystem";
 import { MoveTarget, CombatTarget } from "$relations";
@@ -14,13 +13,15 @@ import { getDistanceSquared, getPositionFromEid } from "$utils";
 
 // THOUGHT: we could change this system to be reactive or include some dirty/clean flags to skip over target search when not required
 export const createTargetingSystem = () => {
-  const necroTargetQuery = defineQuery([AI, Behavior, Position, Necro]);
-  const crownTargetQuery = defineQuery([AI, Behavior, Position, Crown]);
+  const necroTargetQuery = (world: World) =>
+    query(world, [AI, Behavior, Position, Necro]);
+  const crownTargetQuery = (world: World) =>
+    query(world, [AI, Behavior, Position, Crown]);
 
-  const necroEnemiesQuery = defineQuery([Crown, Position]);
-  const crownEnemiesQuery = defineQuery([Necro, Position]);
+  const necroEnemiesQuery = (world: World) => query(world, [Crown, Position]);
+  const crownEnemiesQuery = (world: World) => query(world, [Necro, Position]);
 
-  return defineSystem((world) => {
+  return (world: World) => {
     const necroEntities = necroTargetQuery(world);
     const crownEntities = crownTargetQuery(world);
 
@@ -28,8 +29,8 @@ export const createTargetingSystem = () => {
     const crownEnemyEntities = crownEnemiesQuery(world);
 
     const updateTargets = (
-      sourceEntities: readonly number[],
-      targetEntities: readonly number[],
+      sourceEntities: QueryResult,
+      targetEntities: QueryResult,
     ) => {
       for (const eid of sourceEntities) {
         let closestDistance = Infinity;
@@ -49,7 +50,7 @@ export const createTargetingSystem = () => {
         }
 
         if (closestTarget !== null) {
-          addComponent(world, CombatTarget(closestTarget), eid);
+          addComponent(world, eid, CombatTarget(closestTarget));
         }
       }
     };
@@ -57,7 +58,7 @@ export const createTargetingSystem = () => {
     updateTargets(necroEntities, necroEnemyEntities);
     updateTargets(crownEntities, crownEnemyEntities);
     return world;
-  });
+  };
 };
 
 export const createAssignFollowTargetSystem = () => {
@@ -67,10 +68,8 @@ export const createAssignFollowTargetSystem = () => {
    * example: with no behavior, the followTarget should just be the Target
    */
 
-  const query = defineQuery([Behavior]);
-
   return (world: World) => {
-    for (const eid of query(world)) {
+    for (const eid of query(world, [Behavior])) {
       if (Behavior.type[eid] === Behaviors.FollowCursor) {
         const cursorEid = getCursorEid(world);
         if (!cursorEid) {
@@ -79,13 +78,13 @@ export const createAssignFollowTargetSystem = () => {
           );
           continue;
         }
-        addComponent(world, MoveTarget(cursorEid), eid);
+        addComponent(world, eid, MoveTarget(cursorEid));
       } else if (
         Behavior.type[eid] === Behaviors.AutoTarget &&
-        hasComponent(world, CombatTarget("*"), eid)
+        hasComponent(world, eid, CombatTarget("*"))
       ) {
-        const target = getRelationTargets(world, CombatTarget, eid)[0];
-        addComponent(world, MoveTarget(target), eid);
+        const [target] = getRelationTargets(world, eid, CombatTarget);
+        addComponent(world, eid, MoveTarget(target));
       }
     }
     return world;

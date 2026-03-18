@@ -1,7 +1,7 @@
-import { defineQuery } from "bitecs";
+import { query } from "bitecs";
 import { Vector2 } from "$types";
 import { GridCell, Position, SeparationForce } from "$components";
-import { getGridCellFromEid, getPositionFromEid, profiler } from "$utils";
+import { getGridCellFromEid, getPositionFromEid } from "$utils";
 
 export const SEPARATION_THRESHOLD = 50;
 const SEPARATION_THRESHOLD_SQUARED = SEPARATION_THRESHOLD ** 2;
@@ -12,6 +12,8 @@ const calculateSeparationForce = (
   targetPosition: Vector2,
 ): Vector2 => {
   const separationForce = { x: 0, y: 0 };
+  if (position.x === targetPosition.x && position.y === targetPosition.y)
+    return separationForce;
 
   const dx = targetPosition.x - position.x;
   const dy = targetPosition.y - position.y;
@@ -30,10 +32,11 @@ const calculateSeparationForce = (
  * * SeparationForce should be applied after Input is set and before it is applied
  */
 export const createSeparationForceSystem = () => {
-  const query = defineQuery([Position, GridCell, SeparationForce]);
+  const separationForceQuery = (world: World) =>
+    query(world, [Position, GridCell, SeparationForce]);
 
   return (world: World) => {
-    const entities = query(world);
+    const entities = separationForceQuery(world);
 
     for (let i = 0; i < entities.length; i++) {
       const eid = entities[i];

@@ -1,22 +1,19 @@
-import { defineQuery, removeComponent } from "bitecs";
+import { query, removeComponent } from "bitecs";
 import { AttackCooldown, SpellCooldown } from "$components";
 
 export const createCooldownSystem = () => {
-  const attackCooldownQuery = defineQuery([AttackCooldown]);
-  const spellCooldownQuery = defineQuery([SpellCooldown]);
-
   return (world: World) => {
-    for (const eid of attackCooldownQuery(world)) {
+    for (const eid of query(world, [AttackCooldown])) {
       AttackCooldown.timeUntilReady[eid] -= world.time.delta;
       if (AttackCooldown.timeUntilReady[eid] <= 0) {
-        removeComponent(world, AttackCooldown, eid);
+        removeComponent(world, eid, AttackCooldown);
       }
     }
 
-    for (const eid of spellCooldownQuery(world)) {
+    for (const eid of query(world, [SpellCooldown])) {
       SpellCooldown.timeUntilReady[eid] -= world.time.delta;
       if (SpellCooldown.timeUntilReady[eid] <= 0) {
-        removeComponent(world, SpellCooldown, eid);
+        removeComponent(world, eid, SpellCooldown);
       }
     }
 

@@ -4,10 +4,10 @@ import { UnitName } from "$types";
 
 export const createTargetSpawnerEntity = (world: World, targetEid: number) => {
   const eid = addEntity(world);
-  addComponent(world, Spawner, eid);
+  addComponent(world, eid, Spawner);
   Spawner.timeUntilSpawn[eid] = 500;
 
-  addComponent(world, SpawnTarget(targetEid), eid);
+  addComponent(world, eid, SpawnTarget(targetEid));
 
   return eid;
 };
@@ -17,14 +17,14 @@ export const createBuildingSpawnerEntity = (
   units: UnitName[],
 ) => {
   const eid = addEntity(world);
-  addComponent(world, Spawner, eid);
+  addComponent(world, eid, Spawner);
   Spawner.timeUntilSpawn[eid] = 500;
   Spawner.xMin[eid] = 300;
   Spawner.xMax[eid] = 600;
   Spawner.yMin[eid] = 300;
   Spawner.yMax[eid] = 600;
 
-  addComponent(world, BuildingSpawner, eid);
+  addComponent(world, eid, BuildingSpawner);
   BuildingSpawner[eid] = { spawnableUnits: units };
 
   return eid;

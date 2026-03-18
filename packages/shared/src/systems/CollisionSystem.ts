@@ -1,4 +1,4 @@
-import { defineQuery, enterQuery, exitQuery, removeEntity } from "bitecs";
+import { Not, observe, onAdd, onRemove, query, removeEntity } from "bitecs";
 import { GameObjects } from "phaser";
 import { Subject } from "rxjs";
 
@@ -24,15 +24,18 @@ import { attackEntity } from "./CombatSystem";
 // TODO: define collisionTypes or create specific collision messages to provide context to subscribers of collisionEvents
 export const collisionEvents = new Subject<{ eid1: number; eid2: number }>();
 
-// base collision query
-const colliderQuery = defineQuery([Position, Collider]);
-
 export const createProjectileCollisionSystem = () => {
-  const projectileQuery = defineQuery([Position, Collider, Projectile]);
-
   return (world: World) => {
-    for (const projectileEid of projectileQuery(world)) {
-      for (const colliderEid of colliderQuery(world)) {
+    for (const projectileEid of query(world, [
+      Position,
+      Collider,
+      Projectile,
+    ])) {
+      for (const colliderEid of query(world, [
+        Position,
+        Collider,
+        Not(Projectile),
+      ])) {
         if (checkCollision(projectileEid, colliderEid)) {
           // TODO: handle collisions for other types of entities (walls)
           // projectile collided with something
@@ -55,33 +58,16 @@ export const createProjectileCollisionSystem = () => {
   };
 };
 
-/**
- * DEPRECATED
- */
-export const createCollisionSystem = () => {
-  return (world: World) => {
-    const entities = colliderQuery(world);
+export const createDrawCollisionSystem = (
+  world: World,
+  scene: Phaser.Scene,
+) => {
+  const enterQueue: number[] = [];
+  const exitQueue: number[] = [];
 
-    for (let i = 0; i < entities.length; i++) {
-      for (let j = i + 1; j < entities.length; j++) {
-        const eid1 = entities[i];
-        const eid2 = entities[j];
+  observe(world, onAdd(Collider), (eid) => enterQueue.push(eid));
+  observe(world, onRemove(Collider), (eid) => exitQueue.push(eid));
 
-        if (checkCollision(eid1, eid2)) {
-          // Collision detected, emit an event
-          console.log("collision detected");
-          collisionEvents.next({ eid1, eid2 });
-        }
-      }
-    }
-
-    return world;
-  };
-};
-
-export const createDrawCollisionSystem = (scene: Phaser.Scene) => {
-  const onEnter = enterQuery(colliderQuery);
-  const onExit = exitQuery(colliderQuery);
   const colliderGraphicsMap = new Map<number, GameObjects.Arc | null>();
 
   GameState.onDebugEnabled$.subscribe(() => {
@@ -105,7 +91,8 @@ export const createDrawCollisionSystem = (scene: Phaser.Scene) => {
 
   return (world: World) => {
     // TODO: create a "debugSystem" to enable/disable debugging features without having to create custom debug actions for each system
-    for (const eid of onEnter(world)) {
+    const collisionsEntered = enterQueue.splice(0);
+    for (const eid of collisionsEntered) {
       const arc = GameState.isDebugMode()
         ? scene.add.circle(
             Position.x[eid] + Collider.offsetX[eid],
@@ -119,7 +106,7 @@ export const createDrawCollisionSystem = (scene: Phaser.Scene) => {
       colliderGraphicsMap.set(eid, arc);
     }
 
-    for (const eid of colliderQuery(world)) {
+    for (const eid of query(world, [Collider, Position])) {
       if (!GameState.isDebugMode()) continue;
       colliderGraphicsMap
         .get(eid)
@@ -129,7 +116,8 @@ export const createDrawCollisionSystem = (scene: Phaser.Scene) => {
         );
     }
 
-    for (const eid of onExit(world)) {
+    const collisionsExited = exitQueue.splice(0);
+    for (const eid of collisionsExited) {
       colliderGraphicsMap.get(eid)?.destroy();
       colliderGraphicsMap.delete(eid);
     }

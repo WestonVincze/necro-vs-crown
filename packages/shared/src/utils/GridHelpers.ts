@@ -17,6 +17,7 @@ export const getPositionFromGridCell = (gridCell: Vector2) => {
  * Returns the GridCell coordinates based on a given position vector (in pixels)
  */
 export const getGridCellFromPosition = (position: Vector2) => {
+  if (position.x === 0 && position.y === 0) return position;
   return {
     x: Math.floor((position.x + MAP_WIDTH_PIXELS / 2) / TILE_SIZE),
     y: Math.floor((position.y + MAP_HEIGHT_PIXELS / 2) / TILE_SIZE),
