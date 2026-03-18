@@ -1,8 +1,4 @@
-import {
-  createAIEventsSystem,
-  createHitSplatSystem,
-  createItemEquipSystem,
-} from "$systems";
+import { createAIEventsSystem, createItemEquipSystem } from "$systems";
 import { type Pipeline } from "$types";
 import { pipeline } from "./helpers";
 import { PipelineFactory } from "./types";
@@ -17,12 +13,7 @@ export const buildReactivePipeline = ({
     return pipeline([]);
   }
 
-  const coreReactiveSystems = [
-    createAIEventsSystem(),
-    createHitSplatSystem(scene),
-    // createHealthSystem(),
-    createItemEquipSystem(),
-  ];
+  const coreReactiveSystems = [createAIEventsSystem(), createItemEquipSystem()];
 
   return pipeline([...pre, ...coreReactiveSystems, ...post]);
 };

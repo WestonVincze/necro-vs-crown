@@ -1,9 +1,8 @@
-import { hasComponent } from "bitecs";
+import { hasComponent, observe, onRemove, removeComponent } from "bitecs";
 import { GameObjects, Scene } from "phaser";
-import { Necro, Transform } from "$components";
-import { gameEvents } from "$events";
+import { Damage, HitSplat, Necro, Transform } from "$components";
 import { Faction } from "$types";
-import { getPositionFromEid } from "$utils";
+import { getPositionFromEid, isValidPosition } from "$utils";
 
 const hitSplatColors = {
   [Faction.Crown]: {
@@ -18,17 +17,26 @@ const hitSplatColors = {
   },
 };
 
-export const createHitSplatSystem = (scene: Scene) => {
+export const createHitSplatSystem = (world: World, scene: Scene) => {
+  const hitSplatEnterQueue: number[] = [];
+  observe(world, onRemove(Damage), (eid) => hitSplatEnterQueue.push(eid));
+
   return (world: World) => {
-    // TODO: this needs to unsubscribe when the scene changes
-    const hitSplatSubscription = gameEvents.healthChanges.subscribe(
-      ({ amount, isCrit, eid }) => {
+    const hitSplatsEntered = hitSplatEnterQueue.splice(0);
+    for (const eid of hitSplatsEntered) {
+      const position = getPositionFromEid(eid);
+      if (isValidPosition(position)) {
+        console.warn(
+          `Attempted to add a HitSplat to entity ${eid} which has an invalid position.`,
+        );
+      } else {
         const tag = hasComponent(world, eid, Necro)
           ? Faction.Necro
           : Faction.Crown;
-        const position = getPositionFromEid(eid);
         position.y -= Transform.height[eid] / 2;
         const { x, y } = position;
+        const amount = HitSplat.amount[eid];
+        const isCrit = HitSplat.isCrit[eid];
 
         let color = hitSplatColors[tag].hit;
         let fontSize = "16px";
@@ -88,12 +96,9 @@ export const createHitSplatSystem = (scene: Scene) => {
           star.destroy();
           text.destroy();
         });
-      },
-    );
-
-    scene.events.once("shutdown", () => {
-      hitSplatSubscription.unsubscribe();
-    });
+      }
+      removeComponent(world, eid, HitSplat);
+    }
 
     return world;
   };

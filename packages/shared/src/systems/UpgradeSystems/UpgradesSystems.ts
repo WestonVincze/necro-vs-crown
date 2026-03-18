@@ -55,7 +55,7 @@ export const createUpgradeSelectionSystem = () => {
 export const createEmitUpgradeRequestEventSystem = (world: World) => {
   const playerUpgradeEnterQueue: number[] = [];
 
-  observe(world, onAdd(UpgradeRequest, Player), (eid) =>
+  observe(world, onAdd(UpgradeRequest), (eid) =>
     playerUpgradeEnterQueue.push(eid),
   );
 

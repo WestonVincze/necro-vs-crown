@@ -1,7 +1,6 @@
 import {
   createCombatSystem,
   createCooldownSystem,
-  createDeathSystem,
   createDestroyAfterDelaySystem,
   createDrawCollisionSystem,
   createDrawSpellEffectSystem,
@@ -9,6 +8,7 @@ import {
   createHandleUpgradeSelectEventSystem,
   createHealthBarSystem,
   createHealthSystem,
+  createHitSplatSystem,
   createLevelUpSystem,
   createMovementSystem,
   createProjectileCollisionSystem,
@@ -59,9 +59,9 @@ export const buildPhysicsPipeline = ({
     createDrawSpellEffectSystem(world, scene),
     createStatUpdateSystem(),
     createHealthSystem(),
+    createHitSplatSystem(world, scene),
     createHealthBarSystem(world, scene),
     createDestroyAfterDelaySystem(),
-    createDeathSystem(world),
   ];
   return pipeline([
     ...pre,
