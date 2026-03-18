@@ -49,3 +49,16 @@ export const arePositionsInSameGridCell = (a: Vector2, b: Vector2): boolean => {
   const gridCellB = getGridCellFromPosition(b);
   return areVectorsIdentical(gridCellA, gridCellB);
 };
+
+/**
+ * Compares the given GridCell coordinates of two vector positions
+ * @returns true if both GridCell coordinates are within 1 tile (including diagonals)
+ */
+export const isWithinOneGridCell = (
+  gridCellA: Vector2,
+  gridCellB: Vector2,
+): boolean => {
+  const dx = Math.abs(gridCellA.x - gridCellB.x);
+  const dy = Math.abs(gridCellA.y - gridCellB.y);
+  return Math.max(dx, dy) <= 1;
+};

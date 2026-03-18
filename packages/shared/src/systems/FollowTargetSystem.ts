@@ -8,6 +8,7 @@ import {
   getGridCellFromEid,
   getPositionFromEid,
   getPositionFromGridCell,
+  isWithinOneGridCell,
 } from "$utils";
 import { GameState } from "$managers";
 
@@ -85,8 +86,34 @@ export const createFollowTargetSystem = (world: World, scene: Scene) => {
 
       const path = pathsByEntityId.get(eid);
 
+      // if both entities share grid coordinates then the follow force should target the entity, not the grid
+      if (isWithinOneGridCell(gridCell, targetGridCell)) {
+        if (GameState.isDebugMode()) {
+          if (!graphicsById.has(eid)) {
+            graphicsById.set(eid, scene.add.graphics());
+          }
+
+          const graphics = graphicsById.get(eid);
+
+          graphics?.clear();
+        }
+        const targetPosition = getPositionFromEid(targetEid);
+        const direction = {
+          x: targetPosition.x - position.x,
+          y: targetPosition.y - position.y,
+        };
+
+        if (direction.x !== 0 || direction.y !== 0) {
+          const length = Math.sqrt(direction.x ** 2 + direction.y ** 2);
+          // TODO: define parameters for successfully reaching target
+          // stop movement if target is close enough
+          if (length > 25) {
+            followForce = { x: direction.x / length, y: direction.y / length };
+          }
+        }
+      }
       // check if we are already at the target position
-      if (
+      else if (
         !areVectorsIdentical(gridCell, targetGridCell) &&
         world.grid.isWalkableAt(targetGridCell.x, targetGridCell.y)
       ) {
