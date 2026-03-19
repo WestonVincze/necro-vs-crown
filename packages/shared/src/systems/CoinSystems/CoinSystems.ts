@@ -1,5 +1,5 @@
 import { addComponent, query, hasComponent, removeComponent } from "bitecs";
-import { AddCoin, CoinAccumulator, Coin, SpendCoin } from "$components";
+import { AddCoin, CoinAccumulator, Coin, SpendCoin } from "../../components";
 
 export const createCoinAccumulationSystem = () => {
   const coinAccumulatorQuery = (world: World) =>

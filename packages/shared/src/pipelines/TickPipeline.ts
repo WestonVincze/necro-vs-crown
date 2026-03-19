@@ -1,7 +1,7 @@
 import {
   createAssignFollowTargetSystem,
   createTargetingSystem,
-} from "$systems";
+} from "../systems";
 import { pipeline } from "./helpers";
 
 export const buildTickPipeline = () =>

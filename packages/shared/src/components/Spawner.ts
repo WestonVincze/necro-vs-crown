@@ -1,4 +1,4 @@
-import { UnitName } from "$types";
+import { UnitName } from "../types";
 import { createRelation, makeExclusive } from "bitecs";
 
 export const Spawner = {

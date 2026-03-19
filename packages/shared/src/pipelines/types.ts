@@ -1,4 +1,4 @@
-import type { System, World } from "$types";
+import type { System, World } from "../types";
 import { Scene } from "phaser";
 
 export type PipelineFactory = {

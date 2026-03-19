@@ -1,5 +1,5 @@
 import { query, removeComponent } from "bitecs";
-import { AttackCooldown, SpellCooldown } from "$components";
+import { AttackCooldown, SpellCooldown } from "../../components";
 
 export const createCooldownSystem = () => {
   return (world: World) => {

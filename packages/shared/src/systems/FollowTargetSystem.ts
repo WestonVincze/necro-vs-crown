@@ -1,16 +1,22 @@
 import { query, getRelationTargets, observe, onRemove } from "bitecs";
-import { AttackRange, GridCell, Input, Position, Velocity } from "$components";
-import { Grid, AStarFinder, DiagonalMovement, Util } from "pathfinding";
-import { type Scene, GameObjects, Geom } from "phaser";
-import { MoveTarget } from "$relations";
+import {
+  AttackRange,
+  GridCell,
+  Input,
+  Position,
+  Velocity,
+} from "../components";
+import { AStarFinder, DiagonalMovement, Util } from "pathfinding";
+import { type Scene, type GameObjects, Geom } from "phaser";
+import { MoveTarget } from "../relations";
 import {
   areVectorsIdentical,
   getGridCellFromEid,
   getPositionFromEid,
   getPositionFromGridCell,
   isWithinOneGridCell,
-} from "$utils";
-import { GameState } from "$managers";
+} from "../utils";
+import { GameState } from "../managers";
 
 const drawPathLines = (
   path: number[][],

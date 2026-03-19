@@ -1,7 +1,7 @@
 import { query } from "bitecs";
-import { Vector2 } from "$types";
-import { GridCell, Position, SeparationForce } from "$components";
-import { getGridCellFromEid, getPositionFromEid } from "$utils";
+import { Vector2 } from "../../types";
+import { GridCell, Position, SeparationForce } from "../../components";
+import { getGridCellFromEid, getPositionFromEid } from "../../utils";
 
 export const SEPARATION_THRESHOLD = 50;
 const SEPARATION_THRESHOLD_SQUARED = SEPARATION_THRESHOLD ** 2;

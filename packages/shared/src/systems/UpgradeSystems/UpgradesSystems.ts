@@ -6,8 +6,11 @@ import {
   observe,
   onAdd,
 } from "bitecs";
-import { gameEvents, UpgradeSelectEvent } from "$events";
-import { Player, SelectedUpgrade, UpgradeRequest } from "$components";
+import { gameEvents, UpgradeSelectEvent } from "../../events";
+import {
+  SelectedUpgrade,
+  UpgradeRequest,
+} from "../../components";
 import { updateStatsByUnitType } from "../StatUpdateSystem";
 
 /**

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { addComponents, addEntity, createWorld } from "bitecs";
 import { createSeparationForceSystem } from "./SeparationForceSystem";
-import { SeparationForce, Position, GridCell } from "$components";
-import { getGridCellFromPosition } from "$utils";
+import { SeparationForce, Position, GridCell } from "../../components";
+import { getGridCellFromPosition } from "../../utils";
 
 describe("SeparationForceSystem", () => {
   let world: World;

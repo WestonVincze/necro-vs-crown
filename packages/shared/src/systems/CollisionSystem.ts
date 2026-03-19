@@ -2,8 +2,8 @@ import { Not, observe, onAdd, onRemove, query, removeEntity } from "bitecs";
 import { GameObjects } from "phaser";
 import { Subject } from "rxjs";
 
-import { Position, Collider, Projectile } from "$components";
-import { GameState } from "$managers";
+import { Position, Collider, Projectile } from "../components";
+import { GameState } from "../managers";
 import { attackEntity } from "./CombatSystem";
 /**
  * Another option is to create a collisionSystem factory that accepts

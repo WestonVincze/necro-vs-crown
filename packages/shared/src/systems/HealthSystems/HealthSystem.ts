@@ -1,5 +1,5 @@
 import { addComponent, query, removeComponent } from "bitecs";
-import { Damage, Dead, Heal, Health, HitSplat } from "$components";
+import { Damage, Dead, Heal, Health, HitSplat } from "../../components";
 
 export const createHealthSystem = () => {
   const damageQuery = (world: World) => query(world, [Health, Damage]);

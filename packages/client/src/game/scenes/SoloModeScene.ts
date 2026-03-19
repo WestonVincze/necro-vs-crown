@@ -36,6 +36,7 @@ import {
 import { type World, GameState } from "@necro-crown/shared";
 import { profiler } from "@necro-crown/shared/src/utils";
 import { Grid } from "pathfinding";
+import { createMouseManager } from "../../input";
 
 export class SoloModeScene extends Scene {
   /**
@@ -138,6 +139,9 @@ export class SoloModeScene extends Scene {
     // Faction specific configurations
     switch (this.playerType) {
       case Faction.Crown:
+        createMouseManager(
+          document.getElementById("game-container") || document.documentElement,
+        );
         this.initializeEntities = () => {
           // create player
           const crown = addEntity(this.world);

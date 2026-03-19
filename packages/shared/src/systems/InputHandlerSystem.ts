@@ -1,5 +1,5 @@
 import { query } from "bitecs";
-import { Input, Player } from "$components";
+import { Input, Player } from "../components";
 // TODO: move InputHandlerSystem to client, it won't be shared
 import {
   createActiveActions,

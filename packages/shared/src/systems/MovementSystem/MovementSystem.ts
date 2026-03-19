@@ -7,8 +7,8 @@ import {
   MaxMoveSpeed,
   SeparationForce,
   Transform,
-} from "$components";
-import { clampToScreenSize, normalizeForce } from "$utils";
+} from "../../components";
+import { clampToScreenSize, normalizeForce } from "../../utils";
 
 const FRICTION = 0.05;
 

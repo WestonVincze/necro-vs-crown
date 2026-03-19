@@ -6,9 +6,9 @@ import {
   Sprite,
   SpriteType,
   Transform,
-} from "$components";
-import { SpriteTexture } from "$constants";
-import { clampToScreenSize, getGridCellFromPosition } from "$utils";
+} from "../components";
+import { SpriteTexture } from "../constants";
+import { clampToScreenSize, getGridCellFromPosition } from "../utils";
 
 const BONE_LIFETIME = 15000;
 

@@ -20,8 +20,8 @@ import {
   createTimeSystem,
   createUnitSpawnerSystem,
   createUpgradeSelectionSystem,
-} from "$systems";
-import { type Pipeline } from "$types";
+} from "../systems";
+import { type Pipeline } from "../types";
 
 import { pipeline } from "./helpers";
 import { PipelineFactory } from "./types";
