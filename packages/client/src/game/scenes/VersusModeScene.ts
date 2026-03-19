@@ -1,19 +1,33 @@
 import { Scene } from "phaser";
-import { Client, Room, Callbacks } from "@colyseus/sdk";
+import { Client, Room } from "@colyseus/sdk";
 import {
   Faction,
-  UnitName,
-  createUnitEntity,
+  MAP_X_MAX,
+  MAP_X_MIN,
+  MAP_Y_MAX,
+  MAP_Y_MIN,
+  Networked,
+  Position,
+  createDrawCollisionSystem,
+  createDrawSpellEffectSystem,
+  createHealthBarSystem,
+  createHitSplatSystem,
+  createSpriteSystem,
+  networkSynComponents,
   type Pipeline,
 } from "@necro-crown/shared";
-import { createWorld } from "bitecs";
-import { type World } from "@necro-crown/shared";
-import { defineAction } from "../../input/Actions";
+import { createWorld, query } from "bitecs";
+import {
+  createObserverDeserializer,
+  createSnapshotDeserializer,
+  createSoADeserializer,
+} from "bitecs/serialization";
+import { Grid } from "pathfinding";
 import { crownState$, playCard } from "$game/Crown";
+import { type World, pipeline } from "@necro-crown/shared";
+import { defineAction } from "../../input/Actions";
 import { createMouseManager } from "../../input/MouseInputs";
-import { MyRoomState } from "../../../../server/src/rooms/schema/MyRoomState";
 
-// TODO: refactor Crown and Necro logic into separate classes or modules
 export class VersusModeScene extends Scene {
   constructor() {
     super("VersusModeScene");
@@ -21,7 +35,12 @@ export class VersusModeScene extends Scene {
 
   playerEntities: { [sessionId: string]: any } = {};
   private playerType!: Faction;
+  private camera!: Phaser.Cameras.Scene2D.Camera;
   private world!: World;
+  private snapshotDeserialize: any;
+  private soaDeserialize: any;
+  private observerDeserialize: any;
+  private idMap = new Map<number, number>();
 
   // system references
   private reactiveSystems!: Pipeline;
@@ -30,6 +49,7 @@ export class VersusModeScene extends Scene {
 
   init(data: { player: Faction }) {
     this.playerType = data.player;
+    this.camera = this.cameras.main;
     // until mouse inputs are improved, we need to instantiate mouse manager
     createMouseManager(
       document.getElementById("game-container") || document.documentElement,
@@ -47,6 +67,24 @@ export class VersusModeScene extends Scene {
     console.log("joining room...");
     this.world = createWorld();
     this.world.time = { delta: 0, elapsed: 0, then: performance.now() };
+    // initialize systems
+    this.physicsSystems = pipeline([
+      createDrawCollisionSystem(this.world, this),
+      createSpriteSystem(this.world, this),
+      createDrawSpellEffectSystem(this.world, this),
+      createHitSplatSystem(this.world, this),
+      createHealthBarSystem(this.world, this),
+    ]);
+    this.snapshotDeserialize = createSnapshotDeserializer(
+      this.world,
+      networkSynComponents,
+    );
+    this.observerDeserialize = createObserverDeserializer(
+      this.world,
+      Networked,
+      networkSynComponents,
+    );
+    this.soaDeserialize = createSoADeserializer(networkSynComponents);
 
     createMouseManager(
       document.getElementById("game-container") || document.documentElement,
@@ -54,13 +92,9 @@ export class VersusModeScene extends Scene {
 
     try {
       // we can use joinOrCreate<MyState> or joinOrCreate<MyRoom>
-      this.room = await this.client.joinOrCreate(
-        "my_room",
-        {
-          playerType: this.playerType === Faction.Crown ? "crown" : "necro",
-        },
-        MyRoomState,
-      );
+      this.room = await this.client.joinOrCreate("my_room", {
+        playerType: this.playerType,
+      });
       console.log("Joined Successfully!");
 
       if (this.playerType === Faction.Crown) {
@@ -98,10 +132,51 @@ export class VersusModeScene extends Scene {
 
     if (!this.room) return;
 
+    this.camera.setBounds(MAP_X_MIN, MAP_Y_MIN, MAP_X_MAX, MAP_Y_MAX);
+
+    const map = this.make.tilemap({ key: "map" });
+    map.addTilesetImage("sample", "sample");
+    map.createLayer("Ground", "sample", MAP_X_MIN, MAP_Y_MIN);
+    map.createLayer("Roads", "sample", MAP_X_MIN, MAP_Y_MIN);
+    map.createLayer("Objects", "sample", MAP_X_MIN, MAP_Y_MIN);
+
+    let gridData = [];
+    for (let y = 0; y < map.height; y++) {
+      let row = [];
+      for (let x = 0; x < map.width; x++) {
+        row.push(map.hasTileAt(x, y, "Objects") ? 1 : 0);
+      }
+      gridData.push(row);
+    }
+
+    this.world.grid = new Grid(gridData);
+
+    // initial state sync
+    this.room.onMessage("snapshot", (data: ArrayBuffer) => {
+      const view = new Uint8Array(data);
+      this.snapshotDeserialize(view.buffer, this.idMap);
+    });
+
+    // updates to component data
+    this.room.onMessage("soaUpdates", (data: ArrayBuffer) => {
+      const view = new Uint8Array(data);
+      this.soaDeserialize(view.buffer, this.idMap);
+    });
+
+    // updates to structure (entity/component additions and removals)
+    this.room.onMessage("observerUpdates", (data: ArrayBuffer) => {
+      console.log("updates");
+      const view = new Uint8Array(data);
+      console.log(view.buffer);
+      this.observerDeserialize(view.buffer, this.idMap);
+    });
+
+    /*
+    // initialize callbacks
     const callbacks = Callbacks.get(this.room);
 
     callbacks.onAdd("minions", (minion: any, sessionId) => {
-      console.log("MINION ADDED")
+      console.log("MINION ADDED");
       createUnitEntity(this.world, UnitName.Skeleton, minion.x, minion.y);
 
       const entity = this.physics.add.image(minion.x, minion.y, minion.name);
@@ -115,9 +190,10 @@ export class VersusModeScene extends Scene {
         entity.setData("serverX", minion.x);
         entity.setData("serverY", minion.y);
       });
-    })
+    });
 
     callbacks.onAdd("enemies", (enemy: any, sessionId) => {
+      const entity = createUnitEntity(this.world, enemy.name, enemy.x, enemy.y);
       const entity = this.physics.add.image(enemy.x, enemy.y, enemy.name);
       entity.width = enemy.width;
       entity.height = enemy.height;
@@ -125,15 +201,11 @@ export class VersusModeScene extends Scene {
       entity.displayHeight = enemy.height;
 
       this.units.push(entity);
-      callbacks.onChange(enemy, () => {
-        entity.setData("serverX", enemy.x);
-        entity.setData("serverY", enemy.y);
-      });
     });
 
     callbacks.onAdd("players", (player: any, sessionId) => {
       // this.playerEntities[sessionId] = entity
-      console.log("A player has joined! Their id is " + sessionId)
+      console.log("A player has joined! Their id is " + sessionId);
 
       if (sessionId === this.room?.sessionId) {
         // sessionId matches, this is the current player
@@ -150,10 +222,15 @@ export class VersusModeScene extends Scene {
         delete this.playerEntities[sessionId];
       }
     });
+    */
   }
 
   fixedUpdate(time: number, delta: number) {
     if (!this.room) return;
+    for (const eid of query(this.world, [Position])) {
+      console.log(`${Position.x[eid]}, ${Position.y[eid]}`);
+    }
+    this.physicsSystems(this.world);
   }
 
   elapsedTime = 0;
