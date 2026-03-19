@@ -133,9 +133,6 @@ export class SoloModeScene extends Scene {
 
     this.world.grid = new Grid(gridData);
 
-    // somehow this is necessary to prevent a bug with targeting
-    const zero = addEntity(this.world);
-
     // Faction specific configurations
     switch (this.playerType) {
       case Faction.Crown:
