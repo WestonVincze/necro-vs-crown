@@ -165,71 +165,13 @@ export class VersusModeScene extends Scene {
 
     // updates to structure (entity/component additions and removals)
     this.room.onMessage("observerUpdates", (data: ArrayBuffer) => {
-      console.log("updates");
       const view = new Uint8Array(data);
-      console.log(view.buffer);
       this.observerDeserialize(view.buffer, this.idMap);
     });
-
-    /*
-    // initialize callbacks
-    const callbacks = Callbacks.get(this.room);
-
-    callbacks.onAdd("minions", (minion: any, sessionId) => {
-      console.log("MINION ADDED");
-      createUnitEntity(this.world, UnitName.Skeleton, minion.x, minion.y);
-
-      const entity = this.physics.add.image(minion.x, minion.y, minion.name);
-      entity.width = 40;
-      entity.height = 60;
-      entity.displayWidth = 40;
-      entity.displayHeight = 60;
-
-      this.units.push(entity);
-      callbacks.onChange(minion, () => {
-        entity.setData("serverX", minion.x);
-        entity.setData("serverY", minion.y);
-      });
-    });
-
-    callbacks.onAdd("enemies", (enemy: any, sessionId) => {
-      const entity = createUnitEntity(this.world, enemy.name, enemy.x, enemy.y);
-      const entity = this.physics.add.image(enemy.x, enemy.y, enemy.name);
-      entity.width = enemy.width;
-      entity.height = enemy.height;
-      entity.displayWidth = enemy.width;
-      entity.displayHeight = enemy.height;
-
-      this.units.push(entity);
-    });
-
-    callbacks.onAdd("players", (player: any, sessionId) => {
-      // this.playerEntities[sessionId] = entity
-      console.log("A player has joined! Their id is " + sessionId);
-
-      if (sessionId === this.room?.sessionId) {
-        // sessionId matches, this is the current player
-        // this.currentPlayer = entity;
-      }
-    });
-
-    callbacks.onRemove("players", (player: any, sessionId: any) => {
-      // clean up player resources
-      const entity = this.playerEntities[sessionId];
-      if (entity) {
-        entity.destroy();
-
-        delete this.playerEntities[sessionId];
-      }
-    });
-    */
   }
 
   fixedUpdate(time: number, delta: number) {
     if (!this.room) return;
-    for (const eid of query(this.world, [Position])) {
-      console.log(`${Position.x[eid]}, ${Position.y[eid]}`);
-    }
     this.physicsSystems(this.world);
   }
 
