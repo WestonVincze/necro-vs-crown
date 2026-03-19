@@ -48,6 +48,9 @@ export class VersusModeScene extends Scene {
     this.world = createWorld();
     this.world.time = { delta: 0, elapsed: 0, then: performance.now() };
 
+    createMouseManager(
+      document.getElementById("game-container") || document.documentElement,
+    );
 
     try {
       // we can use joinOrCreate<MyState> or joinOrCreate<MyRoom>
@@ -80,7 +83,7 @@ export class VersusModeScene extends Scene {
 
             playCard(() => {
               this.room?.send("add_crown_unit", {
-                name: UnitName[selectedCard.name].toString(),
+                name: selectedCard.name,
                 xPos,
                 yPos,
               });

@@ -1,5 +1,7 @@
 import { Room, Client, CloseCode } from "colyseus";
 import { Crown, MyRoomState, Necro, Unit } from "./schema/MyRoomState";
+import { Units } from "@necro-crown/shared/src/data";
+import { UnitName } from "@necro-crown/shared/src/types";
 
 // TODO: create shared constant for client/server map/screen sizes
 const mapWidth = 1024;
@@ -81,18 +83,26 @@ export class MyRoom extends Room<{ state: MyRoomState }> {
     });
 
     let enemyCount = 0;
-    this.onMessage("add_crown_unit", (client, { name, xPos, yPos }) => {
-      // TODO: validate this action and verify the ID is legitimate
-      const enemy = new Unit();
-      enemy.name = name;
-      enemy.x = xPos;
-      enemy.y = yPos;
-      enemy.width = 45;
-      enemy.height = 110;
+    this.onMessage(
+      "add_crown_unit",
+      (
+        client,
+        { name, xPos, yPos }: { name: UnitName; xPos: number; yPos: number },
+      ) => {
+        // TODO: validate this action and verify the ID is legitimate
+        // get unit data
+        const data = Units[name as UnitName];
+        const enemy = new Unit();
+        enemy.name = UnitName[name].toString();
+        enemy.x = xPos;
+        enemy.y = yPos;
+        enemy.width = data.width;
+        enemy.height = data.height;
 
-      this.state.enemies.push(enemy);
-      enemyCount++;
-    });
+        this.state.enemies.push(enemy);
+        enemyCount++;
+      },
+    );
 
     this.onMessage("type", (client, message) => {
       //
