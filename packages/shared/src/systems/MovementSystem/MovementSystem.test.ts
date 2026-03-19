@@ -6,7 +6,7 @@ import {
   MoveSpeed,
   Position,
   Velocity,
-} from "$components";
+} from "../../components";
 import { createMovementSystem } from "./MovementSystem";
 
 describe("MovementSystem", () => {

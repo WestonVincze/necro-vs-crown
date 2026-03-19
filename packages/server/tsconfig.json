@@ -12,10 +12,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "useDefineForClassFields": false,
-    "baseUrl": "./src/",
-    "paths": {
-      "$rooms": ["./rooms"]
-    }
+    "baseUrl": "./src/"
   },
   "include": ["src"]
 }

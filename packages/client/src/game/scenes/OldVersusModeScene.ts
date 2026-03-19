@@ -1,5 +1,5 @@
 import { Scene, type Types, GameObjects } from "phaser";
-import { Client, Room } from "colyseus.js";
+import { Client, Room } from "@colyseus/sdk";
 import { crownState$, playCard } from "$game/Crown";
 import { createMouseManager } from "../../input/MouseInputs";
 import { createKeyboardManager } from "../../input/KeyboardInputs";

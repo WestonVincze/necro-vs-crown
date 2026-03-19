@@ -1,5 +1,5 @@
-import { createAIEventsSystem, createItemEquipSystem } from "$systems";
-import { type Pipeline } from "$types";
+import { createAIEventsSystem, createItemEquipSystem } from "../systems";
+import { type Pipeline } from "../types";
 import { pipeline } from "./helpers";
 import { PipelineFactory } from "./types";
 

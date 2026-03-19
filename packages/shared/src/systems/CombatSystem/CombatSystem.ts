@@ -23,11 +23,11 @@ import {
   Position,
   Transform,
   RangedUnit,
-} from "$components";
-import { checkIfWithinDistance, getPositionFromEid } from "$utils";
-import { CombatTarget } from "$relations";
-import { createProjectileEntity, ProjectileName } from "$entities";
-import { rollDamage, rollToHit } from "$utils";
+} from "../../components";
+import { checkIfWithinDistance, getPositionFromEid } from "../../utils";
+import { CombatTarget } from "../../relations";
+import { createProjectileEntity, ProjectileName } from "../../entities";
+import { rollDamage, rollToHit } from "../../utils";
 
 export const createCombatSystem = () => {
   const attackerQuery = (world: World) =>

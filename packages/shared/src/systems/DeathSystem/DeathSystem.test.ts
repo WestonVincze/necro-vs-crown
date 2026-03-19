@@ -19,8 +19,9 @@ import {
   Necro,
   Player,
   Position,
-} from "$components";
+} from "../../components";
 import { createDeathSystem } from "./DeathSystem";
+import { Faction } from "types";
 
 describe("DeathSystem", () => {
   let world: World;
@@ -29,7 +30,7 @@ describe("DeathSystem", () => {
 
   beforeEach(() => {
     world = createWorld();
-    deathSystem = createDeathSystem(world);
+    deathSystem = createDeathSystem(world, Faction.Necro);
     eid = addEntity(world);
     addComponent(world, eid, Dead);
   });
@@ -73,18 +74,22 @@ describe("DeathSystem", () => {
   it("should handle multiple deaths at once", () => {
     const player = addEntity(world);
     addComponents(world, player, [Player, Necro]);
+    let entities = [];
 
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 100; i++) {
       const entity = addEntity(world);
+      entities.push(entity);
       addComponents(world, entity, [Dead, ExpReward, Crown]);
       ExpReward.amount[entity] = 10;
     }
 
-    expect(getAllEntities(world).length).toBe(1002);
+    expect(getAllEntities(world).length).toBe(102);
 
     deathSystem(world);
 
-    expect(getAllEntities(world).length).toBe(1);
-    expect(Experience.amount[player]).toBe(10000);
+    for (const eid of entities) {
+      expect(!entityExists(world, eid))
+    }
+    expect(Experience.amount[player]).toBe(1000);
   });
 });

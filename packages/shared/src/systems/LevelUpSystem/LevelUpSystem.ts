@@ -1,7 +1,7 @@
 import { addComponent, query, hasComponent, removeComponent } from "bitecs";
-import { Experience, Level, UpgradeRequest } from "$components";
-import { BASE_EXP, MAX_LEVEL } from "$constants";
-import { getUpgradeOptions } from "$data";
+import { Experience, Level, UpgradeRequest } from "../../components";
+import { BASE_EXP, MAX_LEVEL } from "../../constants";
+import { getUpgradeOptions } from "../../data";
 
 /**
  * query for entities with "Level" and "Experience" components

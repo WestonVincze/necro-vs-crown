@@ -1,5 +1,5 @@
-import { MAP_HEIGHT_PIXELS, MAP_WIDTH_PIXELS, SCREEN_WIDTH } from "$constants";
-import type { Vector2 } from "$types";
+import { MAP_HEIGHT_PIXELS, MAP_WIDTH_PIXELS } from "../constants";
+import type { Vector2 } from "../types";
 
 export const getRandomElement = <T>(array: T[]) => {
   if (array.length === 0) return;

@@ -7,8 +7,8 @@ import {
   MaxMoveSpeed,
   SeparationForce,
   Transform,
-} from "$components";
-import { clampToScreenSize, normalizeForce } from "$utils";
+} from "../../components";
+import { clampToScreenSize, normalizeForce } from "../../utils";
 
 const FRICTION = 0.05;
 
@@ -66,6 +66,21 @@ export const createMovementSystem = () => {
         newVelocity.y *= scale;
       }
 
+      /* crude system for creating obstacles
+      const newPos = {
+        x: Position.x[eid] + Velocity.x[eid],
+        y: Position.y[eid] + Velocity.y[eid],
+      };
+      const gridPos = getGridCellFromPosition(newPos);
+      if (world.grid.isWalkableAt(gridPos.x, gridPos.y)) {
+        Velocity.x[eid] = newVelocity.x;
+        Velocity.y[eid] = newVelocity.y;
+      } else {
+        Velocity.x[eid] = -newVelocity.x / 2;
+        Velocity.y[eid] = -newVelocity.y / 2;
+      }
+      */
+
       Velocity.x[eid] = newVelocity.x;
       Velocity.y[eid] = newVelocity.y;
 
@@ -85,6 +100,7 @@ export const createMovementSystem = () => {
         { x: Position.x[eid], y: Position.y[eid] },
         bounds,
       );
+
       Position.x[eid] = position.x;
       Position.y[eid] = position.y;
     }

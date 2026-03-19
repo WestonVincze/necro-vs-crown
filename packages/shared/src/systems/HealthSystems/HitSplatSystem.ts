@@ -1,8 +1,8 @@
 import { hasComponent, observe, onRemove, removeComponent } from "bitecs";
 import { GameObjects, Scene } from "phaser";
-import { Damage, HitSplat, Necro, Transform } from "$components";
-import { Faction } from "$types";
-import { getPositionFromEid, isValidPosition } from "$utils";
+import { Damage, HitSplat, Necro, Transform } from "../../components";
+import { Faction } from "../../types";
+import { getPositionFromEid, isValidPosition } from "../../utils";
 
 const hitSplatColors = {
   [Faction.Crown]: {
