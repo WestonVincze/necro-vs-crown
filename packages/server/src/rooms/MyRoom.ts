@@ -1,41 +1,18 @@
-import { Room, Client } from "@colyseus/core";
+import { Room, Client, CloseCode } from "colyseus";
 import { Crown, MyRoomState, Necro, Unit } from "./schema/MyRoomState";
-import {
-  CrownUnits,
-  Faction,
-  NecroUnits,
-  UnitData,
-  followTarget,
-} from "@necro-crown/shared";
-import { getClosestUnit } from "@necro-crown/shared";
 
 // TODO: create shared constant for client/server map/screen sizes
 const mapWidth = 1024;
 const mapHeight = 768;
 
-export class MyRoom extends Room<MyRoomState> {
+export class MyRoom extends Room<{ state: MyRoomState }> {
+  state = new MyRoomState();
+
   maxClients = 2;
   fixedTimeStep = 1000 / 60;
 
   fixedUpdate(deltaTime: number) {
     const velocity = 2;
-
-    this.state.enemies.forEach((enemy) => {
-      const options = {
-        followForce: 1,
-        separationForce: 2,
-        maxSpeed: 1.5,
-      };
-
-      followTarget(
-        enemy,
-        getClosestUnit(enemy, this.state.minions.toArray()),
-        this.state.allUnits,
-        1.2,
-        deltaTime,
-        options,
-      );
-    });
 
     this.state.players.forEach((player) => {
       let input: any;
@@ -62,7 +39,6 @@ export class MyRoom extends Room<MyRoomState> {
           )
           minion.x += force.x;
           minion.y += force.y;
-          */
           const options = {
             followForce: 1,
             separationForce: 2,
@@ -77,13 +53,14 @@ export class MyRoom extends Room<MyRoomState> {
             deltaTime,
             options,
           );
+          */
         });
       }
     });
   }
 
   onCreate(options: any) {
-    this.setState(new MyRoomState());
+    this.state = new MyRoomState();
 
     let elapsedTime = 0;
     this.setSimulationInterval((deltaTime) => {
@@ -106,17 +83,12 @@ export class MyRoom extends Room<MyRoomState> {
     let enemyCount = 0;
     this.onMessage("add_crown_unit", (client, { name, xPos, yPos }) => {
       // TODO: validate this action and verify the ID is legitimate
-      const unitData = CrownUnits[name as Unit];
-      if (!unitData) {
-        console.log(`error, ${name} not found.`);
-        return;
-      }
       const enemy = new Unit();
       enemy.name = name;
       enemy.x = xPos;
       enemy.y = yPos;
-      enemy.width = unitData.width;
-      enemy.height = unitData.height;
+      enemy.width = 45;
+      enemy.height = 110;
 
       this.state.enemies.push(enemy);
       enemyCount++;
@@ -134,7 +106,7 @@ export class MyRoom extends Room<MyRoomState> {
 
     let player;
     // create player instance
-    if (options.playerType === Faction.Necro) {
+    if (options.playerType === "necro") {
       player = new Necro();
       // place player at random position
       player.x = Math.random() * mapWidth;
@@ -142,11 +114,11 @@ export class MyRoom extends Room<MyRoomState> {
 
       // place minion at random position
       const minion = new Unit();
-      const unitData = NecroUnits.skeleton;
+      // const unitData = Units[UnitName.Skeleton];
 
-      minion.name = unitData.name;
-      minion.width = unitData.width;
-      minion.height = unitData.height;
+      minion.name = "Skeleton";
+      minion.width = 40;
+      minion.height = 60;
 
       minion.x = Math.random() * mapWidth;
       minion.y = Math.random() * mapHeight;
@@ -158,7 +130,7 @@ export class MyRoom extends Room<MyRoomState> {
     this.state.players.set(client.sessionId, player);
   }
 
-  onLeave(client: Client, consented: boolean) {
+  onLeave(client: Client, code: CloseCode) {
     console.log(client.sessionId, "left!");
 
     this.state.players.delete(client.sessionId);
