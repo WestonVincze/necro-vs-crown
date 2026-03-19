@@ -1,9 +1,9 @@
 import { query, hasComponent, removeEntity, observe, onAdd } from "bitecs";
-import { createBonesEntity, createUnitEntity } from "$entities";
-import { Crown, Dead, ExpReward, Necro, Player, Position } from "$components";
+import { createBonesEntity, createUnitEntity } from "../../entities";
+import { Crown, Dead, ExpReward, Necro, Player, Position } from "../../components";
 import { giveExpToEntity } from "../LevelUpSystem";
-import { gameEvents } from "$events";
-import { Faction, UnitName } from "$types";
+import { gameEvents } from "../../events";
+import { Faction, UnitName } from "../../types";
 
 const giveExpToEnemyPlayers = (
   world: World,
@@ -14,6 +14,7 @@ const giveExpToEnemyPlayers = (
     ? [Necro, Player]
     : [Crown, Player];
 
+  // TODO: query within query breaks our DeathSystem when multiple entities die at the same time
   const enemyPlayers = query(world, enemyComponents);
 
   if (enemyPlayers.length === 0) {
