@@ -1,11 +1,5 @@
 import { Room, Client, CloseCode } from "colyseus";
 import {
-  Faction,
-  Pipeline,
-  UnitName,
-  World,
-} from "@necro-crown/shared/src/types";
-import {
   addComponent,
   addEntity,
   createWorld,
@@ -17,6 +11,16 @@ import {
   createSnapshotSerializer,
   createSoASerializer,
 } from "bitecs/serialization";
+import { Grid } from "pathfinding";
+import { staticGridData } from "staticGridData";
+
+import {
+  Faction,
+  Pipeline,
+  UnitName,
+  World,
+} from "@necro-crown/shared/src/types";
+
 import { BASE_EXP } from "@necro-crown/shared/src/constants";
 import {
   Coin,
@@ -27,7 +31,7 @@ import { Player } from "@necro-crown/shared/src/components/Tags";
 import { createUnitEntity } from "@necro-crown/shared/src/entities/Unit";
 import {
   Networked,
-  networkSynComponents,
+  networkSyncComponents,
 } from "@necro-crown/shared/src/components/Networking";
 import { pipeline } from "@necro-crown/shared/src/pipelines/helpers";
 import { createSeparationForceSystem } from "@necro-crown/shared/src/systems/SeparationForceSystem";
@@ -38,8 +42,14 @@ import {
   createAssignFollowTargetSystem,
   createTargetingSystem,
 } from "@necro-crown/shared/src/systems/TargetSystem";
-import { Grid } from "pathfinding";
-import { staticGridData } from "staticGridData";
+import { createCooldownSystem } from "@necro-crown/shared/src/systems/CooldownSystem";
+import { createCombatSystem } from "@necro-crown/shared/src/systems/CombatSystem";
+import { createProjectileCollisionSystem } from "@necro-crown/shared/src/systems/CollisionSystems/CollisionSystem";
+import { createSpellcastingSystem } from "@necro-crown/shared/src/systems/SpellcastingSystems";
+import { createHealthSystem } from "@necro-crown/shared/src/systems/HealthSystems/HealthSystem";
+import { createDestroyAfterDelaySystem } from "@necro-crown/shared/src/systems/DestroyAfterDelaySystem";
+import { createTimeSystem } from "@necro-crown/shared/src/systems/TimeSystem";
+import { createDeathSystem } from "@necro-crown/shared/src/systems/DeathSystem";
 
 interface PlayerRecord {
   eid: number;
@@ -66,11 +76,12 @@ export class MyRoom extends Room {
 
   onCreate(options: any) {
     this.world = createWorld();
+    this.world.time = { delta: 0, elapsed: 0, then: performance.now() };
     this.world.grid = new Grid(staticGridData);
-    this.soaSerialize = createSoASerializer(networkSynComponents);
+    this.soaSerialize = createSoASerializer(networkSyncComponents);
     this.snapshotSerializer = createSnapshotSerializer(
       this.world,
-      networkSynComponents,
+      networkSyncComponents,
     );
 
     this.systems = pipeline([
@@ -78,6 +89,14 @@ export class MyRoom extends Room {
       createFollowTargetSystemNew(this.world),
       createSeparationForceSystem(),
       createMovementSystem(),
+      createCooldownSystem(),
+      createCombatSystem(),
+      createProjectileCollisionSystem(),
+      createSpellcastingSystem(),
+      createHealthSystem(),
+      createDestroyAfterDelaySystem(),
+      createTimeSystem(), // time should always be last
+      createDeathSystem(this.world, Faction.Necro),
     ]);
 
     this.tickSystems = pipeline([
@@ -159,7 +178,7 @@ export class MyRoom extends Room {
     // create new observer serializer for this client
     this.observerSerializers.set(
       client.sessionId,
-      createObserverSerializer(this.world, Networked, networkSynComponents),
+      createObserverSerializer(this.world, Networked, networkSyncComponents),
     );
 
     // initial state sync
@@ -187,7 +206,7 @@ export class MyRoom extends Room {
 
     // get updates to component values
     const soaUpdates = this.soaSerialize(
-      query(this.world, networkSynComponents) as readonly number[],
+      query(this.world, networkSyncComponents) as readonly number[],
     );
     this.broadcast("soaUpdates", soaUpdates);
 

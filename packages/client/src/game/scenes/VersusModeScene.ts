@@ -13,7 +13,7 @@ import {
   createHitSplatSystem,
   createSpriteSystem,
   initializeNecroMouseControls,
-  networkSynComponents,
+  networkSyncComponents,
   type Pipeline,
 } from "@necro-crown/shared";
 import { createWorld } from "bitecs";
@@ -71,14 +71,14 @@ export class VersusModeScene extends Scene {
     // initialize deSerializers
     this.snapshotDeserialize = createSnapshotDeserializer(
       this.world,
-      networkSynComponents,
+      networkSyncComponents,
     );
     this.observerDeserialize = createObserverDeserializer(
       this.world,
       Networked,
-      networkSynComponents,
+      networkSyncComponents,
     );
-    this.soaDeserialize = createSoADeserializer(networkSynComponents);
+    this.soaDeserialize = createSoADeserializer(networkSyncComponents);
 
     try {
       this.room = await this.client.joinOrCreate("my_room", {

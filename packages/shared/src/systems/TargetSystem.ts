@@ -5,6 +5,7 @@ import {
   hasComponent,
   QueryResult,
   isNested,
+  removeComponent,
 } from "bitecs";
 import {
   Crown,
@@ -58,6 +59,8 @@ export const createTargetingSystem = () => {
 
         if (closestTarget !== null) {
           addComponent(world, eid, CombatTarget(closestTarget));
+        } else if (hasComponent(world, eid, CombatTarget("*"))) {
+          removeComponent(world, eid, CombatTarget("*"));
         }
       }
     };

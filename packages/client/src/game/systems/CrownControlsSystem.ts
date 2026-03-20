@@ -21,7 +21,6 @@ export const initializeCrownMouseControls = (
   let cameraDragStartY: number | null = null;
 
   const camera = scene.cameras.main;
-  console.log(camera);
 
   defineAction({
     name: "mouseAction",

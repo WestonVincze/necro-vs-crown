@@ -56,7 +56,7 @@ export const createSpriteSystem = (world: World, scene: Scene) => {
         scene.cameras.main.startFollow(sprite);
       }
       sprite.x = Position.x[eid];
-      sprite.y = Position.y[eid];
+      sprite.y = Position.y[eid] - Transform.height[eid] / 2;
       sprite.width = width;
       sprite.displayWidth = width;
       sprite.height = height;
@@ -101,7 +101,11 @@ export const createSpriteSystem = (world: World, scene: Scene) => {
       // linear interpolation for networked entities
       if (hasComponent(world, eid, Networked)) {
         sprite.x = Phaser.Math.Linear(sprite.x, Position.x[eid], 0.2);
-        sprite.y = Phaser.Math.Linear(sprite.y, Position.y[eid], 0.2);
+        sprite.y = Phaser.Math.Linear(
+          sprite.y,
+          Position.y[eid] - Transform.height[eid] / 2,
+          0.2,
+        );
       } else {
         sprite.x = Position.x[eid];
         sprite.y = Position.y[eid] - Transform.height[eid] / 2;
