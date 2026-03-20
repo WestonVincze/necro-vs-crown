@@ -99,7 +99,6 @@ export class MyRoom extends Room {
         timeSinceLastTick -= this.tickTimeStep;
         this.tickSystems(this.world);
       }
-      this.fixedUpdate(deltaTime);
     });
 
     this.onMessage(
@@ -133,6 +132,7 @@ export class MyRoom extends Room {
         Math.random() * 1024,
         Math.random() * 1024,
       );
+      addComponent(this.world, eid, Networked);
     }
 
     // create player instance

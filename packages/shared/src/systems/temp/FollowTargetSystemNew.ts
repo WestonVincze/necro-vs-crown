@@ -1,6 +1,12 @@
 import { query, getRelationTargets, observe, onRemove } from "bitecs";
-import { AttackRange, GridCell, Input, Position, Velocity } from "..";
 import { AStarFinder, DiagonalMovement, Util } from "pathfinding";
+import {
+  AttackRange,
+  GridCell,
+  Input,
+  Position,
+  Velocity,
+} from "../../components";
 import { MoveTarget } from "../../relations";
 import {
   areVectorsIdentical,

@@ -1,5 +1,5 @@
 import { Not, observe, onRemove, query } from "bitecs";
-import { Position, GridCell, Cursor } from "..";
+import { Position, GridCell, Cursor } from "../../components";
 import {
   getGridCellFromPosition,
   getGridCellFromEid,
