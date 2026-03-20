@@ -5,8 +5,13 @@ import {
   createHandleUpgradeSelectEventSystem,
 } from "./UpgradesSystems";
 import { addComponent, addEntity, createWorld, hasComponent } from "bitecs";
-import { gameEvents } from "../../events";
-import { Player, SelectedUpgrade, StatName, UpgradeRequest } from "../../components";
+import { legacyGameEvents } from "../../events";
+import {
+  Player,
+  SelectedUpgrade,
+  StatName,
+  UpgradeRequest,
+} from "../../components";
 import { UnitName, Upgrade } from "../../types";
 
 const MOCK_UPGRADES: Upgrade[] = [
@@ -62,7 +67,7 @@ describe("UpgradeSystems", () => {
       addComponent(world, eid, Player);
       UpgradeRequest[eid] = { upgrades: MOCK_UPGRADES };
 
-      const emitSpy = vi.spyOn(gameEvents, "emitUpgradeRequest");
+      const emitSpy = vi.spyOn(legacyGameEvents, "emitUpgradeRequest");
 
       system(world);
 
@@ -82,7 +87,7 @@ describe("UpgradeSystems", () => {
       addComponent(world, eid, UpgradeRequest);
       UpgradeRequest[eid] = { upgrades: MOCK_UPGRADES };
 
-      gameEvents.emitUpgradeSelect({ eid, upgradeId });
+      legacyGameEvents.emitUpgradeSelect({ eid, upgradeId });
 
       system(world);
 

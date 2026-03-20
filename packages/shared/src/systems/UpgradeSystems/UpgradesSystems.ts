@@ -6,11 +6,8 @@ import {
   observe,
   onAdd,
 } from "bitecs";
-import { gameEvents, UpgradeSelectEvent } from "../../events";
-import {
-  SelectedUpgrade,
-  UpgradeRequest,
-} from "../../components";
+import { legacyGameEvents, UpgradeSelectEvent } from "../../events";
+import { SelectedUpgrade, UpgradeRequest } from "../../components";
 import { updateStatsByUnitType } from "../StatUpdateSystem";
 
 /**
@@ -65,11 +62,11 @@ export const createEmitUpgradeRequestEventSystem = (world: World) => {
   return (world: World) => {
     const playerEntitiesEntered = playerUpgradeEnterQueue.splice(0);
     for (const eid of playerEntitiesEntered) {
-      gameEvents.emitUpgradeRequest({
+      legacyGameEvents.emitUpgradeRequest({
         eid,
         upgrades: UpgradeRequest[eid].upgrades,
       });
-      gameEvents.emitTogglePause();
+      legacyGameEvents.emitTogglePause();
     }
 
     return world;
@@ -83,8 +80,8 @@ export const createHandleUpgradeSelectEventSystem = () => {
   // TODO: this is part of the physics pipeline and should not subscribe to events
   const upgradeEventQueue: UpgradeSelectEvent[] = [];
 
-  gameEvents.onUpgradeSelect.subscribe((event) => {
-    gameEvents.emitTogglePause();
+  legacyGameEvents.onUpgradeSelect.subscribe((event) => {
+    legacyGameEvents.emitTogglePause();
     upgradeEventQueue.push(event);
   });
 

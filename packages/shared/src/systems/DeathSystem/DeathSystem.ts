@@ -16,7 +16,7 @@ import {
   Position,
 } from "../../components";
 import { giveExpToEntity } from "../LevelUpSystem";
-import { gameEvents } from "../../events";
+import { legacyGameEvents } from "../../events";
 import { Faction, UnitName } from "../../types";
 
 const giveExpToEnemyPlayers = (
@@ -52,7 +52,7 @@ export const createDeathSystem = (world: World, faction: Faction) => {
     const deadPlayersEntered = deadPlayerQueue.splice(0);
     for (const eid of deadPlayersEntered) {
       // emit game over event
-      gameEvents.emitGameOver();
+      legacyGameEvents.emitGameOver();
     }
 
     for (const eid of query(world, [Dead])) {

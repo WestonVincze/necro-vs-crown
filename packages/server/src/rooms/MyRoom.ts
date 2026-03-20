@@ -50,6 +50,10 @@ import { createHealthSystem } from "@necro-crown/shared/src/systems/HealthSystem
 import { createDestroyAfterDelaySystem } from "@necro-crown/shared/src/systems/DestroyAfterDelaySystem";
 import { createTimeSystem } from "@necro-crown/shared/src/systems/TimeSystem";
 import { createDeathSystem } from "@necro-crown/shared/src/systems/DeathSystem";
+import {
+  GameEvents,
+  HitSplatEvent,
+} from "@necro-crown/shared/src/events/GameEvents";
 
 interface PlayerRecord {
   eid: number;
@@ -78,6 +82,7 @@ export class MyRoom extends Room {
     this.world = createWorld();
     this.world.time = { delta: 0, elapsed: 0, then: performance.now() };
     this.world.grid = new Grid(staticGridData);
+    this.world.gameEvents = new GameEvents();
     this.soaSerialize = createSoASerializer(networkSyncComponents);
     this.snapshotSerializer = createSnapshotSerializer(
       this.world,
@@ -103,6 +108,10 @@ export class MyRoom extends Room {
       createTargetingSystem(),
       createAssignFollowTargetSystem(),
     ]);
+
+    this.world.gameEvents.hitSplat$.subscribe((e: HitSplatEvent) => {
+      this.broadcast("hitsplat", e);
+    });
 
     let elapsedTime = 0;
     let timeSinceLastTick = 0;

@@ -1,4 +1,4 @@
-import { Health, HitSplat } from "./Health";
+import { Health } from "./Health";
 import { Position, Transform } from "./Position";
 import { Sprite } from "./Sprite";
 
@@ -10,5 +10,4 @@ export const networkSyncComponents = [
   Transform,
   Networked,
   Health,
-  // HitSplat, TODO: fix this...
 ];

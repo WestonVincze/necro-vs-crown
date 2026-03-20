@@ -5,7 +5,7 @@
   import { StartGame } from ".";
   import MainMenu from "../views/MainMenu.svelte";
   import { CrownUI } from "../views/Crown";
-  import { Faction, gameEvents, StatName, type Upgrade } from "@necro-crown/shared";
+  import { Faction, legacyGameEvents, StatName, type Upgrade } from "@necro-crown/shared";
   import UpgradeSelect from "../views/UpgradeSelect.svelte";
   import GameOver from "../views/GameOver.svelte";
 
@@ -20,18 +20,18 @@
     game = StartGame("game-container");
   })
 
-  const levelUpSubscription = gameEvents.onUpgradeRequest.subscribe(({ eid, upgrades }) => {
+  const levelUpSubscription = legacyGameEvents.onUpgradeRequest.subscribe(({ eid, upgrades }) => {
     upgrade.active = true;
     upgrade.options = upgrades;
 
     handleUpgradeSelect = (upgradeId: number) => {
       upgrade.options = [];
       upgrade.active = false;
-      gameEvents.emitUpgradeSelect({ eid, upgradeId });
+      legacyGameEvents.emitUpgradeSelect({ eid, upgradeId });
     }
   });
 
-  const gameOverSubscription = gameEvents.onGameOver.subscribe(() => {
+  const gameOverSubscription = legacyGameEvents.onGameOver.subscribe(() => {
     game.scene.start("GameOverScene");
     currentScene = "GameOver";
   });

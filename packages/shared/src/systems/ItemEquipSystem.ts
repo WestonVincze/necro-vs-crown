@@ -1,7 +1,7 @@
 import { addComponent, hasComponent, removeEntity } from "bitecs";
 import { Item, Equipped, Inventory } from "../components";
 
-import { collisionEvents } from "./CollisionSystem";
+import { collisionEvents } from "./CollisionSystems";
 
 const itemEffects = {
   1: {

@@ -2,6 +2,7 @@ import { Scene } from "phaser";
 import { Client, Room } from "@colyseus/sdk";
 import {
   Faction,
+  GameEvents,
   MAP_X_MAX,
   MAP_X_MIN,
   MAP_Y_MAX,
@@ -10,10 +11,12 @@ import {
   createDrawCollisionSystem,
   createDrawSpellEffectSystem,
   createHealthBarSystem,
+  createHealthSystem,
   createHitSplatSystem,
   createSpriteSystem,
   initializeNecroMouseControls,
   networkSyncComponents,
+  type HitSplatEvent,
   type Pipeline,
 } from "@necro-crown/shared";
 import { createWorld } from "bitecs";
@@ -58,15 +61,19 @@ export class VersusModeScene extends Scene {
     console.log("joining room...");
     this.world = createWorld();
     this.world.time = { delta: 0, elapsed: 0, then: performance.now() };
+    this.world.gameEvents = new GameEvents();
 
     // initialize systems
     this.physicsSystems = pipeline([
       createDrawCollisionSystem(this.world, this),
       createSpriteSystem(this.world, this),
       createDrawSpellEffectSystem(this.world, this),
-      createHitSplatSystem(this.world, this),
+      createHealthSystem(),
       createHealthBarSystem(this.world, this),
     ]);
+
+    // reactive systems initialize once
+    createHitSplatSystem(this.world, this);
 
     // initialize deSerializers
     this.snapshotDeserialize = createSnapshotDeserializer(
@@ -126,6 +133,10 @@ export class VersusModeScene extends Scene {
     this.room.onMessage("observerUpdates", (data: ArrayBuffer) => {
       const view = new Uint8Array(data);
       this.observerDeserialize(view.buffer, this.idMap);
+    });
+
+    this.room.onMessage("hitsplat", (e: HitSplatEvent) => {
+      this.world.gameEvents.hitSplat$.next(e);
     });
 
     if (this.playerType === Faction.Crown) {

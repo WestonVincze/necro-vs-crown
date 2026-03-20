@@ -59,7 +59,6 @@ export const buildPhysicsPipeline = ({
     createDrawSpellEffectSystem(world, scene),
     createStatUpdateSystem(),
     createHealthSystem(),
-    createHitSplatSystem(world, scene),
     createHealthBarSystem(world, scene),
     createDestroyAfterDelaySystem(),
   ];

@@ -21,6 +21,8 @@ import {
   buildPhysicsPipeline,
   buildTickPipeline,
   createDeathSystem,
+  createHitSplatSystem,
+  GameEvents,
 } from "@necro-crown/shared";
 import { initializeCrownMouseControls } from "$game/systems";
 import {
@@ -54,8 +56,6 @@ export class SoloModeScene extends Scene {
   private tickSystems!: Pipeline;
   private physicsSystems!: Pipeline;
 
-  public globalState: any;
-
   private timeSinceLastTick: number = 0;
 
   constructor() {
@@ -72,6 +72,7 @@ export class SoloModeScene extends Scene {
     // instantiate world
     this.world = createWorld();
     this.world.time = { delta: 0, elapsed: 0, then: performance.now() };
+    this.world.gameEvents = new GameEvents();
 
     // create base systems
     let physicsSystems: { pre: System[]; post: System[] } = {
@@ -221,6 +222,9 @@ export class SoloModeScene extends Scene {
     });
 
     this.tickSystems = buildTickPipeline();
+
+    // reactive systems
+    createHitSplatSystem(this.world, this);
 
     /** INITIALIZE ENTITIES */
     this.initializeEntities();
