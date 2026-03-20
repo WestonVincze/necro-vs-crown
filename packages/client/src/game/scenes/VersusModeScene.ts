@@ -7,26 +7,24 @@ import {
   MAP_Y_MAX,
   MAP_Y_MIN,
   Networked,
-  Position,
   createDrawCollisionSystem,
   createDrawSpellEffectSystem,
   createHealthBarSystem,
   createHitSplatSystem,
   createSpriteSystem,
+  initializeNecroMouseControls,
   networkSynComponents,
   type Pipeline,
 } from "@necro-crown/shared";
-import { createWorld, query } from "bitecs";
+import { createWorld } from "bitecs";
 import {
   createObserverDeserializer,
   createSnapshotDeserializer,
   createSoADeserializer,
 } from "bitecs/serialization";
 import { Grid } from "pathfinding";
-import { crownState$, playCard } from "$game/Crown";
 import { type World, pipeline } from "@necro-crown/shared";
-import { defineAction } from "../../input/Actions";
-import { createMouseManager } from "../../input/MouseInputs";
+import { initializeCrownMouseControls } from "$game/systems";
 
 export class VersusModeScene extends Scene {
   constructor() {
@@ -43,21 +41,14 @@ export class VersusModeScene extends Scene {
   private idMap = new Map<number, number>();
 
   // system references
-  private reactiveSystems!: Pipeline;
   private tickSystems!: Pipeline;
   private physicsSystems!: Pipeline;
 
   init(data: { player: Faction }) {
     this.playerType = data.player;
     this.camera = this.cameras.main;
-    // until mouse inputs are improved, we need to instantiate mouse manager
-    createMouseManager(
-      document.getElementById("game-container") || document.documentElement,
-    );
   }
 
-  // recommended type safety (but where is server defined?)
-  // client = new Client<typeof server>("ws://localhost:2567");
   client = new Client("ws://localhost:2567");
   room?: Room;
 
@@ -67,6 +58,7 @@ export class VersusModeScene extends Scene {
     console.log("joining room...");
     this.world = createWorld();
     this.world.time = { delta: 0, elapsed: 0, then: performance.now() };
+
     // initialize systems
     this.physicsSystems = pipeline([
       createDrawCollisionSystem(this.world, this),
@@ -75,6 +67,8 @@ export class VersusModeScene extends Scene {
       createHitSplatSystem(this.world, this),
       createHealthBarSystem(this.world, this),
     ]);
+
+    // initialize deSerializers
     this.snapshotDeserialize = createSnapshotDeserializer(
       this.world,
       networkSynComponents,
@@ -86,46 +80,11 @@ export class VersusModeScene extends Scene {
     );
     this.soaDeserialize = createSoADeserializer(networkSynComponents);
 
-    createMouseManager(
-      document.getElementById("game-container") || document.documentElement,
-    );
-
     try {
-      // we can use joinOrCreate<MyState> or joinOrCreate<MyRoom>
       this.room = await this.client.joinOrCreate("my_room", {
         playerType: this.playerType,
       });
       console.log("Joined Successfully!");
-
-      if (this.playerType === Faction.Crown) {
-        defineAction({
-          name: "mouseAction",
-          callback: (event) => {
-            const { selectedCard } = crownState$.value;
-            if (selectedCard === null) return;
-
-            const rect = document
-              .getElementById("game-container")
-              ?.getBoundingClientRect();
-            if (!rect) return;
-
-            const { left, top } = rect;
-            const mouseEvent = event as MouseEvent | DragEvent;
-
-            const xPos = mouseEvent.x - left;
-            const yPos = mouseEvent.y - top;
-
-            playCard(() => {
-              this.room?.send("add_crown_unit", {
-                name: selectedCard.name,
-                xPos,
-                yPos,
-              });
-            });
-          },
-          binding: { mouseEvents: ["mouseup", "dragend"] },
-        });
-      }
     } catch (e) {
       console.error(e);
     }
@@ -168,6 +127,18 @@ export class VersusModeScene extends Scene {
       const view = new Uint8Array(data);
       this.observerDeserialize(view.buffer, this.idMap);
     });
+
+    if (this.playerType === Faction.Crown) {
+      initializeCrownMouseControls(this, (name, x, y) =>
+        this.room?.send("add_crown_unit", {
+          name: name,
+          xPos: x,
+          yPos: y,
+        }),
+      );
+    } else if (this.playerType === Faction.Necro) {
+      initializeNecroMouseControls(this.world, this);
+    }
   }
 
   fixedUpdate(time: number, delta: number) {

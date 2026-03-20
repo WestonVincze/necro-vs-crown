@@ -1,5 +1,10 @@
 import { Room, Client, CloseCode } from "colyseus";
-import { Faction, UnitName, World } from "@necro-crown/shared/src/types";
+import {
+  Faction,
+  Pipeline,
+  UnitName,
+  World,
+} from "@necro-crown/shared/src/types";
 import {
   addComponent,
   addEntity,
@@ -20,11 +25,21 @@ import {
 import { Level } from "@necro-crown/shared/src/components/Level";
 import { Player } from "@necro-crown/shared/src/components/Tags";
 import { createUnitEntity } from "@necro-crown/shared/src/entities/Unit";
-import { Position } from "@necro-crown/shared/src/components/Position";
 import {
   Networked,
   networkSynComponents,
 } from "@necro-crown/shared/src/components/Networking";
+import { pipeline } from "@necro-crown/shared/src/pipelines/helpers";
+import { createSeparationForceSystem } from "@necro-crown/shared/src/systems/SeparationForceSystem";
+import { createMovementSystem } from "@necro-crown/shared/src/systems/MovementSystem";
+import { createFollowTargetSystemNew } from "@necro-crown/shared/src/systems/temp/FollowTargetSystemNew";
+import { createGridSystemNew } from "@necro-crown/shared/src/systems/temp/GridSystemNew";
+import {
+  createAssignFollowTargetSystem,
+  createTargetingSystem,
+} from "@necro-crown/shared/src/systems/TargetSystem";
+import { Grid } from "pathfinding";
+import { staticGridData } from "staticGridData";
 
 interface PlayerRecord {
   eid: number;
@@ -42,24 +57,47 @@ export class MyRoom extends Room {
   ) => ArrayBuffer;
   players: Map<string, PlayerRecord> = new Map();
 
+  private systems!: Pipeline;
+  private tickSystems!: Pipeline;
+
   maxClients = 2;
   fixedTimeStep = 1000 / 60;
+  tickTimeStep = 200;
 
   onCreate(options: any) {
     this.world = createWorld();
+    this.world.grid = new Grid(staticGridData);
     this.soaSerialize = createSoASerializer(networkSynComponents);
     this.snapshotSerializer = createSnapshotSerializer(
       this.world,
       networkSynComponents,
     );
 
+    this.systems = pipeline([
+      createGridSystemNew(this.world),
+      createFollowTargetSystemNew(this.world),
+      createSeparationForceSystem(),
+      createMovementSystem(),
+    ]);
+
+    this.tickSystems = pipeline([
+      createTargetingSystem(),
+      createAssignFollowTargetSystem(),
+    ]);
+
     let elapsedTime = 0;
+    let timeSinceLastTick = 0;
     this.setSimulationInterval((deltaTime) => {
       elapsedTime += deltaTime;
+      timeSinceLastTick += deltaTime;
 
       while (elapsedTime >= this.fixedTimeStep) {
         elapsedTime -= this.fixedTimeStep;
         this.fixedUpdate(this.fixedTimeStep);
+      }
+      while (timeSinceLastTick >= this.tickTimeStep) {
+        timeSinceLastTick -= this.tickTimeStep;
+        this.tickSystems(this.world);
       }
       this.fixedUpdate(deltaTime);
     });
@@ -86,6 +124,16 @@ export class MyRoom extends Room {
   onJoin(client: Client, options: { playerType: Faction }) {
     console.log(client.sessionId, "joined!");
     let eid: number;
+
+    // create some skele mans
+    for (let i = 0; i < 5; i++) {
+      const eid = createUnitEntity(
+        this.world,
+        UnitName.Skeleton,
+        Math.random() * 1024,
+        Math.random() * 1024,
+      );
+    }
 
     // create player instance
     if (options.playerType === Faction.Necro) {
@@ -134,12 +182,8 @@ export class MyRoom extends Room {
   }
 
   fixedUpdate(deltaTime: number) {
-    // run systems
-    // ...
-    for (const eid of query(this.world, [Position, Networked])) {
-      Position.x[eid] += 0.1;
-      Position.y[eid] += 0.1;
-    }
+    // run system pipeline
+    this.systems(this.world);
 
     // get updates to component values
     const soaUpdates = this.soaSerialize(

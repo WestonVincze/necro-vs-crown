@@ -4,10 +4,17 @@ import {
   getRelationTargets,
   hasComponent,
   QueryResult,
+  isNested,
 } from "bitecs";
-import { Position, Behavior, Behaviors, AI } from "../components";
-import { Crown, Necro } from "../components";
-import { getCursorEid } from "./CursorTargetSystem";
+import {
+  Crown,
+  Necro,
+  Position,
+  Behavior,
+  Behaviors,
+  AI,
+  Cursor,
+} from "../components";
 import { MoveTarget, CombatTarget } from "../relations";
 import { getDistanceSquared, getPositionFromEid } from "../utils";
 
@@ -71,7 +78,7 @@ export const createAssignFollowTargetSystem = () => {
   return (world: World) => {
     for (const eid of query(world, [Behavior])) {
       if (Behavior.type[eid] === Behaviors.FollowCursor) {
-        const cursorEid = getCursorEid(world);
+        const [cursorEid] = query(world, [Cursor], isNested);
         if (!cursorEid) {
           console.warn(
             `Not found: FollowTarget could not be assigned to cursor for ${eid}`,
