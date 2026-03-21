@@ -54,6 +54,7 @@ import {
   GameEvents,
   HitSplatEvent,
 } from "@necro-crown/shared/src/events/GameEvents";
+import { Input } from "@necro-crown/shared/src/components";
 
 interface PlayerRecord {
   eid: number;
@@ -140,6 +141,13 @@ export class MyRoom extends Room {
         addComponent(this.world, eid, Networked);
       },
     );
+
+    this.onMessage("key_inputs", (client, keys) => {
+      const player = this.players.get(client.sessionId);
+      Input.castingSpell[player.eid] = keys.castingSpell;
+      Input.moveX[player.eid] = keys.moveX;
+      Input.moveY[player.eid] = keys.moveY;
+    });
 
     this.onMessage("type", (client, message) => {
       //

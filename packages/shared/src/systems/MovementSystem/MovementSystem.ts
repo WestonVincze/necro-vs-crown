@@ -87,9 +87,6 @@ export const createMovementSystem = () => {
       Position.x[eid] += Velocity.x[eid];
       Position.y[eid] += Velocity.y[eid];
 
-      Input.moveX[eid] = 0;
-      Input.moveY[eid] = 0;
-
       const bounds = { width: 0, height: 0 };
       if (hasComponent(world, eid, Transform)) {
         bounds.width = Transform.width[eid];

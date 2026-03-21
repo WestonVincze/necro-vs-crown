@@ -28,6 +28,8 @@ import {
 import { Grid } from "pathfinding";
 import { type World, pipeline } from "@necro-crown/shared";
 import { initializeCrownMouseControls } from "$game/systems";
+import { createInputState, type InputState } from "../../input/InputState";
+import type { Observable } from "rxjs";
 
 export class VersusModeScene extends Scene {
   constructor() {
@@ -47,9 +49,12 @@ export class VersusModeScene extends Scene {
   private tickSystems!: Pipeline;
   private physicsSystems!: Pipeline;
 
+  private inputs$!: Observable<InputState>;
+
   init(data: { player: Faction }) {
     this.playerType = data.player;
     this.camera = this.cameras.main;
+    this.inputs$ = createInputState();
   }
 
   client = new Client("ws://localhost:2567");
@@ -100,17 +105,17 @@ export class VersusModeScene extends Scene {
 
     this.camera.setBounds(MAP_X_MIN, MAP_Y_MIN, MAP_X_MAX, MAP_Y_MAX);
 
-    const map = this.make.tilemap({ key: "map" });
-    map.addTilesetImage("sample", "sample");
-    map.createLayer("Ground", "sample", MAP_X_MIN, MAP_Y_MIN);
-    map.createLayer("Roads", "sample", MAP_X_MIN, MAP_Y_MIN);
-    map.createLayer("Objects", "sample", MAP_X_MIN, MAP_Y_MIN);
+    const tilemap = this.make.tilemap({ key: "map" });
+    tilemap.addTilesetImage("sample", "sample");
+    tilemap.createLayer("Ground", "sample", MAP_X_MIN, MAP_Y_MIN);
+    tilemap.createLayer("Roads", "sample", MAP_X_MIN, MAP_Y_MIN);
+    tilemap.createLayer("Objects", "sample", MAP_X_MIN, MAP_Y_MIN);
 
     let gridData = [];
-    for (let y = 0; y < map.height; y++) {
+    for (let y = 0; y < tilemap.height; y++) {
       let row = [];
-      for (let x = 0; x < map.width; x++) {
-        row.push(map.hasTileAt(x, y, "Objects") ? 1 : 0);
+      for (let x = 0; x < tilemap.width; x++) {
+        row.push(tilemap.hasTileAt(x, y, "Objects") ? 1 : 0);
       }
       gridData.push(row);
     }
@@ -149,6 +154,7 @@ export class VersusModeScene extends Scene {
       );
     } else if (this.playerType === Faction.Necro) {
       initializeNecroMouseControls(this.world, this);
+      this.inputs$.subscribe((inputs) => this.room?.send("key_inputs", inputs));
     }
   }
 

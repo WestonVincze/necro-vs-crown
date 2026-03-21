@@ -52,6 +52,7 @@ export const createSpriteSystem = (world: World, scene: Scene) => {
           break;
       }
 
+      // TODO: set camera follow for necro player in versus
       if (hasComponent(world, eid, Player)) {
         scene.cameras.main.startFollow(sprite);
       }
@@ -81,7 +82,7 @@ export const createSpriteSystem = (world: World, scene: Scene) => {
         const rope = sprite as GameObjects.Rope;
 
         /** Uses rope to make everything wiggle **/
-        if (Math.abs(rope.x - x) > 0.1 || Math.abs(rope.y - y) > 0.1) {
+        if (Math.abs(rope.x - x) > 1 || Math.abs(rope.y - y) > 1) {
           // sprite has moved at least a little
           let points = rope.points;
 
