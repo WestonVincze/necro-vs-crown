@@ -1,6 +1,6 @@
 import { World as IWorld } from "bitecs";
 import { Grid } from "pathfinding";
-import { GameEvents } from "events/GameEvents";
+import { GameEvents } from "../events/GameEvents";
 
 export type Pipeline = (world: World) => void;
 

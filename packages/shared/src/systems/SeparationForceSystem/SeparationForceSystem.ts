@@ -1,5 +1,5 @@
 import { query } from "bitecs";
-import { Vector2 } from "../../types";
+import type { Vector2, World } from "../../types";
 import { GridCell, Position, SeparationForce } from "../../components";
 import { getGridCellFromEid, getPositionFromEid } from "../../utils";
 

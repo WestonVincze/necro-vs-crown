@@ -15,6 +15,7 @@ import {
   getPositionFromGridCell,
   isWithinOneGridCell,
 } from "../../utils";
+import { type World } from "../../types";
 
 export const createFollowTargetSystemNew = (world: World) => {
   const followTargetQuery = (world: World) =>

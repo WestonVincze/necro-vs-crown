@@ -3,6 +3,7 @@ import { GameObjects } from "phaser";
 
 import { Position, Collider } from "../../components";
 import { GameState } from "../../managers";
+import { type World } from "../../types";
 
 export const createDrawCollisionSystem = (
   world: World,

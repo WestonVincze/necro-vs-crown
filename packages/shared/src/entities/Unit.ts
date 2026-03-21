@@ -36,6 +36,7 @@ import {
   UnitData,
   UnitName,
   type Stats,
+  type World,
 } from "../types";
 import { Units } from "../data";
 import { unitUpgrades } from "../stores";

@@ -1,5 +1,6 @@
 import { addComponent, query, hasComponent, removeComponent } from "bitecs";
 import { AddCoin, CoinAccumulator, Coin, SpendCoin } from "../../components";
+import { type World } from "../../types";
 
 export const createCoinAccumulationSystem = () => {
   const coinAccumulatorQuery = (world: World) =>

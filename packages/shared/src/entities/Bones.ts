@@ -9,6 +9,7 @@ import {
 } from "../components";
 import { SpriteTexture } from "../constants";
 import { clampToScreenSize, getGridCellFromPosition } from "../utils";
+import { type World } from "../types";
 
 const BONE_LIFETIME = 15000;
 

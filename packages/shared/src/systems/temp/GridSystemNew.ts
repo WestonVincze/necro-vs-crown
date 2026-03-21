@@ -6,6 +6,7 @@ import {
   getPositionFromEid,
 } from "../../utils";
 import { MAP_HEIGHT_TILES, MAP_WIDTH_TILES } from "../../constants";
+import { type World } from "../../types";
 
 type Cell = {
   walkable: boolean;

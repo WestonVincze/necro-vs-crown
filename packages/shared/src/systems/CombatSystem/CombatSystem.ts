@@ -28,6 +28,7 @@ import { checkIfWithinDistance, getPositionFromEid } from "../../utils";
 import { CombatTarget } from "../../relations";
 import { createProjectileEntity, ProjectileName } from "../../entities";
 import { rollDamage, rollToHit } from "../../utils";
+import { type World } from "../../types";
 
 export const createCombatSystem = () => {
   const attackerQuery = (world: World) =>

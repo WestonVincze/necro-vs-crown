@@ -1,5 +1,5 @@
 import { Subject } from "rxjs";
-import { Vector2 } from "types";
+import { type Vector2 } from "../types";
 
 export interface HitSplatEvent {
   amount: number;

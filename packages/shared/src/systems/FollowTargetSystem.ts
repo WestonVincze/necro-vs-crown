@@ -17,6 +17,7 @@ import {
   isWithinOneGridCell,
 } from "../utils";
 import { GameState } from "../managers";
+import { type World } from "../types";
 
 const drawPathLines = (
   path: number[][],

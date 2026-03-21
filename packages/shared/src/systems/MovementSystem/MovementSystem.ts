@@ -9,6 +9,7 @@ import {
   Transform,
 } from "../../components";
 import { clampToScreenSize, normalizeForce } from "../../utils";
+import { type World } from "../../types";
 
 const FRICTION = 0.05;
 

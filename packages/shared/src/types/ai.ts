@@ -1,3 +1,5 @@
+import { World } from "./bitECS";
+
 export enum AIType {
   MELEE,
   RANGED,

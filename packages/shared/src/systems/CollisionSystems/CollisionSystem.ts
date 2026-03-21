@@ -3,6 +3,7 @@ import { Subject } from "rxjs";
 
 import { Position, Collider, Projectile } from "../../components";
 import { attackEntity } from "../CombatSystem";
+import { type World } from "../../types";
 /**
  * Another option is to create a collisionSystem factory that accepts
  * - a primary collider

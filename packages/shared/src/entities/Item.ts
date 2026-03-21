@@ -8,6 +8,7 @@ import {
   Transform,
 } from "../components";
 import { SpriteTexture } from "../constants";
+import { type World } from "../types";
 
 export const createItemEntity = (
   world: World,

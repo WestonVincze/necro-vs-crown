@@ -8,6 +8,7 @@ import {
 } from "../utils";
 import { GameState } from "../managers";
 import { MAP_HEIGHT_TILES, MAP_WIDTH_TILES } from "../constants";
+import { type World } from "../types";
 
 type Cell = {
   walkable: boolean;

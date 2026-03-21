@@ -18,6 +18,7 @@ import {
 } from "../components";
 import { MoveTarget, CombatTarget } from "../relations";
 import { getDistanceSquared, getPositionFromEid } from "../utils";
+import { type World } from "../types";
 
 // THOUGHT: we could change this system to be reactive or include some dirty/clean flags to skip over target search when not required
 export const createTargetingSystem = () => {

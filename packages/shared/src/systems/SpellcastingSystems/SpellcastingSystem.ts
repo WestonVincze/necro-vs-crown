@@ -26,7 +26,7 @@ import {
 } from "../../components";
 import { createUnitEntity } from "../../entities";
 import { checkIfWithinDistance, getPositionFromEid } from "../../utils";
-import { UnitName } from "../../types";
+import { UnitName, type World } from "../../types";
 
 export const createSpellcastingSystem = () => {
   const spellcasterQuery = (world: World) =>

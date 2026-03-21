@@ -17,7 +17,7 @@ import {
 } from "../../components";
 import { giveExpToEntity } from "../LevelUpSystem";
 import { legacyGameEvents } from "../../events";
-import { Faction, UnitName } from "../../types";
+import { Faction, UnitName, type World } from "../../types";
 
 const giveExpToEnemyPlayers = (
   world: World,

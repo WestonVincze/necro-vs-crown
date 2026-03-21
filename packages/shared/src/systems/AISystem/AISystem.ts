@@ -1,5 +1,5 @@
 import { addComponent, removeComponent, query } from "bitecs";
-import { AIType } from "../../types";
+import { AIType, World } from "../../types";
 import { legacyGameEvents } from "../../events";
 import { AI, AIAction, FollowTarget } from "../../components";
 import { AIStateMachine, createStateMachines } from "./AIStateMachine";

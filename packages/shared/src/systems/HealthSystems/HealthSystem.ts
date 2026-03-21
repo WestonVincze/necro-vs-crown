@@ -4,11 +4,11 @@ import {
   Dead,
   Heal,
   Health,
-  HitSplat,
   Necro,
   Position,
   Transform,
 } from "../../components";
+import { type World } from "../../types";
 
 export const createHealthSystem = () => {
   const damageQuery = (world: World) =>

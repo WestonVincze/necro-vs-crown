@@ -1,5 +1,6 @@
 import { query, removeComponent } from "bitecs";
 import { AttackCooldown, SpellCooldown } from "../../components";
+import { type World } from "../../types";
 
 export const createCooldownSystem = () => {
   return (world: World) => {

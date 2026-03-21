@@ -1,3 +1,5 @@
+import { type World } from "../../types";
+
 export const createTimeSystem = () => {
   return (world: World) => {
     const { time } = world;
