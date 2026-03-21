@@ -1,88 +1,135 @@
 import { Room, Client, CloseCode } from "colyseus";
-import { Crown, MyRoomState, Necro, Unit } from "./schema/MyRoomState";
-import { Units } from "@necro-crown/shared/src/data";
-import { UnitName } from "@necro-crown/shared/src/types";
+import {
+  addComponent,
+  addEntity,
+  createWorld,
+  query,
+  removeEntity,
+} from "bitecs";
+import {
+  createObserverSerializer,
+  createSnapshotSerializer,
+  createSoASerializer,
+} from "bitecs/serialization";
+import { Grid } from "pathfinding";
+import { staticGridData } from "staticGridData";
 
-// TODO: create shared constant for client/server map/screen sizes
-const mapWidth = 1024;
-const mapHeight = 768;
+import {
+  Faction,
+  Pipeline,
+  UnitName,
+  World,
+} from "@necro-crown/shared/src/types";
 
-export class MyRoom extends Room<{ state: MyRoomState }> {
-  state = new MyRoomState();
+import { BASE_EXP } from "@necro-crown/shared/src/constants";
+import {
+  Coin,
+  CoinAccumulator,
+} from "@necro-crown/shared/src/components/Coins";
+import { Level } from "@necro-crown/shared/src/components/Level";
+import { Player } from "@necro-crown/shared/src/components/Tags";
+import { createUnitEntity } from "@necro-crown/shared/src/entities/Unit";
+import {
+  Networked,
+  networkSyncComponents,
+} from "@necro-crown/shared/src/components/Networking";
+import { pipeline } from "@necro-crown/shared/src/pipelines/helpers";
+import { createSeparationForceSystem } from "@necro-crown/shared/src/systems/SeparationForceSystem";
+import { createMovementSystem } from "@necro-crown/shared/src/systems/MovementSystem";
+import { createFollowTargetSystemNew } from "@necro-crown/shared/src/systems/temp/FollowTargetSystemNew";
+import { createGridSystemNew } from "@necro-crown/shared/src/systems/temp/GridSystemNew";
+import {
+  createAssignFollowTargetSystem,
+  createTargetingSystem,
+} from "@necro-crown/shared/src/systems/TargetSystem";
+import { createCooldownSystem } from "@necro-crown/shared/src/systems/CooldownSystem";
+import { createCombatSystem } from "@necro-crown/shared/src/systems/CombatSystem";
+import { createProjectileCollisionSystem } from "@necro-crown/shared/src/systems/CollisionSystems/CollisionSystem";
+import { createSpellcastingSystem } from "@necro-crown/shared/src/systems/SpellcastingSystems";
+import { createHealthSystem } from "@necro-crown/shared/src/systems/HealthSystems/HealthSystem";
+import { createDestroyAfterDelaySystem } from "@necro-crown/shared/src/systems/DestroyAfterDelaySystem";
+import { createTimeSystem } from "@necro-crown/shared/src/systems/TimeSystem";
+import { createDeathSystem } from "@necro-crown/shared/src/systems/DeathSystem";
+import {
+  GameEvents,
+  HitSplatEvent,
+} from "@necro-crown/shared/src/events/GameEvents";
+import { Input } from "@necro-crown/shared/src/components";
+
+interface PlayerRecord {
+  eid: number;
+  sessionId: string;
+}
+
+export class MyRoom extends Room {
+  private world!: World;
+  private soaSerialize: (
+    selectedEntities: readonly number[] | number[],
+  ) => ArrayBuffer;
+  private observerSerializers: Map<string, () => ArrayBuffer> = new Map();
+  private snapshotSerializer: (
+    selectedEntities?: readonly number[] | number[],
+  ) => ArrayBuffer;
+  players: Map<string, PlayerRecord> = new Map();
+
+  private systems!: Pipeline;
+  private tickSystems!: Pipeline;
 
   maxClients = 2;
   fixedTimeStep = 1000 / 60;
-
-  fixedUpdate(deltaTime: number) {
-    const velocity = 2;
-
-    this.state.players.forEach((player) => {
-      let input: any;
-      if (player.type === "crown") return;
-
-      while ((input = player.inputQueue.shift())) {
-        if (input.left) {
-          player.x -= velocity;
-        } else if (input.right) {
-          player.x += velocity;
-        }
-
-        if (input.up) {
-          player.y -= velocity;
-        } else if (input.down) {
-          player.y += velocity;
-        }
-
-        this.state.minions.forEach((minion) => {
-          /*
-          const force = calculateFollowForce(
-            minion,
-            { x: input.mouseX, y: input.mouseY }
-          )
-          minion.x += force.x;
-          minion.y += force.y;
-          const options = {
-            followForce: 1,
-            separationForce: 2,
-            maxSpeed: 1.5,
-          };
-
-          followTarget(
-            minion,
-            { x: input.mouseX, y: input.mouseY },
-            this.state.allUnits,
-            1.2,
-            deltaTime,
-            options,
-          );
-          */
-        });
-      }
-    });
-  }
+  tickTimeStep = 200;
 
   onCreate(options: any) {
-    this.state = new MyRoomState();
+    this.world = createWorld();
+    this.world.time = { delta: 0, elapsed: 0, then: performance.now() };
+    this.world.grid = new Grid(staticGridData);
+    this.world.gameEvents = new GameEvents();
+    this.soaSerialize = createSoASerializer(networkSyncComponents);
+    this.snapshotSerializer = createSnapshotSerializer(
+      this.world,
+      networkSyncComponents,
+    );
+
+    this.systems = pipeline([
+      createGridSystemNew(this.world),
+      createFollowTargetSystemNew(this.world),
+      createSeparationForceSystem(),
+      createMovementSystem(),
+      createCooldownSystem(),
+      createCombatSystem(),
+      createProjectileCollisionSystem(),
+      createSpellcastingSystem(),
+      createHealthSystem(),
+      createDestroyAfterDelaySystem(),
+      createTimeSystem(), // time should always be last
+      createDeathSystem(this.world, Faction.Necro),
+    ]);
+
+    this.tickSystems = pipeline([
+      createTargetingSystem(),
+      createAssignFollowTargetSystem(),
+    ]);
+
+    this.world.gameEvents.hitSplat$.subscribe((e: HitSplatEvent) => {
+      this.broadcast("hitsplat", e);
+    });
 
     let elapsedTime = 0;
+    let timeSinceLastTick = 0;
     this.setSimulationInterval((deltaTime) => {
       elapsedTime += deltaTime;
+      timeSinceLastTick += deltaTime;
 
       while (elapsedTime >= this.fixedTimeStep) {
         elapsedTime -= this.fixedTimeStep;
         this.fixedUpdate(this.fixedTimeStep);
       }
-      this.fixedUpdate(deltaTime);
+      while (timeSinceLastTick >= this.tickTimeStep) {
+        timeSinceLastTick -= this.tickTimeStep;
+        this.tickSystems(this.world);
+      }
     });
 
-    // handle player input
-    this.onMessage(0, (client, input) => {
-      // get reference to player that sent message
-      const player = this.state.players.get(client.sessionId);
-      player.inputQueue.push(input);
-    });
-
-    let enemyCount = 0;
     this.onMessage(
       "add_crown_unit",
       (
@@ -90,19 +137,17 @@ export class MyRoom extends Room<{ state: MyRoomState }> {
         { name, xPos, yPos }: { name: UnitName; xPos: number; yPos: number },
       ) => {
         // TODO: validate this action and verify the ID is legitimate
-        // get unit data
-        const data = Units[name as UnitName];
-        const enemy = new Unit();
-        enemy.name = UnitName[name].toString();
-        enemy.x = xPos;
-        enemy.y = yPos;
-        enemy.width = data.width;
-        enemy.height = data.height;
-
-        this.state.enemies.push(enemy);
-        enemyCount++;
+        const eid = createUnitEntity(this.world, name, xPos, yPos);
+        addComponent(this.world, eid, Networked);
       },
     );
+
+    this.onMessage("key_inputs", (client, keys) => {
+      const player = this.players.get(client.sessionId);
+      Input.castingSpell[player.eid] = keys.castingSpell;
+      Input.moveX[player.eid] = keys.moveX;
+      Input.moveY[player.eid] = keys.moveY;
+    });
 
     this.onMessage("type", (client, message) => {
       //
@@ -111,42 +156,86 @@ export class MyRoom extends Room<{ state: MyRoomState }> {
     });
   }
 
-  onJoin(client: Client, options: any) {
+  onJoin(client: Client, options: { playerType: Faction }) {
     console.log(client.sessionId, "joined!");
+    let eid: number;
 
-    let player;
-    // create player instance
-    if (options.playerType === "necro") {
-      player = new Necro();
-      // place player at random position
-      player.x = Math.random() * mapWidth;
-      player.y = Math.random() * mapHeight;
-
-      // place minion at random position
-      const minion = new Unit();
-      // const unitData = Units[UnitName.Skeleton];
-
-      minion.name = "Skeleton";
-      minion.width = 40;
-      minion.height = 60;
-
-      minion.x = Math.random() * mapWidth;
-      minion.y = Math.random() * mapHeight;
-      this.state.minions.push(minion);
-    } else if (options.playerType === "crown") {
-      player = new Crown();
+    // create some skele mans
+    for (let i = 0; i < 5; i++) {
+      const eid = createUnitEntity(
+        this.world,
+        UnitName.Skeleton,
+        Math.random() * 1024,
+        Math.random() * 1024,
+      );
+      addComponent(this.world, eid, Networked);
     }
-    player.type = options.playerType;
-    this.state.players.set(client.sessionId, player);
+
+    // create player instance
+    if (options.playerType === Faction.Necro) {
+      eid = createUnitEntity(this.world, UnitName.Necromancer, 500, 500);
+    } else if (options.playerType === Faction.Crown) {
+      eid = addEntity(this.world);
+      addComponent(this.world, eid, Player);
+      addComponent(this.world, eid, Level);
+      Level.currentLevel[eid] = 0;
+      Level.currentExp[eid] = 0;
+      Level.expToNextLevel[eid] = BASE_EXP;
+      addComponent(this.world, eid, Coin);
+      addComponent(this.world, eid, CoinAccumulator);
+      Coin.current[eid] = 0;
+      Coin.max[eid] = 10;
+      CoinAccumulator.amount[eid] = 1;
+      CoinAccumulator.frequency[eid] = 1000;
+    }
+
+    addComponent(this.world, eid, Networked);
+
+    this.players.set(client.sessionId, { eid, sessionId: client.sessionId });
+    // create new observer serializer for this client
+    this.observerSerializers.set(
+      client.sessionId,
+      createObserverSerializer(this.world, Networked, networkSyncComponents),
+    );
+
+    // initial state sync
+    const snapshot = this.snapshotSerializer();
+    client.send("snapshot", snapshot);
   }
 
   onLeave(client: Client, code: CloseCode) {
     console.log(client.sessionId, "left!");
 
-    this.state.players.delete(client.sessionId);
+    const player = this.players.get(client.sessionId);
+    if (player) {
+      removeEntity(this.world, player.eid);
+      this.players.delete(client.sessionId);
+    }
   }
 
   onDispose() {
     console.log("room", this.roomId, "disposing...");
+  }
+
+  fixedUpdate(deltaTime: number) {
+    // run system pipeline
+    this.systems(this.world);
+
+    // get updates to component values
+    const soaUpdates = this.soaSerialize(
+      query(this.world, networkSyncComponents) as readonly number[],
+    );
+    this.broadcast("soaUpdates", soaUpdates);
+
+    // get updates for add/remove entities & components for the client
+    for (const [sessionId, serializer] of this.observerSerializers) {
+      const updates = serializer();
+      if (updates.byteLength > 0) {
+        const client = this.clients.getById(sessionId);
+        if (client) {
+          client.send("observerUpdates", updates);
+        }
+      }
+    }
   }
 }

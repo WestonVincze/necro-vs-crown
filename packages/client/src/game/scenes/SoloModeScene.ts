@@ -4,7 +4,7 @@ import {
   type Pipeline,
   type System,
   Player,
-  createCursorTargetSystem,
+  initializeNecroMouseControls,
   createInputHandlerSystem,
   createUnitEntity,
   createFollowTargetSystem,
@@ -19,11 +19,12 @@ import {
   CoinAccumulator,
   Coin,
   buildPhysicsPipeline,
-  buildReactivePipeline,
   buildTickPipeline,
   createDeathSystem,
+  createHitSplatSystem,
+  GameEvents,
 } from "@necro-crown/shared";
-import { createCrownControlsSystem } from "$game/systems";
+import { initializeCrownMouseControls } from "$game/systems";
 import {
   BASE_EXP,
   MAP_X_MAX,
@@ -36,7 +37,6 @@ import {
 import { type World, GameState } from "@necro-crown/shared";
 import { profiler } from "@necro-crown/shared/src/utils";
 import { Grid } from "pathfinding";
-import { createMouseManager } from "../../input";
 
 export class SoloModeScene extends Scene {
   /**
@@ -53,11 +53,8 @@ export class SoloModeScene extends Scene {
   private initializeEntities: () => void = () => {};
 
   // system references
-  private reactiveSystems!: Pipeline;
   private tickSystems!: Pipeline;
   private physicsSystems!: Pipeline;
-
-  public globalState: any;
 
   private timeSinceLastTick: number = 0;
 
@@ -75,13 +72,10 @@ export class SoloModeScene extends Scene {
     // instantiate world
     this.world = createWorld();
     this.world.time = { delta: 0, elapsed: 0, then: performance.now() };
+    this.world.gameEvents = new GameEvents();
 
     // create base systems
     let physicsSystems: { pre: System[]; post: System[] } = {
-      pre: [],
-      post: [],
-    };
-    let reactiveSystems: { pre: System[]; post: System[] } = {
       pre: [],
       post: [],
     };
@@ -133,15 +127,9 @@ export class SoloModeScene extends Scene {
 
     this.world.grid = new Grid(gridData);
 
-    // somehow this is necessary to prevent a bug with targeting
-    const zero = addEntity(this.world);
-
     // Faction specific configurations
     switch (this.playerType) {
       case Faction.Crown:
-        createMouseManager(
-          document.getElementById("game-container") || document.documentElement,
-        );
         this.initializeEntities = () => {
           // create player
           const crown = addEntity(this.world);
@@ -177,7 +165,9 @@ export class SoloModeScene extends Scene {
 
         physicsSystems.post = [createDeathSystem(this.world, Faction.Crown)];
 
-        reactiveSystems.pre = [createCrownControlsSystem(this)];
+        initializeCrownMouseControls(this, (name, x, y) =>
+          createUnitEntity(this.world, name, x, y),
+        );
         break;
 
       case Faction.Necro:
@@ -219,7 +209,7 @@ export class SoloModeScene extends Scene {
 
         physicsSystems.post = [createDeathSystem(this.world, Faction.Necro)];
 
-        reactiveSystems.pre = [createCursorTargetSystem(this)];
+        initializeNecroMouseControls(this.world, this);
         break;
     }
 
@@ -231,19 +221,13 @@ export class SoloModeScene extends Scene {
       post: physicsSystems.post,
     });
 
-    this.reactiveSystems = buildReactivePipeline({
-      scene: this,
-      pre: reactiveSystems.pre,
-      post: reactiveSystems.post,
-    });
-
     this.tickSystems = buildTickPipeline();
+
+    // reactive systems
+    createHitSplatSystem(this.world, this);
 
     /** INITIALIZE ENTITIES */
     this.initializeEntities();
-
-    /** RUN REACTIVE SYSTEMS */
-    this.reactiveSystems(this.world);
 
     this.events.once("shutdown", GameState.destroyGameState);
   }

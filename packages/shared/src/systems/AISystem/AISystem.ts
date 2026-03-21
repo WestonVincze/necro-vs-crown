@@ -1,6 +1,6 @@
 import { addComponent, removeComponent, query } from "bitecs";
 import { AIType } from "../../types";
-import { gameEvents } from "../../events";
+import { legacyGameEvents } from "../../events";
 import { AI, AIAction, FollowTarget } from "../../components";
 import { AIStateMachine, createStateMachines } from "./AIStateMachine";
 
@@ -11,7 +11,7 @@ export const createAIEventsSystem = () => {
 
   return (world: World) => {
     // react to state transitions and call related logic
-    gameEvents.AIEvents.subscribe((event) => {
+    legacyGameEvents.AIEvents.subscribe((event) => {
       const stateMachine = stateMachines.get(AI.type[event.eid]);
       if (!stateMachine) return;
 

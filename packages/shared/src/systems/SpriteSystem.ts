@@ -1,6 +1,13 @@
 import { query, hasComponent, observe, onAdd, onRemove } from "bitecs";
 import { GameObjects, Scene } from "phaser";
-import { Player, Position, Sprite, SpriteType, Transform } from "../components";
+import {
+  Networked,
+  Player,
+  Position,
+  Sprite,
+  SpriteType,
+  Transform,
+} from "../components";
 import { TextureNames } from "../constants";
 import { World } from "../types";
 
@@ -45,9 +52,12 @@ export const createSpriteSystem = (world: World, scene: Scene) => {
           break;
       }
 
+      // TODO: set camera follow for necro player in versus
       if (hasComponent(world, eid, Player)) {
         scene.cameras.main.startFollow(sprite);
       }
+      sprite.x = Position.x[eid];
+      sprite.y = Position.y[eid] - Transform.height[eid] / 2;
       sprite.width = width;
       sprite.displayWidth = width;
       sprite.height = height;
@@ -72,7 +82,7 @@ export const createSpriteSystem = (world: World, scene: Scene) => {
         const rope = sprite as GameObjects.Rope;
 
         /** Uses rope to make everything wiggle **/
-        if (Math.abs(rope.x - x) > 0.1 || Math.abs(rope.y - y) > 0.1) {
+        if (Math.abs(rope.x - x) > 1 || Math.abs(rope.y - y) > 1) {
           // sprite has moved at least a little
           let points = rope.points;
 
@@ -89,8 +99,18 @@ export const createSpriteSystem = (world: World, scene: Scene) => {
         }
       }
 
-      sprite.x = Position.x[eid];
-      sprite.y = Position.y[eid] - Transform.height[eid] / 2;
+      // linear interpolation for networked entities
+      if (hasComponent(world, eid, Networked)) {
+        sprite.x = Phaser.Math.Linear(sprite.x, Position.x[eid], 0.2);
+        sprite.y = Phaser.Math.Linear(
+          sprite.y,
+          Position.y[eid] - Transform.height[eid] / 2,
+          0.2,
+        );
+      } else {
+        sprite.x = Position.x[eid];
+        sprite.y = Position.y[eid] - Transform.height[eid] / 2;
+      }
       // workaround to ensure z-index is always above 0
       sprite.depth = Position.y[eid] + 1200;
     }

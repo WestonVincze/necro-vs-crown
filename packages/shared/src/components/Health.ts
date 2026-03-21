@@ -5,7 +5,7 @@ export const Health = {
 
 export const Damage = {
   amount: [] as number[],
-  isCrit: [] as boolean[],
+  isCrit: [] as number[],
 };
 
 export const Heal = {
@@ -14,5 +14,5 @@ export const Heal = {
 
 export const HitSplat = {
   amount: [] as number[],
-  isCrit: [] as boolean[],
+  isCrit: [] as number[],
 };

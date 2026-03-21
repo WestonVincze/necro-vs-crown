@@ -4,7 +4,7 @@ export * from "./SpriteSystem"; // should this be client only?
 export * from "./TargetSystem";
 export * from "./InputHandlerSystem";
 export * from "./FollowTargetSystem";
-export * from "./CollisionSystem";
+export * from "./CollisionSystems";
 export * from "./ItemEquipSystem";
 export * from "./SpellcastingSystems";
 export * from "./HealthSystems";

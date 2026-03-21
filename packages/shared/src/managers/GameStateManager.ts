@@ -1,5 +1,5 @@
 // import * as dat from "dat.gui";
-import { gameEvents } from "../events";
+import { legacyGameEvents } from "../events";
 import { BehaviorSubject, distinctUntilChanged, filter, skip } from "rxjs";
 
 // right now this is only used for debugging, we may not ever need a global game state
@@ -8,7 +8,7 @@ const InitializeGameState = () => {
   let _debugMode = new BehaviorSubject<boolean>(false);
   // let gui = new dat.GUI();
 
-  const pauseSubscription = gameEvents.onTogglePause.subscribe(
+  const pauseSubscription = legacyGameEvents.onTogglePause.subscribe(
     () => (_paused = !_paused),
   );
 

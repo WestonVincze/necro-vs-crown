@@ -3,6 +3,7 @@ import { type Pipeline } from "../types";
 import { pipeline } from "./helpers";
 import { PipelineFactory } from "./types";
 
+/** DEPRECATED */
 export const buildReactivePipeline = ({
   scene,
   pre = [],
