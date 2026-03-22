@@ -15,6 +15,7 @@ const config = {
       "$UI/*": "src/UI/*",
       $icons: "src/icons",
       "$game/*": "src/game/*",
+      "@necro-crown/shared": "../shared/src", // module resolution for hot-reload
     },
     adapter: adapter({
       precompress: false,

@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "outDir": "build",
     "target": "ESNext",
     "module": "CommonJS",
     "moduleResolution": "node",
@@ -12,7 +11,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "useDefineForClassFields": false,
-    "baseUrl": "./src/"
+    "outDir": "./build"
   },
   "include": ["src"]
 }

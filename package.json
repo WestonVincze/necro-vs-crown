@@ -8,6 +8,7 @@
     "start": "npm run server:start",
     "build": "npm run client:build",
     "dev": "pnpm --filter @necro-crown/client dev",
+    "shared:build": "pnpm --filter @necro-crown/shared build",
     "client:build": "pnpm --filter @necro-crown/client build",
     "client:start": "pnpm --filter @necro-crown/client dev",
     "server:build": "pnpm --filter @necro-crown/server build",
