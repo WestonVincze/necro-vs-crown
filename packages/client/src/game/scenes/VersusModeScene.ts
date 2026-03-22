@@ -8,13 +8,9 @@ import {
   MAP_Y_MAX,
   MAP_Y_MIN,
   Networked,
-  createDrawCollisionSystem,
-  createDrawSpellEffectSystem,
   createHealthBarSystem,
   createHealthSystem,
   createHitSplatSystem,
-  createSpriteSystem,
-  initializeNecroMouseControls,
   networkSyncComponents,
   type HitSplatEvent,
   type Pipeline,
@@ -26,8 +22,15 @@ import {
   createSoADeserializer,
 } from "bitecs/serialization";
 import { Grid } from "pathfinding";
-import { type World, pipeline } from "@necro-crown/shared";
-import { initializeCrownMouseControls } from "$game/systems";
+import { type World } from "@necro-crown/shared";
+import { pipeline } from "$game/pipelines";
+import {
+  initializeCrownMouseControls,
+  createDrawCollisionSystem,
+  createDrawSpellEffectSystem,
+  createSpriteSystem,
+  initializeNecroMouseControls,
+} from "$game/systems";
 import { createInputState, type InputState } from "../../input/InputState";
 import type { Observable } from "rxjs";
 

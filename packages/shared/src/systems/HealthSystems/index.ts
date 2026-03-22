@@ -1,3 +1,3 @@
 export * from "./HealthSystem";
-export * from "./HitSplatSystem";
-export * from "./HealthBarSystem";
+export * from "../../../../client/src/game/systems/HitSplatSystem";
+export * from "../../../../client/src/game/systems/HealthBarSystem";

@@ -1,23 +1,21 @@
-import { query, getRelationTargets, observe, onRemove } from "bitecs";
-import {
-  AttackRange,
-  GridCell,
-  Input,
-  Position,
-  Velocity,
-} from "../components";
-import { AStarFinder, DiagonalMovement, Util } from "pathfinding";
-import { type Scene, type GameObjects, Geom } from "phaser";
-import { MoveTarget } from "../relations";
 import {
   areVectorsIdentical,
+  AttackRange,
+  GameState,
   getGridCellFromEid,
   getPositionFromEid,
   getPositionFromGridCell,
+  GridCell,
   isWithinOneGridCell,
-} from "../utils";
-import { GameState } from "../managers";
-import { type World } from "../types";
+  MoveTarget,
+  Position,
+  Velocity,
+  Input,
+  type World,
+} from "@necro-crown/shared";
+import { getRelationTargets, observe, onRemove, query } from "bitecs";
+import { AStarFinder, DiagonalMovement, Util } from "pathfinding";
+import { Geom, Scene, type GameObjects } from "phaser";
 
 const drawPathLines = (
   path: number[][],

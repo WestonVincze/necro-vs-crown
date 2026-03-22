@@ -2,8 +2,6 @@ import {
   createCombatSystem,
   createCooldownSystem,
   createDestroyAfterDelaySystem,
-  createDrawCollisionSystem,
-  createDrawSpellEffectSystem,
   createEmitUpgradeRequestEventSystem,
   createHandleUpgradeSelectEventSystem,
   createHealthBarSystem,
@@ -19,7 +17,11 @@ import {
   createUnitSpawnerSystem,
   createUpgradeSelectionSystem,
 } from "@necro-crown/shared";
-import { createSpriteSystem } from "$game/systems";
+import {
+  createSpriteSystem,
+  createDrawCollisionSystem,
+  createDrawSpellEffectSystem,
+} from "$game/systems";
 import type { Pipeline, PipelineFactory } from "./types";
 import { pipeline } from "./helpers";
 

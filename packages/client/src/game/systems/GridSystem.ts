@@ -1,14 +1,17 @@
 import { Not, observe, onRemove, query } from "bitecs";
 import type { Tilemaps } from "phaser";
-import { Position, GridCell, Cursor } from "../components";
+import { Position, GridCell, Cursor } from "../../../../shared/src/components";
 import {
   getGridCellFromPosition,
   getGridCellFromEid,
   getPositionFromEid,
-} from "../utils";
-import { GameState } from "../managers";
-import { MAP_HEIGHT_TILES, MAP_WIDTH_TILES } from "../constants";
-import { type World } from "../types";
+} from "../../../../shared/src/utils";
+import { GameState } from "../../../../shared/src/managers";
+import {
+  MAP_HEIGHT_TILES,
+  MAP_WIDTH_TILES,
+} from "../../../../shared/src/constants";
+import { type World } from "../../../../shared/src/types";
 
 type Cell = {
   walkable: boolean;
