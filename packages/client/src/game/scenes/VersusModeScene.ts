@@ -60,7 +60,8 @@ export class VersusModeScene extends Scene {
     this.inputs$ = createInputState();
   }
 
-  client = new Client("ws://localhost:2567");
+  // client = new Client("ws://localhost:2567");
+  client = new Client("wss://necro-vs-crown-server.fly.dev");
   room?: Room;
 
   units: any[] = [];
