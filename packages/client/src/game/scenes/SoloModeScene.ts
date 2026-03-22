@@ -4,7 +4,6 @@ import { Grid } from "pathfinding";
 import {
   type System,
   Player,
-  initializeNecroMouseControls,
   createUnitEntity,
   createFollowTargetSystem,
   createBonesEntity,
@@ -33,6 +32,7 @@ import {
   profiler,
 } from "@necro-crown/shared";
 import {
+  initializeNecroMouseControls,
   initializeCrownMouseControls,
   createInputHandlerSystem,
 } from "$game/systems";

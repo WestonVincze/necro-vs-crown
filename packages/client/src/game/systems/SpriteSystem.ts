@@ -7,9 +7,9 @@ import {
   Sprite,
   SpriteType,
   Transform,
-} from "../components";
-import { TextureNames } from "../constants";
-import { World } from "../types";
+  TextureNames,
+  type World,
+} from "@necro-crown/shared";
 
 /**
  * @param scene Reference to Phaser Scene

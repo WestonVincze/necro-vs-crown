@@ -14,12 +14,12 @@ import {
   createSeparationForceSystem,
   createSpellcastingSystem,
   createSpellEffectSystem,
-  createSpriteSystem,
   createStatUpdateSystem,
   createTimeSystem,
   createUnitSpawnerSystem,
   createUpgradeSelectionSystem,
 } from "@necro-crown/shared";
+import { createSpriteSystem } from "$game/systems";
 import type { Pipeline, PipelineFactory } from "./types";
 import { pipeline } from "./helpers";
 
