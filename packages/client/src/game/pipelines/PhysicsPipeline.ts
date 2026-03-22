@@ -8,7 +8,6 @@ import {
   createHandleUpgradeSelectEventSystem,
   createHealthBarSystem,
   createHealthSystem,
-  createHitSplatSystem,
   createLevelUpSystem,
   createMovementSystem,
   createProjectileCollisionSystem,
@@ -20,11 +19,9 @@ import {
   createTimeSystem,
   createUnitSpawnerSystem,
   createUpgradeSelectionSystem,
-} from "../systems";
-import { type Pipeline } from "../types";
-
+} from "@necro-crown/shared";
+import type { Pipeline, PipelineFactory } from "./types";
 import { pipeline } from "./helpers";
-import { PipelineFactory } from "./types";
 
 export const buildPhysicsPipeline = ({
   world,

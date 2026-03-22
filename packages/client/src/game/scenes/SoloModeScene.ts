@@ -1,7 +1,7 @@
 import { addComponent, addEntity, createWorld } from "bitecs";
 import { Scene } from "phaser";
+import { Grid } from "pathfinding";
 import {
-  type Pipeline,
   type System,
   Player,
   initializeNecroMouseControls,
@@ -17,17 +17,10 @@ import {
   Level,
   CoinAccumulator,
   Coin,
-  buildPhysicsPipeline,
-  buildTickPipeline,
   createDeathSystem,
   createHitSplatSystem,
   GameEvents,
-} from "@necro-crown/shared";
-import {
-  initializeCrownMouseControls,
-  createInputHandlerSystem,
-} from "$game/systems";
-import {
+  type Pipeline,
   BASE_EXP,
   MAP_X_MAX,
   MAP_X_MIN,
@@ -39,7 +32,11 @@ import {
   GameState,
   profiler,
 } from "@necro-crown/shared";
-import { Grid } from "pathfinding";
+import {
+  initializeCrownMouseControls,
+  createInputHandlerSystem,
+} from "$game/systems";
+import { buildPhysicsPipeline, buildTickPipeline } from "$game/pipelines";
 
 export class SoloModeScene extends Scene {
   /**
