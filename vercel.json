@@ -1,5 +1,6 @@
 {
   "buildCommand": "pnpm --filter client build",
   "installCommand": "pnpm install --frozen-lockfile",
-  "framework": "sveltekit"
+  "framework": "sveltekit",
+  "outputDirectory": "packages/client/.svelte-kit/output"
 }
