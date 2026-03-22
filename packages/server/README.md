@@ -26,3 +26,18 @@ npm start
 ## License
 
 MIT
+
+## Deployment
+
+Deploy directly to fly.io or use the Dockerfile image directly
+
+build docker image
+`docker build -f packages/server/Dockerfile -t game-server .`
+
+you can test locally
+`docker run -p 2567:2567 game-server`
+
+authenticate to fly.io and run the deploy command
+`fly deploy --config packages/server/fly.toml`
+
+> When using free trial, upgrade VMs to shared-cpu-2x@4096MB

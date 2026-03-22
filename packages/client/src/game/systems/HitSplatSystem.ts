@@ -1,4 +1,5 @@
 import { GameObjects, Scene } from "phaser";
+import type { World } from "@necro-crown/shared";
 
 const hitSplatColors = {
   purple: {

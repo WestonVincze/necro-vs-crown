@@ -1,9 +1,8 @@
 import { observe, onAdd, onRemove, query } from "bitecs";
 import { GameObjects } from "phaser";
 
-import { Position, Collider } from "../../components";
-import { GameState } from "../../managers";
-import { type World } from "../../types";
+import { Position, Collider, type World } from "@necro-crown/shared";
+import { GameState } from "../managers";
 
 export const createDrawCollisionSystem = (
   world: World,

@@ -2,29 +2,28 @@ import {
   createCombatSystem,
   createCooldownSystem,
   createDestroyAfterDelaySystem,
-  createDrawCollisionSystem,
-  createDrawSpellEffectSystem,
   createEmitUpgradeRequestEventSystem,
   createHandleUpgradeSelectEventSystem,
-  createHealthBarSystem,
   createHealthSystem,
-  createHitSplatSystem,
   createLevelUpSystem,
   createMovementSystem,
   createProjectileCollisionSystem,
   createSeparationForceSystem,
   createSpellcastingSystem,
   createSpellEffectSystem,
-  createSpriteSystem,
   createStatUpdateSystem,
   createTimeSystem,
   createUnitSpawnerSystem,
   createUpgradeSelectionSystem,
-} from "../systems";
-import { type Pipeline } from "../types";
-
-import { pipeline } from "./helpers";
-import { PipelineFactory } from "./types";
+  pipeline,
+} from "@necro-crown/shared";
+import {
+  createSpriteSystem,
+  createDrawCollisionSystem,
+  createDrawSpellEffectSystem,
+  createHealthBarSystem,
+} from "$game/systems";
+import type { Pipeline, PipelineFactory } from "./types";
 
 export const buildPhysicsPipeline = ({
   world,

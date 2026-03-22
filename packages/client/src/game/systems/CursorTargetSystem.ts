@@ -1,8 +1,13 @@
-import { addComponent, addEntity, query } from "bitecs";
+import { addComponent, addEntity } from "bitecs";
 import type { Scene } from "phaser";
 import { fromEvent, map } from "rxjs";
-import { Cursor, GridCell, Position } from "../components";
-import { getGridCellFromPosition } from "../utils";
+import {
+  Cursor,
+  GridCell,
+  Position,
+  getGridCellFromPosition,
+  type World,
+} from "@necro-crown/shared";
 
 // TODO: this isn't a system, let's move it elsewhere
 export const initializeNecroMouseControls = (world: World, scene: Scene) => {

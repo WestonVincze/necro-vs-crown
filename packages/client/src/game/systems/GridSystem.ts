@@ -1,14 +1,17 @@
 import { Not, observe, onRemove, query } from "bitecs";
 import type { Tilemaps } from "phaser";
-import { Position, GridCell, Cursor } from "../components";
 import {
+  Position,
+  GridCell,
+  Cursor,
   getGridCellFromPosition,
   getGridCellFromEid,
   getPositionFromEid,
-} from "../utils";
+  MAP_HEIGHT_TILES,
+  MAP_WIDTH_TILES,
+  type World,
+} from "@necro-crown/shared";
 import { GameState } from "../managers";
-import { MAP_HEIGHT_TILES, MAP_WIDTH_TILES } from "../constants";
-import { type World } from "../types";
 
 type Cell = {
   walkable: boolean;

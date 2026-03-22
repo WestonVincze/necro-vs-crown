@@ -1,7 +1,9 @@
-import { createAIEventsSystem, createItemEquipSystem } from "../systems";
-import { type Pipeline } from "../types";
-import { pipeline } from "./helpers";
-import { PipelineFactory } from "./types";
+import {
+  createAIEventsSystem,
+  createItemEquipSystem,
+  pipeline,
+} from "@necro-crown/shared";
+import type { PipelineFactory, Pipeline } from "./types";
 
 /** DEPRECATED */
 export const buildReactivePipeline = ({

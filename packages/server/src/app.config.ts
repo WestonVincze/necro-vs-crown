@@ -1,9 +1,4 @@
-import {
-    defineServer,
-    defineRoom,
-    monitor,
-    playground,
-} from "colyseus";
+import { defineServer, defineRoom, monitor, playground } from "colyseus";
 
 /**
  * Import your Room files
@@ -19,7 +14,7 @@ const server = defineServer({
     app.get("/hello", (req, res) => {
       res.send("It's time to kick ass and chew bubblegum!");
     });
-    
+
     /**
      * Use @colyseus/monitor
      * It is recommended to protect this route with a password

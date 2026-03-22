@@ -1,8 +1,8 @@
 import {
   createAssignFollowTargetSystem,
   createTargetingSystem,
-} from "../systems";
-import { pipeline } from "./helpers";
+  pipeline,
+} from "@necro-crown/shared";
 
 export const buildTickPipeline = () =>
   pipeline([createTargetingSystem(), createAssignFollowTargetSystem()]);

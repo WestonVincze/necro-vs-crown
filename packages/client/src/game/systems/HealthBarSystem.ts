@@ -1,6 +1,6 @@
 import { observe, onAdd, onRemove, query } from "bitecs";
 import { GameObjects, Scene } from "phaser";
-import { Health, Position, Transform } from "../../components";
+import { Health, Position, Transform, type World } from "@necro-crown/shared";
 
 const HEALTH_BAR_HEIGHT = 5;
 

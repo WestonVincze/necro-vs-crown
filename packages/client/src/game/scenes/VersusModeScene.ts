@@ -8,16 +8,11 @@ import {
   MAP_Y_MAX,
   MAP_Y_MIN,
   Networked,
-  createDrawCollisionSystem,
-  createDrawSpellEffectSystem,
-  createHealthBarSystem,
   createHealthSystem,
-  createHitSplatSystem,
-  createSpriteSystem,
-  initializeNecroMouseControls,
   networkSyncComponents,
   type HitSplatEvent,
   type Pipeline,
+  pipeline,
 } from "@necro-crown/shared";
 import { createWorld } from "bitecs";
 import {
@@ -26,8 +21,16 @@ import {
   createSoADeserializer,
 } from "bitecs/serialization";
 import { Grid } from "pathfinding";
-import { type World, pipeline } from "@necro-crown/shared";
-import { initializeCrownMouseControls } from "$game/systems";
+import { type World } from "@necro-crown/shared";
+import {
+  initializeCrownMouseControls,
+  createDrawCollisionSystem,
+  createDrawSpellEffectSystem,
+  createSpriteSystem,
+  initializeNecroMouseControls,
+  createHitSplatSystem,
+  createHealthBarSystem,
+} from "$game/systems";
 import { createInputState, type InputState } from "../../input/InputState";
 import type { Observable } from "rxjs";
 
@@ -57,7 +60,8 @@ export class VersusModeScene extends Scene {
     this.inputs$ = createInputState();
   }
 
-  client = new Client("ws://localhost:2567");
+  // client = new Client("ws://localhost:2567");
+  client = new Client("wss://necro-vs-crown-server.fly.dev");
   room?: Room;
 
   units: any[] = [];

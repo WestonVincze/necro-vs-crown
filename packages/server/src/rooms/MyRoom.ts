@@ -12,50 +12,39 @@ import {
   createSoASerializer,
 } from "bitecs/serialization";
 import { Grid } from "pathfinding";
-import { staticGridData } from "staticGridData";
-
+import { staticGridData } from "../staticGridData";
 import {
   Faction,
   Pipeline,
   UnitName,
   World,
-} from "@necro-crown/shared/src/types";
-
-import { BASE_EXP } from "@necro-crown/shared/src/constants";
-import {
   Coin,
   CoinAccumulator,
-} from "@necro-crown/shared/src/components/Coins";
-import { Level } from "@necro-crown/shared/src/components/Level";
-import { Player } from "@necro-crown/shared/src/components/Tags";
-import { createUnitEntity } from "@necro-crown/shared/src/entities/Unit";
-import {
+  Level,
+  Player,
+  createUnitEntity,
   Networked,
   networkSyncComponents,
-} from "@necro-crown/shared/src/components/Networking";
-import { pipeline } from "@necro-crown/shared/src/pipelines/helpers";
-import { createSeparationForceSystem } from "@necro-crown/shared/src/systems/SeparationForceSystem";
-import { createMovementSystem } from "@necro-crown/shared/src/systems/MovementSystem";
-import { createFollowTargetSystemNew } from "@necro-crown/shared/src/systems/temp/FollowTargetSystemNew";
-import { createGridSystemNew } from "@necro-crown/shared/src/systems/temp/GridSystemNew";
-import {
+  pipeline,
+  createSeparationForceSystem,
+  createMovementSystem,
+  createFollowTargetSystemNew,
+  createGridSystemNew,
   createAssignFollowTargetSystem,
   createTargetingSystem,
-} from "@necro-crown/shared/src/systems/TargetSystem";
-import { createCooldownSystem } from "@necro-crown/shared/src/systems/CooldownSystem";
-import { createCombatSystem } from "@necro-crown/shared/src/systems/CombatSystem";
-import { createProjectileCollisionSystem } from "@necro-crown/shared/src/systems/CollisionSystems/CollisionSystem";
-import { createSpellcastingSystem } from "@necro-crown/shared/src/systems/SpellcastingSystems";
-import { createHealthSystem } from "@necro-crown/shared/src/systems/HealthSystems/HealthSystem";
-import { createDestroyAfterDelaySystem } from "@necro-crown/shared/src/systems/DestroyAfterDelaySystem";
-import { createTimeSystem } from "@necro-crown/shared/src/systems/TimeSystem";
-import { createDeathSystem } from "@necro-crown/shared/src/systems/DeathSystem";
-import {
+  createCooldownSystem,
+  createCombatSystem,
+  createProjectileCollisionSystem,
+  createSpellcastingSystem,
+  createHealthSystem,
+  createDestroyAfterDelaySystem,
+  createTimeSystem,
+  createDeathSystem,
   GameEvents,
   HitSplatEvent,
-} from "@necro-crown/shared/src/events/GameEvents";
-import { Input } from "@necro-crown/shared/src/components";
-
+  Input,
+  BASE_EXP,
+} from "@necro-crown/shared";
 interface PlayerRecord {
   eid: number;
   sessionId: string;
