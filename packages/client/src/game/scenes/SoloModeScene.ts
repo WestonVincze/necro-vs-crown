@@ -5,7 +5,6 @@ import {
   type System,
   Player,
   initializeNecroMouseControls,
-  createInputHandlerSystem,
   createUnitEntity,
   createFollowTargetSystem,
   createBonesEntity,
@@ -24,7 +23,10 @@ import {
   createHitSplatSystem,
   GameEvents,
 } from "@necro-crown/shared";
-import { initializeCrownMouseControls } from "$game/systems";
+import {
+  initializeCrownMouseControls,
+  createInputHandlerSystem,
+} from "$game/systems";
 import {
   BASE_EXP,
   MAP_X_MAX,
@@ -33,9 +35,10 @@ import {
   MAP_Y_MIN,
   SCREEN_HEIGHT,
   SCREEN_WIDTH,
-} from "@necro-crown/shared/src/constants";
-import { type World, GameState } from "@necro-crown/shared";
-import { profiler } from "@necro-crown/shared/src/utils";
+  type World,
+  GameState,
+  profiler,
+} from "@necro-crown/shared";
 import { Grid } from "pathfinding";
 
 export class SoloModeScene extends Scene {

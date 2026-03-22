@@ -1,11 +1,10 @@
 import { query } from "bitecs";
-import { Input, Player } from "../components";
-// TODO: move InputHandlerSystem to client, it won't be shared
+import { type World, Input, Player } from "@necro-crown/shared";
 import {
   createActiveActions,
   type InputAction,
   type action,
-} from "../../../client/src/input";
+} from "../../input";
 
 const inputMap: InputAction = {
   moveLeft: ["a"],
