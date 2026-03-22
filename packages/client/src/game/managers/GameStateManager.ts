@@ -1,5 +1,5 @@
 // import * as dat from "dat.gui";
-import { legacyGameEvents } from "../events";
+import { legacyGameEvents } from "@necro-crown/shared";
 import { BehaviorSubject, distinctUntilChanged, filter, skip } from "rxjs";
 
 // right now this is only used for debugging, we may not ever need a global game state

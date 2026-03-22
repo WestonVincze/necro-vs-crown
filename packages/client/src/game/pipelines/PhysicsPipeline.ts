@@ -4,7 +4,6 @@ import {
   createDestroyAfterDelaySystem,
   createEmitUpgradeRequestEventSystem,
   createHandleUpgradeSelectEventSystem,
-  createHealthBarSystem,
   createHealthSystem,
   createLevelUpSystem,
   createMovementSystem,
@@ -21,6 +20,7 @@ import {
   createSpriteSystem,
   createDrawCollisionSystem,
   createDrawSpellEffectSystem,
+  createHealthBarSystem,
 } from "$game/systems";
 import type { Pipeline, PipelineFactory } from "./types";
 import { pipeline } from "./helpers";

@@ -5,7 +5,6 @@ export * from "./data";
 export * from "./relations";
 export * from "./types";
 export * from "./events";
-export * from "./managers";
 export * from "./constants";
 export * from "./stores";
 export * from "./utils";

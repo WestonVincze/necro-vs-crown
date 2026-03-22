@@ -5,19 +5,16 @@ import {
   type System,
   Player,
   createUnitEntity,
-  createFollowTargetSystem,
   createBonesEntity,
   Faction,
   Behavior,
   Behaviors,
-  createGridSystem,
   createTargetSpawnerEntity,
   UnitName,
   Level,
   CoinAccumulator,
   Coin,
   createDeathSystem,
-  createHitSplatSystem,
   GameEvents,
   type Pipeline,
   BASE_EXP,
@@ -28,14 +25,17 @@ import {
   SCREEN_HEIGHT,
   SCREEN_WIDTH,
   type World,
-  GameState,
   profiler,
 } from "@necro-crown/shared";
 import {
   initializeNecroMouseControls,
   initializeCrownMouseControls,
   createInputHandlerSystem,
+  createHitSplatSystem,
+  createGridSystem,
+  createFollowTargetSystem,
 } from "$game/systems";
+import { GameState } from "$game/managers";
 import { buildPhysicsPipeline, buildTickPipeline } from "$game/pipelines";
 
 export class SoloModeScene extends Scene {
