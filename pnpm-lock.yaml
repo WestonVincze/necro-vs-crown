@@ -94,12 +94,21 @@ importers:
       '@necro-crown/shared':
         specifier: workspace:*
         version: link:../shared
+      bitecs:
+        specifier: ^0.4.0
+        version: 0.4.0
       colyseus:
         specifier: ^0.17.6
         version: 0.17.8(bf5btwfpmibfvbnfaht3iwuo3a)
       express:
         specifier: ^4.18.2
         version: 4.22.1
+      pathfinding:
+        specifier: github:WestonVincze/PathFinding.js
+        version: https://codeload.github.com/WestonVincze/PathFinding.js/tar.gz/a90278847febc15ca4bd1e88a2c1918ab4535e31
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
     devDependencies:
       '@colyseus/loadtest':
         specifier: ^0.17.7
