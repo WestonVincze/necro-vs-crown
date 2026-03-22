@@ -1,6 +1,7 @@
 FROM node:22 AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
+ENV PORT=2567
 RUN corepack enable
 WORKDIR /app
 # COPY .npmrc .npmrc
