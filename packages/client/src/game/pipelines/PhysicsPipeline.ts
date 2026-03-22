@@ -15,6 +15,7 @@ import {
   createTimeSystem,
   createUnitSpawnerSystem,
   createUpgradeSelectionSystem,
+  pipeline,
 } from "@necro-crown/shared";
 import {
   createSpriteSystem,
@@ -23,7 +24,6 @@ import {
   createHealthBarSystem,
 } from "$game/systems";
 import type { Pipeline, PipelineFactory } from "./types";
-import { pipeline } from "./helpers";
 
 export const buildPhysicsPipeline = ({
   world,
