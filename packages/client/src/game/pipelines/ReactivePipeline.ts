@@ -1,8 +1,8 @@
 import {
   createAIEventsSystem,
   createItemEquipSystem,
+  pipeline,
 } from "@necro-crown/shared";
-import { pipeline } from "./helpers";
 import type { PipelineFactory, Pipeline } from "./types";
 
 /** DEPRECATED */

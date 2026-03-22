@@ -1,7 +1,6 @@
 import {
   areVectorsIdentical,
   AttackRange,
-  GameState,
   getGridCellFromEid,
   getPositionFromEid,
   getPositionFromGridCell,
@@ -16,6 +15,7 @@ import {
 import { getRelationTargets, observe, onRemove, query } from "bitecs";
 import { AStarFinder, DiagonalMovement, Util } from "pathfinding";
 import { Geom, Scene, type GameObjects } from "phaser";
+import { GameState } from "../managers";
 
 const drawPathLines = (
   path: number[][],
