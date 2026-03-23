@@ -1,22 +1,23 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
-  import type { Game } from "phaser";
 
-  import { StartGame } from ".";
   import MainMenu from "../views/MainMenu.svelte";
   import { CrownUI } from "../views/Crown";
-  import { Faction, legacyGameEvents, StatName, type Upgrade } from "@necro-crown/shared";
+  import { Faction, legacyGameEvents, type Upgrade } from "@necro-crown/shared";
   import UpgradeSelect from "../views/UpgradeSelect.svelte";
   import GameOver from "../views/GameOver.svelte";
+  import type { Game } from "phaser";
 
-  let game: Game;
+  let game: Game | null = null;
+
   $: upgrade = {
     active: false,
     options: [] as Upgrade[],
   }
   let handleUpgradeSelect: (upgradeId: number) => void;
 
-  onMount(() => {
+  onMount(async () => {
+    const { StartGame } = (await import('./'));
     game = StartGame("game-container");
   })
 
@@ -32,11 +33,13 @@
   });
 
   const gameOverSubscription = legacyGameEvents.onGameOver.subscribe(() => {
+    if (!game) return;
     game.scene.start("GameOverScene");
     currentScene = "GameOver";
   });
 
   const handlePlayAs = (player: Faction, gameMode: "solo" | "versus") => {
+    if (!game) return;
     currentPlayer = player;
     if (gameMode === "versus") {
       game.scene.start("VersusModeScene", { player })
@@ -48,6 +51,7 @@
   }
 
   const handleMainMenu = () => {
+    if (!game) return;
     game.scene.start("MainMenuScene");
     currentScene = "MainMenu";
   }
@@ -58,7 +62,8 @@
 
   onDestroy(() => {
     // emit scene's destroy event for cleanup
-    game.scene.destroy();
+    if (!game) return;
+    game.destroy(true);
     levelUpSubscription.unsubscribe();
     gameOverSubscription.unsubscribe();
   });
