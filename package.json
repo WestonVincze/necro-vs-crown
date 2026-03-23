@@ -1,6 +1,6 @@
 {
   "name": "@necro-crown/root",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Necro Crown Monorepo",
   "author": "Weston Vincze",
   "packageManager": "pnpm@9.7.0",
