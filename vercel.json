@@ -2,5 +2,5 @@
   "buildCommand": "pnpm --filter client build",
   "installCommand": "pnpm install",
   "framework": "sveltekit",
-  "outputDirectory": "build"
+  "outputDirectory": "packages/client/build"
 }
