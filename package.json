@@ -30,8 +30,6 @@
     "vitest": "^1.6.0"
   },
   "dependencies": {
-    "bitecs": "^0.4.0",
-    "pathfinding": "github:WestonVincze/PathFinding.js",
     "typescript": "^5.9.3"
   }
 }
