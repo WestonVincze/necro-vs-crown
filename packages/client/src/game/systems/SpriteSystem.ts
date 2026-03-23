@@ -29,6 +29,19 @@ export const createSpriteSystem = (world: World, scene: Scene) => {
   observe(world, onRemove(Sprite), (eid) => spriteExitQueue.push(eid));
 
   return (world: World) => {
+    const spritesExited = spriteExitQueue.splice(0);
+    for (const eid of spritesExited) {
+      const sprite = spriteById.get(eid);
+
+      if (!sprite) {
+        console.warn(`Sprite not found: Unable to destroy Sprite for ${eid}.`);
+      } else {
+        sprite.destroy();
+      }
+
+      spriteById.delete(eid);
+    }
+
     const spritesEntered = spriteEnterQueue.splice(0);
     for (const eid of spritesEntered) {
       const textureId = Sprite.texture[eid];
@@ -113,19 +126,6 @@ export const createSpriteSystem = (world: World, scene: Scene) => {
       }
       // workaround to ensure z-index is always above 0
       sprite.depth = Position.y[eid] + 1200;
-    }
-
-    const spritesExited = spriteExitQueue.splice(0);
-    for (const eid of spritesExited) {
-      const sprite = spriteById.get(eid);
-
-      if (!sprite) {
-        console.warn(`Sprite not found: Unable to destroy Sprite for ${eid}.`);
-      } else {
-        sprite.destroy();
-      }
-
-      spriteById.delete(eid);
     }
 
     return world;

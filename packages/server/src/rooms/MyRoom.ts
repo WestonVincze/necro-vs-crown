@@ -17,7 +17,7 @@ import {
   Faction,
   Pipeline,
   UnitName,
-  World,
+  type World,
   Coin,
   CoinAccumulator,
   Level,

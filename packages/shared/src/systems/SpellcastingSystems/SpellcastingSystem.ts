@@ -5,6 +5,7 @@ import {
   Not,
   observe,
   onAdd,
+  isNested,
 } from "bitecs";
 import {
   Spell,
@@ -61,9 +62,6 @@ export const createSpellEffectSystem = (world: World) => {
   observe(world, onAdd(ResolveSpell), (eid) => spellResolveQueue.push(eid));
 
   // TODO: avoid defining queries for every type of spell... this works for now though
-  const bonesQuery = (world: World) => query(world, [Bones, Position]);
-  const necroUnitQuery = (world: World) =>
-    query(world, [Necro, Position, Health]);
 
   return (world: World) => {
     for (const eid of query(world, [SpellEffect, Position])) {
@@ -87,9 +85,7 @@ export const createSpellEffectSystem = (world: World) => {
       SpellCooldown.timeUntilReady[eid] = 1000;
       switch (SpellEffect.name[eid]) {
         case SpellName.Summon:
-          const boneEntities = bonesQuery(world);
-
-          for (const boneEntity of boneEntities) {
+          for (const boneEntity of query(world, [Bones, Position], isNested)) {
             const bonePosition = getPositionFromEid(boneEntity);
 
             if (
@@ -111,7 +107,11 @@ export const createSpellEffectSystem = (world: World) => {
           }
           break;
         case SpellName.HolyNova:
-          const necroEntities = necroUnitQuery(world);
+          const necroEntities = query(
+            world,
+            [Necro, Position, Health],
+            isNested,
+          );
           for (const necroEid of necroEntities) {
             const necroPosition = getPositionFromEid(necroEid);
 

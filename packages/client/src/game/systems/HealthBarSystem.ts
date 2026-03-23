@@ -19,6 +19,18 @@ export const createHealthBarSystem = (world: World, scene: Scene) => {
   );
 
   return (world: World) => {
+    const exited = onExitQueue.splice(0);
+    for (const eid of exited) {
+      const healthBar = healthBarsById.get(eid);
+
+      if (!healthBar) {
+        console.warn(`Not found: could not destroy HealthBar for ${eid}`);
+      }
+
+      healthBar?.destroy();
+      healthBarsById.delete(eid);
+    }
+
     const entered = onEnterQueue.splice(0);
     for (const eid of entered) {
       const { x, y, width, height } = getHealthBarProps(eid);
@@ -50,18 +62,6 @@ export const createHealthBarSystem = (world: World, scene: Scene) => {
       drawHealthBarGraphic(healthBar, width, height, healthPercent);
       // sync healthBar with health
       //scene.add.rectangle
-    }
-
-    const exited = onExitQueue.splice(0);
-    for (const eid of exited) {
-      const healthBar = healthBarsById.get(eid);
-
-      if (!healthBar) {
-        console.warn(`Not found: could not destroy HealthBar for ${eid}`);
-      }
-
-      healthBar?.destroy();
-      healthBarsById.delete(eid);
     }
 
     return world;

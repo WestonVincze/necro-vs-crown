@@ -37,6 +37,12 @@ export const createDrawCollisionSystem = (
 
   return (world: World) => {
     // TODO: create a "debugSystem" to enable/disable debugging features without having to create custom debug actions for each system
+    const collisionsExited = exitQueue.splice(0);
+    for (const eid of collisionsExited) {
+      colliderGraphicsMap.get(eid)?.destroy();
+      colliderGraphicsMap.delete(eid);
+    }
+
     const collisionsEntered = enterQueue.splice(0);
     for (const eid of collisionsEntered) {
       const arc = GameState.isDebugMode()
@@ -60,12 +66,6 @@ export const createDrawCollisionSystem = (
           Position.x[eid] + Collider.offsetX[eid],
           Position.y[eid] + Collider.offsetY[eid],
         );
-    }
-
-    const collisionsExited = exitQueue.splice(0);
-    for (const eid of collisionsExited) {
-      colliderGraphicsMap.get(eid)?.destroy();
-      colliderGraphicsMap.delete(eid);
     }
 
     return world;
