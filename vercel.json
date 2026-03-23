@@ -1,5 +1,6 @@
 {
+  "framework": "sveltekit",
   "buildCommand": "pnpm --filter @necro-crown/client build",
-  "installCommand": "pnpm install --frozen-lockfile",
-  "framework": "sveltekit"
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+  "rootDirectory": "packages/client"
 }
