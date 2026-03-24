@@ -1,6 +1,6 @@
 export * from "./CrownControlsSystem";
 export * from "./InputHandlerSystem";
-export * from "./CursorTargetSystem";
+export * from "./NecroMouseControls";
 export * from "./SpriteSystem";
 export * from "./DrawCollisionSystem";
 export * from "./DrawSpellEffectSystem";

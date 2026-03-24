@@ -26,6 +26,10 @@ import {
   SCREEN_WIDTH,
   type World,
   profiler,
+  Position,
+  GridCell,
+  Cursor,
+  getGridCellFromPosition,
 } from "@necro-crown/shared";
 import {
   initializeNecroMouseControls,
@@ -210,7 +214,18 @@ export class SoloModeScene extends Scene {
 
         physicsSystems.post = [createDeathSystem(this.world, Faction.Necro)];
 
-        initializeNecroMouseControls(this.world, this);
+        const cursorEid = addEntity(this.world);
+        addComponent(this.world, cursorEid, Cursor);
+        addComponent(this.world, cursorEid, Position);
+        addComponent(this.world, cursorEid, GridCell);
+
+        initializeNecroMouseControls(this, (x, y) => {
+          Position.x[cursorEid] = x;
+          Position.y[cursorEid] = y;
+          const gridCellPosition = getGridCellFromPosition({ x, y });
+          GridCell.x[cursorEid] = gridCellPosition.x;
+          GridCell.y[cursorEid] = gridCellPosition.y;
+        });
         break;
     }
 

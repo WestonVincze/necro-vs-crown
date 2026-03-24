@@ -160,7 +160,9 @@ export class VersusModeScene extends Scene {
         }),
       );
     } else if (this.playerType === Faction.Necro) {
-      initializeNecroMouseControls(this.world, this);
+      initializeNecroMouseControls(this, (x, y) => {
+        this.room?.send("set_cursor_waypoint", { x, y });
+      });
       this.inputs$.subscribe((inputs) => this.room?.send("key_inputs", inputs));
     }
   }

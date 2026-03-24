@@ -136,6 +136,19 @@ export class MyRoom extends Room {
         addComponent(this.world, eid, Networked);
       },
     );
+    this.onMessage(
+      "set_cursor_waypoint",
+      (client, { x, y }: { x: number; y: number }) => {
+        console.log(`setting waypoint to ${x}, ${y}`);
+        // TODO: validate this action
+        const [cursorEid] = query(this.world, [Cursor]);
+        Position.x[cursorEid] = x;
+        Position.y[cursorEid] = y;
+        const gridCellPosition = getGridCellFromPosition({ x, y });
+        GridCell.x[cursorEid] = gridCellPosition.x;
+        GridCell.y[cursorEid] = gridCellPosition.y;
+      },
+    );
 
     this.onMessage("key_inputs", (client, keys) => {
       const player = this.players.get(client.sessionId);
@@ -155,20 +168,27 @@ export class MyRoom extends Room {
     console.log(client.sessionId, "joined!");
     let eid: number;
 
-    // create some skele mans
-    for (let i = 0; i < 5; i++) {
-      const eid = createUnitEntity(
-        this.world,
-        UnitName.Skeleton,
-        Math.random() * 1024,
-        Math.random() * 1024,
-      );
-      addComponent(this.world, eid, Networked);
-    }
-
     // create player instance
     if (options.playerType === Faction.Necro) {
       eid = createUnitEntity(this.world, UnitName.Necromancer, 500, 500);
+      createBonesEntity(this.world, 400, 400);
+
+      const cursorEid = addEntity(this.world);
+      addComponent(this.world, cursorEid, Cursor);
+      addComponent(this.world, cursorEid, Position);
+      addComponent(this.world, cursorEid, GridCell);
+      addComponent(this.world, cursorEid, Networked);
+
+      // create some skele mans
+      for (let i = 0; i < 7; i++) {
+        const skele = createUnitEntity(
+          this.world,
+          UnitName.Skeleton,
+          Math.random() * 1024,
+          Math.random() * 1024,
+        );
+        Behavior.type[skele] = Behaviors.FollowCursor;
+      }
     } else if (options.playerType === Faction.Crown) {
       eid = addEntity(this.world);
       addComponent(this.world, eid, Player);
