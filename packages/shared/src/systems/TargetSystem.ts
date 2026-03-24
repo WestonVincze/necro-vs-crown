@@ -6,6 +6,7 @@ import {
   QueryResult,
   isNested,
   removeComponent,
+  entityExists,
 } from "bitecs";
 import {
   Crown,
@@ -22,32 +23,30 @@ import { type World } from "../types";
 
 // THOUGHT: we could change this system to be reactive or include some dirty/clean flags to skip over target search when not required
 export const createTargetingSystem = () => {
-  const necroTargetQuery = (world: World) =>
-    query(world, [AI, Behavior, Position, Necro]);
-  const crownTargetQuery = (world: World) =>
-    query(world, [AI, Behavior, Position, Crown]);
-
-  const necroEnemiesQuery = (world: World) => query(world, [Crown, Position]);
-  const crownEnemiesQuery = (world: World) => query(world, [Necro, Position]);
-
   return (world: World) => {
-    const necroEntities = necroTargetQuery(world);
-    const crownEntities = crownTargetQuery(world);
-
-    const necroEnemyEntities = necroEnemiesQuery(world);
-    const crownEnemyEntities = crownEnemiesQuery(world);
-
     const updateTargets = (
       sourceEntities: QueryResult,
       targetEntities: QueryResult,
     ) => {
       for (const eid of sourceEntities) {
+        if (!entityExists(world, eid)) {
+          console.warn(
+            `${eid} does not exist but was queried in updateTargets`,
+          );
+          continue;
+        }
         let closestDistance = Infinity;
         let closestTarget: null | number = null;
 
         const position = getPositionFromEid(eid);
 
         for (const targetEid of targetEntities) {
+          if (!entityExists(world, targetEid)) {
+            console.warn(
+              `${targetEid} does not exist but was queried by ${eid} in updateTargets`,
+            );
+            continue;
+          }
           const targetPosition = getPositionFromEid(targetEid);
 
           const distance = getDistanceSquared(position, targetPosition);
@@ -66,8 +65,14 @@ export const createTargetingSystem = () => {
       }
     };
 
-    updateTargets(necroEntities, necroEnemyEntities);
-    updateTargets(crownEntities, crownEnemyEntities);
+    updateTargets(
+      query(world, [AI, Behavior, Position, Necro]),
+      query(world, [Crown, Position], isNested),
+    );
+    updateTargets(
+      query(world, [AI, Behavior, Position, Crown]),
+      query(world, [Necro, Position], isNested),
+    );
     return world;
   };
 };
