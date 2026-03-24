@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@9.7.0",
+  "type": "module",
   "scripts": {
     "dev": "vite dev",
     "prepare": "svelte-kit sync",

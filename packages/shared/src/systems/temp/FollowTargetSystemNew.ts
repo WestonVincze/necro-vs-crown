@@ -1,5 +1,6 @@
 import { query, getRelationTargets, observe, onRemove } from "bitecs";
-import { AStarFinder, DiagonalMovement, Util } from "pathfinding";
+import pkg from "pathfinding";
+const { AStarFinder, DiagonalMovement, Util } = pkg;
 import {
   AttackRange,
   GridCell,
