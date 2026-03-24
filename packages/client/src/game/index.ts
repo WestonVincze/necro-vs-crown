@@ -6,14 +6,12 @@ import {
   SoloModeScene,
   GameOverScene,
 } from "./scenes";
-import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@necro-crown/shared";
 
 // game config
 const config: Types.Core.GameConfig = {
   type: AUTO,
-  width: SCREEN_WIDTH,
-  height: SCREEN_HEIGHT,
-  backgroundColor: "#e5e5e5",
+  scale: { mode: Phaser.Scale.RESIZE },
+  backgroundColor: "#252525",
   parent: "game-container",
   fps: { smoothStep: true, limit: 60 },
   physics: { default: "arcade" },

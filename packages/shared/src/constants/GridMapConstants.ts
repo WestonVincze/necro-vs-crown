@@ -1,6 +1,3 @@
-export const SCREEN_WIDTH = 768; //1024;
-export const SCREEN_HEIGHT = 640; //768;
-
 export const TILE_SIZE = 64;
 
 export const MAP_WIDTH_PIXELS = 3072;

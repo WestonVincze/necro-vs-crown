@@ -22,8 +22,6 @@ import {
   MAP_X_MIN,
   MAP_Y_MAX,
   MAP_Y_MIN,
-  SCREEN_HEIGHT,
-  SCREEN_WIDTH,
   type World,
   profiler,
   Position,
@@ -155,8 +153,8 @@ export class SoloModeScene extends Scene {
             const eid = createUnitEntity(
               this.world,
               UnitName.Skeleton,
-              Math.random() * SCREEN_HEIGHT,
-              Math.random() * SCREEN_WIDTH,
+              Math.random() * 750,
+              Math.random() * 750,
             );
             addComponent(this.world, eid, Behavior);
             Behavior.type[eid] = Behaviors.AutoTarget;

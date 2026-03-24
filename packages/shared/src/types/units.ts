@@ -3,7 +3,7 @@ import { StatName } from "../components";
 export type Vector2 = { x: number; y: number };
 
 export enum Faction {
-  Necro,
+  Necro = 1,
   Crown,
 }
 

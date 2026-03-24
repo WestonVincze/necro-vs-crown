@@ -9,6 +9,7 @@
   import type { Game } from "phaser";
 
   let game: Game | null = null;
+  let errorMsg: string = "";
 
   $: upgrade = {
     active: false,
@@ -41,6 +42,11 @@
   const handlePlayAs = (player: Faction, gameMode: "solo" | "versus") => {
     if (!game) return;
     currentPlayer = player;
+    if (!currentPlayer) {
+      errorMsg = "Please select a player type."
+      return;
+    }
+    errorMsg = "";
     if (gameMode === "versus") {
       game.scene.start("VersusModeScene", { player })
       currentScene = "VersusMode";
@@ -89,17 +95,21 @@
         <UpgradeSelect options={upgrade.options} onSelect={handleUpgradeSelect} />
       {/if}
     {/if}
+    {#if errorMsg}
+      <div class="errorMsg">{errorMsg}</div>
+    {/if}
   </div>
 </div>
 
 <style>
   #game-container {
     position: relative;
-    max-width: 1024px;
-    max-height: 768px;
-    height: 640px;
-    margin: 0 auto;
-    filter: drop-shadow(0 0 25px var(--bg-primary))
+    width: 100svw;
+    height: 100svh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    filter: drop-shadow(0 0 25px var(--bg-primary));
   }
   #overlay {
     pointer-events: none;
@@ -108,5 +118,15 @@
     left: 0;
     width: 100%;
     height: 100%;
+  }
+  .errorMsg {
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    padding: 10px 15px;
+    color: var(--error);
   }
 </style>

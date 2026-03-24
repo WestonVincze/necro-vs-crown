@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Faction, Necro } from "@necro-crown/shared";
+  import { Faction } from "@necro-crown/shared";
   import { Icon } from "$icons";
   export let playAs: (player: Faction, gameMode: "solo" | "versus") => void;
 
