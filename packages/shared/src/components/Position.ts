@@ -1,15 +1,13 @@
-// TODO: consider using native arrays instead of typed
-// export const Position = { x: [] as number[], y: [] as number[] };
-// export const GridCell = { x: [] as number[], y: [] as number[] };
+import { f32 } from "bitecs/serialization";
 export const Position = {
-  x: [] as number[],
-  y: [] as number[],
+  x: f32([]),
+  y: f32([]),
 };
 
-export const GridCell = { x: [] as number[], y: [] as number[] };
+export const GridCell = { x: f32([]), y: f32([]) };
 
 export const Transform = {
-  width: [] as number[],
-  height: [] as number[],
-  rotation: [] as number[],
+  width: f32([]),
+  height: f32([]),
+  rotation: f32([]),
 };

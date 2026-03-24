@@ -53,3 +53,5 @@ export type Stats = {
   [StatName.CastingRange]?: number;
   [StatName.Knockback]?: number;
 };
+
+export type NetworkType = "networked" | "offline";

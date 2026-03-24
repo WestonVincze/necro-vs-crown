@@ -2,6 +2,7 @@ import { addComponent, addEntity } from "bitecs";
 import {
   Bones,
   GridCell,
+  Networked,
   Position,
   Sprite,
   SpriteType,
@@ -9,11 +10,16 @@ import {
 } from "../components";
 import { SpriteTexture } from "../constants";
 import { clampToScreenSize, getGridCellFromPosition } from "../utils";
-import { type World } from "../types";
+import { NetworkType, type World } from "../types";
 
 const BONE_LIFETIME = 15000;
 
-export const createBonesEntity = (world: World, x: number, y: number) => {
+export const createBonesEntity = (
+  world: World,
+  x: number,
+  y: number,
+  networkType: NetworkType = "offline",
+) => {
   const eid = addEntity(world);
   const position = clampToScreenSize({ x, y }, { width: 50, height: 50 });
 
@@ -41,4 +47,9 @@ export const createBonesEntity = (world: World, x: number, y: number) => {
   Collider.layer[eid] = CollisionLayers.BONES;
   Collider.ignoreLayers[eid] = CollisionLayers.BONES;
   */
+
+  if (networkType === "networked") {
+    addComponent(world, eid, Networked);
+  }
+  return eid;
 };

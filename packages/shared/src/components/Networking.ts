@@ -1,5 +1,6 @@
 import { Health } from "./Health";
 import { Position, Transform } from "./Position";
+import { ResolveSpell, SpellEffect } from "./Spellcasting";
 import { Sprite } from "./Sprite";
 
 export const Networked = {};
@@ -10,4 +11,6 @@ export const networkSyncComponents = [
   Transform,
   Networked,
   Health,
+  SpellEffect,
+  ResolveSpell,
 ];

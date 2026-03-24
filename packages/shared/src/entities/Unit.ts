@@ -28,11 +28,13 @@ import {
   ExpReward,
   ItemDrops,
   SeparationForce,
+  Networked,
 } from "../components";
 import {
   AIState,
   AIType,
   Faction,
+  NetworkType,
   UnitData,
   UnitName,
   type Stats,
@@ -49,6 +51,7 @@ export const createUnitEntity = (
   name: UnitName,
   x: number,
   y: number,
+  networkType: NetworkType = "offline",
 ) => {
   const eid = addEntity(world);
   const data: UnitData = Units[name];
@@ -168,6 +171,9 @@ export const createUnitEntity = (
   Sprite.texture[eid] = SpriteTexture[data.name as keyof typeof SpriteTexture];
   Sprite.type[eid] = SpriteType.Rope;
 
+  if (networkType === "networked") {
+    addComponent(world, eid, Networked);
+  }
   return eid;
 };
 

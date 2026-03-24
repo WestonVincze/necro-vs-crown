@@ -1,11 +1,12 @@
+import { f32, u8 } from "bitecs/serialization";
 export enum SpriteType {
   Sprite,
   Rope,
 }
 
 export const Sprite = {
-  type: [] as number[],
-  texture: [] as number[],
-  width: [] as number[],
-  height: [] as number[],
+  type: u8([]),
+  texture: u8([]),
+  width: f32([]),
+  height: f32([]),
 };

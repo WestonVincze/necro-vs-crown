@@ -1,3 +1,4 @@
+import { u8, f32 } from "bitecs/serialization";
 export enum SpellState {
   Ready,
   Casting,
@@ -15,13 +16,10 @@ export const Spell = {
 };
 
 export const SpellEffect = {
-  // faction? reference to owner?
-  anchor: [] as number[],
-  duration: [] as number[],
-  name: [] as number[],
-  size: [] as number[],
-  maxSize: [] as number[],
-  growthRate: [] as number[],
+  name: u8([]),
+  size: f32([]),
+  maxSize: f32([]),
+  growthRate: f32([]),
 };
 
 export const ResolveSpell = {};

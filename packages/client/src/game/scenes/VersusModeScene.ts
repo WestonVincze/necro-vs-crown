@@ -43,7 +43,10 @@ export class VersusModeScene extends Scene {
   private playerType!: Faction;
   private camera!: Phaser.Cameras.Scene2D.Camera;
   private world!: World;
-  private snapshotDeserialize: any;
+  private snapshotDeserialize!: (
+    packet: ArrayBuffer,
+    idMapOverride?: Map<number, number>,
+  ) => Map<number, number>;
   private soaDeserialize: any;
   private observerDeserialize: any;
   private idMap = new Map<number, number>();

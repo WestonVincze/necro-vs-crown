@@ -44,6 +44,8 @@ import {
   HitSplatEvent,
   Input,
   BASE_EXP,
+  createSpellEffectSystem,
+  createBonesEntity,
 } from "@necro-crown/shared";
 interface PlayerRecord {
   eid: number;
@@ -87,7 +89,9 @@ export class MyRoom extends Room {
       createCooldownSystem(),
       createCombatSystem(),
       createProjectileCollisionSystem(),
+      createCooldownSystem(),
       createSpellcastingSystem(),
+      createSpellEffectSystem(this.world),
       createHealthSystem(),
       createDestroyAfterDelaySystem(),
       createTimeSystem(), // time should always be last
@@ -133,7 +137,7 @@ export class MyRoom extends Room {
 
     this.onMessage("key_inputs", (client, keys) => {
       const player = this.players.get(client.sessionId);
-      Input.castingSpell[player.eid] = keys.castingSpell;
+      Input.castingSpell[player.eid] = keys.castingSpell ? 1 : 0;
       Input.moveX[player.eid] = keys.moveX;
       Input.moveY[player.eid] = keys.moveY;
     });
@@ -212,7 +216,7 @@ export class MyRoom extends Room {
 
     // get updates to component values
     const soaUpdates = this.soaSerialize(
-      query(this.world, networkSyncComponents) as readonly number[],
+      query(this.world, [Networked]) as readonly number[],
     );
     this.broadcast("soaUpdates", soaUpdates);
 

@@ -1,6 +1,7 @@
+import { f32 } from "bitecs/serialization";
 export const Health = {
-  current: [] as number[],
-  max: [] as number[],
+  current: f32([]),
+  max: f32([]),
 };
 
 export const Damage = {
