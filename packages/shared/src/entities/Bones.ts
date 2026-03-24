@@ -10,16 +10,11 @@ import {
 } from "../components";
 import { SpriteTexture } from "../constants";
 import { clampToScreenSize, getGridCellFromPosition } from "../utils";
-import { NetworkType, type World } from "../types";
+import { type World } from "../types";
 
 const BONE_LIFETIME = 15000;
 
-export const createBonesEntity = (
-  world: World,
-  x: number,
-  y: number,
-  networkType: NetworkType = "offline",
-) => {
+export const createBonesEntity = (world: World, x: number, y: number) => {
   const eid = addEntity(world);
   const position = clampToScreenSize({ x, y }, { width: 50, height: 50 });
 
@@ -48,7 +43,7 @@ export const createBonesEntity = (
   Collider.ignoreLayers[eid] = CollisionLayers.BONES;
   */
 
-  if (networkType === "networked") {
+  if (world.networkType === "networked") {
     addComponent(world, eid, Networked);
   }
   return eid;

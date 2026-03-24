@@ -1,6 +1,7 @@
 import { World as IWorld } from "bitecs";
 import { Grid } from "pathfinding";
 import { GameEvents } from "../events/GameEvents";
+import { NetworkType } from "./units";
 
 export type Pipeline = (world: World) => void;
 
@@ -14,4 +15,5 @@ export type World = IWorld & {
   };
   grid: Grid;
   gameEvents: GameEvents;
+  networkType: NetworkType;
 };

@@ -75,6 +75,8 @@ export class MyRoom extends Room {
     this.world.time = { delta: 0, elapsed: 0, then: performance.now() };
     this.world.grid = new Grid(staticGridData);
     this.world.gameEvents = new GameEvents();
+    this.world.networkType = "networked";
+
     this.soaSerialize = createSoASerializer(networkSyncComponents);
     this.snapshotSerializer = createSnapshotSerializer(
       this.world,

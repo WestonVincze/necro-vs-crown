@@ -73,6 +73,7 @@ export class SoloModeScene extends Scene {
     this.world = createWorld();
     this.world.time = { delta: 0, elapsed: 0, then: performance.now() };
     this.world.gameEvents = new GameEvents();
+    this.world.networkType = "offline";
 
     // create base systems
     let physicsSystems: { pre: System[]; post: System[] } = {
