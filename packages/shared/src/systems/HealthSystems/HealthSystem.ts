@@ -11,8 +11,7 @@ import {
 import { type World } from "../../types";
 
 export const createHealthSystem = () => {
-  const damageQuery = (world: World) =>
-    query(world, [Health, Position, Damage]);
+  const damageQuery = (world: World) => query(world, [Health, Damage]);
   const healQuery = (world: World) => query(world, [Health, Heal]);
 
   return (world: World) => {
@@ -30,15 +29,21 @@ export const createHealthSystem = () => {
         Health.current[eid] - Damage.amount[eid],
       );
 
-      world.gameEvents.hitSplat$.next({
-        amount: Damage.amount[eid],
-        isCrit: Damage.isCrit[eid],
-        position: {
-          x: Position.x[eid],
-          y: Position.y[eid] - Transform.height[eid] / 2,
-        },
-        colorSet: hasComponent(world, eid, Necro) ? "purple" : "red",
-      });
+      if (hasComponent(world, eid, Position)) {
+        world.gameEvents.hitSplat$.next({
+          amount: Damage.amount[eid],
+          isCrit: Damage.isCrit[eid],
+          position: {
+            x: Position.x[eid],
+            y:
+              Position.y[eid] -
+              (hasComponent(world, eid, Transform)
+                ? Transform.height[eid] / 2
+                : 0),
+          },
+          colorSet: hasComponent(world, eid, Necro) ? "purple" : "red",
+        });
+      }
 
       removeComponent(world, eid, Damage);
 

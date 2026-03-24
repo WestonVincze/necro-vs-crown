@@ -153,21 +153,18 @@ describe("MovementSystem", () => {
     MoveSpeed.current[eid] = 1000;
     MaxMoveSpeed.base[eid] = 1;
     MaxMoveSpeed.current[eid] = 1;
+    Input.moveY[eid] = 0;
 
     Input.moveX[eid] = 1;
     movementSystem(world);
-    Input.moveX[eid] = 1;
     movementSystem(world);
-    Input.moveX[eid] = 1;
     movementSystem(world);
 
     expect(Velocity.x[eid]).toBe(1);
 
     Input.moveX[eid] = -1;
     movementSystem(world);
-    Input.moveX[eid] = -1;
     movementSystem(world);
-    Input.moveX[eid] = -1;
     movementSystem(world);
 
     expect(Velocity.x[eid]).toBe(-1);
