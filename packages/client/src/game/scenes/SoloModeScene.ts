@@ -235,6 +235,7 @@ export class SoloModeScene extends Scene {
       scene: this,
       pre: physicsSystems.pre,
       post: physicsSystems.post,
+      faction: this.playerType,
     });
 
     this.tickSystems = buildTickPipeline();

@@ -30,6 +30,7 @@ export const buildPhysicsPipeline = ({
   scene,
   pre = [],
   post = [],
+  faction,
 }: PipelineFactory): Pipeline => {
   if (!scene || !world) {
     console.error(
@@ -47,7 +48,7 @@ export const buildPhysicsPipeline = ({
     createDrawCollisionSystem(world, scene),
     createSeparationForceSystem(),
     createMovementSystem(),
-    createSpriteSystem(world, scene),
+    createSpriteSystem(world, scene, faction),
     // createFollowTargetSystem(scene),
     createCooldownSystem(),
     createCombatSystem(),
