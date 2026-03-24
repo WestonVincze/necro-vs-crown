@@ -9,12 +9,17 @@ import {
   Transform,
   TextureNames,
   type World,
+  Faction,
 } from "@necro-crown/shared";
 
 /**
  * @param scene Reference to Phaser Scene
  */
-export const createSpriteSystem = (world: World, scene: Scene) => {
+export const createSpriteSystem = (
+  world: World,
+  scene: Scene,
+  faction?: Faction,
+) => {
   const countById = new Map<number, number>();
   const spriteById = new Map<number, GameObjects.Sprite | GameObjects.Rope>();
 
@@ -66,7 +71,7 @@ export const createSpriteSystem = (world: World, scene: Scene) => {
       }
 
       // TODO: set camera follow for necro player in versus
-      if (hasComponent(world, eid, Player)) {
+      if (faction === Faction.Necro && hasComponent(world, eid, Player)) {
         scene.cameras.main.startFollow(sprite);
       }
       sprite.x = Position.x[eid];

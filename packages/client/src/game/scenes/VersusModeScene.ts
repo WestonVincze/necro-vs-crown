@@ -78,7 +78,7 @@ export class VersusModeScene extends Scene {
     // initialize systems
     this.physicsSystems = pipeline([
       createDrawCollisionSystem(this.world, this),
-      createSpriteSystem(this.world, this),
+      createSpriteSystem(this.world, this, this.playerType),
       createDrawSpellEffectSystem(this.world, this),
       createHealthSystem(),
       createHealthBarSystem(this.world, this),
