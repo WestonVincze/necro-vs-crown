@@ -32,7 +32,9 @@
   }
   .upgrade-options {
     display: flex;
-      gap: 15px;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
 
     .option {
       width: 240px;
@@ -46,6 +48,9 @@
       gap: 15px;
       header {
         font-weight: bold;
+      }
+      &:hover {
+        background-color: var(--necro-dark);
       }
     }
   }
