@@ -145,7 +145,6 @@ export class MyRoom extends Room {
     this.onMessage(
       "set_cursor_waypoint",
       (client, { x, y }: { x: number; y: number }) => {
-        console.log(`setting waypoint to ${x}, ${y}`);
         // TODO: validate this action
         const [cursorEid] = query(this.world, [Cursor]);
         Position.x[cursorEid] = x;

@@ -75,7 +75,7 @@
 
   .card-wrapper:focus, .card-wrapper:focus-visible {
     outline: none;
-    scale: 1.1;
+    transform: translateY(-10px);
   }
 </style>
 
