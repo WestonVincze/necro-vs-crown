@@ -34,7 +34,6 @@ import {
   AIState,
   AIType,
   Faction,
-  NetworkType,
   UnitData,
   UnitName,
   type Stats,

@@ -3,6 +3,7 @@ import {
   addComponent,
   addEntity,
   createWorld,
+  getEntityComponents,
   query,
   removeEntity,
 } from "bitecs";
@@ -52,6 +53,8 @@ import {
   GridCell,
   Behavior,
   Behaviors,
+  CrownStateStore,
+  Card,
 } from "@necro-crown/shared";
 interface PlayerRecord {
   eid: number;
@@ -60,6 +63,8 @@ interface PlayerRecord {
 
 export class MyRoom extends Room {
   private world!: World;
+
+  // serializers
   private soaSerialize: (
     selectedEntities: readonly number[] | number[],
   ) => ArrayBuffer;
@@ -67,10 +72,18 @@ export class MyRoom extends Room {
   private snapshotSerializer: (
     selectedEntities?: readonly number[] | number[],
   ) => ArrayBuffer;
-  players: Map<string, PlayerRecord> = new Map();
 
+  // player data
+  private players: Map<string, PlayerRecord> = new Map();
+  private crownPlayer: Client;
+  private necroPlayer: Client;
+
+  // systems
   private systems!: Pipeline;
   private tickSystems!: Pipeline;
+
+  // card state
+  private crown = new CrownStateStore();
 
   maxClients = 2;
   fixedTimeStep = 1000 / 60;
@@ -132,19 +145,41 @@ export class MyRoom extends Room {
     });
 
     this.onMessage(
-      "add_crown_unit",
+      "play_card",
       (
         client,
-        { name, xPos, yPos }: { name: UnitName; xPos: number; yPos: number },
+        { id, xPos, yPos }: { id: number; xPos: number; yPos: number },
       ) => {
-        // TODO: validate this action and verify the ID is legitimate
-        const eid = createUnitEntity(this.world, name, xPos, yPos);
-        addComponent(this.world, eid, Networked);
+        if (client.sessionId !== this.crownPlayer.sessionId) {
+          console.error(
+            `Client ${client.sessionId} is not permitted to send message 'play_card'`,
+          );
+          return;
+        }
+
+        const success = this.crown.playCard(id, (name: UnitName) => {
+          createUnitEntity(this.world, name, xPos, yPos);
+        });
+
+        if (!success) {
+          // TODO: listen for this event in client
+          client.send("play_card:rejected", { cardId: id });
+        }
       },
     );
+
     this.onMessage(
       "set_cursor_waypoint",
       (client, { x, y }: { x: number; y: number }) => {
+        if (
+          !this.necroPlayer ||
+          client.sessionId !== this.necroPlayer.sessionId
+        ) {
+          console.error(
+            `Client ${client.sessionId} is not permitted to send message 'set_cursor_waypoint'`,
+          );
+          return;
+        }
         // TODO: validate this action
         const [cursorEid] = query(this.world, [Cursor]);
         Position.x[cursorEid] = x;
@@ -156,6 +191,13 @@ export class MyRoom extends Room {
     );
 
     this.onMessage("key_inputs", (client, keys) => {
+      console.log(this.necroPlayer.sessionId);
+      if (client.sessionId !== this.necroPlayer.sessionId) {
+        console.error(
+          `Client ${client.sessionId} is not permitted to send message 'set_cursor_waypoint'`,
+        );
+        return;
+      }
       const player = this.players.get(client.sessionId);
       Input.castingSpell[player.eid] = keys.castingSpell ? 1 : 0;
       Input.moveX[player.eid] = keys.moveX;
@@ -167,6 +209,21 @@ export class MyRoom extends Room {
       // handle "type" message
       //
     });
+
+    this.onMessage("debug:snapshot-request", (client, { eid }) => {
+      const snapshot = eid
+        ? this.getEntitySnapshot(eid)
+        : this.snapshotSerializer();
+      client.send("debug:snapshot", snapshot);
+    });
+  }
+
+  getEntitySnapshot(eid: number) {
+    return {
+      eid,
+      components: getEntityComponents(this.world, eid),
+      timestamp: Date.now(),
+    };
   }
 
   onJoin(client: Client, options: { playerType: Faction }) {
@@ -175,6 +232,8 @@ export class MyRoom extends Room {
 
     // create player instance
     if (options.playerType === Faction.Necro) {
+      this.necroPlayer = client;
+      console.log(this.necroPlayer.sessionId);
       eid = createUnitEntity(this.world, UnitName.Necromancer, 500, 500);
       createBonesEntity(this.world, 400, 400);
 
@@ -182,7 +241,6 @@ export class MyRoom extends Room {
       addComponent(this.world, cursorEid, Cursor);
       addComponent(this.world, cursorEid, Position);
       addComponent(this.world, cursorEid, GridCell);
-      addComponent(this.world, cursorEid, Networked);
 
       // create some skele mans
       for (let i = 0; i < 7; i++) {
@@ -195,21 +253,42 @@ export class MyRoom extends Room {
         Behavior.type[skele] = Behaviors.FollowCursor;
       }
     } else if (options.playerType === Faction.Crown) {
+      this.crownPlayer = client;
       eid = addEntity(this.world);
       addComponent(this.world, eid, Player);
       addComponent(this.world, eid, Level);
       Level.currentLevel[eid] = 0;
       Level.currentExp[eid] = 0;
       Level.expToNextLevel[eid] = BASE_EXP;
-      addComponent(this.world, eid, Coin);
-      addComponent(this.world, eid, CoinAccumulator);
-      Coin.current[eid] = 0;
-      Coin.max[eid] = 10;
-      CoinAccumulator.amount[eid] = 1;
-      CoinAccumulator.frequency[eid] = 1000;
-    }
 
-    addComponent(this.world, eid, Networked);
+      // initialize crown state
+      const cards: Card[] = [];
+      for (let i = 0; i < 8; i++) {
+        cards.push({
+          id: i,
+          name: UnitName.Peasant,
+          cost: 3,
+        });
+      }
+      this.crown.addCards(cards);
+      this.crown.drawCard();
+      this.crown.drawCard();
+      this.crown.drawCard();
+      this.crown.drawCard();
+      this.crown.start();
+
+      this.crown.hand$.subscribe((hand) => {
+        this.crownPlayer?.send("hand:update", { hand });
+      });
+
+      this.crown.discard$.subscribe((discard) => {
+        this.crownPlayer?.send("discard:update", { discard });
+      });
+
+      this.crown.coins$.subscribe((coins) => {
+        this.crownPlayer?.send("coins:update", { coins });
+      });
+    }
 
     this.players.set(client.sessionId, { eid, sessionId: client.sessionId });
     // create new observer serializer for this client
@@ -235,6 +314,7 @@ export class MyRoom extends Room {
 
   onDispose() {
     console.log("room", this.roomId, "disposing...");
+    this.crown.destroy();
   }
 
   fixedUpdate(deltaTime: number) {

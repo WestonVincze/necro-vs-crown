@@ -28,6 +28,8 @@ import {
   GridCell,
   Cursor,
   getGridCellFromPosition,
+  CrownStateStore,
+  generateMockCards,
 } from "@necro-crown/shared";
 import {
   initializeNecroMouseControls,
@@ -39,6 +41,7 @@ import {
 } from "$game/systems";
 import { GameState } from "$game/managers";
 import { buildPhysicsPipeline, buildTickPipeline } from "$game/pipelines";
+import { crownClientState } from "$game/Crown";
 
 export class SoloModeScene extends Scene {
   /**
@@ -168,9 +171,24 @@ export class SoloModeScene extends Scene {
 
         physicsSystems.post = [createDeathSystem(this.world, Faction.Crown)];
 
-        initializeCrownMouseControls(this, (name, x, y) =>
-          createUnitEntity(this.world, name, x, y),
+        const crownState = new CrownStateStore();
+        crownState.start();
+        const { hand$, discard$, coins$ } = crownState;
+        hand$.subscribe((hand) => crownClientState.applyHandUpdate(hand));
+        discard$.subscribe((discard) =>
+          crownClientState.applyDiscardUpdate(discard),
         );
+        coins$.subscribe((coins) => crownClientState.applyCoinsUpdate(coins));
+        crownState.addCards(generateMockCards(8));
+        crownState.drawCard();
+        crownState.drawCard();
+        crownState.drawCard();
+        crownState.drawCard();
+        initializeCrownMouseControls(this, (id, x, y) => {
+          crownState.playCard(id, (name) =>
+            createUnitEntity(this.world, name, x, y),
+          );
+        });
         break;
 
       case Faction.Necro:

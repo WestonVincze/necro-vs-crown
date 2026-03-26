@@ -8,9 +8,11 @@ import {
   tap,
 } from "rxjs";
 
-const COIN_INCREMENT = 1;
-const MAX_COINS = 10;
-const MAX_HAND_SIZE = 4;
+const DEFAULT_CROWN_CONFIG: CrownConfig = {
+  maxCoins: 10,
+  maxHandSize: 4,
+  coinIncrement: 1,
+};
 
 /** generates random cards for testing purposes */
 export const generateMockCards = (count: number): Card[] => {
@@ -33,29 +35,29 @@ export type Card = {
   cost: number;
 };
 
+type CrownConfig = {
+  coinIncrement: number;
+  maxHandSize: number;
+  maxCoins: number;
+};
+
 type CrownState = {
   coins: number;
   totalCards: number;
   deck: Card[];
   hand: Card[];
   discard: Card[];
-  selectedCard: Card | null;
+  config: CrownConfig;
 };
 
-type Action = {
-  type:
-    | "DRAW_CARD"
-    | "SELECT_CARD"
-    | "PLAY_CARD"
-    | "DISCARD_CARD"
-    | "SHUFFLE_DECK"
-    | "ADD_CARDS"
-    | "ADD_COINS"
-    | "REMOVE_COINS";
-  cardID?: number; // if the action pertains to a specific card
-  cards?: Card[];
-  callback?: () => void;
-};
+type Action =
+  | { type: "DRAW_CARD" }
+  | { type: "PLAY_CARD"; cardId: number; callback: (name: UnitName) => void }
+  | { type: "DISCARD_CARD"; cardId: number }
+  | { type: "SHUFFLE_DECK" }
+  | { type: "ADD_CARDS"; cards: Card[] }
+  | { type: "ADD_COINS" }
+  | { type: "UPDATE_CONFIG"; config: Partial<CrownConfig> };
 
 const initialState: CrownState = {
   coins: 0,
@@ -63,7 +65,7 @@ const initialState: CrownState = {
   deck: [],
   hand: [],
   discard: [],
-  selectedCard: null,
+  config: DEFAULT_CROWN_CONFIG,
 };
 
 /** Utility Functions */
@@ -73,22 +75,21 @@ const shuffleCards = (cards: Card[]): Card[] => {
 
 const discardCardFromHand = (
   state: CrownState,
-  cardID: number,
+  cardId: number,
 ): CrownState | null => {
-  const discardedCard = state.hand.find((card) => card.id === cardID);
+  const discardedCard = state.hand.find((card) => card.id === cardId);
   if (!discardedCard) return null;
-  const newHand = state.hand.filter((card) => card.id !== cardID);
+  const newHand = state.hand.filter((card) => card.id !== cardId);
   return {
     ...state,
-    selectedCard:
-      state.selectedCard === discardedCard ? null : state.selectedCard,
     hand: newHand,
     discard: [...state.discard, discardedCard],
   };
 };
 
 const drawCardFromDeck = (state: CrownState): CrownState => {
-  if (state.hand.length >= MAX_HAND_SIZE) return state;
+  console.log("drawing card");
+  if (state.hand.length >= state.config.maxHandSize) return state;
 
   if (state.deck.length === 0) {
     if (state.discard.length === 0) return state;
@@ -105,8 +106,8 @@ const drawCardFromDeck = (state: CrownState): CrownState => {
   return { ...state, deck: newDeck, hand: [...state.hand, drawnCard] };
 };
 
-const discardAndDrawCard = (state: CrownState, cardID: number): CrownState => {
-  const stateAfterDiscard = discardCardFromHand(state, cardID);
+const discardAndDrawCard = (state: CrownState, cardId: number): CrownState => {
+  const stateAfterDiscard = discardCardFromHand(state, cardId);
 
   if (!stateAfterDiscard) return state;
 
@@ -119,7 +120,7 @@ const updateState = (state: CrownState, action: Action): CrownState => {
       return drawCardFromDeck(state);
 
     case "DISCARD_CARD":
-      return discardAndDrawCard(state, action.cardID!);
+      return discardAndDrawCard(state, action.cardId);
 
     case "SHUFFLE_DECK":
       return { ...state, deck: shuffleCards(state.deck) };
@@ -140,26 +141,28 @@ const updateState = (state: CrownState, action: Action): CrownState => {
     case "ADD_COINS":
       return {
         ...state,
-        coins: Math.min(MAX_COINS, state.coins + COIN_INCREMENT),
+        coins: Math.min(
+          state.config.maxCoins,
+          state.coins + state.config.coinIncrement,
+        ),
       };
 
-    case "SELECT_CARD":
-      const card = state.hand.find((card) => card.id === action.cardID) || null;
-      return { ...state, selectedCard: card };
-
     case "PLAY_CARD":
-      if (!state.selectedCard || state.selectedCard.cost > state.coins)
-        return state;
+      const card = state.hand.find((c) => c.id === action.cardId);
+      if (!card || card.cost > state.coins) return state;
 
-      const stateAfterDiscard = discardAndDrawCard(
-        state,
-        state.selectedCard.id!,
-      );
+      const stateAfterDiscard = discardAndDrawCard(state, action.cardId);
 
-      action.callback?.();
+      action.callback?.(card.name);
       return {
         ...stateAfterDiscard,
-        coins: state.coins - state.selectedCard.cost,
+        coins: state.coins - card.cost,
+      };
+
+    case "UPDATE_CONFIG":
+      return {
+        ...state,
+        config: { ...state.config, ...action.config },
       };
 
     default:
@@ -168,7 +171,6 @@ const updateState = (state: CrownState, action: Action): CrownState => {
 };
 
 // CLASS
-
 export class CrownStateStore {
   // Private — callers use state$ observable or the action methods
   private state$: BehaviorSubject<CrownState>;
@@ -176,11 +178,10 @@ export class CrownStateStore {
     typeof interval.prototype.subscribe
   > | null = null;
 
-  // Public observable — callers subscribe to this for UI updates
+  // Public observables
   readonly hand$: Observable<Card[]>;
   readonly discard$: Observable<Card[]>;
   readonly coins$: Observable<number>;
-  readonly selectedCard$: Observable<Card | null>;
 
   constructor() {
     this.state$ = new BehaviorSubject<CrownState>(initialState);
@@ -189,12 +190,9 @@ export class CrownStateStore {
     this.hand$ = this.state$.pipe(map((s) => s.hand));
     this.discard$ = this.state$.pipe(map((s) => s.discard));
     this.coins$ = this.state$.pipe(map((s) => s.coins));
-    this.selectedCard$ = this.state$.pipe(map((s) => s.selectedCard));
   }
 
   // --- Lifecycle ---
-
-  /** Call once to start the coin ticker */
   start() {
     this.coinSubscription = interval(1000)
       .pipe(
@@ -206,14 +204,12 @@ export class CrownStateStore {
     return this;
   }
 
-  /** Clean up subscriptions when the room/scene is destroyed */
   destroy() {
     this.coinSubscription?.unsubscribe();
     this.state$.complete();
   }
 
   // --- Actions ---
-
   addCards(cards: Card[]) {
     this.dispatch({ type: "ADD_CARDS", cards });
   }
@@ -222,20 +218,27 @@ export class CrownStateStore {
     this.dispatch({ type: "DRAW_CARD" });
   }
 
-  discardCard(cardID: number) {
-    this.dispatch({ type: "DISCARD_CARD", cardID });
-  }
-
-  selectCard(cardID: number) {
-    this.dispatch({ type: "SELECT_CARD", cardID });
+  discardCard(cardId: number) {
+    this.dispatch({ type: "DISCARD_CARD", cardId });
   }
 
   shuffleDeck() {
     this.dispatch({ type: "SHUFFLE_DECK" });
   }
 
-  playCard(callback?: () => void) {
-    this.dispatch({ type: "PLAY_CARD", callback });
+  playCard(cardId: number, callback: (name: UnitName) => void) {
+    const state = this.state$.value;
+    const card = state.hand.find((c) => c.id === cardId);
+
+    // TODO: consider using error codes
+    if (!card) return false;
+    if (card.cost > state.coins) return false;
+    this.dispatch({ type: "PLAY_CARD", cardId, callback });
+    return true;
+  }
+
+  updateConfig(config: CrownConfig) {
+    this.dispatch({ type: "UPDATE_CONFIG", config });
   }
 
   /** Read current state snapshot — for server-side queries without subscribing */
@@ -244,7 +247,6 @@ export class CrownStateStore {
   }
 
   // --- Private ---
-
   private dispatch(action: Action) {
     this.state$.next(updateState(this.state$.value, action));
   }
