@@ -2,10 +2,10 @@ import { UnitName } from "../types";
 import {
   BehaviorSubject,
   Observable,
-  interval,
+  Subscription,
   map,
-  startWith,
   tap,
+  timer,
 } from "rxjs";
 
 const DEFAULT_CROWN_CONFIG: CrownConfig = {
@@ -172,11 +172,12 @@ const updateState = (state: CrownState, action: Action): CrownState => {
 
 // CLASS
 export class CrownStateStore {
-  // Private — callers use state$ observable or the action methods
+  // internal state
   private state$: BehaviorSubject<CrownState>;
-  private coinSubscription: ReturnType<
-    typeof interval.prototype.subscribe
-  > | null = null;
+  private coinSubscription: Subscription | null = null;
+  private paused = false;
+  private pausedAt: number | null = null;
+  private intervalStart: number = Date.now();
 
   // Public observables
   readonly hand$: Observable<Card[]>;
@@ -194,13 +195,8 @@ export class CrownStateStore {
 
   // --- Lifecycle ---
   start() {
-    this.coinSubscription = interval(1000)
-      .pipe(
-        startWith(0),
-        map(() => ({ type: "ADD_COINS" }) as Action),
-        tap((action) => this.dispatch(action)),
-      )
-      .subscribe();
+    this.intervalStart = Date.now();
+    this.startCoinTicker();
     return this;
   }
 
@@ -239,6 +235,37 @@ export class CrownStateStore {
 
   updateConfig(config: CrownConfig) {
     this.dispatch({ type: "UPDATE_CONFIG", config });
+  }
+
+  pause() {
+    if (this.paused) return;
+    this.paused = true;
+    this.pausedAt = Date.now();
+    this.coinSubscription?.unsubscribe();
+    this.coinSubscription = null;
+  }
+
+  resume() {
+    if (!this.paused) return;
+    this.paused = false;
+
+    // How far through the current interval were we when we paused
+    const elapsed = (this.pausedAt! - this.intervalStart) % 1000;
+    const remaining = 1000 - elapsed;
+
+    this.pausedAt = null;
+    this.intervalStart = Date.now() - elapsed;
+
+    this.startCoinTicker(remaining);
+  }
+
+  private startCoinTicker(firstTickDelay = 0) {
+    this.coinSubscription = timer(firstTickDelay, 1000)
+      .pipe(
+        map(() => ({ type: "ADD_COINS" }) as Action),
+        tap((action) => this.dispatch(action)),
+      )
+      .subscribe();
   }
 
   /** Read current state snapshot — for server-side queries without subscribing */
