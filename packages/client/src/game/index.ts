@@ -6,6 +6,8 @@ import {
   SoloModeScene,
   GameOverScene,
 } from "./scenes";
+import type { Room } from "@colyseus/sdk";
+import type { Faction } from "@necro-crown/shared";
 
 // game config
 const config: Types.Core.GameConfig = {
@@ -27,3 +29,18 @@ const config: Types.Core.GameConfig = {
 export const StartGame = (parent: string) => {
   return new Game({ ...config, parent });
 };
+
+export function createPhaserGame(
+  parent: HTMLDivElement,
+  faction: Faction,
+  room?: Room,
+) {
+  const game = new Game({ ...config, parent });
+
+  game.registry.set("faction", faction);
+
+  // only set room if versus mode
+  if (room) game.registry.set("room", room);
+
+  return game;
+}

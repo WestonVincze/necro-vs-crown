@@ -59,17 +59,17 @@ export class VersusModeScene extends Scene {
   private inputs$!: Observable<InputState>;
 
   init(data: { player: Faction }) {
-    this.playerType = data.player;
     this.camera = this.cameras.main;
     this.inputs$ = createInputState();
   }
 
-  client = new Client(import.meta.env.VITE_SERVER_URI);
-  room?: Room;
+  room!: Room;
 
   units: any[] = [];
 
-  async create() {
+  create() {
+    this.room = this.registry.get("room");
+    this.playerType = parseInt(this.registry.get("faction")) as Faction;
     console.log("joining room...");
     this.world = createWorld();
     this.world.time = { delta: 0, elapsed: 0, then: performance.now() };
@@ -99,17 +99,6 @@ export class VersusModeScene extends Scene {
       networkSyncComponents,
     );
     this.soaDeserialize = createSoADeserializer(networkSyncComponents);
-
-    try {
-      this.room = await this.client.joinOrCreate("my_room", {
-        playerType: this.playerType,
-      });
-      console.log("Joined Successfully!");
-    } catch (e) {
-      console.error(e);
-    }
-
-    if (!this.room) return;
 
     this.camera.setBounds(MAP_X_MIN, MAP_Y_MIN, MAP_X_MAX, MAP_Y_MAX);
 
@@ -163,11 +152,11 @@ export class VersusModeScene extends Scene {
 
   initializeNecro() {
     console.log("init necro");
-      initializeNecroMouseControls(this, (x, y) => {
-        this.room?.send("set_cursor_waypoint", { x, y });
-      });
-      this.inputs$.subscribe((inputs) => this.room?.send("key_inputs", inputs));
-    }
+    initializeNecroMouseControls(this, (x, y) => {
+      this.room?.send("set_cursor_waypoint", { x, y });
+    });
+    this.inputs$.subscribe((inputs) => this.room?.send("key_inputs", inputs));
+  }
 
   initializeCrown() {
     console.log("init crown");
