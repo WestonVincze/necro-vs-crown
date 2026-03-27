@@ -44,15 +44,10 @@ import { buildPhysicsPipeline, buildTickPipeline } from "$game/pipelines";
 import { crownClientState } from "$game/Crown";
 
 export class SoloModeScene extends Scene {
-  /**
-   * camera
-   * background
-   */
   private playerType!: Faction;
 
   private camera!: Phaser.Cameras.Scene2D.Camera;
 
-  // entity container (context)
   private world!: World;
 
   private initializeEntities: () => void = () => {};
@@ -79,6 +74,7 @@ export class SoloModeScene extends Scene {
     this.world.time = { delta: 0, elapsed: 0, then: performance.now() };
     this.world.gameEvents = new GameEvents();
     this.world.networkType = "offline";
+    this.world.unitUpgrades = {};
 
     // create base systems
     let physicsSystems: { pre: System[]; post: System[] } = {

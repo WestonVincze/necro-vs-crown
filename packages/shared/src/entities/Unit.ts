@@ -40,7 +40,6 @@ import {
   type World,
 } from "../types";
 import { Units } from "../data";
-import { unitUpgrades } from "../stores";
 import { SpriteTexture, BASE_EXP } from "../constants";
 import { ProjectileName } from "./Projectiles";
 import { clampToScreenSize, getGridCellFromPosition } from "../utils";
@@ -55,8 +54,8 @@ export const createUnitEntity = (
   const data: UnitData = Units[name];
   const stats: Stats = { ...data.stats };
 
-  if (unitUpgrades[name]) {
-    Object.entries(unitUpgrades[name]).forEach(([key, value]) => {
+  if (world.unitUpgrades[name]) {
+    Object.entries(world.unitUpgrades[name]).forEach(([key, value]) => {
       const statName = key as unknown as keyof Stats;
       if (stats[statName] !== undefined) {
         stats[statName] += value;

@@ -13,7 +13,6 @@ import {
   getStatComponentByName,
 } from "../../components";
 import { StatUpdate, UnitName } from "../../types";
-import { unitUpgrades } from "../../stores";
 
 /**
  * updates the stats for all unit entities with the given `UnitName`
@@ -34,14 +33,14 @@ export const updateStatsByUnitType = (
 
   const updatesObject = updates.reduce(
     (acc, { stat, value }) => {
-      const current = unitUpgrades[unitName]?.[stat] || 0;
+      const current = world.unitUpgrades[unitName]?.[stat] || 0;
       acc[stat] = value + current;
       return acc;
     },
     {} as Record<StatName, number>,
   );
-  unitUpgrades[unitName] = {
-    ...unitUpgrades[unitName],
+  world.unitUpgrades[unitName] = {
+    ...world.unitUpgrades[unitName],
     ...updatesObject,
   };
 };

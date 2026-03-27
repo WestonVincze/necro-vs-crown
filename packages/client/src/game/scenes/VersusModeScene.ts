@@ -33,6 +33,7 @@ import {
 } from "$game/systems";
 import { createInputState, type InputState } from "../../input/InputState";
 import type { Observable } from "rxjs";
+import { crownClientState } from "$game/Crown";
 
 export class VersusModeScene extends Scene {
   constructor() {
@@ -73,6 +74,7 @@ export class VersusModeScene extends Scene {
     this.world = createWorld();
     this.world.time = { delta: 0, elapsed: 0, then: performance.now() };
     this.world.gameEvents = new GameEvents();
+    this.world.unitUpgrades = {};
 
     // initialize systems
     this.physicsSystems = pipeline([
@@ -151,19 +153,41 @@ export class VersusModeScene extends Scene {
     });
 
     if (this.playerType === Faction.Crown) {
-      initializeCrownMouseControls(this, (name, x, y) =>
-        this.room?.send("add_crown_unit", {
-          name: name,
-          xPos: x,
-          yPos: y,
-        }),
-      );
+      this.initializeCrown();
     } else if (this.playerType === Faction.Necro) {
+      this.initializeNecro();
+    }
+
+    this.room.send("loaded");
+  }
+
+  initializeNecro() {
+    console.log("init necro");
       initializeNecroMouseControls(this, (x, y) => {
         this.room?.send("set_cursor_waypoint", { x, y });
       });
       this.inputs$.subscribe((inputs) => this.room?.send("key_inputs", inputs));
     }
+
+  initializeCrown() {
+    console.log("init crown");
+    initializeCrownMouseControls(this, (id, x, y) =>
+      this.room?.send("play_card", {
+        id,
+        xPos: x,
+        yPos: y,
+      }),
+    );
+    this.room.onMessage("hand:update", ({ hand }) => {
+      console.log("update hand");
+      crownClientState.applyHandUpdate(hand);
+    });
+    this.room.onMessage("discard:update", ({ discard }) =>
+      crownClientState.applyDiscardUpdate(discard),
+    );
+    this.room.onMessage("coins:update", ({ coins }) =>
+      crownClientState.applyCoinsUpdate(coins),
+    );
   }
 
   fixedUpdate(time: number, delta: number) {
