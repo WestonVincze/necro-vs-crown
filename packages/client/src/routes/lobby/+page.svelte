@@ -9,6 +9,9 @@
   import "../../styles/globals.css";
   import { Modal } from "$UI/Modal"
   import { StatOverrides } from "$UI/StatOverrides";
+  import type { PageData } from "../$types";
+
+  export let data: PageData;
 
   type LobbyState = {
     players: Record<string, PlayerConfig>;
@@ -57,7 +60,7 @@
   onMount(async () => {
     try {
       const client = new Client(import.meta.env.VITE_SERVER_URI);
-      room = await client.joinOrCreate("lobby");
+      room = data?.roomId ? await client.joinById(data.roomId) : await client.joinOrCreate("lobby");
 
       sessionId.set(room.sessionId);
       connected.set(true);
