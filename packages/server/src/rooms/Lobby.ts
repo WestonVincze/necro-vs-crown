@@ -1,28 +1,22 @@
-import { Faction } from "@necro-crown/shared";
+import {
+  DEFAULT_CROWN_CONFIG,
+  GameSettings,
+  PlayerConfig,
+  Stats,
+  UnitName,
+  type Faction,
+} from "@necro-crown/shared";
 import { Room, Client, matchMaker } from "colyseus";
-
-type PlayerConfig = {
-  faction: Faction;
-  ready: boolean;
-};
 
 type LobbyState = {
   players: Map<string, PlayerConfig>;
-  gameConfig: {
-    maxCoins: number;
-    maxHandSize: number;
-    coinInterval: number;
-  };
-};
+} & GameSettings;
 
 export class GameLobby extends Room {
   private lobbyState: LobbyState = {
     players: new Map(),
-    gameConfig: {
-      maxCoins: 10,
-      maxHandSize: 7,
-      coinInterval: 1000,
-    },
+    statOverrides: {},
+    crownConfig: { ...DEFAULT_CROWN_CONFIG },
   };
 
   onCreate() {
@@ -50,15 +44,35 @@ export class GameLobby extends Room {
     );
 
     this.onMessage(
-      "updateConfig",
-      (client, config: Partial<LobbyState["gameConfig"]>) => {
-        this.lobbyState.gameConfig = {
-          ...this.lobbyState.gameConfig,
+      "updateCrownConfig",
+      (client, config: Partial<LobbyState["crownConfig"]>) => {
+        this.lobbyState.crownConfig = {
+          ...this.lobbyState.crownConfig,
           ...config,
         };
         this.broadcast("lobby:updated", this.getPublicState());
       },
     );
+
+    this.onMessage(
+      "updateUnitStatOverrides",
+      (client, overrides: { unitName: UnitName; stats: Partial<Stats> }) => {
+        if (Object.keys(overrides.stats).length === 0) {
+          delete this.lobbyState.statOverrides[overrides.unitName];
+        } else {
+          this.lobbyState.statOverrides = {
+            ...this.lobbyState.statOverrides,
+            [overrides.unitName]: overrides.stats,
+          };
+        }
+        this.broadcast("lobby:updated", this.getPublicState());
+      },
+    );
+
+    this.onMessage("resetAllOverrides", (client) => {
+      this.lobbyState.statOverrides = {};
+      this.broadcast("lobby:updated", this.getPublicState());
+    });
 
     this.onMessage("ready", (client) => {
       const player = this.lobbyState.players.get(client.sessionId);
@@ -110,7 +124,8 @@ export class GameLobby extends Room {
 
     const gameRoom = await matchMaker.createRoom("my_room", {
       players,
-      gameConfig: this.lobbyState.gameConfig,
+      crownConfig: this.lobbyState.crownConfig,
+      statOverrides: this.lobbyState.statOverrides,
     });
 
     // Send each client a reservation
@@ -130,7 +145,8 @@ export class GameLobby extends Room {
   private getPublicState() {
     return {
       players: Object.fromEntries(this.lobbyState.players),
-      gameConfig: this.lobbyState.gameConfig,
+      crownConfig: this.lobbyState.crownConfig,
+      statOverrides: this.lobbyState.statOverrides,
     };
   }
 }

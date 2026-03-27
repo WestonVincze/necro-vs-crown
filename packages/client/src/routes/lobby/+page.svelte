@@ -1,36 +1,24 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
   import { writable, derived } from "svelte/store";
-  import { Faction, Necro } from "@necro-crown/shared";
+  import { DEFAULT_CROWN_CONFIG, Faction, UnitName, type CrownConfig, type GameSettings, type PlayerConfig, type Stats } from "@necro-crown/shared";
   import { Client, Room } from "@colyseus/sdk";
-  import type { Game } from "phaser";
   import { pendingGameSession } from "../../stores/GameSessionStore";
   import { goto } from "$app/navigation";
   import { Icon } from "$icons";
   import "../../styles/globals.css";
-
-  // --- Types ---
-  type PlayerConfig = {
-    faction: Faction;
-    ready: boolean;
-  };
-
-  type GameConfig = {
-    maxCoins: number;
-    maxHandSize: number;
-    coinInterval: number;
-  };
+  import { Modal } from "$UI/Modal"
+  import { StatOverrides } from "$UI/StatOverrides";
 
   type LobbyState = {
     players: Record<string, PlayerConfig>;
-    gameConfig: GameConfig;
-  };
+  } & GameSettings;
 
   // --- Store ---
-  let game: Game | null = null;
   const lobbyState = writable<LobbyState>({
     players: {},
-    gameConfig: { maxCoins: 10, maxHandSize: 7, coinInterval: 1000 },
+    statOverrides: {},
+    crownConfig: { ...DEFAULT_CROWN_CONFIG }
   });
 
   const error = writable<string | null>(null);
@@ -44,7 +32,7 @@
   const otherPlayers = derived([lobbyState, sessionId], ([$state, $sid]) =>
     Object.entries($state.players)
       .filter(([id]) => id !== $sid)
-      .map(([id, config]) => ({ id, ...config }))
+      .map(([id, config]: [id: string, config: PlayerConfig]) => ({ id, ...config }))
   );
 
   const allReady = derived(lobbyState, ($state) => {
@@ -103,9 +91,12 @@
 
   // --- Actions ---
   function selectFaction(faction: Faction) {
+    if (ready) return;
     room?.send("selectFaction", { faction });
   }
 
+  let settingsOpen = false;
+  let unitSettingsOpen = false;
   let ready = false;
   function setReady() {
     if (!ready) {
@@ -117,12 +108,22 @@
     }
   }
 
-  function updateConfig(key: keyof GameConfig, value: number) {
-    lobbyState.update((s) => ({
-      ...s,
-      gameConfig: { ...s.gameConfig, [key]: value },
-    }));
-    room?.send("updateConfig", { [key]: value });
+  function updateCrownConfig(key: keyof CrownConfig, value: number) {
+    lobbyState.update((s) => {
+      return ({
+        ...s,
+        crownConfig: { ...s.crownConfig, [key]: value },
+      })
+    });
+    room?.send("updateCrownConfig", { [key]: value });
+  }
+
+  function updateUnitStatOverrides(unitName: UnitName, stats: Partial<Stats>) {
+    room?.send("updateUnitStatOverrides", { unitName, stats });
+  }
+
+  function resetAllOverrides() {
+    room?.send("resetAllOverrides")
   }
 
   // --- Helpers ---
@@ -248,61 +249,18 @@
       </div>
     </section>
 
-    <!-- Game Config -->
-    <section class="panel config-panel">
-      <h2 class="panel-label">Game rules</h2>
-      <div class="config-rows">
-        <label class="config-row">
-          <span class="config-label">Max coins</span>
-          <div class="config-control">
-            <input
-              type="range"
-              min="5" max="20" step="1"
-              value={$lobbyState.gameConfig.maxCoins}
-              on:change={(e) => updateConfig("maxCoins", +e.currentTarget.value)}
-            />
-            <span class="config-value">{$lobbyState.gameConfig.maxCoins}</span>
-          </div>
-        </label>
-
-        <label class="config-row">
-          <span class="config-label">Hand size</span>
-          <div class="config-control">
-            <input
-              type="range"
-              min="3" max="12" step="1"
-              value={$lobbyState.gameConfig.maxHandSize}
-              on:change={(e) => updateConfig("maxHandSize", +e.currentTarget.value)}
-            />
-            <span class="config-value">{$lobbyState.gameConfig.maxHandSize}</span>
-          </div>
-        </label>
-
-        <label class="config-row">
-          <span class="config-label">Coin interval (ms)</span>
-          <div class="config-control">
-            <input
-              type="range"
-              min="500" max="3000" step="100"
-              value={$lobbyState.gameConfig.coinInterval}
-              on:change={(e) => updateConfig("coinInterval", +e.currentTarget.value)}
-            />
-            <span class="config-value">{$lobbyState.gameConfig.coinInterval}</span>
-          </div>
-        </label>
-      </div>
-    </section>
-
     <!-- Ready -->
     <div class="ready-row">
+      <button class="btn" on:click={() => settingsOpen = true}>Settings</button>
+      <button class="btn" on:click={() => unitSettingsOpen = true}>Unit Editor</button>
       <button
-        class="ready-btn"
+        class="btn ready-btn"
         class:all-ready={$allReady}
         disabled={!$myPlayer?.faction}
         on:click={setReady}
       >
         {#if $myPlayer?.ready}
-          Waiting for Opponent... 
+          Unready
         {:else if $allReady}
           Starting...
         {:else}
@@ -310,6 +268,65 @@
         {/if}
       </button>
     </div>
+
+    <!-- Unit Stat Overrides -->
+    <Modal bind:open={unitSettingsOpen} title="Unit Editor">
+      <section>
+        <StatOverrides
+          bind:overrides={$lobbyState.statOverrides}
+          onChange={updateUnitStatOverrides}
+          onReset={resetAllOverrides}
+        />
+      </section>
+    </Modal>
+
+    <!-- Crown Config Settings -->
+    <Modal bind:open={settingsOpen} title="Game Settings">
+      <section class="panel config-panel">
+        <h2 class="panel-label">Crown Settings</h2>
+        <div class="config-rows">
+          <label class="config-row">
+            <span class="config-label">Max coins</span>
+            <div class="config-control">
+              <input
+                type="range"
+                min="5" max="20" step="1"
+                value={$lobbyState.crownConfig.maxCoins}
+                on:change={(e) => updateCrownConfig("maxCoins", +e.currentTarget.value)}
+              />
+              <span class="config-value">{$lobbyState.crownConfig.maxCoins}</span>
+            </div>
+          </label>
+
+          <label class="config-row">
+            <span class="config-label">Hand size</span>
+            <div class="config-control">
+              <input
+                type="range"
+                min="3" max="12" step="1"
+                value={$lobbyState.crownConfig.maxHandSize}
+                on:change={(e) => updateCrownConfig("maxHandSize", +e.currentTarget.value)}
+              />
+              <span class="config-value">{$lobbyState.crownConfig.maxHandSize}</span>
+            </div>
+          </label>
+
+          <label class="config-row">
+            <span class="config-label">Coin interval (ms)</span>
+            <div class="config-control">
+              <input
+                type="range"
+                min="500" max="3000" step="100"
+                value={$lobbyState.crownConfig.coinInterval}
+                on:change={(e) => updateCrownConfig("coinInterval", +e.currentTarget.value)}
+              />
+              <span class="config-value">{$lobbyState.crownConfig.coinInterval}</span>
+            </div>
+          </label>
+        </div>
+      </section>
+    </Modal>
+
   </main>
 </div>
 
@@ -522,6 +539,10 @@
     padding: 2px 8px;
   }
 
+  .players-panel {
+    grid-column: 1 / -1;
+  }
+
   /* Players */
   .player-list {
     display: flex;
@@ -631,26 +652,31 @@
   /* Ready row — full width */
   .ready-row {
     grid-column: 1 / -1;
+    gap: 16px;
     display: flex;
     justify-content: flex-end;
     padding-top: 0.5rem;
   }
 
-  .ready-btn {
+  .btn {
     font-size: 0.8rem;
     font-weight: 600;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     padding: 0.75rem 2.5rem;
     background: transparent;
+    cursor: pointer;
+    color: var(--font-color);
+    border: 1px solid var(--font-color);
+  }
+  .ready-btn {
     border: 1px solid var(--primary);
     color: var(--primary);
-    cursor: pointer;
     transition: border-color 0.15s, color 0.15s, background 0.15s;
     position: relative;
   }
 
-  .ready-btn::before {
+  .btn::before {
     content: "";
     position: absolute;
     bottom: 0; left: 0;
