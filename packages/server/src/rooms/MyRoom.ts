@@ -54,21 +54,16 @@ import {
   CrownStateStore,
   Card,
 } from "@necro-crown/shared";
+import { GameSettings } from "@necro-crown/shared/src/types";
 interface PlayerRecord {
   eid: number;
-  sessionId: string;
   faction: Faction;
   status: "loading" | "ready" | "disconnected";
 }
 
-type GameOptions = {
+type RoomSettings = {
   players: Record<string, Faction>;
-  gameConfig: {
-    maxCoins: number;
-    maxHandSize: number;
-    coinInterval: number;
-  };
-};
+} & GameSettings;
 
 export class MyRoom extends Room {
   private world!: World;
@@ -99,13 +94,13 @@ export class MyRoom extends Room {
   fixedTimeStep = 1000 / 60;
   tickTimeStep = 200;
 
-  onCreate(options: GameOptions) {
+  onCreate(options: RoomSettings) {
     this.world = createWorld();
     this.world.time = { delta: 0, elapsed: 0, then: performance.now() };
     this.world.grid = new Grid(staticGridData);
     this.world.gameEvents = new GameEvents();
     this.world.networkType = "networked";
-    this.world.unitUpgrades = {};
+    this.world.unitUpgrades = options.statOverrides || {};
 
     this.lobbyIdToFaction = options.players;
 
@@ -261,6 +256,9 @@ export class MyRoom extends Room {
             cost: 3,
           });
         }
+        if (options.crownConfig) {
+          this.crown.updateConfig(options.crownConfig);
+        }
         this.crown.addCards(cards);
         this.crown.drawCard();
         this.crown.drawCard();
@@ -325,11 +323,10 @@ export class MyRoom extends Room {
   }
 
   onJoin(client: Client, options: { lobbySessionId: string }) {
-    const faction = parseInt(this.lobbyIdToFaction[options.lobbySessionId]);
+    const faction = this.lobbyIdToFaction[options.lobbySessionId];
 
     this.players.set(client.sessionId, {
       eid: 0,
-      sessionId: client.sessionId,
       status: "loading",
       faction,
     });

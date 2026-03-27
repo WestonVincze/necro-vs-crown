@@ -69,7 +69,7 @@ export class VersusModeScene extends Scene {
 
   create() {
     this.room = this.registry.get("room");
-    this.playerType = parseInt(this.registry.get("faction")) as Faction;
+    this.playerType = this.registry.get("faction") as Faction;
     console.log("joining room...");
     this.world = createWorld();
     this.world.time = { delta: 0, elapsed: 0, then: performance.now() };

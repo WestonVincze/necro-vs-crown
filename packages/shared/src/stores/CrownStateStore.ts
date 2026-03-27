@@ -1,4 +1,4 @@
-import { UnitName } from "../types";
+import { CrownConfig, UnitName } from "../types";
 import {
   BehaviorSubject,
   Observable,
@@ -8,10 +8,10 @@ import {
   timer,
 } from "rxjs";
 
-const DEFAULT_CROWN_CONFIG: CrownConfig = {
+export const DEFAULT_CROWN_CONFIG: CrownConfig = {
   maxCoins: 10,
   maxHandSize: 4,
-  coinIncrement: 1,
+  coinInterval: 1000,
 };
 
 /** generates random cards for testing purposes */
@@ -33,12 +33,6 @@ export type Card = {
   id?: number;
   name: UnitName;
   cost: number;
-};
-
-type CrownConfig = {
-  coinIncrement: number;
-  maxHandSize: number;
-  maxCoins: number;
 };
 
 type CrownState = {
@@ -141,10 +135,7 @@ const updateState = (state: CrownState, action: Action): CrownState => {
     case "ADD_COINS":
       return {
         ...state,
-        coins: Math.min(
-          state.config.maxCoins,
-          state.coins + state.config.coinIncrement,
-        ),
+        coins: Math.min(state.config.maxCoins, state.coins + 1),
       };
 
     case "PLAY_CARD":
@@ -248,10 +239,11 @@ export class CrownStateStore {
   resume() {
     if (!this.paused) return;
     this.paused = false;
+    const interval = this.getState().config.coinInterval;
 
     // How far through the current interval were we when we paused
-    const elapsed = (this.pausedAt! - this.intervalStart) % 1000;
-    const remaining = 1000 - elapsed;
+    const elapsed = (this.pausedAt! - this.intervalStart) % interval;
+    const remaining = interval - elapsed;
 
     this.pausedAt = null;
     this.intervalStart = Date.now() - elapsed;

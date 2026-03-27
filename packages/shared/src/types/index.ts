@@ -3,3 +3,4 @@ export * from "./bitECS";
 export * from "./items";
 export * from "./ai";
 export * from "./upgrades";
+export * from "./gameSettings";

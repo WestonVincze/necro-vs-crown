@@ -10,9 +10,8 @@ export enum SpellName {
 }
 
 export const Spell = {
-  name: [] as number[],
-  type: [] as number[],
-  state: [] as number[],
+  name: [] as SpellName[],
+  state: [] as SpellState[],
 };
 
 export const SpellEffect = {

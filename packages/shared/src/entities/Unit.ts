@@ -21,7 +21,7 @@ import {
   RangedUnit,
   SpriteType,
   Level,
-  Unit,
+  UnitMeta,
   Player,
   StatName,
   getStatComponentByName,
@@ -65,8 +65,8 @@ export const createUnitEntity = (
     });
   }
 
-  addComponent(world, eid, Unit);
-  Unit.name[eid] = name;
+  addComponent(world, eid, UnitMeta);
+  UnitMeta.name[eid] = name;
 
   if (name !== UnitName.Necromancer) {
     addComponent(world, eid, AI);
@@ -179,7 +179,7 @@ export const createUnitEntity = (
  */
 const initializeStats = (world: World, eid: number, stats: Stats) => {
   Object.entries(stats).forEach(([stat, value]) => {
-    const Stat = getStatComponentByName(parseInt(stat) as StatName);
+    const Stat = getStatComponentByName(stat as StatName);
     addComponent(world, eid, Stat);
     Stat.base[eid] = value;
     Stat.current[eid] = value;

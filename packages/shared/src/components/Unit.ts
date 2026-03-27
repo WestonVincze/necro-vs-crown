@@ -1,1 +1,3 @@
-export const Unit = { name: [] as number[] };
+import { UnitName } from "../types";
+
+export const UnitMeta = { name: [] as UnitName[] };

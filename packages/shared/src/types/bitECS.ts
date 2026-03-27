@@ -1,7 +1,8 @@
 import { World as IWorld } from "bitecs";
 import { Grid } from "pathfinding";
 import { GameEvents } from "../events/GameEvents";
-import { NetworkType, Stats, UnitName } from "./units";
+import { NetworkType } from "./units";
+import { StatOverrides } from "./gameSettings";
 
 export type Pipeline = (world: World) => void;
 
@@ -16,5 +17,5 @@ export type World = IWorld & {
   grid: Grid;
   gameEvents: GameEvents;
   networkType: NetworkType;
-  unitUpgrades: Partial<Record<UnitName, Stats>>;
+  unitUpgrades: StatOverrides;
 };

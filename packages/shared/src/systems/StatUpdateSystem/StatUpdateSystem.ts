@@ -9,7 +9,7 @@ import {
 import {
   StatName,
   UpdateStatsRequest,
-  Unit,
+  UnitMeta,
   getStatComponentByName,
 } from "../../components";
 import { StatUpdate, UnitName } from "../../types";
@@ -23,8 +23,8 @@ export const updateStatsByUnitType = (
   unitName: UnitName,
   updates: StatUpdate[],
 ) => {
-  const units = query(world, [Unit]).filter(
-    (eid) => Unit.name[eid] === unitName,
+  const units = query(world, [UnitMeta]).filter(
+    (eid) => UnitMeta.name[eid] === unitName,
   );
 
   for (let i = 0; i < units.length; i++) {

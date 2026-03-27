@@ -2,7 +2,7 @@ import {
   Armor,
   MaxHealth,
   StatName,
-  Unit,
+  UnitMeta,
   UpdateStatsRequest,
 } from "../../components";
 import { StatUpdate, UnitName } from "../../types";
@@ -76,12 +76,12 @@ describe("StatUpdateSystem", () => {
       const skeleton2 = addEntity(world);
       const skeleton3 = addEntity(world);
 
-      addComponent(world, skeleton1, Unit);
-      Unit.name[skeleton1] = UnitName.Skeleton;
-      addComponent(world, skeleton2, Unit);
-      Unit.name[skeleton2] = UnitName.Skeleton;
-      addComponent(world, skeleton3, Unit);
-      Unit.name[skeleton3] = UnitName.Skeleton;
+      addComponent(world, skeleton1, UnitMeta);
+      UnitMeta.name[skeleton1] = UnitName.Skeleton;
+      addComponent(world, skeleton2, UnitMeta);
+      UnitMeta.name[skeleton2] = UnitName.Skeleton;
+      addComponent(world, skeleton3, UnitMeta);
+      UnitMeta.name[skeleton3] = UnitName.Skeleton;
 
       updateStatsByUnitType(
         world,
@@ -108,12 +108,12 @@ describe("StatUpdateSystem", () => {
       const guard = addEntity(world);
       const paladin = addEntity(world);
 
-      addComponent(world, skeleton, Unit);
-      Unit.name[skeleton] = UnitName.Skeleton;
-      addComponent(world, guard, Unit);
-      Unit.name[guard] = UnitName.Guard;
-      addComponent(world, paladin, Unit);
-      Unit.name[paladin] = UnitName.Paladin;
+      addComponent(world, skeleton, UnitMeta);
+      UnitMeta.name[skeleton] = UnitName.Skeleton;
+      addComponent(world, guard, UnitMeta);
+      UnitMeta.name[guard] = UnitName.Guard;
+      addComponent(world, paladin, UnitMeta);
+      UnitMeta.name[paladin] = UnitName.Paladin;
 
       updateStatsByUnitType(
         world,
