@@ -8,10 +8,7 @@
   import { Icon } from "$icons";
   import { Modal } from "$UI/Modal"
   import { StatOverrides } from "$UI/StatOverrides";
-  import type { PageData } from "./$types";
   import Logo from "$UI/Logo/Logo.svelte";
-
-  export let data: PageData;
 
   type LobbyState = {
     players: Record<string, PlayerConfig>;
@@ -60,7 +57,10 @@
   onMount(async () => {
     try {
       const client = new Client(import.meta.env.VITE_SERVER_URI);
-      room = data?.roomId ? await client.joinById(data.roomId) : await client.joinOrCreate("lobby");
+      const roomId = new URLSearchParams(window.location.search)?.get("roomId");
+      room = roomId
+        ? await client.joinById(roomId)
+        : await client.joinOrCreate("lobby");
 
       sessionId.set(room.sessionId);
       connected.set(true);
