@@ -9,21 +9,21 @@
 const createStat = () => ({ base: [] as number[], current: [] as number[] });
 
 export enum StatName {
-  MaxHealth,
-  Armor,
-  HealthRegeneration,
-  MoveSpeed,
-  MaxMoveSpeed,
-  AttackBonus,
-  AttackSpeed,
-  AttackRange,
-  MaxHit,
-  DamageBonus,
-  CritChance,
-  CritDamage,
-  CastingSpeed,
-  CastingRange,
-  Knockback,
+  MaxHealth = "MaxHealth",
+  Armor = "Armor",
+  HealthRegeneration = "HealthRegeneration",
+  MoveSpeed = "MoveSpeed",
+  MaxMoveSpeed = "MaxMoveSpeed",
+  AttackBonus = "AttackBonus",
+  AttackSpeed = "AttackSpeed",
+  AttackRange = "AttackRange",
+  MaxHit = "MaxHit",
+  DamageBonus = "DamageBonus",
+  CritChance = "CritChance",
+  CritDamage = "CritDamage",
+  CastingSpeed = "CastingSpeed",
+  CastingRange = "CastingRange",
+  Knockback = "Knockback",
 }
 
 /**

@@ -1,13 +1,22 @@
-import { defineServer, defineRoom, monitor, playground } from "colyseus";
+import {
+  defineServer,
+  defineRoom,
+  monitor,
+  playground,
+  LobbyRoom,
+} from "colyseus";
 
 /**
  * Import your Room files
  */
 import { MyRoom } from "./rooms/MyRoom";
+import { GameLobby } from "./rooms/Lobby";
 
 const server = defineServer({
   rooms: {
     my_room: defineRoom(MyRoom),
+    lobby: defineRoom(GameLobby).enableRealtimeListing(),
+    lobbies: defineRoom(LobbyRoom),
   },
 
   express: (app) => {

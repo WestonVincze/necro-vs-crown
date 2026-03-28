@@ -3,11 +3,15 @@
   --primary: #ffffff;
   --necro: #673f69;
   --necro-dark: #482c49;
+  --necro-darkest: #291929;
   --crown: #ffaf45;
   --crown-dark: #b27a30;
+  --crown-darkest: #36250f;
   --bg-primary: #111111;
   --bg-secondary: #252525;
   --font-color: #cecece;
+  --font-color-soft: #9a9a9a;
+  --font-color-grey: #6a6558;
   --error: #aa2500;
 
   /** sizes **/
@@ -65,14 +69,25 @@ body {
   font-style: normal;
 }
 
-button {
+button,
+.btn {
   pointer-events: all;
+  font-weight: 600;
   cursor: pointer;
   font-family: var(--main-font);
   padding: var(--size-2) var(--size-3);
   border: none;
   outline: none;
   transition: all 200ms ease-in-out;
+  color: var(--font-color);
+  border: 1px solid var(--font-color);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  background-color: transparent;
+}
+
+.btn:hover {
+  background-color: var(--bg-secondary);
 }
 
 .overlay {

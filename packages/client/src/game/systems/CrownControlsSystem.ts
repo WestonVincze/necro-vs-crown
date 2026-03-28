@@ -1,16 +1,14 @@
 import { Scene } from "phaser";
 import { defineAction } from "../../input/Actions";
-import { crownState$, playCard } from "$game/Crown";
-import { UnitName } from "@necro-crown/shared";
+import { crownClientState } from "$game/Crown";
 import { createMouseManager } from "../../input";
 
 // TODO: this isn't a system, let's move it elsewhere
 export const initializeCrownMouseControls = (
   scene: Scene,
-  handleOnPlay: (name: UnitName, x: number, y: number) => void,
+  handleOnPlay: (cardId: number, x: number, y: number) => void,
 ) => {
-  const canvas =
-    document.getElementById("game-container") || document.documentElement;
+  const canvas = document.getElementById("ui") || document.documentElement;
 
   createMouseManager(canvas);
 
@@ -25,8 +23,8 @@ export const initializeCrownMouseControls = (
   defineAction({
     name: "mouseAction",
     callback: (event) => {
-      const { selectedCard } = crownState$.value;
-      if (selectedCard === null) return;
+      const selectedCard = crownClientState.getSelectedCard();
+      if (selectedCard === null || !selectedCard.id) return;
 
       const mouseEvent = event as MouseEvent | DragEvent;
 
@@ -35,9 +33,9 @@ export const initializeCrownMouseControls = (
         mouseEvent.y - top,
       );
 
-      playCard(() => handleOnPlay(selectedCard.name, x, y));
+      handleOnPlay(selectedCard.id, x, y);
     },
-    binding: { mouseEvents: ["mouseup", "dragend"] },
+    binding: { mouseEvents: ["dragend"] },
   });
 
   scene.input.on("pointerdown", () => {
@@ -74,9 +72,9 @@ export const initializeCrownMouseControls = (
       if (deltaY === 0) return;
       const worldPoint = camera.getWorldPoint(pointer.x, pointer.y);
       const newZoom = camera.zoom - camera.zoom * 0.001 * deltaY;
-      camera.zoom = Phaser.Math.Clamp(newZoom, 0.5, 1.5);
+      camera.zoom = Phaser.Math.Clamp(newZoom, 1, 2);
 
-      // Update camera matrix, so `getWorldPoint` returns zoom-adjusted coordinates.
+      camera.preRender();
       const newWorldPoint = camera.getWorldPoint(pointer.x, pointer.y);
       // Scroll the camera to keep the pointer under the same world point.
       camera.scrollX -= newWorldPoint.x - worldPoint.x;

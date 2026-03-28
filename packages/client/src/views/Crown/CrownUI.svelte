@@ -1,43 +1,35 @@
 <script lang="ts">
   import { Token } from "$UI/Token";
   import CoinPurse from "$icons/CoinPurse.svelte";
-  import { crownState$, drawCard, discardCard, addNewCards, selectCard } from "$game/Crown";
-  import { interval, take } from "rxjs";
-  import { UnitName } from "@necro-crown/shared";
+  import { crownClientState } from "$game/Crown"
 
-  /**
-   * drawing cards should be managed in Cards.ts, but for now this simulates some animation so drawing is not instantaneous
-  */
-  $: crownState$;
-  interval(200).pipe(
-    take(4)
-  ).subscribe(() => drawCard())
+  $: hand = crownClientState.hand$
+  $: coins = crownClientState.coins$
 
 </script>
 
 <div class="UI">
   <div class="actions">
+  <!--
     <h2>Debug Buttons</h2>
     <button on:click={() => addNewCards([ { name: UnitName.Paladin, cost: 5 }])}>Add Paladin</button>
     <button on:click={() => addNewCards([ { name: UnitName.Doppelsoldner, cost: 6 }])}>Add Doppelsoldner</button>
     <button on:click={() => addNewCards([ { name: UnitName.Archer, cost: 6 }])}>Add Archer</button>
+  -->
   </div>
   <div class="bottom">
     <div class="coins">
-      <CoinPurse value={$crownState$.coins} />
+      <CoinPurse value={$coins} />
     </div>
     <div class="tokens">
-      {#each $crownState$.hand as card (card.id)}
+      {#each $hand as card (card.id)}
         <span
           class="card-wrapper"
-          class:not-playable={$crownState$.coins < card.cost}
-          on:mousedown={() => selectCard(card.id)}
+          class:not-playable={$coins < card.cost}
+          on:mousedown={() => card.id && crownClientState.selectCard(card.id)}
           role="button"
           tabindex={0}
-          on:keydown={(e) =>
-            // TODO: refactor - currently filler for a11y warnings
-            e.key === "spacebar" && discardCard(card.id)
-          }
+          on:keydown={() => {}}
         >
           <Token cost={card.cost} unitID={card.name} />
         </span>

@@ -21,7 +21,7 @@ import {
   RangedUnit,
   SpriteType,
   Level,
-  Unit,
+  UnitMeta,
   Player,
   StatName,
   getStatComponentByName,
@@ -34,14 +34,12 @@ import {
   AIState,
   AIType,
   Faction,
-  NetworkType,
   UnitData,
   UnitName,
   type Stats,
   type World,
 } from "../types";
 import { Units } from "../data";
-import { unitUpgrades } from "../stores";
 import { SpriteTexture, BASE_EXP } from "../constants";
 import { ProjectileName } from "./Projectiles";
 import { clampToScreenSize, getGridCellFromPosition } from "../utils";
@@ -56,8 +54,8 @@ export const createUnitEntity = (
   const data: UnitData = Units[name];
   const stats: Stats = { ...data.stats };
 
-  if (unitUpgrades[name]) {
-    Object.entries(unitUpgrades[name]).forEach(([key, value]) => {
+  if (world.unitUpgrades[name]) {
+    Object.entries(world.unitUpgrades[name]).forEach(([key, value]) => {
       const statName = key as unknown as keyof Stats;
       if (stats[statName] !== undefined) {
         stats[statName] += value;
@@ -67,8 +65,8 @@ export const createUnitEntity = (
     });
   }
 
-  addComponent(world, eid, Unit);
-  Unit.name[eid] = name;
+  addComponent(world, eid, UnitMeta);
+  UnitMeta.name[eid] = name;
 
   if (name !== UnitName.Necromancer) {
     addComponent(world, eid, AI);
@@ -181,7 +179,7 @@ export const createUnitEntity = (
  */
 const initializeStats = (world: World, eid: number, stats: Stats) => {
   Object.entries(stats).forEach(([stat, value]) => {
-    const Stat = getStatComponentByName(parseInt(stat) as StatName);
+    const Stat = getStatComponentByName(stat as StatName);
     addComponent(world, eid, Stat);
     Stat.base[eid] = value;
     Stat.current[eid] = value;

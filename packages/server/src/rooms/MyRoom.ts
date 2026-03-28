@@ -3,6 +3,7 @@ import {
   addComponent,
   addEntity,
   createWorld,
+  getEntityComponents,
   query,
   removeEntity,
 } from "bitecs";
@@ -18,8 +19,6 @@ import {
   Pipeline,
   UnitName,
   type World,
-  Coin,
-  CoinAccumulator,
   Level,
   Player,
   createUnitEntity,
@@ -52,14 +51,24 @@ import {
   GridCell,
   Behavior,
   Behaviors,
+  CrownStateStore,
+  Card,
 } from "@necro-crown/shared";
+import { GameSettings } from "@necro-crown/shared/src/types";
 interface PlayerRecord {
   eid: number;
-  sessionId: string;
+  faction: Faction;
+  status: "loading" | "ready" | "disconnected";
 }
+
+type RoomSettings = {
+  players: Record<string, Faction>;
+} & GameSettings;
 
 export class MyRoom extends Room {
   private world!: World;
+
+  // serializers
   private soaSerialize: (
     selectedEntities: readonly number[] | number[],
   ) => ArrayBuffer;
@@ -67,21 +76,33 @@ export class MyRoom extends Room {
   private snapshotSerializer: (
     selectedEntities?: readonly number[] | number[],
   ) => ArrayBuffer;
-  players: Map<string, PlayerRecord> = new Map();
 
+  // player data
+  private players: Map<string, PlayerRecord> = new Map();
+  private crownPlayer: Client;
+  private necroPlayer: Client;
+  private lobbyIdToFaction: Record<string, Faction>;
+
+  // systems
   private systems!: Pipeline;
   private tickSystems!: Pipeline;
+
+  // card state
+  private crown = new CrownStateStore();
 
   maxClients = 2;
   fixedTimeStep = 1000 / 60;
   tickTimeStep = 200;
 
-  onCreate(options: any) {
+  onCreate(options: RoomSettings) {
     this.world = createWorld();
     this.world.time = { delta: 0, elapsed: 0, then: performance.now() };
     this.world.grid = new Grid(staticGridData);
     this.world.gameEvents = new GameEvents();
     this.world.networkType = "networked";
+    this.world.unitUpgrades = options.statOverrides || {};
+
+    this.lobbyIdToFaction = options.players;
 
     this.soaSerialize = createSoASerializer(networkSyncComponents);
     this.snapshotSerializer = createSnapshotSerializer(
@@ -115,37 +136,41 @@ export class MyRoom extends Room {
       this.broadcast("hitsplat", e);
     });
 
-    let elapsedTime = 0;
-    let timeSinceLastTick = 0;
-    this.setSimulationInterval((deltaTime) => {
-      elapsedTime += deltaTime;
-      timeSinceLastTick += deltaTime;
-
-      while (elapsedTime >= this.fixedTimeStep) {
-        elapsedTime -= this.fixedTimeStep;
-        this.fixedUpdate(this.fixedTimeStep);
-      }
-      while (timeSinceLastTick >= this.tickTimeStep) {
-        timeSinceLastTick -= this.tickTimeStep;
-        this.tickSystems(this.world);
-      }
-    });
-
     this.onMessage(
-      "add_crown_unit",
+      "play_card",
       (
         client,
-        { name, xPos, yPos }: { name: UnitName; xPos: number; yPos: number },
+        { id, xPos, yPos }: { id: number; xPos: number; yPos: number },
       ) => {
-        // TODO: validate this action and verify the ID is legitimate
-        const eid = createUnitEntity(this.world, name, xPos, yPos);
-        addComponent(this.world, eid, Networked);
+        const { faction } = this.players.get(client.sessionId);
+        if (faction !== Faction.Crown) {
+          console.error(
+            `Client ${client.sessionId} is not permitted to send message 'play_card'`,
+          );
+          return;
+        }
+
+        const success = this.crown.playCard(id, (name: UnitName) => {
+          createUnitEntity(this.world, name, xPos, yPos);
+        });
+
+        if (!success) {
+          // TODO: listen for this event in client
+          client.send("play_card:rejected", { cardId: id });
+        }
       },
     );
+
     this.onMessage(
       "set_cursor_waypoint",
       (client, { x, y }: { x: number; y: number }) => {
-        // TODO: validate this action
+        const { faction } = this.players.get(client.sessionId);
+        if (faction !== Faction.Necro) {
+          console.error(
+            `Client ${client.sessionId} is not permitted to send message 'set_cursor_waypoint'`,
+          );
+          return;
+        }
         const [cursorEid] = query(this.world, [Cursor]);
         Position.x[cursorEid] = x;
         Position.y[cursorEid] = y;
@@ -157,6 +182,12 @@ export class MyRoom extends Room {
 
     this.onMessage("key_inputs", (client, keys) => {
       const player = this.players.get(client.sessionId);
+      if (player.faction !== Faction.Necro) {
+        console.error(
+          `Client ${client.sessionId} is not permitted to send message 'set_cursor_waypoint'`,
+        );
+        return;
+      }
       Input.castingSpell[player.eid] = keys.castingSpell ? 1 : 0;
       Input.moveX[player.eid] = keys.moveX;
       Input.moveY[player.eid] = keys.moveY;
@@ -167,60 +198,140 @@ export class MyRoom extends Room {
       // handle "type" message
       //
     });
+
+    this.onMessage("debug:snapshot-request", (client, { eid }) => {
+      const snapshot = eid
+        ? this.getEntitySnapshot(eid)
+        : this.snapshotSerializer();
+      client.send("debug:snapshot", snapshot);
+    });
+
+    this.onMessage("loaded", (client) => {
+      const player = this.players.get(client.sessionId);
+      if (!player) return;
+
+      player.status = "ready";
+      if (player.faction === Faction.Necro) {
+        this.necroPlayer = client;
+        console.log(this.necroPlayer.sessionId);
+        player.eid = createUnitEntity(
+          this.world,
+          UnitName.Necromancer,
+          500,
+          500,
+        );
+        createBonesEntity(this.world, 400, 400);
+
+        const cursorEid = addEntity(this.world);
+        addComponent(this.world, cursorEid, Cursor);
+        addComponent(this.world, cursorEid, Position);
+        addComponent(this.world, cursorEid, GridCell);
+
+        // create some skele mans
+        for (let i = 0; i < 7; i++) {
+          const skele = createUnitEntity(
+            this.world,
+            UnitName.Skeleton,
+            Math.random() * 1024,
+            Math.random() * 1024,
+          );
+          Behavior.type[skele] = Behaviors.FollowCursor;
+        }
+      } else if (player.faction === Faction.Crown) {
+        this.crownPlayer = client;
+        const eid = addEntity(this.world);
+        player.eid = eid;
+        addComponent(this.world, eid, Player);
+        addComponent(this.world, eid, Level);
+        Level.currentLevel[eid] = 0;
+        Level.currentExp[eid] = 0;
+        Level.expToNextLevel[eid] = BASE_EXP;
+
+        // initialize crown state
+        const cards: Card[] = [];
+        for (let i = 0; i < 8; i++) {
+          cards.push({
+            id: i,
+            name: UnitName.Peasant,
+            cost: 3,
+          });
+        }
+        if (options.crownConfig) {
+          this.crown.updateConfig(options.crownConfig);
+        }
+        this.crown.addCards(cards);
+        this.crown.drawCard();
+        this.crown.drawCard();
+        this.crown.drawCard();
+        this.crown.drawCard();
+        this.crown.start();
+
+        this.crown.hand$.subscribe((hand) => {
+          this.crownPlayer?.send("hand:update", { hand });
+        });
+
+        this.crown.discard$.subscribe((discard) => {
+          this.crownPlayer?.send("discard:update", { discard });
+        });
+
+        this.crown.coins$.subscribe((coins) => {
+          this.crownPlayer?.send("coins:update", { coins });
+        });
+      }
+      // create new observer serializer for this client
+      this.observerSerializers.set(
+        client.sessionId,
+        createObserverSerializer(this.world, Networked, networkSyncComponents),
+      );
+
+      const allLoaded = [...this.players.values()].every(
+        (p) => p.status === "ready",
+      );
+      if (!allLoaded) return;
+
+      // initial state sync
+      const snapshot = this.snapshotSerializer();
+      for (const c of this.clients) {
+        c.send("snapshot", snapshot);
+      }
+
+      // start game loop
+      let elapsedTime = 0;
+      let timeSinceLastTick = 0;
+      this.setSimulationInterval((deltaTime) => {
+        elapsedTime += deltaTime;
+        timeSinceLastTick += deltaTime;
+
+        while (elapsedTime >= this.fixedTimeStep) {
+          elapsedTime -= this.fixedTimeStep;
+          this.fixedUpdate(this.fixedTimeStep);
+        }
+        while (timeSinceLastTick >= this.tickTimeStep) {
+          timeSinceLastTick -= this.tickTimeStep;
+          this.tickSystems(this.world);
+        }
+      });
+    });
   }
 
-  onJoin(client: Client, options: { playerType: Faction }) {
-    console.log(client.sessionId, "joined!");
-    let eid: number;
+  getEntitySnapshot(eid: number) {
+    return {
+      eid,
+      components: getEntityComponents(this.world, eid),
+      timestamp: Date.now(),
+    };
+  }
 
-    // create player instance
-    if (options.playerType === Faction.Necro) {
-      eid = createUnitEntity(this.world, UnitName.Necromancer, 500, 500);
-      createBonesEntity(this.world, 400, 400);
+  onJoin(client: Client, options: { lobbySessionId: string }) {
+    const faction = this.lobbyIdToFaction[options.lobbySessionId];
 
-      const cursorEid = addEntity(this.world);
-      addComponent(this.world, cursorEid, Cursor);
-      addComponent(this.world, cursorEid, Position);
-      addComponent(this.world, cursorEid, GridCell);
-      addComponent(this.world, cursorEid, Networked);
+    this.players.set(client.sessionId, {
+      eid: 0,
+      status: "loading",
+      faction,
+    });
 
-      // create some skele mans
-      for (let i = 0; i < 7; i++) {
-        const skele = createUnitEntity(
-          this.world,
-          UnitName.Skeleton,
-          Math.random() * 1024,
-          Math.random() * 1024,
-        );
-        Behavior.type[skele] = Behaviors.FollowCursor;
-      }
-    } else if (options.playerType === Faction.Crown) {
-      eid = addEntity(this.world);
-      addComponent(this.world, eid, Player);
-      addComponent(this.world, eid, Level);
-      Level.currentLevel[eid] = 0;
-      Level.currentExp[eid] = 0;
-      Level.expToNextLevel[eid] = BASE_EXP;
-      addComponent(this.world, eid, Coin);
-      addComponent(this.world, eid, CoinAccumulator);
-      Coin.current[eid] = 0;
-      Coin.max[eid] = 10;
-      CoinAccumulator.amount[eid] = 1;
-      CoinAccumulator.frequency[eid] = 1000;
-    }
-
-    addComponent(this.world, eid, Networked);
-
-    this.players.set(client.sessionId, { eid, sessionId: client.sessionId });
-    // create new observer serializer for this client
-    this.observerSerializers.set(
-      client.sessionId,
-      createObserverSerializer(this.world, Networked, networkSyncComponents),
-    );
-
-    // initial state sync
-    const snapshot = this.snapshotSerializer();
-    client.send("snapshot", snapshot);
+    client.send("session:init", { faction });
   }
 
   onLeave(client: Client, code: CloseCode) {
@@ -235,6 +346,7 @@ export class MyRoom extends Room {
 
   onDispose() {
     console.log("room", this.roomId, "disposing...");
+    this.crown.destroy();
   }
 
   fixedUpdate(deltaTime: number) {

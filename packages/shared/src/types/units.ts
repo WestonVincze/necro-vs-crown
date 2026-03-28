@@ -3,18 +3,18 @@ import { StatName } from "../components";
 export type Vector2 = { x: number; y: number };
 
 export enum Faction {
-  Necro = 1,
-  Crown,
+  Necro = "Necro",
+  Crown = "Crown",
 }
 
 export enum UnitName {
-  Peasant,
-  Guard,
-  Paladin,
-  Doppelsoldner,
-  Archer,
-  Skeleton,
-  Necromancer,
+  Peasant = "Peasant",
+  Guard = "Guard",
+  Paladin = "Paladin",
+  Doppelsoldner = "Doppelsoldner",
+  Archer = "Archer",
+  Skeleton = "Skeleton",
+  Necromancer = "Necromancer",
 }
 
 export type UnitData = {

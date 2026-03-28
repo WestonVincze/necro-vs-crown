@@ -1,6 +1,93 @@
-import { Scene } from "phaser";
+import { Loader, Scene } from "phaser";
 import { assets } from "../../stores/AssetStore";
 import { SpriteTexture } from "@necro-crown/shared";
+
+export class PreloaderScene extends Scene {
+  private gameType: string = "solo";
+
+  constructor() {
+    super({ key: "PreloaderScene" });
+  }
+
+  init(data: { gameType: "solo" | "versus" }) {
+    this.gameType = data.gameType;
+  }
+
+  preload() {
+    const { width, height } = this.scale;
+    const cx = width / 2;
+    const cy = height / 2;
+
+    // --- Layout ---
+    const barWidth = 320;
+    const barHeight = 4;
+    const barX = cx - barWidth / 2;
+    const barY = cy + 24;
+
+    // Track background
+    this.add
+      .rectangle(cx, barY, barWidth, barHeight, 0x2a2820)
+      .setOrigin(0.5, 0.5);
+
+    // Fill bar — starts at zero width
+    const fill = this.add
+      .rectangle(barX, barY, 0, barHeight, 0xb8963e)
+      .setOrigin(0, 0.5);
+
+    // Label
+    const label = this.add
+      .text(cx, cy - 8, "Loading...", {
+        fontFamily: "Barlow, sans-serif",
+        fontSize: "13px",
+        color: "#6a6558",
+      })
+      .setOrigin(0.5, 1);
+
+    const percent = this.add
+      .text(cx, barY + 16, "0%", {
+        fontFamily: "Barlow, sans-serif",
+        fontSize: "11px",
+        color: "#4a4538",
+      })
+      .setOrigin(0.5, 0);
+
+    // --- Progress events ---
+    this.load.on("progress", (value: number) => {
+      fill.width = barWidth * value;
+      percent.setText(`${Math.round(value * 100)}%`);
+    });
+
+    this.load.on("fileprogress", (file: Loader.File) => {
+      label.setText(file.key);
+    });
+
+    this.load.on("complete", () => {
+      label.setText("Ready");
+      percent.setText("100%");
+    });
+
+    assets.subscribe((assetUrls) => {
+      for (const [key, url] of Object.entries(assetUrls)) {
+        this.load.image(
+          SpriteTexture[key as keyof typeof SpriteTexture].toString(),
+          url,
+        );
+      }
+    });
+
+    this.load.tilemapTiledJSON("map", "tilemaps/sampleLevel.json");
+    this.load.image("sample", "tilemaps/sample.png");
+  }
+
+  create() {
+    if (this.gameType === "solo") {
+      this.scene.start("MainMenu");
+    } else {
+      this.scene.start("VersusModeScene");
+    }
+  }
+}
+/*
 
 export class PreloaderScene extends Scene {
   constructor() {
@@ -25,3 +112,5 @@ export class PreloaderScene extends Scene {
     this.scene.start("MainMenu");
   }
 }
+
+*/
