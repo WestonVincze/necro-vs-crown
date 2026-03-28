@@ -1,9 +1,6 @@
 <script lang="ts">
   import { Client, Room, type RoomAvailable } from "@colyseus/sdk";
-  import { Faction } from "@necro-crown/shared";
   import { onMount } from "svelte";
-  import { goto } from "$app/navigation";
-  import "../../styles/globals.css";
  
   const client = new Client(import.meta.env.VITE_SERVER_URI);
   let lobby: Room
@@ -32,7 +29,7 @@
 </script>
 
 <div class="lobbies">
-  <h1>View Open Lobbies</h1>
+  <h1>Browse Open Lobbies</h1>
   <div class="rooms">
     {#each allRooms as room}
       <div class="room">
@@ -46,9 +43,7 @@
 
 <style>
   .lobbies {
-    min-height: 100svh;
     padding-top: 40px;
-    background-color: var(--bg-secondary);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -56,14 +51,14 @@
   }
   .rooms {
     display: flex;
-    gap: 8px;
+    gap: 18px;
   }
   .room {
     display: flex;
     flex-direction: column;
     gap: 8px;
     padding: 12px;
-    background-color: var(--bg-primary);
+    background-color: var(--bg-secondary);
     border-radius: 5px;;
     text-align: center;
   }

@@ -8,8 +8,7 @@ export const initializeCrownMouseControls = (
   scene: Scene,
   handleOnPlay: (cardId: number, x: number, y: number) => void,
 ) => {
-  const canvas =
-    document.getElementById("game-container") || document.documentElement;
+  const canvas = document.getElementById("ui") || document.documentElement;
 
   createMouseManager(canvas);
 

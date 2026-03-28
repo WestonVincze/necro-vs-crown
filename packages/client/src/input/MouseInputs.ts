@@ -9,7 +9,7 @@ import {
 import { actions } from "./Actions";
 
 const createMouseManager = (
-  element: HTMLElement = document.documentElement,
+  element: HTMLElement | Element = document.documentElement,
 ) => {
   const mouseActions = new Subscription();
 

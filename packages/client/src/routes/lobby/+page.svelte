@@ -6,10 +6,10 @@
   import { pendingGameSession } from "../../stores/GameSessionStore";
   import { goto } from "$app/navigation";
   import { Icon } from "$icons";
-  import "../../styles/globals.css";
   import { Modal } from "$UI/Modal"
   import { StatOverrides } from "$UI/StatOverrides";
-  import type { PageData } from "../$types";
+  import type { PageData } from "./$types";
+  import Logo from "$UI/Logo/Logo.svelte";
 
   export let data: PageData;
 
@@ -155,17 +155,7 @@
     </div>
   </nav>
 
-  <header class="header">
-    <div class="logo">
-      <Icon color="var(--crown)" height="20px" name="crown" />
-      <Icon color="var(--necro)" height="40px" name="skull" />
-    </div>
-    <h1 class="title">
-      <span class="necro">NECRO</span>
-      <span class="vs">VS</span>
-      <span class="crown">CROWN</span>
-    </h1>
-  </header>
+  <Logo />
 
   {#if $error}
     <div class="error-banner" role="alert">{$error}</div>
@@ -336,14 +326,13 @@
 <style>
   .lobby {
     min-height: 100vh;
-    background-color: var(--bg-primary);
     color: var(--font-color);
     font-weight: 300;
     position: relative;
     overflow: hidden;
   }
 
-  /* Header */
+  /* Navbar */
   .nav {
     border-bottom: 1px solid #2a2820;
     padding: 0.6rem;
@@ -389,36 +378,6 @@
   @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.4; }
-  }
-
-  .header {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .logo {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    padding-bottom: 5px;
-  }
-
-  .title .necro {
-    text-align: right;
-    color: var(--necro);
-  }
-
-  .title .vs {
-    font-size: 2.5rem;
-  }
-
-  .title .crown {
-    text-align: left;
-    color: var(--crown);
   }
 
   /* Error */
@@ -661,17 +620,6 @@
     padding-top: 0.5rem;
   }
 
-  .btn {
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    padding: 0.75rem 2.5rem;
-    background: transparent;
-    cursor: pointer;
-    color: var(--font-color);
-    border: 1px solid var(--font-color);
-  }
   .ready-btn {
     border: 1px solid var(--primary);
     color: var(--primary);

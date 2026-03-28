@@ -7,8 +7,10 @@
   import UpgradeSelect from "../views/UpgradeSelect.svelte";
   import GameOver from "../views/GameOver.svelte";
   import type { Game } from "phaser";
+  import { get, type Unsubscriber } from "svelte/store";
 
   let game: Game | null = null;
+  let unsubscriber: Unsubscriber;
   let errorMsg: string = "";
 
   $: upgrade = {
@@ -18,8 +20,15 @@
   let handleUpgradeSelect: (upgradeId: number) => void;
 
   onMount(async () => {
-    const { StartGame } = (await import('./'));
-    game = StartGame("game-container");
+    const { gameReference } = (await import ("../stores/GameSessionStore"))
+    game = get(gameReference);
+
+    if (!game) {
+      unsubscriber = gameReference.subscribe(g => {
+        if (!g) return;
+        game = g;
+      })
+    }
   })
 
   const levelUpSubscription = legacyGameEvents.onUpgradeRequest.subscribe(({ eid, upgrades }) => {
@@ -39,21 +48,17 @@
     currentScene = "GameOver";
   });
 
-  const handlePlayAs = (player: Faction, gameMode: "solo" | "versus") => {
+  const handlePlayAs = (faction: Faction) => {
     if (!game) return;
-    currentPlayer = player;
+    currentPlayer = faction;
     if (!currentPlayer) {
       errorMsg = "Please select a player type."
       return;
     }
     errorMsg = "";
-    if (gameMode === "versus") {
-      game.scene.start("VersusModeScene", { player })
-      currentScene = "VersusMode";
-    } else {
-      game.scene.start("SoloModeScene", { player });
-      currentScene = "SoloMode";
-    }
+    // game.registry.set("faction", currentPlayer);
+    game.scene.start("SoloModeScene", { player: faction });
+    currentScene = "SoloMode";
   }
 
   const handleMainMenu = () => {
@@ -72,50 +77,36 @@
     game.destroy(true);
     levelUpSubscription.unsubscribe();
     gameOverSubscription.unsubscribe();
+    unsubscriber?.();
   });
 </script>
 
-<div id="game-container">
-  <div id="overlay">
-    {#if currentScene === "MainMenu"}
-      <MainMenu
-        playAs={handlePlayAs}
-      />
-    {:else if currentScene === "GameOver"}
-      <GameOver
-        onPlayAgain={() => handlePlayAs(currentPlayer, "solo")}
-        onMainMenu={handleMainMenu}
-      />
-    {:else}
-      {#if currentPlayer === Faction.Crown}
-        <CrownUI />
-      {/if}
+<div class="game">
+  {#if currentScene === "MainMenu"}
+    <MainMenu
+      playAs={handlePlayAs}
+    />
+  {:else if currentScene === "GameOver"}
+    <GameOver
+      onPlayAgain={() => handlePlayAs(currentPlayer)}
+      onMainMenu={handleMainMenu}
+    />
+  {:else}
+    {#if currentPlayer === Faction.Crown}
+      <CrownUI />
+    {/if}
 
-      {#if upgrade.active}
-        <UpgradeSelect options={upgrade.options} onSelect={handleUpgradeSelect} />
-      {/if}
+    {#if upgrade.active}
+      <UpgradeSelect options={upgrade.options} onSelect={handleUpgradeSelect} />
     {/if}
-    {#if errorMsg}
-      <div class="errorMsg">{errorMsg}</div>
-    {/if}
-  </div>
+  {/if}
+  {#if errorMsg}
+    <div class="errorMsg">{errorMsg}</div>
+  {/if}
 </div>
 
 <style>
-  #game-container {
-    position: relative;
-    width: 100svw;
-    height: 100svh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    filter: drop-shadow(0 0 25px var(--bg-primary));
-  }
-  #overlay {
-    pointer-events: none;
-    position: absolute;
-    top: 0;
-    left: 0;
+  .game {
     width: 100%;
     height: 100%;
   }

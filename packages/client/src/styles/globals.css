@@ -69,14 +69,25 @@ body {
   font-style: normal;
 }
 
-button {
+button,
+.btn {
   pointer-events: all;
+  font-weight: 600;
   cursor: pointer;
   font-family: var(--main-font);
   padding: var(--size-2) var(--size-3);
   border: none;
   outline: none;
   transition: all 200ms ease-in-out;
+  color: var(--font-color);
+  border: 1px solid var(--font-color);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  background-color: transparent;
+}
+
+.btn:hover {
+  background-color: var(--bg-secondary);
 }
 
 .overlay {

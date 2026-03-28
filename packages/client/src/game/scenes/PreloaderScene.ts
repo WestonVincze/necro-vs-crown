@@ -22,6 +22,6 @@ export class PreloaderScene extends Scene {
   }
 
   create() {
-    this.scene.start("VersusModeScene");
+    this.scene.start("MainMenu");
   }
 }
