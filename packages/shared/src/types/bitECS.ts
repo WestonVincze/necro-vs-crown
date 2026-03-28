@@ -18,4 +18,6 @@ export type World = IWorld & {
   gameEvents: GameEvents;
   networkType: NetworkType;
   unitUpgrades: StatOverrides;
+  experience: number;
+  paused?: boolean;
 };

@@ -38,7 +38,6 @@ import {
   createHealthSystem,
   createDestroyAfterDelaySystem,
   createTimeSystem,
-  createDeathSystem,
   GameEvents,
   HitSplatEvent,
   Input,
@@ -54,7 +53,9 @@ import {
   CrownStateStore,
   Card,
 } from "@necro-crown/shared";
+import { createDeathSystem } from "../systems/deathSystem";
 import { GameSettings } from "@necro-crown/shared/src/types";
+import { UpgradeManager } from "../managers/UpgradeManager";
 interface PlayerRecord {
   eid: number;
   faction: Faction;
@@ -87,8 +88,10 @@ export class MyRoom extends Room {
   private systems!: Pipeline;
   private tickSystems!: Pipeline;
 
+  private upgradeManager = new UpgradeManager();
+
   // card state
-  private crown = new CrownStateStore();
+  private crownState = new CrownStateStore();
 
   maxClients = 2;
   fixedTimeStep = 1000 / 60;
@@ -101,6 +104,8 @@ export class MyRoom extends Room {
     this.world.gameEvents = new GameEvents();
     this.world.networkType = "networked";
     this.world.unitUpgrades = options.statOverrides || {};
+    this.world.experience = 0;
+    this.world.paused = false;
 
     this.lobbyIdToFaction = options.players;
 
@@ -124,7 +129,7 @@ export class MyRoom extends Room {
       createHealthSystem(),
       createDestroyAfterDelaySystem(),
       createTimeSystem(), // time should always be last
-      createDeathSystem(this.world, Faction.Necro),
+      createDeathSystem(this.world),
     ]);
 
     this.tickSystems = pipeline([
@@ -150,7 +155,7 @@ export class MyRoom extends Room {
           return;
         }
 
-        const success = this.crown.playCard(id, (name: UnitName) => {
+        const success = this.crownState.playCard(id, (name: UnitName) => {
           createUnitEntity(this.world, name, xPos, yPos);
         });
 
@@ -257,24 +262,24 @@ export class MyRoom extends Room {
           });
         }
         if (options.crownConfig) {
-          this.crown.updateConfig(options.crownConfig);
+          this.crownState.updateConfig(options.crownConfig);
         }
-        this.crown.addCards(cards);
-        this.crown.drawCard();
-        this.crown.drawCard();
-        this.crown.drawCard();
-        this.crown.drawCard();
-        this.crown.start();
+        this.crownState.addCards(cards);
+        this.crownState.drawCard();
+        this.crownState.drawCard();
+        this.crownState.drawCard();
+        this.crownState.drawCard();
+        this.crownState.start();
 
-        this.crown.hand$.subscribe((hand) => {
+        this.crownState.hand$.subscribe((hand) => {
           this.crownPlayer?.send("hand:update", { hand });
         });
 
-        this.crown.discard$.subscribe((discard) => {
+        this.crownState.discard$.subscribe((discard) => {
           this.crownPlayer?.send("discard:update", { discard });
         });
 
-        this.crown.coins$.subscribe((coins) => {
+        this.crownState.coins$.subscribe((coins) => {
           this.crownPlayer?.send("coins:update", { coins });
         });
       }
@@ -298,7 +303,18 @@ export class MyRoom extends Room {
       // start game loop
       let elapsedTime = 0;
       let timeSinceLastTick = 0;
-      this.setSimulationInterval((deltaTime) => {
+      this.setSimulationInterval(async (deltaTime) => {
+        if (this.world.paused) return;
+        if (this.world.experience > 10) {
+          this.world.experience -= 10;
+          console.log("starting upgrade");
+          this.upgradeManager.startUpgradeRound(
+            this.world,
+            this,
+            () => this.pauseGame(),
+            () => this.resumeGame(),
+          );
+        }
         elapsedTime += deltaTime;
         timeSinceLastTick += deltaTime;
 
@@ -312,6 +328,16 @@ export class MyRoom extends Room {
         }
       });
     });
+  }
+
+  pauseGame() {
+    this.world.paused = true;
+    this.crownState.pause();
+  }
+
+  resumeGame() {
+    this.world.paused = false;
+    this.crownState.resume();
   }
 
   getEntitySnapshot(eid: number) {
@@ -346,7 +372,7 @@ export class MyRoom extends Room {
 
   onDispose() {
     console.log("room", this.roomId, "disposing...");
-    this.crown.destroy();
+    this.crownState.destroy();
   }
 
   fixedUpdate(deltaTime: number) {
