@@ -1,22 +1,12 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import "../styles/globals.css";
-  let container: HTMLDivElement;
-
-  onMount(async () => {
-    const { createPhaserGame } = (await import("$game/index"));
-    const { gameReference } = (await import ("../stores/GameSessionStore"))
-    const game = createPhaserGame(container);
-    console.log('set game');
-    gameReference.set(game);
-  });
 </script>
 
 <div id="app">
   <div id="ui">
     <slot />
   </div>
-  <div bind:this={container} id="game-container"></div>
+  <div id="game-container"></div>
 </div>
 
 <style>

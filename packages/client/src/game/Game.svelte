@@ -7,10 +7,8 @@
   import UpgradeSelect from "../views/UpgradeSelect.svelte";
   import GameOver from "../views/GameOver.svelte";
   import type { Game } from "phaser";
-  import { get, type Unsubscriber } from "svelte/store";
 
   let game: Game | null = null;
-  let unsubscriber: Unsubscriber;
   let errorMsg: string = "";
 
   $: upgrade = {
@@ -20,15 +18,9 @@
   let handleUpgradeSelect: (upgradeId: number) => void;
 
   onMount(async () => {
-    const { gameReference } = (await import ("../stores/GameSessionStore"))
-    game = get(gameReference);
-
-    if (!game) {
-      unsubscriber = gameReference.subscribe(g => {
-        if (!g) return;
-        game = g;
-      })
-    }
+    const { createPhaserGame } = (await import("$game/index"));
+    game = createPhaserGame();
+    game.scene.start("PreloaderScene", { gameType: "solo" });
   })
 
   const levelUpSubscription = legacyGameEvents.onUpgradeRequest.subscribe(({ eid, upgrades }) => {
@@ -77,7 +69,6 @@
     game.destroy(true);
     levelUpSubscription.unsubscribe();
     gameOverSubscription.unsubscribe();
-    unsubscriber?.();
   });
 </script>
 

@@ -75,7 +75,7 @@
 
         gameRoom.onMessage("session:init", ({ faction }) => {
           pendingGameSession.set({ room: gameRoom, faction });
-          goto("/game");
+          goto("/versus");
         });
       });
 

@@ -1,13 +1,8 @@
 <script lang="ts">
   import { Token } from "$UI/Token";
   import CoinPurse from "$icons/CoinPurse.svelte";
-  import { interval, take } from "rxjs";
-  import { UnitName } from "@necro-crown/shared";
   import { crownClientState } from "$game/Crown"
 
-  /**
-   * drawing cards should be managed in Cards.ts, but for now this simulates some animation so drawing is not instantaneous
-  */
   $: hand = crownClientState.hand$
   $: coins = crownClientState.coins$
 

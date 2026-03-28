@@ -7,7 +7,8 @@ export const initializeNecroMouseControls = (
   onClick: (x: number, y: number) => void,
 ) => {
   const canvas =
-    document.getElementById("game-container") || document.documentElement;
+    document.querySelector("#game-container canvas") ||
+    document.documentElement;
 
   const rect = canvas.getBoundingClientRect();
 

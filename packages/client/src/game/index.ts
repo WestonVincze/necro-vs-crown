@@ -11,7 +11,7 @@ import {
 const config: Types.Core.GameConfig = {
   type: AUTO,
   scale: { mode: Phaser.Scale.RESIZE },
-  backgroundColor: "transparent",
+  backgroundColor: "#111",
   parent: "game-container",
   fps: { smoothStep: true, limit: 60 },
   physics: { default: "arcade" },
@@ -28,8 +28,8 @@ export const StartGame = (parent: string) => {
   return new Game({ ...config, parent });
 };
 
-export function createPhaserGame(parent: HTMLDivElement) {
-  const game = new Game({ ...config, parent });
+export function createPhaserGame() {
+  const game = new Game({ ...config });
 
   // game.registry.set("faction", faction);
 

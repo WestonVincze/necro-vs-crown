@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { get } from "svelte/store";
-  import { gameReference, pendingGameSession } from "../../stores/GameSessionStore";
+  import { pendingGameSession } from "../../stores/GameSessionStore";
   import { goto } from "$app/navigation";
   import { Faction } from "@necro-crown/shared";
   import { CrownUI } from "../../views/Crown";
@@ -10,6 +10,7 @@
   let faction: Faction;
 
   onMount(async () => {
+    const { createPhaserGame } = (await import("$game/index"));
     if (!gameSession || !gameSession.room) {
       goto("/lobby");
       return;
@@ -19,29 +20,13 @@
 
     faction = gameSession.faction;
 
-    const game = get(gameReference);
-    if (!game) {
-      console.error("Game reference not found.")
-    }
-    game?.registry.set("faction", faction);
-    game?.registry.set("room", gameSession.room);
-    game?.scene.start("PreloaderScene");
+    const game = createPhaserGame()
+    game.registry.set("faction", faction);
+    game.registry.set("room", gameSession.room);
+    game.scene.start("PreloaderScene", { gameMode: "versus" });
   });
 </script>
 
-<div id="overlay">
-  {#if faction === Faction.Crown}
-    <CrownUI />
-  {/if}
-</div>
-
-<style>
-  #overlay {
-    pointer-events: none;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-</style>
+{#if faction === Faction.Crown}
+  <CrownUI />
+{/if}
