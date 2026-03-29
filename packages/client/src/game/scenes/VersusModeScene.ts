@@ -34,7 +34,7 @@ import {
 import { createInputState, type InputState } from "../../input/InputState";
 import type { Observable } from "rxjs";
 import { crownClientState } from "$game/Crown";
-import { pendingUpgrade } from "../../stores/GameEventStore";
+import { isPaused, pendingUpgrade } from "../../stores/GameEventStore";
 
 export class VersusModeScene extends Scene {
   constructor() {
@@ -140,6 +140,7 @@ export class VersusModeScene extends Scene {
 
     this.room.onMessage("upgrade:start", (upgradeData) => {
       this.world.paused = true;
+      isPaused.set(true);
       const options =
         this.playerType === Faction.Necro
           ? upgradeData.necroOptions
@@ -158,6 +159,7 @@ export class VersusModeScene extends Scene {
 
     this.room.onMessage("upgrade:complete", () => {
       this.world.paused = false;
+      isPaused.set(false);
       pendingUpgrade.set(null);
     });
 

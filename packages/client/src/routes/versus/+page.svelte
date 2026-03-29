@@ -21,7 +21,7 @@
 
     faction = gameSession.faction;
 
-    const game = createPhaserGame()
+    const game = createPhaserGame("versus")
     game.registry.set("faction", faction);
     game.registry.set("room", gameSession.room);
     game.scene.start("PreloaderScene", { gameMode: "versus" });

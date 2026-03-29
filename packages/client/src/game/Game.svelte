@@ -19,7 +19,7 @@
 
   onMount(async () => {
     const { createPhaserGame } = (await import("$game/index"));
-    game = createPhaserGame();
+    game = createPhaserGame("solo");
     game.scene.start("PreloaderScene", { gameType: "solo" });
   })
 

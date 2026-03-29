@@ -128,8 +128,8 @@ export class MyRoom extends Room {
       createSpellEffectSystem(this.world),
       createHealthSystem(),
       createDestroyAfterDelaySystem(),
-      createTimeSystem(), // time should always be last
       createDeathSystem(this.world),
+      createTimeSystem(), // time should always be last
     ]);
 
     this.tickSystems = pipeline([
@@ -202,6 +202,10 @@ export class MyRoom extends Room {
       //
       // handle "type" message
       //
+    });
+
+    this.onMessage("upgrade:selected", (client, { optionId }) => {
+      this.upgradeManager.recordSelection(client.sessionId, optionId);
     });
 
     this.onMessage("debug:snapshot-request", (client, { eid }) => {
@@ -305,14 +309,14 @@ export class MyRoom extends Room {
       let timeSinceLastTick = 0;
       this.setSimulationInterval(async (deltaTime) => {
         if (this.world.paused) return;
-        if (this.world.experience > 10) {
+        if (this.world.experience > 20) {
           this.world.experience -= 10;
-          console.log("starting upgrade");
           this.upgradeManager.startUpgradeRound(
             this.world,
             this,
             () => this.pauseGame(),
             () => this.resumeGame(),
+            (card: Card) => this.crownState.addCards([card]),
           );
         }
         elapsedTime += deltaTime;

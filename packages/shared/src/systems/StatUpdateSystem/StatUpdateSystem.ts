@@ -18,7 +18,7 @@ import { StatUpdate, UnitName } from "../../types";
  * updates the stats for all unit entities with the given `UnitName`
  * also updates `unitUpgrades` for all
  */
-export const updateStatsByUnitType = (
+export const updateUnitBaseStats = (
   world: World,
   unitName: UnitName,
   updates: StatUpdate[],
@@ -73,37 +73,34 @@ export const updateStatsByEid = (
   }
 };
 
+export const updateStatByEid = (
+  world: World,
+  eid: number,
+  stat: StatName,
+  amount: number,
+) => {
+  if (amount === 0) return;
+
+  const statComponent = getStatComponentByName(stat);
+
+  if (!hasComponent(world, eid, statComponent)) {
+    console.warn(
+      `${eid} attempted to update ${StatName[stat]}, but no component was found.`,
+    );
+    return;
+  }
+
+  statComponent.base[eid] = Math.max(statComponent.base[eid] + amount, 0);
+  statComponent.current[eid] = Math.max(statComponent.current[eid] + amount, 0);
+};
+
 export const createStatUpdateSystem = () => {
   const stateUpdateQuery = (world: World) => query(world, [UpdateStatsRequest]);
-
-  const updateStat = (
-    world: World,
-    eid: number,
-    stat: StatName,
-    amount: number,
-  ) => {
-    if (amount === 0) return;
-
-    const statComponent = getStatComponentByName(stat);
-
-    if (!hasComponent(world, eid, statComponent)) {
-      console.warn(
-        `${eid} attempted to update ${StatName[stat]}, but no component was found.`,
-      );
-      return;
-    }
-
-    statComponent.base[eid] = Math.max(statComponent.base[eid] + amount, 0);
-    statComponent.current[eid] = Math.max(
-      statComponent.current[eid] + amount,
-      0,
-    );
-  };
 
   return (world: World) => {
     for (const eid of stateUpdateQuery(world)) {
       for (const { stat, value } of UpdateStatsRequest[eid].statUpdates) {
-        updateStat(world, eid, stat, value);
+        updateStatByEid(world, eid, stat, value);
       }
       removeComponent(world, eid, UpdateStatsRequest);
     }
