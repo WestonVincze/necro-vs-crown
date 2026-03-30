@@ -4,7 +4,6 @@
   import { pendingGameSession } from "../../stores/GameSessionStore";
   import { goto } from "$app/navigation";
   import { Faction } from "@necro-crown/shared";
-  import { CrownUI } from "../../views/Crown";
   import GameUI from "../../views/GameUI/GameUI.svelte";
 
   const gameSession = get(pendingGameSession);
@@ -28,7 +27,4 @@
   });
 </script>
 
-<GameUI />
-{#if faction === Faction.Crown}
-  <CrownUI />
-{/if}
+<GameUI faction={faction} />

@@ -82,9 +82,10 @@ export const createSpellEffectSystem = (world: World) => {
     for (const eid of spellResolvesEntered) {
       const position = getPositionFromEid(eid);
       addComponent(world, eid, SpellCooldown);
-      SpellCooldown.timeUntilReady[eid] = 1000;
       switch (SpellEffect.name[eid]) {
         case SpellName.Summon:
+          // TODO: define spell data as a component or data config
+          SpellCooldown.timeUntilReady[eid] = 1000;
           for (const boneEntity of query(world, [Bones, Position], isNested)) {
             const bonePosition = getPositionFromEid(boneEntity);
 
@@ -107,6 +108,7 @@ export const createSpellEffectSystem = (world: World) => {
           }
           break;
         case SpellName.HolyNova:
+          SpellCooldown.timeUntilReady[eid] = 3000;
           const necroEntities = query(
             world,
             [Necro, Position, Health],
@@ -119,11 +121,12 @@ export const createSpellEffectSystem = (world: World) => {
               checkIfWithinDistance(
                 position,
                 necroPosition,
-                SpellEffect.size[eid] + 25,
+                SpellEffect.size[eid], // do we need this bonus? + 25,
               )
             ) {
               addComponent(world, necroEid, Damage);
-              Damage.amount[necroEid] = 10;
+              // TODO: change to a roll
+              Damage.amount[necroEid] = 50;
             }
           }
           break;

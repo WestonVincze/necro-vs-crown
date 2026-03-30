@@ -20,14 +20,14 @@ const STAT_DECREASE_VALUE = -5;
 
 const MOCK_STAT_UPDATE_INCREASE: StatUpdate[] = [
   {
-    stat: StatName.Armor,
+    name: StatName.Armor,
     value: STAT_INCREASE_VALUE,
   },
 ];
 
 const MOCK_STAT_UPDATE_DECREASE: StatUpdate[] = [
   {
-    stat: StatName.Armor,
+    name: StatName.Armor,
     value: STAT_DECREASE_VALUE,
   },
 ];
@@ -202,7 +202,7 @@ describe("StatUpdateSystem", () => {
       UpdateStatsRequest[eid] = {
         statUpdates: [
           ...MOCK_STAT_UPDATE_INCREASE,
-          { stat: StatName.MaxHealth, value: STAT_INCREASE_VALUE },
+          { name: StatName.MaxHealth, value: STAT_INCREASE_VALUE },
         ],
       };
 

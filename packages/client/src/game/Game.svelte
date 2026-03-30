@@ -3,7 +3,7 @@
 
   import MainMenu from "../views/MainMenu.svelte";
   import { CrownUI } from "../views/Crown";
-  import { Faction, legacyGameEvents, type Upgrade } from "@necro-crown/shared";
+  import { Faction, legacyGameEvents, type LegacyUpgrade } from "@necro-crown/shared";
   import UpgradeSelect from "../views/UpgradeSelect.svelte";
   import GameOver from "../views/GameOver.svelte";
   import type { Game } from "phaser";
@@ -13,7 +13,7 @@
 
   $: upgrade = {
     active: false,
-    options: [] as Upgrade[],
+    options: [] as LegacyUpgrade[],
   }
   let handleUpgradeSelect: (upgradeId: number) => void;
 

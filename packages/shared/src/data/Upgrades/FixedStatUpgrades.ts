@@ -1,23 +1,23 @@
 import { getRandomElements } from "../../utils";
 import { StatName } from "../../components";
-import { UnitName, Upgrade } from "../../types";
+import { UnitName, LegacyUpgrade } from "../../types";
 
-export const getUpgradeOptions = (): Upgrade[] => {
+export const getUpgradeOptions = (): LegacyUpgrade[] => {
   const randomUpgrades = getRandomElements(StatUpgrades, 3);
   return randomUpgrades.map((upgrade, i) => ({ ...upgrade, id: i }));
 };
 
 /** Necro Upgrades **/
-export const StatUpgrades: Omit<Upgrade, "id">[] = [
+export const StatUpgrades: Omit<LegacyUpgrade, "id">[] = [
   {
     unitName: UnitName.Necromancer,
     statUpdates: [
       {
-        stat: StatName.MoveSpeed,
+        name: StatName.MoveSpeed,
         value: 0.15,
       },
       {
-        stat: StatName.MaxMoveSpeed,
+        name: StatName.MaxMoveSpeed,
         value: 0.35,
       },
     ],
@@ -26,7 +26,7 @@ export const StatUpgrades: Omit<Upgrade, "id">[] = [
     unitName: UnitName.Necromancer,
     statUpdates: [
       {
-        stat: StatName.HealthRegeneration,
+        name: StatName.HealthRegeneration,
         value: 0.03,
       },
     ],
@@ -35,7 +35,7 @@ export const StatUpgrades: Omit<Upgrade, "id">[] = [
     unitName: UnitName.Necromancer,
     statUpdates: [
       {
-        stat: StatName.MaxHealth,
+        name: StatName.MaxHealth,
         value: 10,
       },
     ],
@@ -44,7 +44,7 @@ export const StatUpgrades: Omit<Upgrade, "id">[] = [
     unitName: UnitName.Necromancer,
     statUpdates: [
       {
-        stat: StatName.Armor,
+        name: StatName.Armor,
         value: 2,
       },
     ],
@@ -53,11 +53,11 @@ export const StatUpgrades: Omit<Upgrade, "id">[] = [
     unitName: UnitName.Skeleton,
     statUpdates: [
       {
-        stat: StatName.MoveSpeed,
+        name: StatName.MoveSpeed,
         value: 0.15,
       },
       {
-        stat: StatName.MaxMoveSpeed,
+        name: StatName.MaxMoveSpeed,
         value: 0.4,
       },
     ],
@@ -66,7 +66,7 @@ export const StatUpgrades: Omit<Upgrade, "id">[] = [
     unitName: UnitName.Skeleton,
     statUpdates: [
       {
-        stat: StatName.MaxHit,
+        name: StatName.MaxHit,
         value: 1,
       },
     ],
@@ -75,7 +75,7 @@ export const StatUpgrades: Omit<Upgrade, "id">[] = [
     unitName: UnitName.Skeleton,
     statUpdates: [
       {
-        stat: StatName.Armor,
+        name: StatName.Armor,
         value: 1,
       },
     ],
@@ -84,7 +84,7 @@ export const StatUpgrades: Omit<Upgrade, "id">[] = [
     unitName: UnitName.Skeleton,
     statUpdates: [
       {
-        stat: StatName.AttackBonus,
+        name: StatName.AttackBonus,
         value: 1,
       },
     ],
@@ -93,7 +93,7 @@ export const StatUpgrades: Omit<Upgrade, "id">[] = [
     unitName: UnitName.Skeleton,
     statUpdates: [
       {
-        stat: StatName.MaxHealth,
+        name: StatName.MaxHealth,
         value: 5,
       },
     ],
@@ -102,7 +102,7 @@ export const StatUpgrades: Omit<Upgrade, "id">[] = [
     unitName: UnitName.Skeleton,
     statUpdates: [
       {
-        stat: StatName.CritDamage,
+        name: StatName.CritDamage,
         value: 0.5,
       },
     ],
@@ -111,7 +111,7 @@ export const StatUpgrades: Omit<Upgrade, "id">[] = [
     unitName: UnitName.Skeleton,
     statUpdates: [
       {
-        stat: StatName.CritChance,
+        name: StatName.CritChance,
         value: 5,
       },
     ],

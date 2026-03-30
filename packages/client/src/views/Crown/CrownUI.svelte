@@ -9,7 +9,6 @@
 
 </script>
 
-<div class="UI">
   <div class="actions">
   <!--
     <h2>Debug Buttons</h2>
@@ -37,17 +36,15 @@
       {/each}
     </div>
   </div>
-</div>
 
 <style>
-  .UI {
-    display: grid;
-    height: 100%;
-  }
 
   .bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
     pointer-events: all;
-    align-self: flex-end;
     display: flex;
     align-items: center;
     justify-content: center;

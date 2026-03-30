@@ -139,7 +139,7 @@ export class VersusModeScene extends Scene {
     });
 
     this.room.onMessage("upgrade:start", (upgradeData) => {
-      this.world.paused = true;
+      // this.world.paused = true;
       isPaused.set(true);
       const options =
         this.playerType === Faction.Necro
@@ -212,7 +212,7 @@ export class VersusModeScene extends Scene {
   fixedTimeStep = 1000 / 60;
 
   update(time: number, delta: number): void {
-    if (!this.room || this.world.paused) return;
+    if (!this.room /*|| this.world.paused*/) return;
 
     this.elapsedTime += delta;
     while (this.elapsedTime >= this.fixedTimeStep) {

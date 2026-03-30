@@ -32,7 +32,7 @@ export const updateUnitBaseStats = (
   }
 
   const updatesObject = updates.reduce(
-    (acc, { stat, value }) => {
+    (acc, { name: stat, value }) => {
       const current = world.unitUpgrades[unitName]?.[stat] || 0;
       acc[stat] = value + current;
       return acc;
@@ -60,13 +60,13 @@ export const updateStatsByEid = (
     UpdateStatsRequest[eid] = { statUpdates: [] };
   }
 
-  for (const { stat, value } of updates) {
+  for (const { name, value } of updates) {
     const statIndex = UpdateStatsRequest[eid].statUpdates.findIndex(
-      (update) => update.stat === stat,
+      (update) => update.name === name,
     );
 
     if (statIndex === -1) {
-      UpdateStatsRequest[eid].statUpdates.push({ stat, value });
+      UpdateStatsRequest[eid].statUpdates.push({ name, value });
     } else {
       UpdateStatsRequest[eid].statUpdates[statIndex].value += value;
     }
@@ -99,8 +99,8 @@ export const createStatUpdateSystem = () => {
 
   return (world: World) => {
     for (const eid of stateUpdateQuery(world)) {
-      for (const { stat, value } of UpdateStatsRequest[eid].statUpdates) {
-        updateStatByEid(world, eid, stat, value);
+      for (const { name, value } of UpdateStatsRequest[eid].statUpdates) {
+        updateStatByEid(world, eid, name, value);
       }
       removeComponent(world, eid, UpdateStatsRequest);
     }

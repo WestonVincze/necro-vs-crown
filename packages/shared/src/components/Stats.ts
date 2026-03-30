@@ -99,7 +99,7 @@ export const UpdateCurrentStats = [] as {
  */
 export const UpdateStatsRequest = [] as {
   statUpdates: {
-    stat: StatName;
+    name: StatName;
     value: number;
   }[];
 }[];
