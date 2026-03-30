@@ -3,6 +3,7 @@ import {
   BehaviorSubject,
   Observable,
   Subscription,
+  distinctUntilChanged,
   map,
   tap,
   timer,
@@ -179,9 +180,18 @@ export class CrownStateStore {
     this.state$ = new BehaviorSubject<CrownState>(initialState);
 
     // Expose slices rather than raw state so callers can't mutate
-    this.hand$ = this.state$.pipe(map((s) => s.hand));
-    this.discard$ = this.state$.pipe(map((s) => s.discard));
-    this.coins$ = this.state$.pipe(map((s) => s.coins));
+    this.hand$ = this.state$.pipe(
+      map((s) => s.hand),
+      distinctUntilChanged(),
+    );
+    this.discard$ = this.state$.pipe(
+      map((s) => s.discard),
+      distinctUntilChanged(),
+    );
+    this.coins$ = this.state$.pipe(
+      map((s) => s.coins),
+      distinctUntilChanged(),
+    );
   }
 
   // --- Lifecycle ---

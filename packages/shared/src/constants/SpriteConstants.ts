@@ -16,6 +16,8 @@ export enum SpriteTexture {
   Crossbow,
   /* PROJECTILES */
   Arrow,
+  /* BUILDINGS */
+  Hut,
 }
 
 export const TextureNames = Object.keys(SpriteTexture)

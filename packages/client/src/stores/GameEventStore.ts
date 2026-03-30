@@ -4,7 +4,7 @@ import { writable } from "svelte/store";
 type UpgradeEvent = {
   options: Upgrade[];
   duration: number;
-  onSelect: (optionId: number) => void;
+  onSelect: (optionId: string) => void;
 };
 
 export const pendingUpgrade = writable<UpgradeEvent | null>(null);

@@ -1,7 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { addComponent, addEntity, createWorld, getAllEntities } from "bitecs";
 import { createUnitSpawnerSystem } from "./UnitSpawnerSystem";
-import { BuildingSpawner, Position, Spawner, SpawnTarget } from "../../components";
+import {
+  BuildingSpawner,
+  Position,
+  Spawner,
+  SpawnTarget,
+} from "../../components";
 import { UnitName } from "../../types";
 import * as utils from "./decideEnemyToSpawn";
 
@@ -102,7 +107,11 @@ describe("UnitSpawnerSystems", () => {
     });
 
     it("can spawn a unit", () => {
-      BuildingSpawner[eid] = { spawnableUnits: [UnitName.Peasant] };
+      BuildingSpawner[eid] = {
+        spawnableUnits: [UnitName.Peasant],
+        maxUnits: 1,
+        unitCount: 0,
+      };
 
       Spawner.timeUntilSpawn[eid] = 1;
 

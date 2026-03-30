@@ -15,4 +15,5 @@ export const assets = writable<Record<SpriteTexture, string>>({
   [SpriteTexture.GreatSword]: "great_sword.png",
   [SpriteTexture.Crossbow]: "crossbow.png",
   [SpriteTexture.Arrow]: "arrow.png",
+  [SpriteTexture.Hut]: "buildings/hut.png",
 });

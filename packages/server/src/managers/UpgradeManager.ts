@@ -1,6 +1,5 @@
 import {
   Card,
-  StatName,
   StatUpdate,
   StatUpgradeRange,
   UnitMeta,
@@ -13,7 +12,7 @@ import {
 } from "@necro-crown/shared";
 import { query } from "bitecs";
 import { Room } from "colyseus";
-const BASE_EXP = 10;
+const BASE_EXP = 30;
 
 type UnitWeights = Partial<Record<UnitName, number>>;
 
@@ -41,7 +40,7 @@ export class UpgradeManager {
   private crownUnitWeights: UnitWeights = {
     [UnitName.Peasant]: 10,
   };
-  private selections = new Map<string, number>();
+  private selections = new Map<string, string>();
   private timeout: NodeJS.Timeout | null = null;
   private onSelection: () => void;
   private activeUpgradeRound = false;
@@ -59,24 +58,18 @@ export class UpgradeManager {
     // TODO: pausing the game seems to cause state sync issues (dead unit sprites not being destroyed)
     pauseGame();
 
-    // const options = generateOptions(); // per-player option sets
     this.selections.clear();
 
-    // id = 1-3
-    const necroOptions: Upgrade[] = [];
-    for (let i = 1; i <= 3; i++) {
-      necroOptions.push(generateStatUpgradeOption(i, this.necroUnitWeights));
-    }
+    const necroOptions = generateStatUpgradeOptions(this.necroUnitWeights, 3);
 
-    // id = 4-6
-    const crownOptions: Upgrade[] = [];
-    for (let i = 4; i <= 6; i++) {
-      // first option of every third upgrade is a new card
-      if (this.upgradeCount % 3 === 0 && i === 4) {
-        crownOptions.push(generateAddCardUpgradeOption(i, this.upgradeCount));
-      } else {
-        crownOptions.push(generateStatUpgradeOption(i, this.crownUnitWeights));
-      }
+    let crownOptions: Upgrade[] = [];
+    if (this.upgradeCount % 3 === 0) {
+      crownOptions = generateStatUpgradeOptions(this.crownUnitWeights, 2);
+      crownOptions.push(
+        generateAddCardUpgradeOption("addCard", this.upgradeCount),
+      );
+    } else {
+      crownOptions = generateStatUpgradeOptions(this.crownUnitWeights, 3);
     }
 
     room.broadcast("upgrade:start", {
@@ -110,11 +103,11 @@ export class UpgradeManager {
     });
   }
 
-  recordSelection(sessionId: string, optionIndex: number) {
+  recordSelection(sessionId: string, id: string) {
     if (!this.activeUpgradeRound) return;
     if (this.selections.has(sessionId)) return;
 
-    this.selections.set(sessionId, optionIndex);
+    this.selections.set(sessionId, id);
     this.onSelection?.();
   }
 
@@ -162,7 +155,7 @@ export class UpgradeManager {
   }
 
   public getExpToNextUpgrade() {
-    return Math.floor(BASE_EXP * Math.pow(1.5, this.upgradeCount));
+    return Math.floor(BASE_EXP * Math.pow(1.2, this.upgradeCount));
   }
 }
 
@@ -182,7 +175,7 @@ const updateWorldUnitStats = (
 
 // temporary function to add card upgrade
 function generateAddCardUpgradeOption(
-  count: number,
+  id: string,
   upgradeCount: number,
 ): Upgrade {
   const roll = Math.random();
@@ -203,25 +196,33 @@ function generateAddCardUpgradeOption(
   }
 
   return {
-    id: count,
+    id,
     type: "addCard",
     unitName,
     cost,
   };
 }
 
-function generateStatUpgradeOption(
-  count: number,
+function generateStatUpgradeOptions(
   unitWeights: UnitWeights,
-): Upgrade {
+  count: number = 1,
+): Upgrade[] {
   const unitName = rollUnitType(unitWeights);
+  const upgrades: Upgrade[] = [];
 
-  return {
-    id: count,
-    type: "stat",
-    unitName,
-    statUpdates: generateStatUpgrade(unitName, Math.random()),
-  };
+  while (upgrades.length < count) {
+    const [id, statUpdates] = generateStatUpgrade(unitName, Math.random());
+    if (!upgrades.find((u) => u.id === id)) {
+      upgrades.push({
+        id,
+        type: "stat",
+        unitName,
+        statUpdates,
+      });
+    }
+  }
+
+  return upgrades;
 }
 
 /**
@@ -236,7 +237,7 @@ function applyRarity(range: StatUpgradeRange, rarity: number): number {
 export function generateStatUpgrade(
   unitType: UnitName,
   rarity: number,
-): StatUpdate[] {
+): [string, StatUpdate[]] {
   const definitions = validStatsByUnitType[unitType];
   if (!definitions?.length)
     throw new Error(`No upgrade config for ${unitType}`);
@@ -244,8 +245,11 @@ export function generateStatUpgrade(
   const definition =
     definitions[Math.floor(Math.random() * definitions.length)];
 
-  return definition.stats.map(({ name, range }) => ({
-    name,
-    value: applyRarity(range, rarity),
-  }));
+  return [
+    definition.id,
+    definition.stats.map(({ name, range }) => ({
+      name,
+      value: applyRarity(range, rarity),
+    })),
+  ];
 }

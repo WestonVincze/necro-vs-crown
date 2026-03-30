@@ -15,7 +15,7 @@ export type LegacyUpgrade = {
 };
 
 type BaseUpgrade = {
-  id: number;
+  id: string;
   // label?: string;
   // description?: string;
 };

@@ -8,6 +8,7 @@ import {
   Input,
   MaxMoveSpeed,
   MoveSpeed,
+  Networked,
   Position,
   Projectile,
   Sprite,
@@ -31,9 +32,9 @@ interface ProjectileProps {
 
 const ProjectileData: Record<ProjectileName, ProjectileProps> = {
   [ProjectileName.Arrow]: {
-    speed: 30,
+    speed: 5,
     maxSpeed: 8,
-    lifetime: 500,
+    lifetime: 150,
     width: 50,
     height: 12,
   },
@@ -107,4 +108,8 @@ export const createProjectileEntity = (
   addComponent(world, eid, Projectile);
   Projectile.attackBonus[eid] = attackBonus;
   Projectile.damage[eid] = damage;
+
+  if (world.networkType === "networked") {
+    addComponent(world, eid, Networked);
+  }
 };
