@@ -305,10 +305,9 @@ export class MyRoom extends Room {
       let timeSinceLastTick = 0;
       this.setSimulationInterval(async (deltaTime) => {
         if (!this.world.paused) {
-          if (
-            this.world.experience > this.upgradeManager.getExpToNextUpgrade()
-          ) {
-            this.world.experience -= this.upgradeManager.getExpToNextUpgrade();
+          const expToUpgrade = this.upgradeManager.getExpToNextUpgrade();
+          if (this.world.experience > expToUpgrade) {
+            this.world.experience -= expToUpgrade;
             await this.upgradeManager.startUpgradeRound(
               this.world,
               this,

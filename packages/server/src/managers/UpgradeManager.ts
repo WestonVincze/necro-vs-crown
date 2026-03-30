@@ -12,7 +12,7 @@ import {
 } from "@necro-crown/shared";
 import { query } from "bitecs";
 import { Room } from "colyseus";
-const BASE_EXP = 15;
+const BASE_EXP = 30;
 
 type UnitWeights = Partial<Record<UnitName, number>>;
 
@@ -155,7 +155,7 @@ export class UpgradeManager {
   }
 
   public getExpToNextUpgrade() {
-    return Math.floor(BASE_EXP * Math.pow(1.5, this.upgradeCount));
+    return Math.floor(BASE_EXP * Math.pow(1.2, this.upgradeCount));
   }
 }
 
