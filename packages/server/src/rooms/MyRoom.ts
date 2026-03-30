@@ -319,13 +319,13 @@ export class MyRoom extends Room {
           elapsedTime += deltaTime;
           timeSinceLastTick += deltaTime;
 
-          while (elapsedTime >= this.fixedTimeStep) {
-            elapsedTime -= this.fixedTimeStep;
-            this.fixedUpdate(this.fixedTimeStep);
-          }
           while (timeSinceLastTick >= this.tickTimeStep) {
             timeSinceLastTick -= this.tickTimeStep;
             this.tickSystems(this.world);
+          }
+          while (elapsedTime >= this.fixedTimeStep) {
+            elapsedTime -= this.fixedTimeStep;
+            this.fixedUpdate(this.fixedTimeStep);
           }
         }
         // get updates to component values
