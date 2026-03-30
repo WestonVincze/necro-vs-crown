@@ -69,7 +69,7 @@ export const createFollowTargetSystemNew = (world: World) => {
           const length = Math.sqrt(direction.x ** 2 + direction.y ** 2);
           // TODO: define parameters for successfully reaching target
           // stop movement if target is close enough
-          if (length > 25) {
+          if (length > AttackRange.current[eid]) {
             followForce = { x: direction.x / length, y: direction.y / length };
           }
         }

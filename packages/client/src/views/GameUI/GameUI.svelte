@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { Faction, type Upgrade } from "@necro-crown/shared";
+  import { Faction, Units, type Upgrade } from "@necro-crown/shared";
   import { pendingUpgrade, isPaused } from "../../stores/GameEventStore";
   import { CrownUI } from "../Crown";
 
   export let faction: Faction;
 
-  function select(optionId: number) {
-    $pendingUpgrade?.onSelect(optionId);
+  function select(id: string) {
+    $pendingUpgrade?.onSelect(id);
   }
 
   function renderUpgradeText(upgrade: Upgrade) {
@@ -24,7 +24,6 @@
 
     return ({ label, description });
   }
-
 </script>
 
 <div class="ui-container" class:waiting={$isPaused}>
@@ -32,15 +31,18 @@
     <p class="paused">Waiting for server...</p>
   {/if}
   {#if $pendingUpgrade}
-    {#each $pendingUpgrade?.options ?? [] as option}
-      {@const { label, description } = renderUpgradeText(option)}
-      <div class="upgrades">
-        <button class="card" on:click={() => select(option.id)}>
-          <h3>{label}</h3>
-          <p>{description}</p>
-        </button>
-      </div>
-    {/each}
+    <div class="upgrades">
+      {#each $pendingUpgrade?.options ?? [] as option}
+        {@const { label, description } = renderUpgradeText(option)}
+          <button class="card" on:click={() => select(option.id)}>
+            {#if option.unitName}
+              <img src={Units[option.unitName].url} alt={option.unitName}>
+            {/if}
+            <h3>{label}</h3>
+            <p>{description}</p>
+          </button>
+      {/each}
+    </div>
   {/if}
   {#if faction === Faction.Crown}
     <CrownUI />
@@ -63,6 +65,7 @@
   }
   .upgrades {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
@@ -72,8 +75,15 @@
     width: 300px;
     padding: 10px 15px;
     background-color: var(--bg-primary);
+    border-radius: 8px;
   }
   .upgrades .card:hover {
     background-color: var(--bg-secondary);
+  }
+  .upgrades .card h3 {
+    margin-bottom: 16px;
+  }
+  .upgrades .card img {
+    max-height: 200px;
   }
 </style>
