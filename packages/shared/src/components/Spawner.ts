@@ -13,4 +13,6 @@ export const SpawnTarget = createRelation(makeExclusive);
 
 export const BuildingSpawner = [] as {
   spawnableUnits: UnitName[];
+  maxUnits: number;
+  unitCount: number;
 }[];

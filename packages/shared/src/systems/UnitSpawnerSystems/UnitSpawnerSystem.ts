@@ -1,6 +1,11 @@
 import { query, getRelationTargets, hasComponent } from "bitecs";
 import { createUnitEntity } from "../../entities";
-import { BuildingSpawner, Position, Spawner, SpawnTarget } from "../../components";
+import {
+  BuildingSpawner,
+  Position,
+  Spawner,
+  SpawnTarget,
+} from "../../components";
 import { getRandomElement } from "../../utils";
 import { decideEnemyToSpawn } from "./decideEnemyToSpawn";
 
@@ -15,7 +20,7 @@ export const createUnitSpawnerSystem = () => {
     const spawnNearTargetQuery = (world: World) =>
       query(world, [Spawner, SpawnTarget("*")]);
     const spawnAtBuildingQuery = (world: World) =>
-      query(world, [Spawner, BuildingSpawner]);
+      query(world, [Spawner, BuildingSpawner, Position]);
 
     for (const eid of spawnNearTargetQuery(world)) {
       Spawner.timeUntilSpawn[eid] -= world.time.delta;
@@ -43,12 +48,20 @@ export const createUnitSpawnerSystem = () => {
       // select random unit from spawnableUnits
       Spawner.timeUntilSpawn[eid] -= world.time.delta;
       if (Spawner.timeUntilSpawn[eid] <= 0) {
+        if (BuildingSpawner[eid].unitCount >= BuildingSpawner[eid].maxUnits) {
+          continue;
+        }
         const unit = getRandomElement(BuildingSpawner[eid].spawnableUnits);
         if (unit === undefined) continue;
 
-        const x = Math.random() * Spawner.xMax[eid] - Spawner.xMin[eid];
-        const y = Math.random() * Spawner.yMax[eid] - Spawner.yMin[eid];
+        const xOffset = Math.random() * Spawner.xMax[eid] - Spawner.xMin[eid];
+        const yOffset = Math.random() * Spawner.yMax[eid] - Spawner.yMin[eid];
+        const x = Position.x[eid] + xOffset;
+        const y = Position.y[eid] + yOffset;
         createUnitEntity(world, unit, x, y);
+
+        // TODO: building spawner needs to attach some state to units that clears subtracts from unitCount on death
+        // BuildingSpawner[eid].unitCount += 1;
 
         // TODO: get time value from building data
         Spawner.timeUntilSpawn[eid] = 5000;
