@@ -325,6 +325,7 @@
 
 <style>
   .lobby {
+    pointer-events: all;
     min-height: 100vh;
     color: var(--font-color);
     font-weight: 300;
