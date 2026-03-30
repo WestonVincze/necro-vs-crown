@@ -2,12 +2,28 @@
   import { Faction, Units, type Upgrade } from "@necro-crown/shared";
   import { pendingUpgrade, isPaused } from "../../stores/GameEventStore";
   import { CrownUI } from "../Crown";
+  import { onDestroy } from "svelte";
 
   export let faction: Faction;
+  $: timeRemaining = 0;
+  let timer: NodeJS.Timeout | null = null;
 
   function select(id: string) {
     $pendingUpgrade?.onSelect(id);
   }
+
+  function startTimer(duration: number) {
+    timeRemaining = Math.floor(duration / 1000);
+    timer = setInterval(() => timeRemaining -= 1, 1000);
+  }
+
+  function clearTimer() {
+    if (!timer) return;
+    clearInterval(timer);
+    timer = null;
+  }
+
+  $: $pendingUpgrade ? startTimer($pendingUpgrade.duration) : clearTimer();
 
   function renderUpgradeText(upgrade: Upgrade) {
     let label = "";
@@ -24,6 +40,8 @@
 
     return ({ label, description });
   }
+
+  onDestroy(() => clearTimer())
 </script>
 
 <div class="ui-container" class:waiting={$isPaused}>
@@ -43,6 +61,7 @@
           </button>
       {/each}
     </div>
+    <p class:warning={timeRemaining <= 5}>{timeRemaining} seconds remaining</p>
   {/if}
   {#if faction === Faction.Crown}
     <CrownUI />
@@ -65,7 +84,6 @@
   }
   .upgrades {
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
@@ -85,5 +103,8 @@
   }
   .upgrades .card img {
     max-height: 200px;
+  }
+  .warning {
+    color: var(--error);
   }
 </style>
