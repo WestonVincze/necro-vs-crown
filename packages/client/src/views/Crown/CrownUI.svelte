@@ -2,13 +2,13 @@
   import { Token } from "$UI/Token";
   import CoinPurse from "$icons/CoinPurse.svelte";
   import { crownClientState } from "$game/Crown"
+  import { isPaused } from "../../stores/GameEventStore";
 
   $: hand = crownClientState.hand$
   $: coins = crownClientState.coins$
 
 </script>
 
-<div class="UI">
   <div class="actions">
   <!--
     <h2>Debug Buttons</h2>
@@ -17,7 +17,7 @@
     <button on:click={() => addNewCards([ { name: UnitName.Archer, cost: 6 }])}>Add Archer</button>
   -->
   </div>
-  <div class="bottom">
+  <div class="bottom" class:paused={$isPaused}>
     <div class="coins">
       <CoinPurse value={$coins} />
     </div>
@@ -36,20 +36,21 @@
       {/each}
     </div>
   </div>
-</div>
 
 <style>
-  .UI {
-    display: grid;
-    height: 100%;
-  }
 
   .bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
     pointer-events: all;
-    align-self: flex-end;
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+  .paused {
+    pointer-events: none;
   }
 
   .tokens {

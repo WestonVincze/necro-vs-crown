@@ -1,7 +1,7 @@
-import { Upgrade } from "../types";
+import { LegacyUpgrade } from "../types";
 
 export const UpgradeRequest = [] as {
-  upgrades: Upgrade[];
+  upgrades: LegacyUpgrade[];
 }[];
 
 export const SelectedUpgrade = { upgradeId: [] as number[] };

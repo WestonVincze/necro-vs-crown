@@ -4,7 +4,7 @@
   import { pendingGameSession } from "../../stores/GameSessionStore";
   import { goto } from "$app/navigation";
   import { Faction } from "@necro-crown/shared";
-  import { CrownUI } from "../../views/Crown";
+  import GameUI from "../../views/GameUI/GameUI.svelte";
 
   const gameSession = get(pendingGameSession);
   let faction: Faction;
@@ -20,13 +20,11 @@
 
     faction = gameSession.faction;
 
-    const game = createPhaserGame()
+    const game = createPhaserGame("versus")
     game.registry.set("faction", faction);
     game.registry.set("room", gameSession.room);
     game.scene.start("PreloaderScene", { gameMode: "versus" });
   });
 </script>
 
-{#if faction === Faction.Crown}
-  <CrownUI />
-{/if}
+<GameUI faction={faction} />

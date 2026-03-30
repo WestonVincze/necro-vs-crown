@@ -12,23 +12,23 @@ import {
   StatName,
   UpgradeRequest,
 } from "../../components";
-import { UnitName, Upgrade } from "../../types";
+import { UnitName, LegacyUpgrade } from "../../types";
 
-const MOCK_UPGRADES: Upgrade[] = [
+const MOCK_UPGRADES: LegacyUpgrade[] = [
   {
     id: 1,
     unitName: UnitName.Skeleton,
-    statUpdates: [{ stat: StatName.Armor, value: 1 }],
+    statUpdates: [{ name: StatName.Armor, value: 1 }],
   },
   {
     id: 2,
     unitName: UnitName.Skeleton,
-    statUpdates: [{ stat: StatName.Armor, value: 2 }],
+    statUpdates: [{ name: StatName.Armor, value: 2 }],
   },
   {
     id: 3,
     unitName: UnitName.Skeleton,
-    statUpdates: [{ stat: StatName.Armor, value: 3 }],
+    statUpdates: [{ name: StatName.Armor, value: 3 }],
   },
 ];
 

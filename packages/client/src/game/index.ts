@@ -7,28 +7,31 @@ import {
   GameOverScene,
 } from "./scenes";
 
-// game config
-const config: Types.Core.GameConfig = {
+const soloConfig: Types.Core.GameConfig = {
   type: AUTO,
   scale: { mode: Phaser.Scale.RESIZE },
   backgroundColor: "#111",
   parent: "game-container",
   fps: { smoothStep: true, limit: 60 },
   physics: { default: "arcade" },
-  scene: [
-    PreloaderScene,
-    MainMenuScene,
-    VersusModeScene,
-    SoloModeScene,
-    GameOverScene,
-  ],
+  scene: [PreloaderScene, MainMenuScene, SoloModeScene, GameOverScene],
 };
 
-export const StartGame = (parent: string) => {
-  return new Game({ ...config, parent });
+const versusConfig: Types.Core.GameConfig = {
+  type: AUTO,
+  scale: { mode: Phaser.Scale.RESIZE },
+  backgroundColor: "#111",
+  parent: "game-container",
+  scene: [PreloaderScene, MainMenuScene, VersusModeScene, GameOverScene],
 };
 
-export function createPhaserGame() {
+export function createPhaserGame(mode?: "solo" | "versus") {
+  let config = {};
+  if (mode === "solo") {
+    config = soloConfig;
+  } else if (mode === "versus") {
+    config = versusConfig;
+  }
   const game = new Game({ ...config });
 
   // game.registry.set("faction", faction);

@@ -38,7 +38,6 @@ import {
   createHealthSystem,
   createDestroyAfterDelaySystem,
   createTimeSystem,
-  createDeathSystem,
   GameEvents,
   HitSplatEvent,
   Input,
@@ -54,7 +53,9 @@ import {
   CrownStateStore,
   Card,
 } from "@necro-crown/shared";
+import { createDeathSystem } from "../systems/DeathSystem";
 import { GameSettings } from "@necro-crown/shared/src/types";
+import { UpgradeManager } from "../managers/UpgradeManager";
 interface PlayerRecord {
   eid: number;
   faction: Faction;
@@ -87,8 +88,10 @@ export class MyRoom extends Room {
   private systems!: Pipeline;
   private tickSystems!: Pipeline;
 
+  private upgradeManager = new UpgradeManager();
+
   // card state
-  private crown = new CrownStateStore();
+  private crownState = new CrownStateStore();
 
   maxClients = 2;
   fixedTimeStep = 1000 / 60;
@@ -101,6 +104,8 @@ export class MyRoom extends Room {
     this.world.gameEvents = new GameEvents();
     this.world.networkType = "networked";
     this.world.unitUpgrades = options.statOverrides || {};
+    this.world.experience = 0;
+    this.world.paused = false;
 
     this.lobbyIdToFaction = options.players;
 
@@ -123,8 +128,8 @@ export class MyRoom extends Room {
       createSpellEffectSystem(this.world),
       createHealthSystem(),
       createDestroyAfterDelaySystem(),
+      createDeathSystem(this.world),
       createTimeSystem(), // time should always be last
-      createDeathSystem(this.world, Faction.Necro),
     ]);
 
     this.tickSystems = pipeline([
@@ -150,7 +155,7 @@ export class MyRoom extends Room {
           return;
         }
 
-        const success = this.crown.playCard(id, (name: UnitName) => {
+        const success = this.crownState.playCard(id, (name: UnitName) => {
           createUnitEntity(this.world, name, xPos, yPos);
         });
 
@@ -199,6 +204,10 @@ export class MyRoom extends Room {
       //
     });
 
+    this.onMessage("upgrade:selected", (client, { optionId }) => {
+      this.upgradeManager.recordSelection(client.sessionId, optionId);
+    });
+
     this.onMessage("debug:snapshot-request", (client, { eid }) => {
       const snapshot = eid
         ? this.getEntitySnapshot(eid)
@@ -242,10 +251,6 @@ export class MyRoom extends Room {
         const eid = addEntity(this.world);
         player.eid = eid;
         addComponent(this.world, eid, Player);
-        addComponent(this.world, eid, Level);
-        Level.currentLevel[eid] = 0;
-        Level.currentExp[eid] = 0;
-        Level.expToNextLevel[eid] = BASE_EXP;
 
         // initialize crown state
         const cards: Card[] = [];
@@ -257,24 +262,24 @@ export class MyRoom extends Room {
           });
         }
         if (options.crownConfig) {
-          this.crown.updateConfig(options.crownConfig);
+          this.crownState.updateConfig(options.crownConfig);
         }
-        this.crown.addCards(cards);
-        this.crown.drawCard();
-        this.crown.drawCard();
-        this.crown.drawCard();
-        this.crown.drawCard();
-        this.crown.start();
+        this.crownState.addCards(cards);
+        this.crownState.drawCard();
+        this.crownState.drawCard();
+        this.crownState.drawCard();
+        this.crownState.drawCard();
+        this.crownState.start();
 
-        this.crown.hand$.subscribe((hand) => {
+        this.crownState.hand$.subscribe((hand) => {
           this.crownPlayer?.send("hand:update", { hand });
         });
 
-        this.crown.discard$.subscribe((discard) => {
+        this.crownState.discard$.subscribe((discard) => {
           this.crownPlayer?.send("discard:update", { discard });
         });
 
-        this.crown.coins$.subscribe((coins) => {
+        this.crownState.coins$.subscribe((coins) => {
           this.crownPlayer?.send("coins:update", { coins });
         });
       }
@@ -298,20 +303,60 @@ export class MyRoom extends Room {
       // start game loop
       let elapsedTime = 0;
       let timeSinceLastTick = 0;
-      this.setSimulationInterval((deltaTime) => {
-        elapsedTime += deltaTime;
-        timeSinceLastTick += deltaTime;
+      this.setSimulationInterval(async (deltaTime) => {
+        if (!this.world.paused) {
+          if (
+            this.world.experience > this.upgradeManager.getExpToNextUpgrade()
+          ) {
+            this.world.experience -= this.upgradeManager.getExpToNextUpgrade();
+            await this.upgradeManager.startUpgradeRound(
+              this.world,
+              this,
+              () => this.pauseGame(),
+              () => this.resumeGame(),
+              (card: Card) => this.crownState.addCards([card]),
+            );
+          }
+          elapsedTime += deltaTime;
+          timeSinceLastTick += deltaTime;
 
-        while (elapsedTime >= this.fixedTimeStep) {
-          elapsedTime -= this.fixedTimeStep;
-          this.fixedUpdate(this.fixedTimeStep);
+          while (elapsedTime >= this.fixedTimeStep) {
+            elapsedTime -= this.fixedTimeStep;
+            this.fixedUpdate(this.fixedTimeStep);
+          }
+          while (timeSinceLastTick >= this.tickTimeStep) {
+            timeSinceLastTick -= this.tickTimeStep;
+            this.tickSystems(this.world);
+          }
         }
-        while (timeSinceLastTick >= this.tickTimeStep) {
-          timeSinceLastTick -= this.tickTimeStep;
-          this.tickSystems(this.world);
+        // get updates to component values
+        const soaUpdates = this.soaSerialize(
+          query(this.world, [Networked]) as readonly number[],
+        );
+        this.broadcast("soaUpdates", soaUpdates);
+
+        // get updates for add/remove entities & components for the client
+        for (const [sessionId, serializer] of this.observerSerializers) {
+          const updates = serializer();
+          if (updates.byteLength > 0) {
+            const client = this.clients.getById(sessionId);
+            if (client) {
+              client.send("observerUpdates", updates);
+            }
+          }
         }
       });
     });
+  }
+
+  pauseGame() {
+    this.world.paused = true;
+    this.crownState.pause();
+  }
+
+  resumeGame() {
+    this.world.paused = false;
+    this.crownState.resume();
   }
 
   getEntitySnapshot(eid: number) {
@@ -346,28 +391,11 @@ export class MyRoom extends Room {
 
   onDispose() {
     console.log("room", this.roomId, "disposing...");
-    this.crown.destroy();
+    this.crownState.destroy();
   }
 
   fixedUpdate(deltaTime: number) {
     // run system pipeline
     this.systems(this.world);
-
-    // get updates to component values
-    const soaUpdates = this.soaSerialize(
-      query(this.world, [Networked]) as readonly number[],
-    );
-    this.broadcast("soaUpdates", soaUpdates);
-
-    // get updates for add/remove entities & components for the client
-    for (const [sessionId, serializer] of this.observerSerializers) {
-      const updates = serializer();
-      if (updates.byteLength > 0) {
-        const client = this.clients.getById(sessionId);
-        if (client) {
-          client.send("observerUpdates", updates);
-        }
-      }
-    }
   }
 }

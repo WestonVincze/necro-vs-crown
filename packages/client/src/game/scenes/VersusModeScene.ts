@@ -1,5 +1,5 @@
 import { Scene } from "phaser";
-import { Client, Room } from "@colyseus/sdk";
+import { Room } from "@colyseus/sdk";
 import {
   Faction,
   GameEvents,
@@ -34,6 +34,7 @@ import {
 import { createInputState, type InputState } from "../../input/InputState";
 import type { Observable } from "rxjs";
 import { crownClientState } from "$game/Crown";
+import { isPaused, pendingUpgrade } from "../../stores/GameEventStore";
 
 export class VersusModeScene extends Scene {
   constructor() {
@@ -52,8 +53,6 @@ export class VersusModeScene extends Scene {
   private observerDeserialize: any;
   private idMap = new Map<number, number>();
 
-  // system references
-  private tickSystems!: Pipeline;
   private physicsSystems!: Pipeline;
 
   private inputs$!: Observable<InputState>;
@@ -75,6 +74,8 @@ export class VersusModeScene extends Scene {
     this.world.time = { delta: 0, elapsed: 0, then: performance.now() };
     this.world.gameEvents = new GameEvents();
     this.world.unitUpgrades = {};
+    this.world.experience = 0;
+    this.world.paused = false;
 
     // initialize systems
     this.physicsSystems = pipeline([
@@ -137,6 +138,31 @@ export class VersusModeScene extends Scene {
       this.observerDeserialize(view.buffer, this.idMap);
     });
 
+    this.room.onMessage("upgrade:start", (upgradeData) => {
+      // this.world.paused = true;
+      isPaused.set(true);
+      const options =
+        this.playerType === Faction.Necro
+          ? upgradeData.necroOptions
+          : upgradeData.crownOptions;
+      // id, label, description
+
+      pendingUpgrade.set({
+        options,
+        duration: upgradeData.duration,
+        onSelect: (optionId) => {
+          this.room.send("upgrade:selected", { optionId });
+          pendingUpgrade.set(null);
+        },
+      });
+    });
+
+    this.room.onMessage("upgrade:complete", () => {
+      this.world.paused = false;
+      isPaused.set(false);
+      pendingUpgrade.set(null);
+    });
+
     this.room.onMessage("hitsplat", (e: HitSplatEvent) => {
       this.world.gameEvents.hitSplat$.next(e);
     });
@@ -151,7 +177,6 @@ export class VersusModeScene extends Scene {
   }
 
   initializeNecro() {
-    console.log("init necro");
     initializeNecroMouseControls(this, (x, y) => {
       this.room?.send("set_cursor_waypoint", { x, y });
     });
@@ -159,7 +184,6 @@ export class VersusModeScene extends Scene {
   }
 
   initializeCrown() {
-    console.log("init crown");
     initializeCrownMouseControls(this, (id, x, y) =>
       this.room?.send("play_card", {
         id,
@@ -188,7 +212,7 @@ export class VersusModeScene extends Scene {
   fixedTimeStep = 1000 / 60;
 
   update(time: number, delta: number): void {
-    if (!this.room) return;
+    if (!this.room /*|| this.world.paused*/) return;
 
     this.elapsedTime += delta;
     while (this.elapsedTime >= this.fixedTimeStep) {

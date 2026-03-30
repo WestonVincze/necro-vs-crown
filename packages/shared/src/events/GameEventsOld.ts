@@ -1,9 +1,9 @@
 import { Observable, Subject, buffer, distinct, filter } from "rxjs";
-import { AIEvent, Upgrade } from "../types";
+import { AIEvent, LegacyUpgrade } from "../types";
 
 export interface UpgradeRequestEvent {
   eid: number;
-  upgrades: Upgrade[];
+  upgrades: LegacyUpgrade[];
 }
 
 // TODO: handle other types of upgrades

@@ -11,7 +11,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   createStatUpdateSystem,
   updateStatsByEid,
-  updateStatsByUnitType,
+  updateUnitBaseStats,
 } from "./StatUpdateSystem";
 
 const BASE_STAT_VALUE = 10;
@@ -20,14 +20,14 @@ const STAT_DECREASE_VALUE = -5;
 
 const MOCK_STAT_UPDATE_INCREASE: StatUpdate[] = [
   {
-    stat: StatName.Armor,
+    name: StatName.Armor,
     value: STAT_INCREASE_VALUE,
   },
 ];
 
 const MOCK_STAT_UPDATE_DECREASE: StatUpdate[] = [
   {
-    stat: StatName.Armor,
+    name: StatName.Armor,
     value: STAT_DECREASE_VALUE,
   },
 ];
@@ -83,11 +83,7 @@ describe("StatUpdateSystem", () => {
       addComponent(world, skeleton3, UnitMeta);
       UnitMeta.name[skeleton3] = UnitName.Skeleton;
 
-      updateStatsByUnitType(
-        world,
-        UnitName.Skeleton,
-        MOCK_STAT_UPDATE_INCREASE,
-      );
+      updateUnitBaseStats(world, UnitName.Skeleton, MOCK_STAT_UPDATE_INCREASE);
 
       expect(hasComponent(world, skeleton1, UpdateStatsRequest)).toBe(true);
       expect(UpdateStatsRequest[skeleton1].statUpdates).toEqual(
@@ -115,11 +111,7 @@ describe("StatUpdateSystem", () => {
       addComponent(world, paladin, UnitMeta);
       UnitMeta.name[paladin] = UnitName.Paladin;
 
-      updateStatsByUnitType(
-        world,
-        UnitName.Skeleton,
-        MOCK_STAT_UPDATE_INCREASE,
-      );
+      updateUnitBaseStats(world, UnitName.Skeleton, MOCK_STAT_UPDATE_INCREASE);
 
       expect(hasComponent(world, skeleton, UpdateStatsRequest)).toBe(true);
       expect(UpdateStatsRequest[skeleton].statUpdates).toEqual(
@@ -130,11 +122,7 @@ describe("StatUpdateSystem", () => {
     });
 
     it("does not break if no units are found", () => {
-      updateStatsByUnitType(
-        world,
-        UnitName.Skeleton,
-        MOCK_STAT_UPDATE_INCREASE,
-      );
+      updateUnitBaseStats(world, UnitName.Skeleton, MOCK_STAT_UPDATE_INCREASE);
     });
   });
 
@@ -214,7 +202,7 @@ describe("StatUpdateSystem", () => {
       UpdateStatsRequest[eid] = {
         statUpdates: [
           ...MOCK_STAT_UPDATE_INCREASE,
-          { stat: StatName.MaxHealth, value: STAT_INCREASE_VALUE },
+          { name: StatName.MaxHealth, value: STAT_INCREASE_VALUE },
         ],
       };
 

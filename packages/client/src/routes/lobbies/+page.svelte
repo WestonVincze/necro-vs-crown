@@ -63,6 +63,7 @@
     text-align: center;
   }
   a {
+    pointer-events: all;
     color: var(--crown);
   }
 </style>

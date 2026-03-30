@@ -8,7 +8,7 @@ import {
 } from "bitecs";
 import { legacyGameEvents, UpgradeSelectEvent } from "../../events";
 import { SelectedUpgrade, UpgradeRequest } from "../../components";
-import { updateStatsByUnitType } from "../StatUpdateSystem";
+import { updateUnitBaseStats } from "../StatUpdateSystem";
 
 /**
  * Fulfill's `UpgradeRequest` when an entity has a `SelectedUpgrade`
@@ -35,7 +35,7 @@ export const createUpgradeSelectionSystem = () => {
       }
 
       // TODO: support different types of upgrade requests
-      updateStatsByUnitType(
+      updateUnitBaseStats(
         world,
         selectedUpgrade.unitName,
         selectedUpgrade.statUpdates,
@@ -104,31 +104,3 @@ export const createHandleUpgradeSelectEventSystem = () => {
     return world;
   };
 };
-
-// TODO: create "upgradeSelect" system for AI
-
-enum UpgradeType {
-  StatIncrease,
-  StatExchange,
-}
-
-const Upgrades = {
-  [UpgradeType.StatIncrease]: () => updateStatsByUnitType,
-};
-
-/**
- * upgrade event emitted
- * svelte subscribes to event
- *
- *
- * upgrade stats
- * - add upgradeOptions component to entity
- *   - upgrade contains a key, an upgrade type, and a value
- * - handleUpgradeSystem
- *   - query for upgrade options
- *   - if player, emit event
- *   - else, select at random (for now)
- * - add selectedUpgrade to entity
- *   - as player, an event is emitted after selection is made
- * - processUpgradeSystem queries for UpgradeRequest and SelectedUpgrade, then it
- */

@@ -1,7 +1,6 @@
 <script lang="ts">
-  import { StatName, UnitName, type Upgrade } from "@necro-crown/shared";
-
-  export let options: Upgrade[];
+  import { StatName, UnitName, type LegacyUpgrade } from "@necro-crown/shared";
+  export let options: LegacyUpgrade[];
   export let onSelect: (upgradeId: number) => void = (upgradeId: number) => console.log(upgradeId);
 </script>
 
@@ -15,7 +14,7 @@
         </header>
         {#each option.statUpdates as update}
           <span>
-            + {update.value} {StatName[update.stat]}
+            + {update.value} {StatName[update.name]}
           </span>
         {/each}
       </button>
