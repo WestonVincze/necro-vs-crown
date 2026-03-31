@@ -8,7 +8,8 @@
   import { Icon } from "$icons";
   import { Modal } from "$UI/Modal"
   import { StatOverrides } from "$UI/StatOverrides";
-  import Logo from "$UI/Logo/Logo.svelte";
+  import { Logo } from "$UI/Logo";
+  import { Navbar } from "$UI/Navbar";
 
   type LobbyState = {
     players: Record<string, PlayerConfig>;
@@ -177,17 +178,13 @@
 </script>
 
 <div class="lobby">
-  <nav class="nav">
-    <div class="nav-inner">
-      <div class="room-code">
-        Room Code: {room?.roomId || "no room"}
-      </div>
-      <div class="connection-status" class:online={$connected}>
-        <span class="dot" />
-        {$connected ? "Connected" : "Disconnected"}
-      </div>
+  <Navbar>
+    <div class="connection-status" class:online={$connected}>
+      <span class="dot" />
+      {$connected ? "Connected" : "Disconnected"}
+      {$connected && room?.roomId ? `(${room.roomId})` : ""}
     </div>
-  </nav>
+  </Navbar>
 
   <Logo />
 
@@ -427,27 +424,9 @@
     font-weight: 300;
     position: relative;
     overflow: hidden;
+    padding-top: var(--nav-padding);
   }
 
-  /* Navbar */
-  .nav {
-    border-bottom: 1px solid #2a2820;
-    padding: 0.6rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .nav-inner {
-    max-width: 860px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .room-code {
-    font-size: 0.85rem;
-    color: var(--font-color-soft);
-  }
 
   .connection-status {
     display: flex;
@@ -499,12 +478,13 @@
 
   /* Content */
   .content {
-    max-width: 860px;
+    max-width: var(--max-width);
     margin: 0 auto;
     padding: 2.5rem 2rem;
+    padding: var(--gutter) 16px;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
+    gap: 16px;
   }
 
   /* Panels */
