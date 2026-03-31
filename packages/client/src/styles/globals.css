@@ -15,17 +15,17 @@
   --error: #aa2500;
 
   /** sizes **/
-  --size-1: 5px;
-  --size-2: 10px;
-  --size-3: 15px;
+  --size-1: 4px;
+  --size-2: 8px;
+  --size-3: 16px;
   --font-size-sm: 0.8rem;
   --font-size-md: 1rem;
   --font-size-lg: 1.5rem;
 
   /** fixed sizes **/
-  --gutter: 15px;
-  --max-width: 1200px;
-  --header-height: 65px;
+  --gutter: 16px;
+  --max-width: 860px;
+  --nav-padding: 68px; /* 52px height + 16px padding */
 
   /** fonts **/
   --main-font: "Wellfleet", "monospace";

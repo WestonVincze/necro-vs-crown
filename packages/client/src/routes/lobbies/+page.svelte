@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { Logo } from "$UI/Logo";
+  import { Navbar } from "$UI/Navbar";
   import { Client, Room, type RoomAvailable } from "@colyseus/sdk";
   import { onMount } from "svelte";
  
@@ -29,11 +31,19 @@
 </script>
 
 <div class="lobbies">
-  <h1>Browse Open Lobbies</h1>
+  <Navbar />
+  <Logo />
+  <h2>Browse Open Lobbies</h2>
+  <p>Found active {allRooms.length} {allRooms.length === 1 ? "lobby" : "lobbies"}.</p>
   <div class="rooms">
+    {#if allRooms.length === 0}
+      <div class="room">
+        <a href="/lobby">Create New Lobby</a>
+      </div>
+    {/if}
     {#each allRooms as room}
       <div class="room">
-        <h2>Room ID: {room.roomId}</h2>
+        <h3>Lobby Code: {room.roomId}</h3>
         <p>Players: {room.clients} / {room.maxClients}</p>
         <a href="/lobby?roomId={room.roomId}">Join Lobby</a>
       </div>
@@ -43,15 +53,15 @@
 
 <style>
   .lobbies {
-    padding-top: 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 16px;
+    padding-top: var(--nav-padding);
   }
   .rooms {
     display: flex;
-    gap: 18px;
+    gap: 16px;
   }
   .room {
     display: flex;

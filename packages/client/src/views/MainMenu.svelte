@@ -2,10 +2,12 @@
   import { Faction } from "@necro-crown/shared";
   import { Icon } from "$icons";
   import { Logo } from "$UI/Logo";
+  import { Navbar } from "$UI/Navbar";
   export let playAs: (player: Faction) => void;
 </script>
 
 <div class="menu">
+  <Navbar />
   <Logo />
   <div class="player-select">
     <button class="necro" on:click={() => playAs(Faction.Necro)}>
@@ -26,10 +28,10 @@
     background-color: var(--bg-primary);
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    padding: 25px;
-    gap: 15px;
+    padding: 24px;
+    gap: 16px;
+    padding-top: var(--nav-padding);
   }
 
   .player-select {
