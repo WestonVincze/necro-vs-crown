@@ -1,8 +1,9 @@
 <script lang="ts">
   import { Faction, Units, type Upgrade } from "@necro-crown/shared";
-  import { pendingUpgrade, isPaused } from "../../stores/GameEventStore";
+  import { pendingUpgrade, isPaused, gameOver } from "../../stores/GameEventStore";
   import { CrownUI } from "../Crown";
   import { onDestroy } from "svelte";
+  import { GameOverVersus } from "../GameOverVersus";
 
   export let faction: Faction;
   $: timeRemaining = 0;
@@ -44,29 +45,33 @@
   onDestroy(() => clearTimer())
 </script>
 
-<div class="ui-container" class:waiting={$isPaused}>
-  {#if $isPaused}
-    <p class="paused">Waiting for server...</p>
-  {/if}
-  {#if $pendingUpgrade}
-    <div class="upgrades">
-      {#each $pendingUpgrade?.options ?? [] as option}
-        {@const { label, description } = renderUpgradeText(option)}
-          <button class="card" on:click={() => select(option.id)}>
-            {#if option.unitName}
-              <img src={Units[option.unitName].url} alt={option.unitName}>
-            {/if}
-            <h3>{label}</h3>
-            <p>{description}</p>
-          </button>
-      {/each}
-    </div>
-    <p class:warning={timeRemaining <= 5}>{timeRemaining} seconds remaining</p>
-  {/if}
-  {#if faction === Faction.Crown}
-    <CrownUI />
-  {/if}
-</div>
+{#if $gameOver}
+  <GameOverVersus winner={$gameOver.winner} time={$gameOver.time} />
+{:else}
+  <div class="ui-container" class:waiting={$isPaused}>
+    {#if $isPaused}
+      <p class="paused">Waiting for server...</p>
+    {/if}
+    {#if $pendingUpgrade}
+      <div class="upgrades">
+        {#each $pendingUpgrade?.options ?? [] as option}
+          {@const { label, description } = renderUpgradeText(option)}
+            <button class="card" on:click={() => select(option.id)}>
+              {#if option.unitName}
+                <img src={Units[option.unitName].url} alt={option.unitName}>
+              {/if}
+              <h3>{label}</h3>
+              <p>{description}</p>
+            </button>
+        {/each}
+      </div>
+      <p class:warning={timeRemaining <= 5}>{timeRemaining} seconds remaining</p>
+    {/if}
+    {#if faction === Faction.Crown}
+      <CrownUI />
+    {/if}
+  </div>
+{/if}
 
 <style>
   .ui-container {

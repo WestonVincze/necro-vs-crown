@@ -427,7 +427,6 @@
     padding-top: var(--nav-padding);
   }
 
-
   .connection-status {
     display: flex;
     align-items: center;

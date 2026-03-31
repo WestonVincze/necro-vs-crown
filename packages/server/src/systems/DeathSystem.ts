@@ -4,6 +4,8 @@ import {
   Crown,
   Dead,
   ExpReward,
+  Faction,
+  Necro,
   Player,
   Position,
   type World,
@@ -19,7 +21,13 @@ export const createDeathSystem = (world: World) => {
     const deadPlayersEntered = deadPlayerQueue.splice(0);
     for (const eid of deadPlayersEntered) {
       // emit game over event
-      // legacyGameEvents.emitGameOver();
+      const winner = hasComponent(world, eid, Necro)
+        ? Faction.Crown
+        : Faction.Necro;
+      world.gameEvents.gameOver$.next({
+        winner,
+        time: world.time.elapsed,
+      });
     }
 
     for (const eid of query(world, [Dead])) {

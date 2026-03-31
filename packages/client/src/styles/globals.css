@@ -2,9 +2,11 @@
   /** palette **/
   --primary: #ffffff;
   --necro: #673f69;
+  --necro-50: #673f69aa;
   --necro-dark: #482c49;
   --necro-darkest: #291929;
   --crown: #ffaf45;
+  --crown-50: #ffaf45aa;
   --crown-dark: #b27a30;
   --crown-darkest: #36250f;
   --bg-primary: #111111;
@@ -82,7 +84,6 @@ button,
   color: var(--font-color);
   border: 1px solid var(--font-color);
   text-decoration: none;
-  transition: all 0.2s ease;
   background-color: transparent;
 }
 

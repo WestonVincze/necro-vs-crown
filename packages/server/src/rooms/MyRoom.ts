@@ -41,7 +41,6 @@ import {
   GameEvents,
   HitSplatEvent,
   Input,
-  BASE_EXP,
   createSpellEffectSystem,
   createBonesEntity,
   Cursor,
@@ -53,6 +52,7 @@ import {
   CrownStateStore,
   Card,
   CardData,
+  GameOverEvent,
 } from "@necro-crown/shared";
 import { createDeathSystem } from "../systems/DeathSystem";
 import { GameSettings } from "@necro-crown/shared/src/types";
@@ -144,6 +144,11 @@ export class MyRoom extends Room {
 
     this.world.gameEvents.hitSplat$.subscribe((e: HitSplatEvent) => {
       this.broadcast("hitsplat", e);
+    });
+
+    this.world.gameEvents.gameOver$.subscribe((e: GameOverEvent) => {
+      this.pauseGame();
+      this.broadcast("gameOver", e);
     });
 
     this.onMessage(

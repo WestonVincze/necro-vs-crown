@@ -13,6 +13,7 @@ import {
   type HitSplatEvent,
   type Pipeline,
   pipeline,
+  type GameOverEvent,
 } from "@necro-crown/shared";
 import { createWorld } from "bitecs";
 import {
@@ -34,7 +35,11 @@ import {
 import { createInputState, type InputState } from "../../input/InputState";
 import type { Observable } from "rxjs";
 import { crownClientState } from "$game/Crown";
-import { isPaused, pendingUpgrade } from "../../stores/GameEventStore";
+import {
+  gameOver,
+  isPaused,
+  pendingUpgrade,
+} from "../../stores/GameEventStore";
 
 export class VersusModeScene extends Scene {
   constructor() {
@@ -165,6 +170,10 @@ export class VersusModeScene extends Scene {
 
     this.room.onMessage("hitsplat", (e: HitSplatEvent) => {
       this.world.gameEvents.hitSplat$.next(e);
+    });
+
+    this.room.onMessage("gameOver", (e: GameOverEvent) => {
+      gameOver.set(e);
     });
 
     if (this.playerType === Faction.Crown) {

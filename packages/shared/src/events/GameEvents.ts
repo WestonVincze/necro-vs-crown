@@ -1,5 +1,5 @@
 import { Subject } from "rxjs";
-import { LegacyUpgrade, type Vector2 } from "../types";
+import { Faction, type Vector2 } from "../types";
 
 export interface HitSplatEvent {
   amount: number;
@@ -8,8 +8,9 @@ export interface HitSplatEvent {
   colorSet: "red" | "purple";
 }
 
-interface UpgradeRequestEvent {
-  upgrades: LegacyUpgrade[];
+export interface GameOverEvent {
+  winner: Faction;
+  time: number;
 }
 
 /**
@@ -19,5 +20,5 @@ interface UpgradeRequestEvent {
  */
 export class GameEvents {
   readonly hitSplat$ = new Subject<HitSplatEvent>();
-  readonly upgradeRequest$ = new Subject<UpgradeRequestEvent>();
+  readonly gameOver$ = new Subject<GameOverEvent>();
 }
