@@ -3,6 +3,7 @@ export enum SpriteTexture {
   Necromancer,
   Skeleton,
   Peasant,
+  Militia,
   Guard,
   Paladin,
   Archer,

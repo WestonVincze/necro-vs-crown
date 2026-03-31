@@ -1,4 +1,5 @@
 import {
+  CardData,
   Card,
   StatUpdate,
   StatUpgradeRange,
@@ -12,7 +13,7 @@ import {
 } from "@necro-crown/shared";
 import { query } from "bitecs";
 import { Room } from "colyseus";
-const BASE_EXP = 30;
+const BASE_EXP = 25;
 
 type UnitWeights = Partial<Record<UnitName, number>>;
 
@@ -134,15 +135,16 @@ export class UpgradeManager {
           break;
         case "addCard":
           const card = {
-            id: 15,
             name: upgrade.unitName,
             cost: upgrade.cost,
           };
           // quick hack to add new cards to pool and increase upgrade chance over time
-          if (!this.crownUnitWeights[card.name]) {
-            this.crownUnitWeights[card.name] = 1;
-          } else {
-            this.crownUnitWeights[card.name] += 1;
+          if (validStatsByUnitType[card.name]) {
+            if (!this.crownUnitWeights[card.name]) {
+              this.crownUnitWeights[card.name] = 1;
+            } else {
+              this.crownUnitWeights[card.name] += 1;
+            }
           }
           addCard(card);
           break;
@@ -178,28 +180,19 @@ function generateAddCardUpgradeOption(
   id: string,
   upgradeCount: number,
 ): Upgrade {
-  const roll = Math.random();
-  let unitName: UnitName;
-  let cost = 0;
-  if (upgradeCount < 6 || roll < 0.3) {
-    unitName = UnitName.Guard;
-    cost = 4;
-  } else if (upgradeCount < 10 || roll < 0.5) {
-    unitName = UnitName.Paladin;
-    cost = 5;
-  } else if (roll < 0.75) {
-    unitName = UnitName.Archer;
-    cost = 6;
-  } else {
-    unitName = UnitName.Doppelsoldner;
-    cost = 6;
-  }
+  const unitName = rollUnitType({
+    [UnitName.Militia]: upgradeCount,
+    [UnitName.Guard]: Math.floor(upgradeCount / 3),
+    [UnitName.Doppelsoldner]: Math.floor(upgradeCount / 6),
+    [UnitName.Archer]: Math.floor(upgradeCount / 6),
+    [UnitName.Paladin]: Math.floor(upgradeCount / 10),
+  });
 
   return {
     id,
     type: "addCard",
     unitName,
-    cost,
+    cost: CardData[unitName].cost,
   };
 }
 
@@ -207,10 +200,10 @@ function generateStatUpgradeOptions(
   unitWeights: UnitWeights,
   count: number = 1,
 ): Upgrade[] {
-  const unitName = rollUnitType(unitWeights);
   const upgrades: Upgrade[] = [];
 
   while (upgrades.length < count) {
+    const unitName = rollUnitType(unitWeights);
     const [id, statUpdates] = generateStatUpgrade(unitName, Math.random());
     if (!upgrades.find((u) => u.id === id)) {
       upgrades.push({

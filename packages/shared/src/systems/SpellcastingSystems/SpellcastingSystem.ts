@@ -108,7 +108,7 @@ export const createSpellEffectSystem = (world: World) => {
           }
           break;
         case SpellName.HolyNova:
-          SpellCooldown.timeUntilReady[eid] = 3000;
+          SpellCooldown.timeUntilReady[eid] = 6000;
           const necroEntities = query(
             world,
             [Necro, Position, Health],
