@@ -157,7 +157,7 @@ export class UpgradeManager {
   }
 
   public getExpToNextUpgrade() {
-    return Math.floor(BASE_EXP * Math.pow(1.2, this.upgradeCount));
+    return Math.floor(BASE_EXP * Math.pow(1.1, this.upgradeCount));
   }
 }
 

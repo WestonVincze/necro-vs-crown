@@ -114,7 +114,7 @@ export const Units: Record<UnitName, UnitData> = {
     url: "doppelsoldner.png",
     width: 60,
     height: 120,
-    expReward: 25,
+    expReward: 20,
     stats: {
       [StatName.MaxHealth]: 200,
       [StatName.Armor]: 14,
@@ -139,7 +139,7 @@ export const Units: Record<UnitName, UnitData> = {
     url: "archer.png",
     width: 60,
     height: 110,
-    expReward: 25,
+    expReward: 20,
     ranged: true,
     stats: {
       [StatName.MaxHealth]: 200,
@@ -165,7 +165,7 @@ export const Units: Record<UnitName, UnitData> = {
     url: "paladin.png",
     width: 60,
     height: 110,
-    expReward: 20,
+    expReward: 25,
     stats: {
       [StatName.MaxHealth]: 250,
       [StatName.Armor]: 16,
