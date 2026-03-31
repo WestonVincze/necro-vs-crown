@@ -1,5 +1,6 @@
 import {
   DEFAULT_CROWN_CONFIG,
+  DEFAULT_STARTING_HAND,
   GameSettings,
   PlayerConfig,
   Stats,
@@ -17,6 +18,8 @@ export class GameLobby extends Room {
     players: new Map(),
     statOverrides: {},
     crownConfig: { ...DEFAULT_CROWN_CONFIG },
+    startingCards: { ...DEFAULT_STARTING_HAND },
+    skeleMansCount: 7,
   };
 
   onCreate() {
@@ -74,6 +77,23 @@ export class GameLobby extends Room {
       this.broadcast("lobby:updated", this.getPublicState());
     });
 
+    this.onMessage(
+      "updateStartingCard",
+      (client, card: { unitName: UnitName; value: number }) => {
+        const current = this.lobbyState.startingCards[card.unitName] || 0;
+        this.lobbyState.startingCards = {
+          ...this.lobbyState.startingCards,
+          [UnitName[card.unitName]]: current + card.value,
+        };
+        this.broadcast("lobby:updated", this.getPublicState());
+      },
+    );
+
+    this.onMessage("updateSkeleMansCount", (client, value) => {
+      this.lobbyState.skeleMansCount = value;
+      this.broadcast("lobby:updated", this.getPublicState());
+    });
+
     this.onMessage("ready", (client) => {
       const player = this.lobbyState.players.get(client.sessionId);
       if (!player) return;
@@ -126,6 +146,8 @@ export class GameLobby extends Room {
       players,
       crownConfig: this.lobbyState.crownConfig,
       statOverrides: this.lobbyState.statOverrides,
+      startingCards: this.lobbyState.startingCards,
+      skeleMansCount: this.lobbyState.skeleMansCount,
     });
 
     // Send each client a reservation
@@ -147,6 +169,8 @@ export class GameLobby extends Room {
       players: Object.fromEntries(this.lobbyState.players),
       crownConfig: this.lobbyState.crownConfig,
       statOverrides: this.lobbyState.statOverrides,
+      startingCards: this.lobbyState.startingCards,
+      skeleMansCount: this.lobbyState.skeleMansCount,
     };
   }
 }

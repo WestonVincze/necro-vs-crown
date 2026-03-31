@@ -224,7 +224,6 @@
 
   .unit-image {
     object-fit: contain;
-    image-rendering: pixelated;
     padding: 4px;
     border-radius: 4px;
   }

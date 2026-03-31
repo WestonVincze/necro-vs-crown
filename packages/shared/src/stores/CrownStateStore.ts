@@ -15,6 +15,10 @@ export const DEFAULT_CROWN_CONFIG: CrownConfig = {
   coinInterval: 1000,
 };
 
+export const DEFAULT_STARTING_HAND: Partial<Record<UnitName, number>> = {
+  [UnitName.Peasant]: 8,
+};
+
 /** generates random cards for testing purposes */
 export const generateMockCards = (count: number): Card[] => {
   const cards: Card[] = [];
