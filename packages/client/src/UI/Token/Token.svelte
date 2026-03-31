@@ -21,7 +21,7 @@
   <div class="cost">
     <CoinPurse value={cost} />
   </div>
-  <img src={unitData.url} alt="" />
+  <img src={unitData.url} alt={unitData.name} />
 </div>
 
 <style>

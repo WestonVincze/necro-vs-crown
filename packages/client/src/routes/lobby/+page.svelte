@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
   import { writable, derived } from "svelte/store";
-  import { DEFAULT_CROWN_CONFIG, Faction, UnitName, type CrownConfig, type GameSettings, type PlayerConfig, type Stats } from "@necro-crown/shared";
+  import { DEFAULT_CROWN_CONFIG, DEFAULT_STARTING_HAND, Faction, UnitName, Units, type CrownConfig, type GameSettings, type PlayerConfig, type Stats } from "@necro-crown/shared";
   import { Client, Room } from "@colyseus/sdk";
   import { pendingGameSession } from "../../stores/GameSessionStore";
   import { goto } from "$app/navigation";
@@ -18,7 +18,9 @@
   const lobbyState = writable<LobbyState>({
     players: {},
     statOverrides: {},
-    crownConfig: { ...DEFAULT_CROWN_CONFIG }
+    startingCards: { ...DEFAULT_STARTING_HAND },
+    crownConfig: { ...DEFAULT_CROWN_CONFIG },
+    skeleMansCount: 7, 
   });
 
   const error = writable<string | null>(null);
@@ -50,6 +52,15 @@
   );
 
   $: playerCount = Object.values(otherPlayers).length + 1;
+  const crownUnits = [
+    UnitName.Peasant,
+    UnitName.Militia,
+    UnitName.Guard,
+    UnitName.Paladin,
+    UnitName.Archer,
+    UnitName.Doppelsoldner,
+  ]
+  $: startingCards = Object.keys($lobbyState.startingCards) as UnitName[];
 
   // --- Colyseus ---
   let room: Room | null = null;
@@ -100,6 +111,7 @@
 
   let settingsOpen = false;
   let unitSettingsOpen = false;
+  let deckSettingsOpen = false;
   let ready = false;
   function setReady() {
     if (!ready) {
@@ -127,6 +139,28 @@
 
   function resetAllOverrides() {
     room?.send("resetAllOverrides")
+  }
+  
+  function updateStartingCard(unitName: UnitName, value: number) {
+    lobbyState.update((s) => {
+      const current = s.startingCards[unitName] || 0;
+      console.log(current, value)
+      return ({
+        ...s,
+        startingCards: { ...s.startingCards, [unitName]: value + current}
+      })
+    });
+    room?.send("updateStartingCard", { unitName, value });
+  }
+
+  function updateSkeleMansCount(value: number) {
+    lobbyState.update((s) => {
+      return ({
+        ...s,
+        skeleMansCount: value
+      })
+    });
+    room?.send("updateSkeleMansCount", value);
   }
 
   // --- Helpers ---
@@ -244,6 +278,7 @@
 
     <!-- Ready -->
     <div class="ready-row">
+      <button class="btn" on:click={() => deckSettingsOpen = true}>Starting Deck</button>
       <button class="btn" on:click={() => settingsOpen = true}>Settings</button>
       <button class="btn" on:click={() => unitSettingsOpen = true}>Unit Editor</button>
       <button
@@ -261,6 +296,50 @@
         {/if}
       </button>
     </div>
+
+    <!-- Starting Hand -->
+    <Modal bind:open={deckSettingsOpen} title="Modify Start Cards" width={"680px"}>
+      <section>
+        <div class="start-cards-buttons">
+          {#each crownUnits as unit}
+            <div class="start-cards-button">
+              <div class="image-container">
+                <img src={Units[unit].url} alt={unit} />
+              </div>
+              <div class="button-group">
+                <button
+                  class="btn"
+                  disabled={!$lobbyState.startingCards[unit]}
+                  on:click={() => updateStartingCard(
+                      unit,
+                      -1
+                    )
+                  }
+                >
+                  -
+                </button>
+                <button class="btn" on:click={() => updateStartingCard(unit, 1)}>
+                  +
+                </button>
+              </div>
+            </div>
+          {/each}
+        </div>
+
+        <div class="start-deck">
+          <h3>Starting Cards</h3>
+          <div class="start-deck-cards">
+          {#each startingCards as card}
+            {#each Array($lobbyState.startingCards[card]) as i}
+              <div class="card-image-container">
+                <img src={Units[card].url} alt={card} />
+              </div>
+            {/each}
+          {/each}
+          </div>
+        </div>
+      </section>
+    </Modal>
 
     <!-- Unit Stat Overrides -->
     <Modal bind:open={unitSettingsOpen} title="Unit Editor">
@@ -314,6 +393,23 @@
                 on:change={(e) => updateCrownConfig("coinInterval", +e.currentTarget.value)}
               />
               <span class="config-value">{$lobbyState.crownConfig.coinInterval}</span>
+            </div>
+          </label>
+        </div>
+      </section>
+      <section class="panel config-panel">
+        <h2 class="panel-label">Necro Settings</h2>
+        <div class="config-rows">
+          <label class="config-row">
+            <span class="config-label">Skele Mans Start Count</span>
+            <div class="config-control">
+              <input
+                type="range"
+                min="5" max="25" step="1"
+                value={$lobbyState.skeleMansCount}
+                on:change={(e) => updateSkeleMansCount(+e.currentTarget.value)}
+              />
+              <span class="config-value">{$lobbyState.skeleMansCount}</span>
             </div>
           </label>
         </div>
@@ -661,5 +757,68 @@
   @keyframes breathe {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.6; }
+  }
+
+  .start-cards-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+  }
+  .start-cards-buttons .image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--bg-secondary);
+    padding: 15px;
+    border: 1px solid var(--font-color-soft);
+    border-bottom: none;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+  }
+  .start-cards-buttons img {
+    height: 120px;
+    width: auto;
+    object-fit: contain;
+  }
+  .start-cards-buttons .start-cards-button {
+    display: flex;
+    flex-direction: column;
+  }
+  .start-cards-buttons .button-group {
+    display: flex;
+    justify-content: center;
+  }
+  .start-cards-button button {
+    width: 50%;
+    padding: 5px 10px;
+  }
+  .start-cards-button button:first-child {
+    border-bottom-left-radius: 8px;
+  }
+  .start-cards-button button:last-child {
+    border-bottom-right-radius: 8px;
+  }
+  .start-deck h3 {
+    margin-bottom: 16px;
+    margin-top: 24px;
+  }
+  .start-deck-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .start-deck-cards .card-image-container {
+    border-radius: 8px;
+    padding: 8px 16px;
+    width: 90px;
+    background-color: var(--font-color-grey);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .start-deck-cards img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
   }
 </style>

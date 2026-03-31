@@ -15,6 +15,7 @@ export enum UnitName {
   Archer = "Archer",
   Skeleton = "Skeleton",
   Necromancer = "Necromancer",
+  Militia = "Militia"
 }
 
 export type UnitData = {

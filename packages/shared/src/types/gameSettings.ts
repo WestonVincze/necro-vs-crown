@@ -16,4 +16,6 @@ export type CrownConfig = {
 export type GameSettings = {
   statOverrides: StatOverrides;
   crownConfig: CrownConfig;
+  startingCards: Partial<Record<UnitName, number>>;
+  skeleMansCount: number;
 };

@@ -92,6 +92,12 @@ export const validStatsByUnitType: Partial<
       stats: [{ name: StatName.MaxHealth, range: { min: 2, max: 5 } }],
     },
   ],
+  [UnitName.Militia]: [
+    {
+      id: "p004",
+      stats: [{ name: StatName.AttackBonus, range: { min: 0.5, max: 1 } }],
+    },
+  ],
   [UnitName.Guard]: [
     {
       id: "g001",

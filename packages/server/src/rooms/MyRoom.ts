@@ -52,6 +52,7 @@ import {
   Behaviors,
   CrownStateStore,
   Card,
+  CardData,
 } from "@necro-crown/shared";
 import { createDeathSystem } from "../systems/DeathSystem";
 import { GameSettings } from "@necro-crown/shared/src/types";
@@ -83,6 +84,8 @@ export class MyRoom extends Room {
   private crownPlayer: Client;
   private necroPlayer: Client;
   private lobbyIdToFaction: Record<string, Faction>;
+  private startingHand: Partial<Record<UnitName, number>>;
+  private skeleMansCount: number;
 
   // systems
   private systems!: Pipeline;
@@ -108,6 +111,8 @@ export class MyRoom extends Room {
     this.world.paused = false;
 
     this.lobbyIdToFaction = options.players;
+    this.startingHand = options.startingCards;
+    this.skeleMansCount = options.skeleMansCount;
 
     this.soaSerialize = createSoASerializer(networkSyncComponents);
     this.snapshotSerializer = createSnapshotSerializer(
@@ -237,7 +242,7 @@ export class MyRoom extends Room {
         addComponent(this.world, cursorEid, GridCell);
 
         // create some skele mans
-        for (let i = 0; i < 7; i++) {
+        for (let i = 0; i < this.skeleMansCount; i++) {
           const skele = createUnitEntity(
             this.world,
             UnitName.Skeleton,
@@ -254,16 +259,19 @@ export class MyRoom extends Room {
 
         // initialize crown state
         const cards: Card[] = [];
-        for (let i = 0; i < 8; i++) {
-          cards.push({
-            id: i,
-            name: UnitName.Peasant,
-            cost: 3,
-          });
-        }
         if (options.crownConfig) {
           this.crownState.updateConfig(options.crownConfig);
         }
+        Object.keys(this.startingHand).forEach((entry) => {
+          const name = entry as UnitName;
+          for (let i = 0; i < this.startingHand[name]; i++) {
+            cards.push({
+              id: cards.length,
+              name,
+              cost: CardData[name].cost,
+            });
+          }
+        });
         this.crownState.addCards(cards);
         this.crownState.drawCard();
         this.crownState.drawCard();

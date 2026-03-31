@@ -38,8 +38,8 @@
   </div>
 
 <style>
-
   .bottom {
+    user-select: none;
     position: absolute;
     bottom: 0;
     left: 0;

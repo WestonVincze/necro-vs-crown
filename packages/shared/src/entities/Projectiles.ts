@@ -32,9 +32,9 @@ interface ProjectileProps {
 
 const ProjectileData: Record<ProjectileName, ProjectileProps> = {
   [ProjectileName.Arrow]: {
-    speed: 5,
-    maxSpeed: 8,
-    lifetime: 150,
+    speed: 8,
+    maxSpeed: 10,
+    lifetime: 750,
     width: 50,
     height: 12,
   },

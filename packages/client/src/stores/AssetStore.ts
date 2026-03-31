@@ -5,6 +5,7 @@ export const assets = writable<Record<SpriteTexture, string>>({
   [SpriteTexture.Necromancer]: "necro.png",
   [SpriteTexture.Skeleton]: "skele.png",
   [SpriteTexture.Peasant]: "peasant.png",
+  [SpriteTexture.Militia]: "militia.png",
   [SpriteTexture.Guard]: "guard.png",
   [SpriteTexture.Paladin]: "paladin.png",
   [SpriteTexture.Doppelsoldner]: "doppelsoldner.png",
