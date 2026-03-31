@@ -398,10 +398,10 @@
         </div>
       </section>
       <section class="panel config-panel">
-        <h2 class="panel-label">Skele Mans Start Count</h2>
+        <h2 class="panel-label">Necro Settings</h2>
         <div class="config-rows">
           <label class="config-row">
-            <span class="config-label">Max coins</span>
+            <span class="config-label">Skele Mans Start Count</span>
             <div class="config-control">
               <input
                 type="range"
