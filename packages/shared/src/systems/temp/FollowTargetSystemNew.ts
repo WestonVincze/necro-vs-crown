@@ -1,4 +1,10 @@
-import { query, getRelationTargets, observe, onRemove } from "bitecs";
+import {
+  query,
+  getRelationTargets,
+  observe,
+  onRemove,
+  hasComponent,
+} from "bitecs";
 import pkg from "pathfinding";
 const { AStarFinder, DiagonalMovement, Util } = pkg;
 import {
@@ -6,6 +12,7 @@ import {
   GridCell,
   Input,
   Position,
+  RangedUnit,
   Velocity,
 } from "../../components";
 import { MoveTarget } from "../../relations";
@@ -58,7 +65,10 @@ export const createFollowTargetSystemNew = (world: World) => {
       const path = pathsByEntityId.get(eid);
 
       // if both entities share grid coordinates then the follow force should target the entity, not the grid
-      if (isWithinOneGridCell(gridCell, targetGridCell)) {
+      if (
+        hasComponent(world, eid, RangedUnit) ||
+        isWithinOneGridCell(gridCell, targetGridCell)
+      ) {
         const targetPosition = getPositionFromEid(targetEid);
         const direction = {
           x: targetPosition.x - position.x,
