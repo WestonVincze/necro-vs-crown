@@ -75,6 +75,8 @@ export class PreloaderScene extends Scene {
       }
     });
 
+    this.load.audio("hurt", "sfx/hurt.wav");
+    this.load.audio("miss", "sfx/miss.wav");
     this.load.tilemapTiledJSON("map", "tilemaps/sampleLevel.json");
     this.load.image("sample", "tilemaps/sample.png");
   }
