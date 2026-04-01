@@ -26,10 +26,13 @@ export const createHitSplatSystem = (world: World, scene: Scene) => {
 
       if (amount === 0) {
         color = hitSplatColors[colorSet].miss;
+        scene.sound.play("miss", { volume: 0.6 });
       } else if (isCrit) {
         color = hitSplatColors[colorSet].crit;
         fontSize = "20px";
         textAmount += "!";
+      } else {
+        scene.sound.play("hurt", { volume: 0.6 });
       }
 
       const xVariance = Math.random() * 30 - 15;
