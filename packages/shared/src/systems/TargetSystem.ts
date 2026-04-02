@@ -14,7 +14,6 @@ import {
   Position,
   Behavior,
   Behaviors,
-  AI,
   Cursor,
 } from "../components";
 import { MoveTarget, CombatTarget } from "../relations";
@@ -66,11 +65,11 @@ export const createTargetingSystem = () => {
     };
 
     updateTargets(
-      query(world, [AI, Behavior, Position, Necro]),
+      query(world, [Behavior, Position, Necro]),
       query(world, [Crown, Position], isNested),
     );
     updateTargets(
-      query(world, [AI, Behavior, Position, Crown]),
+      query(world, [Behavior, Position, Crown]),
       query(world, [Necro, Position], isNested),
     );
     return world;

@@ -3,3 +3,4 @@ export * from "./Item";
 export * from "./Bones";
 export * from "./Projectiles";
 export * from "./Spawners";
+export * from "./Buildings";

@@ -22,7 +22,7 @@ export const createHitSplatSystem = (world: World, scene: Scene) => {
 
       let color = hitSplatColors[colorSet].hit;
       let fontSize = "16px";
-      let textAmount = String(Math.abs(amount));
+      let textAmount = String(Math.abs(amount).toFixed(0));
 
       if (amount === 0) {
         color = hitSplatColors[colorSet].miss;
@@ -32,7 +32,7 @@ export const createHitSplatSystem = (world: World, scene: Scene) => {
         fontSize = "20px";
         textAmount += "!";
       } else {
-        scene.sound.play("hurt", { volume: 0.6 });
+        scene.sound.play("hurt", { volume: 0.3 });
       }
 
       const xVariance = Math.random() * 30 - 15;

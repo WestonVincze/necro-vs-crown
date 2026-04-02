@@ -9,6 +9,8 @@ import {
   Transform,
   TextureNames,
   type World,
+  MAP_HEIGHT_PIXELS,
+  Necro,
   Faction,
 } from "@necro-crown/shared";
 
@@ -71,7 +73,11 @@ export const createSpriteSystem = (
       }
 
       // TODO: set camera follow for necro player in versus
-      if (faction === Faction.Necro && hasComponent(world, eid, Player)) {
+      if (
+        faction === Faction.Necro &&
+        hasComponent(world, eid, Player) &&
+        hasComponent(world, eid, Necro)
+      ) {
         scene.cameras.main.startFollow(sprite);
       }
       sprite.x = Position.x[eid];
@@ -130,7 +136,7 @@ export const createSpriteSystem = (
         sprite.y = Position.y[eid] - Transform.height[eid] / 2;
       }
       // workaround to ensure z-index is always above 0
-      sprite.depth = Position.y[eid] + 1200;
+      sprite.depth = Position.y[eid] + MAP_HEIGHT_PIXELS / 2;
     }
 
     return world;

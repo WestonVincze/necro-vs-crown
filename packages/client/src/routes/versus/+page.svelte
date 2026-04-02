@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { get } from "svelte/store";
   import { pendingGameSession } from "../../stores/GameSessionStore";
   import { goto } from "$app/navigation";
@@ -8,6 +8,7 @@
 
   const gameSession = get(pendingGameSession);
   let faction: Faction;
+  let tearDown: (() => void) | null = null;
 
   onMount(async () => {
     const { createPhaserGame } = (await import("$game/index"));
@@ -24,7 +25,10 @@
     game.registry.set("faction", faction);
     game.registry.set("room", gameSession.room);
     game.scene.start("PreloaderScene", { gameMode: "versus" });
+    tearDown = () => game.destroy(true);
   });
+
+  onDestroy(() => tearDown?.())
 </script>
 
 <GameUI faction={faction} />

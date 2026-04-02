@@ -13,7 +13,7 @@ import {
 } from "@necro-crown/shared";
 import { query } from "bitecs";
 import { Room } from "colyseus";
-const BASE_EXP = 25;
+const BASE_EXP = 50;
 
 type UnitWeights = Partial<Record<UnitName, number>>;
 
@@ -64,7 +64,7 @@ export class UpgradeManager {
     const necroOptions = generateStatUpgradeOptions(this.necroUnitWeights, 3);
 
     let crownOptions: Upgrade[] = [];
-    if (this.upgradeCount % 3 === 0) {
+    if (this.upgradeCount % 2 === 0) {
       crownOptions = generateStatUpgradeOptions(this.crownUnitWeights, 2);
       crownOptions.push(
         generateAddCardUpgradeOption("addCard", this.upgradeCount),
