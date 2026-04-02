@@ -1,6 +1,12 @@
 import { observe, onAdd, onRemove, query } from "bitecs";
 import { GameObjects, Scene } from "phaser";
-import { Health, Position, Transform, type World } from "@necro-crown/shared";
+import {
+  Health,
+  MAP_HEIGHT_PIXELS,
+  Position,
+  Transform,
+  type World,
+} from "@necro-crown/shared";
 
 const HEALTH_BAR_HEIGHT = 5;
 
@@ -55,7 +61,7 @@ export const createHealthBarSystem = (world: World, scene: Scene) => {
       const { x, y, width, height } = getHealthBarProps(eid);
 
       healthBar?.setPosition(x, y);
-      healthBar?.setDepth(Position.y[eid] + 1200);
+      healthBar?.setDepth(Position.y[eid] + MAP_HEIGHT_PIXELS / 2);
 
       const healthPercent = Health.current[eid] / Health.max[eid];
 
