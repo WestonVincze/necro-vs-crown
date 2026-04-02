@@ -18,10 +18,6 @@ import {
   GameEvents,
   type Pipeline,
   BASE_EXP,
-  MAP_X_MAX,
-  MAP_X_MIN,
-  MAP_Y_MAX,
-  MAP_Y_MIN,
   type World,
   profiler,
   Position,
@@ -176,27 +172,17 @@ export class SoloModeScene extends Scene {
           const necro = createUnitEntity(
             this.world,
             UnitName.Necromancer,
-            500,
-            500,
+            0,
+            1600,
           );
 
-          // create Bones entity (for testing)
-          createBonesEntity(this.world, 500, 500);
-
           createTargetSpawnerEntity(this.world, necro);
-          for (let i = 0; i < 10; i++) {
-            const randomEntity =
-              Math.random() > 0.5 ? UnitName.Peasant : UnitName.Skeleton;
-            const eid = createUnitEntity(
+          for (let i = 0; i < 5; i++) {
+            createBonesEntity(
               this.world,
-              randomEntity,
-              Math.random() * 1024,
-              Math.random() * 1024,
+              Math.random() * 400 - 200,
+              Math.random() * 200 + 1600,
             );
-
-            if (randomEntity === UnitName.Skeleton) {
-              Behavior.type[eid] = Behaviors.FollowCursor;
-            }
           }
         };
 

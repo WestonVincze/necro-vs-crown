@@ -246,13 +246,11 @@ export class MyRoom extends Room {
 
         // create some skele mans
         for (let i = 0; i < this.skeleMansCount; i++) {
-          const skele = createUnitEntity(
+          createBonesEntity(
             this.world,
-            UnitName.Skeleton,
             Math.random() * 400 - 200,
             Math.random() * 200 + 1600,
           );
-          Behavior.type[skele] = Behaviors.FollowCursor;
         }
       } else if (player.faction === Faction.Crown) {
         this.crownPlayer = client;
