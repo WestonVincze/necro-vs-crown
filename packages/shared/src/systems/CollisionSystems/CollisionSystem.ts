@@ -1,7 +1,7 @@
-import { Not, query, removeEntity } from "bitecs";
+import { isNested, Not, query, removeEntity } from "bitecs";
 import { Subject } from "rxjs";
 
-import { Position, Collider, Projectile } from "../../components";
+import { Position, Collider, Projectile, Crown } from "../../components";
 import { attackEntity } from "../CombatSystem";
 import { type World } from "../../types";
 /**
@@ -23,6 +23,7 @@ import { type World } from "../../types";
 // TODO: define collisionTypes or create specific collision messages to provide context to subscribers of collisionEvents
 export const collisionEvents = new Subject<{ eid1: number; eid2: number }>();
 
+// TODO: collision layers aren't working properly for some reason, for now we will just ignore Crown units
 export const createProjectileCollisionSystem = () => {
   return (world: World) => {
     for (const projectileEid of query(world, [
@@ -30,11 +31,11 @@ export const createProjectileCollisionSystem = () => {
       Collider,
       Projectile,
     ])) {
-      for (const colliderEid of query(world, [
-        Position,
-        Collider,
-        Not(Projectile),
-      ])) {
+      for (const colliderEid of query(
+        world,
+        [Position, Collider, Not(Projectile), Not(Crown)],
+        isNested,
+      )) {
         if (checkCollision(projectileEid, colliderEid)) {
           // TODO: handle collisions for other types of entities (walls)
           // projectile collided with something
@@ -60,6 +61,7 @@ export const createProjectileCollisionSystem = () => {
 const checkCollision = (eid1: number, eid2: number) => {
   if (eid1 === eid2) return false;
 
+  /*
   const layer1 = Collider.layer[eid1];
   const layer2 = Collider.layer[eid2];
   const collisionLayers1 = Collider.collisionLayers[eid1];
@@ -76,6 +78,7 @@ const checkCollision = (eid1: number, eid2: number) => {
   if ((layer1 & collisionLayers2) === 0 && (layer2 & collisionLayers1) === 0) {
     return false;
   }
+  */
 
   const eid1PositionX = Position.x[eid1] + Collider.offsetX[eid1];
   const eid1PositionY = Position.y[eid1] + Collider.offsetY[eid1];

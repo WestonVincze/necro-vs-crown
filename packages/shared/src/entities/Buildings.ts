@@ -50,7 +50,7 @@ export const createArcherTower = (world: World, x: number, y: number) => {
 
   RangedUnit.projectileType[eid] = ProjectileName.Arrow;
   RangedUnit.spawnPositionOffsetX[eid] = 0;
-  RangedUnit.spawnPositionOffsetY[eid] = -100;
+  RangedUnit.spawnPositionOffsetY[eid] = 0;
 
   AttackBonus.current[eid] = 10;
   AttackBonus.base[eid] = 10;
@@ -73,7 +73,7 @@ export const createArcherTower = (world: World, x: number, y: number) => {
   Health.current[eid] = 2500;
   Health.max[eid] = 2500;
 
-  Behavior.type[eid] = Behaviors.AutoTarget;
+  Behavior.type[eid] = Behaviors.Stationary;
 
   Sprite.height[eid] = 200;
   Sprite.width[eid] = 100;
@@ -83,4 +83,5 @@ export const createArcherTower = (world: World, x: number, y: number) => {
   if (world.networkType === "networked") {
     addComponent(world, eid, Networked);
   }
+  return eid;
 };

@@ -96,6 +96,7 @@ export const createProjectileEntity = (
   Collider.radius[eid] = data.height;
   // TODO: get the Faction of the projectile owner (NECRO is fine for now)
   Collider.collisionLayers[eid] = CollisionLayers.NECRO;
+  Collider.ignoreLayers[eid] = CollisionLayers.DEFAULT;
   let baseOffsetX = data.width / 2;
   let baseOffsetY = 0;
 
