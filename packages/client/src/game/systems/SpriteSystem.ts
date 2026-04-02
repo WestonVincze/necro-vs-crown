@@ -72,14 +72,6 @@ export const createSpriteSystem = (
           break;
       }
 
-      // TODO: set camera follow for necro player in versus
-      if (
-        faction === Faction.Necro &&
-        hasComponent(world, eid, Player) &&
-        hasComponent(world, eid, Necro)
-      ) {
-        scene.cameras.main.startFollow(sprite);
-      }
       sprite.x = Position.x[eid];
       sprite.y = Position.y[eid] - Transform.height[eid] / 2;
       sprite.width = width;
@@ -88,6 +80,26 @@ export const createSpriteSystem = (
       sprite.displayHeight = height;
       sprite.rotation = rotation;
       countById.set(eid, eid);
+
+      if (
+        faction === Faction.Necro &&
+        hasComponent(world, eid, Player) &&
+        hasComponent(world, eid, Necro)
+      ) {
+        const camera = scene.cameras.main;
+        scene.tweens.add({
+          targets: camera,
+          delay: 500,
+          duration: 1500,
+          scrollX: 0 - camera.width / 2,
+          scrollY: 1600 - Transform.height[eid] / 2 - camera.height / 2,
+          ease: "Cubic.easeInOut",
+          paused: false,
+          onComplete: () => {
+            camera.startFollow(sprite);
+          },
+        });
+      }
     }
 
     for (const eid of spriteQuery(world)) {

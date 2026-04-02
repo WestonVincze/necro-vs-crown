@@ -64,7 +64,8 @@ export class UpgradeManager {
     const necroOptions = generateStatUpgradeOptions(this.necroUnitWeights, 3);
 
     let crownOptions: Upgrade[] = [];
-    if (this.upgradeCount % 2 === 0) {
+
+    if (this.upgradeCount % 1 === 0) {
       crownOptions = generateStatUpgradeOptions(this.crownUnitWeights, 2);
       crownOptions.push(
         generateAddCardUpgradeOption("addCard", this.upgradeCount),

@@ -7,7 +7,10 @@ import {
 import type { Scene } from "phaser";
 
 export const buildTileMap = (scene: Scene) => {
-  scene.cameras.main.setBounds(MAP_X_MIN, MAP_Y_MIN, MAP_X_MAX, MAP_Y_MAX);
+  const camera = scene.cameras.main;
+  camera.setBounds(MAP_X_MIN, MAP_Y_MIN, MAP_X_MAX, MAP_Y_MAX);
+  camera.preRender();
+  camera.setScroll(0 - camera.worldView.width / 2, MAP_Y_MIN + 200);
   const map = scene.make.tilemap({ key: "map" });
   map.addTilesetImage("doodle", "doodle");
   map.createLayer("BG", "doodle", MAP_X_MIN, MAP_Y_MIN);
