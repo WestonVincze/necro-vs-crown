@@ -1,5 +1,6 @@
 import { addComponent, addComponents, addEntity } from "bitecs";
 import {
+  Armor,
   AttackBonus,
   AttackRange,
   AttackSpeed,
@@ -34,6 +35,7 @@ export const createArcherTower = (world: World, x: number, y: number) => {
     AttackRange,
     MaxHit,
     MaxHealth,
+    Armor,
     Health,
     Behavior,
     Sprite,
@@ -48,7 +50,7 @@ export const createArcherTower = (world: World, x: number, y: number) => {
 
   RangedUnit.projectileType[eid] = ProjectileName.Arrow;
   RangedUnit.spawnPositionOffsetX[eid] = 0;
-  RangedUnit.spawnPositionOffsetY[eid] = 0;
+  RangedUnit.spawnPositionOffsetY[eid] = -100;
 
   AttackBonus.current[eid] = 10;
   AttackBonus.base[eid] = 10;
@@ -61,6 +63,12 @@ export const createArcherTower = (world: World, x: number, y: number) => {
 
   MaxHit.current[eid] = 120;
   MaxHit.base[eid] = 120;
+
+  Armor.current[eid] = 18;
+  Armor.base[eid] = 18;
+
+  MaxHealth.current[eid] = 2500;
+  MaxHealth.base[eid] = 2500;
 
   Health.current[eid] = 2500;
   Health.max[eid] = 2500;

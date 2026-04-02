@@ -9,9 +9,9 @@ import {
   Transform,
   TextureNames,
   type World,
-  Faction,
   MAP_HEIGHT_PIXELS,
   Necro,
+  Faction,
 } from "@necro-crown/shared";
 
 /**

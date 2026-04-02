@@ -2,7 +2,7 @@ import { Health } from "./Health";
 import { Position, Transform } from "./Position";
 import { ResolveSpell, SpellEffect } from "./Spellcasting";
 import { Sprite } from "./Sprite";
-import { Player } from "./Tags";
+import { Crown, Necro, Player } from "./Tags";
 
 export const Networked = {};
 
@@ -15,4 +15,6 @@ export const networkSyncComponents = [
   SpellEffect,
   ResolveSpell,
   Player,
+  Crown,
+  Necro,
 ];
