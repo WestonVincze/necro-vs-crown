@@ -1,6 +1,8 @@
 <script lang="ts">
   import { Icon } from "$icons";
   import { Faction } from "@necro-crown/shared";
+  import { onDestroy } from "svelte";
+  import { gameOver } from "../../stores/GameEventStore";
 
   export let winner: Faction;
   export let time: number = 0;
@@ -25,6 +27,8 @@
 
     return result;
   }
+
+  onDestroy(() => $gameOver= null)
 </script>
 
 <div class="game-over {winner === Faction.Necro? "necro" : "crown"}">
