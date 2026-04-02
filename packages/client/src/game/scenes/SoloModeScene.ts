@@ -42,11 +42,10 @@ import {
 import { GameState } from "$game/managers";
 import { buildPhysicsPipeline, buildTickPipeline } from "$game/pipelines";
 import { crownClientState } from "$game/Crown";
+import { buildTileMap } from "../../helpers/TileMap";
 
 export class SoloModeScene extends Scene {
   private playerType!: Faction;
-
-  private camera!: Phaser.Cameras.Scene2D.Camera;
 
   private world!: World;
 
@@ -65,7 +64,6 @@ export class SoloModeScene extends Scene {
   init(data: { player: Faction }) {
     // ensure input is enabled in config
     this.playerType = data.player;
-    this.camera = this.cameras.main;
   }
 
   create() {
@@ -110,23 +108,7 @@ export class SoloModeScene extends Scene {
     (window as any).getEntityComponents = (eid: number) => getEntityComponents(this.world, eid);
     */
 
-    /** Set up testing Tilemap - 3x screen size */
-    this.camera.setBounds(MAP_X_MIN, MAP_Y_MIN, MAP_X_MAX, MAP_Y_MAX);
-    const map = this.make.tilemap({ key: "map" });
-    map.addTilesetImage("sample", "sample");
-    map.createLayer("Ground", "sample", MAP_X_MIN, MAP_Y_MIN);
-    map.createLayer("Roads", "sample", MAP_X_MIN, MAP_Y_MIN);
-    map.createLayer("Objects", "sample", MAP_X_MIN, MAP_Y_MIN);
-
-    // test grid data
-    let gridData = [];
-    for (let y = 0; y < map.height; y++) {
-      let row = [];
-      for (let x = 0; x < map.width; x++) {
-        row.push(map.hasTileAt(x, y, "Objects") ? 1 : 0);
-      }
-      gridData.push(row);
-    }
+    const { gridData, map } = buildTileMap(this);
 
     this.world.grid = new Grid(gridData);
 

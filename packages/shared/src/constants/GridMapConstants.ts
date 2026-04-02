@@ -1,7 +1,8 @@
 export const TILE_SIZE = 64;
 
 export const MAP_WIDTH_PIXELS = 3072;
-export const MAP_HEIGHT_PIXELS = 2304;
+// export const MAP_HEIGHT_PIXELS = 2304;
+export const MAP_HEIGHT_PIXELS = 4096;
 
 export const MAP_WIDTH_TILES = MAP_WIDTH_PIXELS / TILE_SIZE;
 export const MAP_HEIGHT_TILES = MAP_HEIGHT_PIXELS / TILE_SIZE;

@@ -40,6 +40,7 @@ import {
   isPaused,
   pendingUpgrade,
 } from "../../stores/GameEventStore";
+import { buildTileMap } from "../../helpers/TileMap";
 
 export class VersusModeScene extends Scene {
   constructor() {
@@ -106,22 +107,7 @@ export class VersusModeScene extends Scene {
     );
     this.soaDeserialize = createSoADeserializer(networkSyncComponents);
 
-    this.camera.setBounds(MAP_X_MIN, MAP_Y_MIN, MAP_X_MAX, MAP_Y_MAX);
-
-    const tilemap = this.make.tilemap({ key: "map" });
-    tilemap.addTilesetImage("sample", "sample");
-    tilemap.createLayer("Ground", "sample", MAP_X_MIN, MAP_Y_MIN);
-    tilemap.createLayer("Roads", "sample", MAP_X_MIN, MAP_Y_MIN);
-    tilemap.createLayer("Objects", "sample", MAP_X_MIN, MAP_Y_MIN);
-
-    let gridData = [];
-    for (let y = 0; y < tilemap.height; y++) {
-      let row = [];
-      for (let x = 0; x < tilemap.width; x++) {
-        row.push(tilemap.hasTileAt(x, y, "Objects") ? 1 : 0);
-      }
-      gridData.push(row);
-    }
+    const { gridData } = buildTileMap(this);
 
     this.world.grid = new Grid(gridData);
 

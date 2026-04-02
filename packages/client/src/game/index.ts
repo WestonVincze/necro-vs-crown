@@ -10,18 +10,23 @@ import {
 const soloConfig: Types.Core.GameConfig = {
   type: AUTO,
   scale: { mode: Phaser.Scale.RESIZE },
-  backgroundColor: "#111",
   parent: "game-container",
   fps: { smoothStep: true, limit: 60 },
-  physics: { default: "arcade" },
+  roundPixels: true,
+  render: {
+    pixelArt: true,
+  },
   scene: [PreloaderScene, MainMenuScene, SoloModeScene, GameOverScene],
 };
 
 const versusConfig: Types.Core.GameConfig = {
   type: AUTO,
   scale: { mode: Phaser.Scale.RESIZE },
-  backgroundColor: "#111",
   parent: "game-container",
+  roundPixels: true,
+  render: {
+    pixelArt: true,
+  },
   scene: [PreloaderScene, MainMenuScene, VersusModeScene, GameOverScene],
 };
 

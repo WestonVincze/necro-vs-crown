@@ -75,10 +75,12 @@ export class PreloaderScene extends Scene {
       }
     });
 
+    // SFX test
     this.load.audio("hurt", "sfx/hurt.wav");
     this.load.audio("miss", "sfx/miss.wav");
-    this.load.tilemapTiledJSON("map", "tilemaps/sampleLevel.json");
-    this.load.image("sample", "tilemaps/sample.png");
+
+    this.load.tilemapTiledJSON("map", "tilemaps/doodle_map.json");
+    this.load.image("doodle", "tilemaps/Doodle.png");
   }
 
   create() {

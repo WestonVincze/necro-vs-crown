@@ -19,7 +19,6 @@ import {
   Pipeline,
   UnitName,
   type World,
-  Level,
   Player,
   createUnitEntity,
   Networked,
@@ -42,7 +41,7 @@ import {
   HitSplatEvent,
   Input,
   createSpellEffectSystem,
-  createBonesEntity,
+  createArcherTower,
   Cursor,
   getGridCellFromPosition,
   Position,
@@ -236,10 +235,9 @@ export class MyRoom extends Room {
         player.eid = createUnitEntity(
           this.world,
           UnitName.Necromancer,
-          500,
-          500,
+          0,
+          1600,
         );
-        createBonesEntity(this.world, 400, 400);
 
         const cursorEid = addEntity(this.world);
         addComponent(this.world, cursorEid, Cursor);
@@ -251,8 +249,8 @@ export class MyRoom extends Room {
           const skele = createUnitEntity(
             this.world,
             UnitName.Skeleton,
-            Math.random() * 1024,
-            Math.random() * 1024,
+            Math.random() * 400 - 200,
+            Math.random() * 200 + 1600,
           );
           Behavior.type[skele] = Behaviors.FollowCursor;
         }
@@ -306,6 +304,8 @@ export class MyRoom extends Room {
         (p) => p.status === "ready",
       );
       if (!allLoaded) return;
+
+      createArcherTower(this.world, 75, -1550);
 
       // initial state sync
       const snapshot = this.snapshotSerializer();
