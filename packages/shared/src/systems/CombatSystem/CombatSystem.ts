@@ -40,10 +40,6 @@ export const createCombatSystem = () => {
       Position,
       Not(AttackCooldown),
     ]);
-  const necroQuery = (world: World) =>
-    query(world, [Necro, Health, Position, Armor]);
-  const crownQuery = (world: World) =>
-    query(world, [Crown, Health, Position, Armor]);
 
   return (world: World) => {
     for (const eid of attackerQuery(world)) {

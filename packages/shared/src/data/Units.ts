@@ -65,8 +65,8 @@ export const Units: Record<UnitName, UnitData> = {
     name: "Militia",
     type: Faction.Crown,
     url: "militia.png",
-    width: 80,
-    height: 125,
+    width: 75,
+    height: 126,
     expReward: 10,
     stats: {
       [StatName.MaxHealth]: 80,
