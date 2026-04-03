@@ -111,6 +111,7 @@ describe("UnitSpawnerSystems", () => {
         spawnableUnits: [UnitName.Peasant],
         maxUnits: 1,
         unitCount: 0,
+        chaseRange: 500,
       };
 
       Spawner.timeUntilSpawn[eid] = 1;

@@ -1,6 +1,7 @@
 import { query, getRelationTargets, hasComponent } from "bitecs";
 import { createUnitEntity } from "../../entities";
 import {
+  Behavior,
   BuildingSpawner,
   Position,
   Spawner,
@@ -58,7 +59,9 @@ export const createUnitSpawnerSystem = () => {
         const yOffset = Math.random() * Spawner.yMax[eid] - Spawner.yMin[eid];
         const x = Position.x[eid] + xOffset;
         const y = Position.y[eid] + yOffset;
-        createUnitEntity(world, unit, x, y);
+        const unitEid = createUnitEntity(world, unit, x, y);
+        // chaseRange is squared because the distance calc in the target system uses squared distance
+        Behavior.chaseRange[unitEid] = BuildingSpawner[eid].chaseRange ** 2;
 
         // TODO: building spawner needs to attach some state to units that clears subtracts from unitCount on death
         // BuildingSpawner[eid].unitCount += 1;

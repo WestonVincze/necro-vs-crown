@@ -30,6 +30,7 @@ import {
   SeparationForce,
   Networked,
   AttackCooldown,
+  SpellCooldown,
 } from "../components";
 import {
   AIState,
@@ -141,6 +142,8 @@ export const createUnitEntity = (
     Spell.state[eid] = SpellState.Ready;
     Spell.name[eid] = SpellName.HolyNova;
     Input.castingSpell[eid] = 1;
+    addComponent(world, eid, SpellCooldown);
+    SpellCooldown.timeUntilReady[eid] = 3000;
   }
 
   addComponent(world, eid, Position);

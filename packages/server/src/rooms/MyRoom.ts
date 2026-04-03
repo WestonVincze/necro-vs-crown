@@ -51,6 +51,7 @@ import {
   CardData,
   GameOverEvent,
   createBonesEntity,
+  createPeasantHut,
 } from "@necro-crown/shared";
 import { createDeathSystem } from "../systems/DeathSystem";
 import { GameSettings } from "@necro-crown/shared/src/types";
@@ -255,6 +256,13 @@ export class MyRoom extends Room {
 
         // represents crown player
         player.eid = createArcherTower(this.world, 75, -1550);
+
+        // create some peasant huts (TODO: position initialization to sprite map)
+        createPeasantHut(this.world, -400, 1000);
+        createPeasantHut(this.world, 800, 500);
+        createPeasantHut(this.world, -80, -300);
+        createPeasantHut(this.world, 500, -1000);
+        createPeasantHut(this.world, -900, -1100);
 
         // initialize crown state
         const cards: Card[] = [];

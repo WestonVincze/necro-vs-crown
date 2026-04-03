@@ -36,7 +36,12 @@ export const createBuildingSpawnerEntity = (
   Spawner.yMax[eid] = 50;
 
   addComponent(world, eid, BuildingSpawner);
-  BuildingSpawner[eid] = { spawnableUnits: units, unitCount: 0, maxUnits };
+  BuildingSpawner[eid] = {
+    spawnableUnits: units,
+    unitCount: 0,
+    maxUnits,
+    chaseRange: 500,
+  };
 
   addComponent(world, eid, Sprite);
   Sprite.height[eid] = 175;
