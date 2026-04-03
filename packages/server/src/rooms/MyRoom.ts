@@ -276,7 +276,6 @@ export class MyRoom extends Room {
         this.crownState.drawCard();
         this.crownState.drawCard();
         this.crownState.drawCard();
-        this.crownState.start();
 
         this.crownState.hand$.subscribe((hand) => {
           this.crownPlayer?.send("hand:update", { hand });
@@ -316,7 +315,10 @@ export class MyRoom extends Room {
       let elapsedTime = 0;
       let timeSinceLastTick = 0;
       this.pauseGame();
-      setTimeout(() => this.resumeGame(), 2000);
+      setTimeout(() => {
+        this.crownState.start();
+        this.resumeGame();
+      }, 2000);
       this.setSimulationInterval((deltaTime) => {
         if (!this.world.paused) {
           const expToUpgrade = this.upgradeManager.getExpToNextUpgrade();
