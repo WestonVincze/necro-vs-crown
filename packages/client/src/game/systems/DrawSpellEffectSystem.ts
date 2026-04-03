@@ -1,10 +1,5 @@
-import {
-  Position,
-  ResolveSpell,
-  SpellEffect,
-  type World,
-} from "@necro-crown/shared";
-import { observe, onAdd, query } from "bitecs";
+import { Position, SpellEffect, type World } from "@necro-crown/shared";
+import { observe, onAdd, onRemove, query } from "bitecs";
 import type { GameObjects, Scene } from "phaser";
 
 // TODO: abstract the client (Phaser related) logic into separate system
@@ -17,8 +12,10 @@ export const createDrawSpellEffectSystem = (world: World, scene: Scene) => {
     spellEffectEnterQueue.push(eid);
   });
 
-  const spellResolveQueue: number[] = [];
-  observe(world, onAdd(ResolveSpell), (eid) => spellResolveQueue.push(eid));
+  const spellEffectExitQueue: number[] = [];
+  observe(world, onRemove(SpellEffect), (eid) =>
+    spellEffectExitQueue.push(eid),
+  );
 
   return (world: World) => {
     const spellEffectsEntered = spellEffectEnterQueue.splice(0);
@@ -46,8 +43,8 @@ export const createDrawSpellEffectSystem = (world: World, scene: Scene) => {
       circle.radius = SpellEffect.size[eid];
     }
 
-    const spellResolvesEntered = spellResolveQueue.splice(0);
-    for (const eid of spellResolvesEntered) {
+    const spellEffectsResolved = spellEffectExitQueue.splice(0);
+    for (const eid of spellEffectsResolved) {
       const circle = circlesById.get(eid);
 
       if (!circle) {

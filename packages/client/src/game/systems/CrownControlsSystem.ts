@@ -72,7 +72,7 @@ export const initializeCrownMouseControls = (
       if (deltaY === 0) return;
       const worldPoint = camera.getWorldPoint(pointer.x, pointer.y);
       const newZoom = camera.zoom - camera.zoom * 0.001 * deltaY;
-      camera.zoom = Phaser.Math.Clamp(newZoom, 1, 2);
+      camera.zoom = Phaser.Math.Clamp(newZoom, 0.84, 2);
 
       camera.preRender();
       const newWorldPoint = camera.getWorldPoint(pointer.x, pointer.y);

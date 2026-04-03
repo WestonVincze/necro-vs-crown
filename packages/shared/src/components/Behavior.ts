@@ -1,6 +1,7 @@
 export enum Behaviors {
   FollowCursor,
   AutoTarget,
+  Stationary,
 }
 
 export const Behavior = {

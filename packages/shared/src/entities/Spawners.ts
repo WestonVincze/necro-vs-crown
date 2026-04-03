@@ -14,7 +14,7 @@ import { SpriteTexture } from "../constants";
 export const createTargetSpawnerEntity = (world: World, targetEid: number) => {
   const eid = addEntity(world);
   addComponent(world, eid, Spawner);
-  Spawner.timeUntilSpawn[eid] = 500;
+  Spawner.timeUntilSpawn[eid] = 3000;
 
   addComponent(world, eid, SpawnTarget(targetEid));
 

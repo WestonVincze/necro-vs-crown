@@ -29,6 +29,7 @@ import {
   ItemDrops,
   SeparationForce,
   Networked,
+  AttackCooldown,
 } from "../components";
 import {
   AIState,
@@ -43,6 +44,8 @@ import { Units } from "../data";
 import { SpriteTexture, BASE_EXP } from "../constants";
 import { ProjectileName } from "./Projectiles";
 import { clampToScreenSize, getGridCellFromPosition } from "../utils";
+
+const FIRST_ATTACK_DELAY = 1500;
 
 export const createUnitEntity = (
   world: World,
@@ -171,6 +174,9 @@ export const createUnitEntity = (
   if (world.networkType === "networked") {
     addComponent(world, eid, Networked);
   }
+  // add a buffer before fresh units can attack
+  addComponent(world, eid, AttackCooldown);
+  AttackCooldown.timeUntilReady[eid] = FIRST_ATTACK_DELAY;
   return eid;
 };
 

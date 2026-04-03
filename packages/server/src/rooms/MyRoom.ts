@@ -46,12 +46,11 @@ import {
   getGridCellFromPosition,
   Position,
   GridCell,
-  Behavior,
-  Behaviors,
   CrownStateStore,
   Card,
   CardData,
   GameOverEvent,
+  createBonesEntity,
 } from "@necro-crown/shared";
 import { createDeathSystem } from "../systems/DeathSystem";
 import { GameSettings } from "@necro-crown/shared/src/types";
@@ -231,7 +230,6 @@ export class MyRoom extends Room {
       player.status = "ready";
       if (player.faction === Faction.Necro) {
         this.necroPlayer = client;
-        console.log(this.necroPlayer.sessionId);
         player.eid = createUnitEntity(
           this.world,
           UnitName.Necromancer,
@@ -246,19 +244,17 @@ export class MyRoom extends Room {
 
         // create some skele mans
         for (let i = 0; i < this.skeleMansCount; i++) {
-          const skele = createUnitEntity(
+          createBonesEntity(
             this.world,
-            UnitName.Skeleton,
             Math.random() * 400 - 200,
             Math.random() * 200 + 1600,
           );
-          Behavior.type[skele] = Behaviors.FollowCursor;
         }
       } else if (player.faction === Faction.Crown) {
         this.crownPlayer = client;
-        const eid = addEntity(this.world);
-        player.eid = eid;
-        addComponent(this.world, eid, Player);
+
+        // represents crown player
+        player.eid = createArcherTower(this.world, 75, -1550);
 
         // initialize crown state
         const cards: Card[] = [];
@@ -294,18 +290,11 @@ export class MyRoom extends Room {
           this.crownPlayer?.send("coins:update", { coins });
         });
       }
-      // create new observer serializer for this client
-      this.observerSerializers.set(
-        client.sessionId,
-        createObserverSerializer(this.world, Networked, networkSyncComponents),
-      );
 
       const allLoaded = [...this.players.values()].every(
         (p) => p.status === "ready",
       );
       if (!allLoaded) return;
-
-      createArcherTower(this.world, 75, -1550);
 
       // initial state sync
       const snapshot = this.snapshotSerializer();
@@ -313,15 +302,27 @@ export class MyRoom extends Room {
         c.send("snapshot", snapshot);
       }
 
+      // create new observers serializer for clients
+      this.observerSerializers.set(
+        this.necroPlayer.sessionId,
+        createObserverSerializer(this.world, Networked, networkSyncComponents),
+      );
+      this.observerSerializers.set(
+        this.crownPlayer.sessionId,
+        createObserverSerializer(this.world, Networked, networkSyncComponents),
+      );
+
       // start game loop
       let elapsedTime = 0;
       let timeSinceLastTick = 0;
-      this.setSimulationInterval(async (deltaTime) => {
+      this.pauseGame();
+      setTimeout(() => this.resumeGame(), 2000);
+      this.setSimulationInterval((deltaTime) => {
         if (!this.world.paused) {
           const expToUpgrade = this.upgradeManager.getExpToNextUpgrade();
           if (this.world.experience > expToUpgrade) {
             this.world.experience -= expToUpgrade;
-            await this.upgradeManager.startUpgradeRound(
+            this.upgradeManager.startUpgradeRound(
               this.world,
               this,
               () => this.pauseGame(),
@@ -341,6 +342,7 @@ export class MyRoom extends Room {
             this.fixedUpdate(this.fixedTimeStep);
           }
         }
+
         // get updates to component values
         const soaUpdates = this.soaSerialize(
           query(this.world, [Networked]) as readonly number[],
