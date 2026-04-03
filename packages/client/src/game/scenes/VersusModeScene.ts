@@ -49,7 +49,6 @@ export class VersusModeScene extends Scene {
 
   playerEntities: { [sessionId: string]: any } = {};
   private playerType!: Faction;
-  private camera!: Phaser.Cameras.Scene2D.Camera;
   private world!: World;
   private snapshotDeserialize!: (
     packet: ArrayBuffer,
@@ -64,7 +63,6 @@ export class VersusModeScene extends Scene {
   private inputs$!: Observable<InputState>;
 
   init(data: { player: Faction }) {
-    this.camera = this.cameras.main;
     this.inputs$ = createInputState();
   }
 

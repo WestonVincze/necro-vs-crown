@@ -15,4 +15,5 @@ export const BuildingSpawner = [] as {
   spawnableUnits: UnitName[];
   maxUnits: number;
   unitCount: number;
+  chaseRange: number;
 }[];

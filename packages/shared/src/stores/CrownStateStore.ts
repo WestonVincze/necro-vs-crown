@@ -87,7 +87,6 @@ const discardCardFromHand = (
 };
 
 const drawCardFromDeck = (state: CrownState): CrownState => {
-  console.log("drawing card");
   if (state.hand.length >= state.config.maxHandSize) return state;
 
   if (state.deck.length === 0) {

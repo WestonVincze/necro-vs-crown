@@ -20,6 +20,8 @@ import {
 } from "../components";
 import { ProjectileName } from "./Projectiles";
 import { SpriteTexture } from "../constants";
+import { createUnitEntity } from "./Unit";
+import { UnitName } from "../types";
 
 export const createArcherTower = (world: World, x: number, y: number) => {
   const eid = addEntity(world);
@@ -84,4 +86,34 @@ export const createArcherTower = (world: World, x: number, y: number) => {
     addComponent(world, eid, Networked);
   }
   return eid;
+};
+
+export const createPeasantHut = (world: World, x: number, y: number) => {
+  const eid = addEntity(world);
+  addComponent(world, eid, Position);
+  Position.x[eid] = x;
+  Position.y[eid] = y;
+
+  addComponent(world, eid, Transform);
+  Transform.height[eid] = 150;
+  Transform.width[eid] = 150;
+  Transform.rotation[eid] = 0;
+
+  addComponent(world, eid, Sprite);
+  Sprite.height[eid] = 150;
+  Sprite.width[eid] = 150;
+  Sprite.texture[eid] = SpriteTexture.Hut;
+  Sprite.type[eid] = SpriteType.Sprite;
+
+  // spawn 3 peasants within 200 units of hut
+  for (let i = 0; i < 3; i++) {
+    const eid = createUnitEntity(
+      world,
+      UnitName.Peasant,
+      x + (Math.random() * 200 - 100),
+      y + (Math.random() * 200 - 100),
+    );
+    // distance calc uses position squared
+    Behavior.chaseRange[eid] = 250 ** 2;
+  }
 };

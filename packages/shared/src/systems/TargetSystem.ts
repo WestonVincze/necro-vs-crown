@@ -50,6 +50,11 @@ export const createTargetingSystem = () => {
 
           const distance = getDistanceSquared(position, targetPosition);
 
+          // introduce a chase range POC
+          if (Behavior.chaseRange[eid] && Behavior.chaseRange[eid] < distance) {
+            continue;
+          }
+
           if (distance < closestDistance) {
             closestTarget = targetEid;
             closestDistance = distance;

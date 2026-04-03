@@ -51,6 +51,7 @@ import {
   CardData,
   GameOverEvent,
   createBonesEntity,
+  createPeasantHut,
 } from "@necro-crown/shared";
 import { createDeathSystem } from "../systems/DeathSystem";
 import { GameSettings } from "@necro-crown/shared/src/types";
@@ -256,6 +257,13 @@ export class MyRoom extends Room {
         // represents crown player
         player.eid = createArcherTower(this.world, 75, -1550);
 
+        // create some peasant huts (TODO: position initialization to sprite map)
+        createPeasantHut(this.world, -400, 1000);
+        createPeasantHut(this.world, 800, 500);
+        createPeasantHut(this.world, -80, -300);
+        createPeasantHut(this.world, 500, -1000);
+        createPeasantHut(this.world, -900, -1100);
+
         // initialize crown state
         const cards: Card[] = [];
         if (options.crownConfig) {
@@ -276,7 +284,6 @@ export class MyRoom extends Room {
         this.crownState.drawCard();
         this.crownState.drawCard();
         this.crownState.drawCard();
-        this.crownState.start();
 
         this.crownState.hand$.subscribe((hand) => {
           this.crownPlayer?.send("hand:update", { hand });
@@ -316,7 +323,10 @@ export class MyRoom extends Room {
       let elapsedTime = 0;
       let timeSinceLastTick = 0;
       this.pauseGame();
-      setTimeout(() => this.resumeGame(), 2000);
+      setTimeout(() => {
+        this.crownState.start();
+        this.resumeGame();
+      }, 2000);
       this.setSimulationInterval((deltaTime) => {
         if (!this.world.paused) {
           const expToUpgrade = this.upgradeManager.getExpToNextUpgrade();
