@@ -277,7 +277,10 @@ export class CrownStateStore {
       this.coinSubscription = null;
     }
 
-    this.coinSubscription = timer(firstTickDelay, 1000)
+    this.coinSubscription = timer(
+      firstTickDelay,
+      this.getState().config.coinInterval,
+    )
       .pipe(
         map(() => ({ type: "ADD_COINS" }) as Action),
         tap((action) => this.dispatch(action)),
