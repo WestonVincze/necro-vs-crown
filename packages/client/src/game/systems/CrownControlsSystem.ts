@@ -43,9 +43,14 @@ export const initializeCrownMouseControls = (
     cameraDragStartY = camera.scrollY;
   });
 
-  scene.input.on("pointerup", () => {
+  scene.input.on("pointerup", (pointer: any) => {
     cameraDragStartX = null;
     cameraDragStartY = null;
+    const selectedCard = crownClientState.getSelectedCard();
+    if (selectedCard !== null && selectedCard.id) {
+      const { x, y } = camera.getWorldPoint(pointer.x, pointer.y);
+      handleOnPlay(selectedCard.id, x, y);
+    }
   });
 
   scene.input.on("pointermove", (pointer: any) => {

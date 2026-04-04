@@ -39,6 +39,10 @@ class CrownClientState {
     this.patch({ selectedCard: card });
   }
 
+  deselectCard() {
+    this.patch({ selectedCard: null });
+  }
+
   getSelectedCard() {
     return this.state$.value.selectedCard;
   }
