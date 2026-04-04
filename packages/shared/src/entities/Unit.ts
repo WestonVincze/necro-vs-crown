@@ -78,6 +78,7 @@ export const createUnitEntity = (
     AI.type[eid] = AIType.MELEE;
     addComponent(world, eid, Behavior);
     Behavior.type[eid] = Behaviors.AutoTarget;
+    Behavior.chaseRange[eid] = 0;
     // TODO: add items from drop table
     addComponent(world, eid, ItemDrops);
   } else {
