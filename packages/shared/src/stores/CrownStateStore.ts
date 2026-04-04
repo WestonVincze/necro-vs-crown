@@ -12,7 +12,7 @@ import {
 export const DEFAULT_CROWN_CONFIG: CrownConfig = {
   maxCoins: 10,
   maxHandSize: 4,
-  coinInterval: 1000,
+  coinInterval: 2000,
 };
 
 export const DEFAULT_STARTING_HAND: Partial<Record<UnitName, number>> = {
@@ -199,6 +199,7 @@ export class CrownStateStore {
 
   // --- Lifecycle ---
   start() {
+    if (this.coinSubscription) return this;
     this.intervalStart = Date.now();
     this.startCoinTicker();
     return this;
@@ -265,6 +266,17 @@ export class CrownStateStore {
   }
 
   private startCoinTicker(firstTickDelay = 0) {
+    if (this.coinSubscription) {
+      try {
+        this.coinSubscription.unsubscribe();
+      } catch (error) {
+        console.error(
+          `Something happened while trying to unsubscribe to coinSubscription: ${JSON.stringify(error)}`,
+        );
+      }
+      this.coinSubscription = null;
+    }
+
     this.coinSubscription = timer(firstTickDelay, 1000)
       .pipe(
         map(() => ({ type: "ADD_COINS" }) as Action),
