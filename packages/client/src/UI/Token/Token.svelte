@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Units, UnitName } from "@necro-crown/shared";
+  import { Units, UnitName, type UnitData } from "@necro-crown/shared";
   export let cost: number;
   export let unitID: UnitName;
   import CoinPurse from "$icons/CoinPurse.svelte";
@@ -7,7 +7,8 @@
   let selected = false;
   let dragging = false;
 
-  const unitData = Units[unitID];
+  let unitData: UnitData | undefined;
+  $: unitData = Units ? Units[unitID] : undefined;
 </script>
 
 <div
@@ -21,7 +22,7 @@
   <div class="cost">
     <CoinPurse value={cost} />
   </div>
-  <img src={unitData.url} alt={unitData.name} />
+  <img src={unitData?.url} alt={unitData?.name} />
 </div>
 
 <style>

@@ -4,9 +4,11 @@
   import { crownClientState } from "$game/Crown"
   import { isPaused } from "../../stores/GameEventStore";
   import { onDestroy, onMount } from "svelte";
+  import DiscardPile from "./DiscardPile.svelte";
 
-  $: hand = crownClientState.hand$
-  $: coins = crownClientState.coins$
+  $: hand = crownClientState.hand$;
+  $: coins = crownClientState.coins$;
+  $: discard = crownClientState.discard$;
 
   const handleKeyDown = (ev: KeyboardEvent) => {
     const key = ev.key;
@@ -44,7 +46,7 @@
   </div>
   <div class="bottom" class:paused={$isPaused}>
     <div class="coins">
-      <CoinPurse value={$coins} />
+      <CoinPurse value={$coins} width={42} height={51} />
     </div>
     <div class="tokens">
       {#each $hand as card (card.id)}
@@ -61,6 +63,9 @@
         </span>
       {/each}
     </div>
+    <div class="discard">
+      <DiscardPile cards={$discard} />
+    </div>
   </div>
 
 <style>
@@ -73,15 +78,22 @@
     pointer-events: all;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
   }
   .paused {
     pointer-events: none;
   }
 
+  .coins {
+    margin-left: 16px;
+  }
+
   .tokens {
     display: flex;
     flex-direction: row;
+    flex-grow: 1;
+    justify-content: center;
   }
 
   .card-wrapper {
@@ -98,5 +110,13 @@
   }
   .card-wrapper.selected {
     transform: translateY(-10px);
+  }
+  .discard {
+    margin-right: 16px;
+  }
+  @media screen and (max-width: 768px) {
+    .discard {
+      display: none;
+    }
   }
 </style>
