@@ -14,7 +14,7 @@ export const initializeNecroMouseControls = (
   const pointerUp$ = fromEvent<PointerEvent>(canvas, "pointerup");
 
   const tapThresholdMs = 300;
-  const tapMoveThresholdPx = 10;
+  const tapMoveThresholdPx = 25;
 
   const pointerSub: Subscription = pointerDown$
     .pipe(
