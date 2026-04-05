@@ -83,6 +83,7 @@
     justify-content: center;
     align-items: center;
     gap: 16px;
+    overflow-y: auto;
   }
   .ui-container.waiting {
     background-color: rgba(0,0,0,0.2);

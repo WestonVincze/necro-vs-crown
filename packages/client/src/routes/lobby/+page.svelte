@@ -693,7 +693,8 @@
     gap: 16px;
     display: flex;
     justify-content: flex-end;
-    padding-top: 0.5rem;
+    padding-top: 16px;
+    flex-wrap: wrap;
   }
 
   .ready-btn {
@@ -799,5 +800,15 @@
     max-width: 100%;
     height: auto;
     object-fit: contain;
+  }
+
+  @media screen and (max-width: 768px) {
+    .factions {
+      grid-template-columns: unset;
+    }
+
+    .ready-row > button {
+      width: 100%;
+    }
   }
 </style>

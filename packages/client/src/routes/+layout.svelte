@@ -21,6 +21,7 @@
     left: 0;
     width: 100%;
     height: 100%;
+    overflow-y: auto;
   }
   #game-container {
     width: 100svw;

@@ -324,8 +324,9 @@ export class MyRoom extends Room {
       let timeSinceLastTick = 0;
       this.pauseGame();
       setTimeout(() => {
+        console.log("starting game");
         this.crownState.start();
-        this.resumeGame();
+        this.world.paused = false;
       }, 2000);
       this.setSimulationInterval((deltaTime) => {
         if (!this.world.paused) {
