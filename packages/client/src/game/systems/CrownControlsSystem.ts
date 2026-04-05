@@ -17,6 +17,8 @@ export const initializeCrownMouseControls = (
 
   let cameraDragStartX: number | null = null;
   let cameraDragStartY: number | null = null;
+  let pointerIsDown = false;
+  let wasdActive = false;
 
   const camera = scene.cameras.main;
 
@@ -39,11 +41,18 @@ export const initializeCrownMouseControls = (
   });
 
   scene.input.on("pointerdown", () => {
-    cameraDragStartX = camera.scrollX;
-    cameraDragStartY = camera.scrollY;
+    pointerIsDown = true;
+    if (!wasdActive) {
+      cameraDragStartX = camera.scrollX;
+      cameraDragStartY = camera.scrollY;
+    } else {
+      cameraDragStartX = null;
+      cameraDragStartY = null;
+    }
   });
 
   scene.input.on("pointerup", (pointer: any) => {
+    pointerIsDown = false;
     cameraDragStartX = null;
     cameraDragStartY = null;
     const selectedCard = crownClientState.getSelectedCard();
@@ -54,7 +63,8 @@ export const initializeCrownMouseControls = (
   });
 
   scene.input.on("pointermove", (pointer: any) => {
-    if (cameraDragStartX === null || cameraDragStartY === null) return;
+    if (!pointerIsDown || wasdActive) return;
+    if (!cameraDragStartX || !cameraDragStartY) return;
 
     if (pointer.isDown) {
       camera.scrollX =
@@ -86,4 +96,59 @@ export const initializeCrownMouseControls = (
       camera.scrollY -= newWorldPoint.y - worldPoint.y;
     },
   );
+
+  // --- WASD camera movement ---
+  const keys = scene.input.keyboard?.addKeys({
+    up: Phaser.Input.Keyboard.KeyCodes.W,
+    left: Phaser.Input.Keyboard.KeyCodes.A,
+    down: Phaser.Input.Keyboard.KeyCodes.S,
+    right: Phaser.Input.Keyboard.KeyCodes.D,
+  }) as {
+    up: Phaser.Input.Keyboard.Key;
+    left: Phaser.Input.Keyboard.Key;
+    down: Phaser.Input.Keyboard.Key;
+    right: Phaser.Input.Keyboard.Key;
+  };
+
+  const updateWASDActive = () => {
+    wasdActive = !!(
+      keys &&
+      (keys.left.isDown ||
+        keys.right.isDown ||
+        keys.up.isDown ||
+        keys.left.isDown)
+    );
+
+    if (wasdActive) {
+      cameraDragStartX = null;
+      cameraDragStartY = null;
+    }
+  };
+
+  scene.input.keyboard?.on("keydown", updateWASDActive);
+  scene.input.keyboard?.on("keyup", updateWASDActive);
+
+  const CAM_SPEED = 600;
+
+  const onUpdate = (_time: number, delta: number) => {
+    const dt = delta / 1000;
+    if (pointerIsDown) return;
+
+    let dx = 0;
+    let dy = 0;
+    if (keys.left.isDown) dx -= 1;
+    if (keys.right.isDown) dx += 1;
+    if (keys.up.isDown) dy -= 1;
+    if (keys.down.isDown) dy += 1;
+
+    if (dx !== 0 || dy !== 0) {
+      wasdActive = true;
+      camera.scrollX += (dx * CAM_SPEED * dt) / camera.zoom;
+      camera.scrollY += (dy * CAM_SPEED * dt) / camera.zoom;
+    } else {
+      wasdActive = false;
+    }
+  };
+
+  scene.events.on("update", onUpdate);
 };
