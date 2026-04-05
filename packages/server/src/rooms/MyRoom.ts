@@ -19,7 +19,6 @@ import {
   Pipeline,
   UnitName,
   type World,
-  Player,
   createUnitEntity,
   Networked,
   networkSyncComponents,
@@ -36,7 +35,6 @@ import {
   createSpellcastingSystem,
   createHealthSystem,
   createDestroyAfterDelaySystem,
-  createTimeSystem,
   GameEvents,
   HitSplatEvent,
   Input,
@@ -133,7 +131,7 @@ export class MyRoom extends Room {
       createHealthSystem(),
       createDestroyAfterDelaySystem(),
       createDeathSystem(this.world),
-      createTimeSystem(), // time should always be last
+      // createTimeSystem(),
     ]);
 
     this.tickSystems = pipeline([
@@ -350,6 +348,7 @@ export class MyRoom extends Room {
           }
           while (elapsedTime >= this.fixedTimeStep) {
             elapsedTime -= this.fixedTimeStep;
+            this.world.time.delta = elapsedTime;
             this.fixedUpdate(this.fixedTimeStep);
           }
         }
