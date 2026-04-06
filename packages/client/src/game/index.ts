@@ -6,6 +6,7 @@ import {
   SoloModeScene,
   GameOverScene,
 } from "./scenes";
+import { PlaygroundScene } from "./scenes/PlaygroundScene";
 
 const soloConfig: Types.Core.GameConfig = {
   type: AUTO,
@@ -30,13 +31,32 @@ const versusConfig: Types.Core.GameConfig = {
   scene: [PreloaderScene, MainMenuScene, VersusModeScene, GameOverScene],
 };
 
-export function createPhaserGame(mode?: "solo" | "versus") {
+const playgroundConfig: Types.Core.GameConfig = {
+  type: AUTO,
+  scale: { mode: Phaser.Scale.RESIZE },
+  parent: "game-container",
+  fps: { smoothStep: true, limit: 60 },
+  roundPixels: true,
+  render: {
+    pixelArt: true,
+  },
+  scene: [PreloaderScene, PlaygroundScene],
+};
+
+export function createPhaserGame(mode?: "solo" | "versus" | "playground") {
   let config = {};
-  if (mode === "solo") {
-    config = soloConfig;
-  } else if (mode === "versus") {
-    config = versusConfig;
+  switch (mode) {
+    case "solo":
+      config = soloConfig;
+      break;
+    case "versus":
+      config = versusConfig;
+      break;
+    case "playground":
+      config = playgroundConfig;
+      break;
   }
+
   const game = new Game({ ...config });
 
   // game.registry.set("faction", faction);

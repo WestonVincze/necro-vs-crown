@@ -3,14 +3,14 @@ import { assets } from "../../stores/AssetStore";
 import { SpriteTexture } from "@necro-crown/shared";
 
 export class PreloaderScene extends Scene {
-  private gameType: string = "solo";
+  private gameMode: string = "solo";
 
   constructor() {
     super({ key: "PreloaderScene" });
   }
 
-  init(data: { gameType: "solo" | "versus" }) {
-    this.gameType = data.gameType;
+  init(data: { gameMode: "solo" | "versus" | "playground" }) {
+    this.gameMode = data.gameMode;
   }
 
   preload() {
@@ -84,10 +84,17 @@ export class PreloaderScene extends Scene {
   }
 
   create() {
-    if (this.gameType === "solo") {
-      this.scene.start("MainMenu");
-    } else {
-      this.scene.start("VersusModeScene");
+    console.log(this.gameMode);
+    switch (this.gameMode) {
+      case "solo":
+        this.scene.start("MainMenu");
+        break;
+      case "versus":
+        this.scene.start("VersusModeScene");
+        break;
+      case "playground":
+        this.scene.start("PlaygroundScene");
+        break;
     }
   }
 }

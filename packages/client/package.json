@@ -20,6 +20,7 @@
     "@sveltejs/vite-plugin-svelte": "^3.0.0",
     "@types/dat.gui": "^0.7.13",
     "dat.gui": "^0.7.9",
+    "lil-gui": "^0.21.0",
     "svelte": "^4.2.7",
     "svelte-check": "^3.6.0",
     "tslib": "^2.4.1",
@@ -27,12 +28,12 @@
   },
   "type": "module",
   "dependencies": {
-    "bitecs": "^0.4.0",
     "@colyseus/sdk": "^0.17.35",
     "@necro-crown/shared": "workspace:*",
+    "bitecs": "^0.4.0",
+    "pathfinding": "github:WestonVincze/PathFinding.js",
     "phaser": "^3.80.1",
     "rxjs": "^7.8.1",
-    "typescript": "^5.9.3",
-    "pathfinding": "github:WestonVincze/PathFinding.js"
+    "typescript": "^5.9.3"
   }
 }
