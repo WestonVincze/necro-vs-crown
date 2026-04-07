@@ -1,47 +1,62 @@
-import { addComponent, addEntity, createWorld } from "bitecs";
-import { Scene } from "phaser";
+import {
+  addComponent,
+  createWorld,
+  entityExists,
+  hasComponent,
+  observe,
+  onAdd,
+} from "bitecs";
+import { GameObjects, Scene } from "phaser";
 import { Grid } from "pathfinding";
 import GUI from "lil-gui";
 import {
   type System,
-  Player,
   createUnitEntity,
-  createBonesEntity,
   Faction,
-  Behavior,
-  Behaviors,
-  createTargetSpawnerEntity,
   UnitName,
-  Level,
-  CoinAccumulator,
-  Coin,
   createDeathSystem,
   GameEvents,
   type Pipeline,
-  BASE_EXP,
   type World,
   profiler,
-  Position,
-  GridCell,
-  Cursor,
-  getGridCellFromPosition,
-  CrownStateStore,
-  generateMockCards,
   Units,
+  pipeline,
+  createEmitUpgradeRequestEventSystem,
+  createUpgradeSelectionSystem,
+  createHandleUpgradeSelectEventSystem,
+  createLevelUpSystem,
+  createUnitSpawnerSystem,
+  createSeparationForceSystem,
+  createMovementSystem,
+  createCooldownSystem,
+  createCombatSystem,
+  createProjectileCollisionSystem,
+  createSpellcastingSystem,
+  createSpellEffectSystem,
+  createStatUpdateSystem,
+  createHealthSystem,
+  createDestroyAfterDelaySystem,
+  createTimeSystem,
+  Position,
+  Sprite,
+  Health,
+  getStatComponentByName,
+  StatName,
 } from "@necro-crown/shared";
 import {
-  initializeNecroMouseControls,
   initializeCrownMouseControls,
   createInputHandlerSystem,
   createHitSplatSystem,
   createGridSystem,
   createFollowTargetSystem,
+  createDrawCollisionSystem,
+  createSpriteSystem,
+  createDrawSpellEffectSystem,
+  createHealthBarSystem,
 } from "$game/systems";
 import { GameState } from "$game/managers";
-import { buildPhysicsPipeline, buildTickPipeline } from "$game/pipelines";
-import { crownClientState } from "$game/Crown";
+import { buildTickPipeline } from "$game/pipelines";
 import { buildTileMap } from "../../helpers/TileMap";
-import { buttons } from "../../stores/PlaygroundStore";
 
 export class PlaygroundScene extends Scene {
   private world!: World;
@@ -53,6 +68,8 @@ export class PlaygroundScene extends Scene {
   private tickSystems!: Pipeline;
   private physicsSystems!: Pipeline;
 
+  // map of eid to sprite reference
+  private spriteMap = new Map<number, GameObjects.Sprite | GameObjects.Rope>();
   private timeSinceLastTick: number = 0;
 
   constructor() {
@@ -106,8 +123,10 @@ export class PlaygroundScene extends Scene {
     };
 
     this.gui.add(this.world, "paused");
-    this.gui.add(buttons, "tickUpdate");
-    this.gui.add(buttons, "frameUpdate");
+
+    const frameFolder = this.gui.addFolder("Frame Advance");
+    frameFolder.add(buttons, "tickUpdate");
+    frameFolder.add(buttons, "frameUpdate");
 
     const unitFolder = this.gui.addFolder("Unit Spawn");
     unitFolder.add(unitToSpawn, "name", Object.keys(Units));
@@ -115,26 +134,118 @@ export class PlaygroundScene extends Scene {
     unitFolder.add(unitToSpawn, "y");
     unitFolder.add(buttons, "spawnUnit");
 
+    const inspector = {
+      eid: 0,
+      xPos: 0,
+      yPos: 0,
+      health: 0,
+    };
+
+    const componentsFolder = this.gui.addFolder("Components");
+    componentsFolder.add(inspector, "eid").listen();
+
+    componentsFolder
+      .add(inspector, "health")
+      .listen()
+      .onChange((value: number) => {
+        if (inspector.eid === 0) return;
+        Health.current[inspector.eid] = value;
+      });
+
+    componentsFolder
+      .add(inspector, "xPos")
+      .listen()
+      .onChange((value: number) => {
+        if (inspector.eid === 0) return;
+        Position.x[inspector.eid] = value;
+      });
+
+    componentsFolder
+      .add(inspector, "yPos")
+      .listen()
+      .onChange((value: number) => {
+        if (inspector.eid === 0) return;
+        Position.y[inspector.eid] = value;
+      });
+
+    const statsFolder = componentsFolder.addFolder("Stats");
+
+    const stats: Partial<Record<StatName, number>> = {};
+    Object.keys(StatName).forEach((k) => {
+      stats[k as StatName] = 0;
+
+      statsFolder
+        .add(stats, k as StatName)
+        .listen()
+        .onChange((value: number) => {
+          if (inspector.eid === 0) return;
+          const component = getStatComponentByName(k as StatName);
+          if (!hasComponent(this.world, inspector.eid, component)) {
+            addComponent(this.world, inspector.eid, component);
+          }
+          component.current[inspector.eid] = value;
+          component.base[inspector.eid] = value;
+        });
+    });
+
+    const createSpriteInteractionSystem = (world: World) => {
+      const spriteEnterQueue: number[] = [];
+      observe(world, onAdd(Sprite), (eid) => spriteEnterQueue.push(eid));
+
+      return (world: World) => {
+        for (const eid of spriteEnterQueue.splice(0)) {
+          const sprite = this.spriteMap.get(eid);
+          sprite?.on("pointerdown", () => {
+            console.log(eid);
+            inspector.eid = eid;
+            if (!entityExists(this.world, eid)) return;
+
+            inspector.health = Health.current[eid];
+            inspector.xPos = Position.x[eid];
+            Object.keys(StatName).forEach((k) => {
+              stats[k as StatName] = getStatComponentByName(
+                k as StatName,
+              ).current[eid];
+            });
+          });
+        }
+
+        return world;
+      };
+    };
+
     this.events.on("destroy", () => {
       console.log("destroy scene");
       this.gui.destroy();
     });
 
-    physicsSystems.pre = [
+    this.physicsSystems = pipeline([
       createInputHandlerSystem(),
       createGridSystem(this.world, map),
       createFollowTargetSystem(this.world, this),
-    ];
-
-    physicsSystems.post = [createDeathSystem(this.world, Faction.Necro)];
-
-    // initialize systems with overrides
-    this.physicsSystems = buildPhysicsPipeline({
-      world: this.world,
-      scene: this,
-      pre: physicsSystems.pre,
-      post: physicsSystems.post,
-    });
+      createEmitUpgradeRequestEventSystem(this.world),
+      createUpgradeSelectionSystem(),
+      createHandleUpgradeSelectEventSystem(), // subscribes to game events...
+      createLevelUpSystem(),
+      createUnitSpawnerSystem(),
+      createDrawCollisionSystem(this.world, this),
+      createSeparationForceSystem(),
+      createMovementSystem(),
+      createSpriteSystem(this.world, this, this.spriteMap, Faction.Necro, true),
+      createSpriteInteractionSystem(this.world),
+      createCooldownSystem(),
+      createCombatSystem(),
+      createProjectileCollisionSystem(),
+      createSpellcastingSystem(),
+      createSpellEffectSystem(this.world),
+      createDrawSpellEffectSystem(this.world, this),
+      createStatUpdateSystem(),
+      createHealthSystem(),
+      createHealthBarSystem(this.world, this),
+      createDestroyAfterDelaySystem(),
+      createDeathSystem(this.world, Faction.Necro),
+      createTimeSystem(),
+    ]);
 
     this.tickSystems = buildTickPipeline();
 
@@ -146,8 +257,6 @@ export class PlaygroundScene extends Scene {
 
     this.events.once("shutdown", GameState.destroyGameState);
   }
-
-  frameUpdate() {}
 
   /** RUN PHYSICS SYSTEMS */
   update(time: number, delta: number): void {

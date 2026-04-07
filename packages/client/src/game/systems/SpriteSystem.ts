@@ -20,10 +20,13 @@ import {
 export const createSpriteSystem = (
   world: World,
   scene: Scene,
+  spriteById: Map<number, GameObjects.Sprite | GameObjects.Rope>,
   faction?: Faction,
+  isInteractive?: boolean,
 ) => {
+  // internal map used to track rope animation time
   const countById = new Map<number, number>();
-  const spriteById = new Map<number, GameObjects.Sprite | GameObjects.Rope>();
+  // const spriteById = new Map<number, GameObjects.Sprite | GameObjects.Rope>();
 
   const spriteQuery = (world: World) => query(world, [Position, Sprite]);
 
@@ -59,6 +62,11 @@ export const createSpriteSystem = (
 
       let sprite: GameObjects.Sprite | GameObjects.Rope;
 
+      // Rope gameobjects don't have an easy interactive mode...
+      if (isInteractive) {
+        Sprite.type[eid] = SpriteType.Sprite;
+      }
+
       switch (Sprite.type[eid]) {
         case SpriteType.Rope:
           // @ts-expect-error (number can be used to draw vertices)
@@ -72,6 +80,9 @@ export const createSpriteSystem = (
           break;
       }
 
+      if (isInteractive) {
+        sprite.setInteractive();
+      }
       sprite.x = Position.x[eid];
       sprite.y = Position.y[eid] - Transform.height[eid] / 2;
       sprite.width = width;

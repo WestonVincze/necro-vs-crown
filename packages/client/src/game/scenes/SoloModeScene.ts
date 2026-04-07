@@ -1,5 +1,5 @@
 import { addComponent, addEntity, createWorld } from "bitecs";
-import { Scene } from "phaser";
+import { GameObjects, Scene } from "phaser";
 import { Grid } from "pathfinding";
 import {
   type System,
@@ -26,6 +26,23 @@ import {
   getGridCellFromPosition,
   CrownStateStore,
   generateMockCards,
+  createEmitUpgradeRequestEventSystem,
+  createUpgradeSelectionSystem,
+  createHandleUpgradeSelectEventSystem,
+  createLevelUpSystem,
+  createUnitSpawnerSystem,
+  createSeparationForceSystem,
+  createMovementSystem,
+  createCooldownSystem,
+  createCombatSystem,
+  createProjectileCollisionSystem,
+  createSpellcastingSystem,
+  createSpellEffectSystem,
+  createStatUpdateSystem,
+  createHealthSystem,
+  createDestroyAfterDelaySystem,
+  pipeline,
+  createTimeSystem,
 } from "@necro-crown/shared";
 import {
   initializeNecroMouseControls,
@@ -34,9 +51,13 @@ import {
   createHitSplatSystem,
   createGridSystem,
   createFollowTargetSystem,
+  createDrawCollisionSystem,
+  createSpriteSystem,
+  createDrawSpellEffectSystem,
+  createHealthBarSystem,
 } from "$game/systems";
 import { GameState } from "$game/managers";
-import { buildPhysicsPipeline, buildTickPipeline } from "$game/pipelines";
+import { buildTickPipeline } from "$game/pipelines";
 import { crownClientState } from "$game/Crown";
 import { buildTileMap } from "../../helpers/TileMap";
 
@@ -51,6 +72,7 @@ export class SoloModeScene extends Scene {
   private tickSystems!: Pipeline;
   private physicsSystems!: Pipeline;
 
+  private spriteMap = new Map<number, GameObjects.Sprite | GameObjects.Rope>();
   private timeSinceLastTick: number = 0;
 
   constructor() {
@@ -210,14 +232,30 @@ export class SoloModeScene extends Scene {
         break;
     }
 
-    // initialize systems with overrides
-    this.physicsSystems = buildPhysicsPipeline({
-      world: this.world,
-      scene: this,
-      pre: physicsSystems.pre,
-      post: physicsSystems.post,
-      faction: this.playerType,
-    });
+    this.physicsSystems = pipeline([
+      ...physicsSystems.pre,
+      createEmitUpgradeRequestEventSystem(this.world),
+      createUpgradeSelectionSystem(),
+      createHandleUpgradeSelectEventSystem(), // subscribes to game events...
+      createLevelUpSystem(),
+      createUnitSpawnerSystem(),
+      createDrawCollisionSystem(this.world, this),
+      createSeparationForceSystem(),
+      createMovementSystem(),
+      createSpriteSystem(this.world, this, this.spriteMap, this.playerType),
+      createCooldownSystem(),
+      createCombatSystem(),
+      createProjectileCollisionSystem(),
+      createSpellcastingSystem(),
+      createSpellEffectSystem(this.world),
+      createDrawSpellEffectSystem(this.world, this),
+      createStatUpdateSystem(),
+      createHealthSystem(),
+      createHealthBarSystem(this.world, this),
+      createDestroyAfterDelaySystem(),
+      ...physicsSystems.post,
+      createTimeSystem(),
+    ]);
 
     this.tickSystems = buildTickPipeline();
 

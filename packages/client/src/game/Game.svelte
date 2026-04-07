@@ -20,7 +20,7 @@
   onMount(async () => {
     const { createPhaserGame } = (await import("$game/index"));
     game = createPhaserGame("solo");
-    game.scene.start("PreloaderScene", { gameType: "solo" });
+    game.scene.start("PreloaderScene", { gameMode: "solo" });
   })
 
   const levelUpSubscription = legacyGameEvents.onUpgradeRequest.subscribe(({ eid, upgrades }) => {

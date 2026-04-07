@@ -48,7 +48,7 @@ export const buildPhysicsPipeline = ({
     createDrawCollisionSystem(world, scene),
     createSeparationForceSystem(),
     createMovementSystem(),
-    createSpriteSystem(world, scene, faction),
+    // createSpriteSystem(world, scene, faction),
     // createFollowTargetSystem(scene),
     createCooldownSystem(),
     createCombatSystem(),

@@ -1,12 +1,8 @@
-import { Scene } from "phaser";
+import { GameObjects, Scene } from "phaser";
 import { Room } from "@colyseus/sdk";
 import {
   Faction,
   GameEvents,
-  MAP_X_MAX,
-  MAP_X_MIN,
-  MAP_Y_MAX,
-  MAP_Y_MIN,
   Networked,
   createHealthSystem,
   networkSyncComponents,
@@ -57,6 +53,7 @@ export class VersusModeScene extends Scene {
   private soaDeserialize: any;
   private observerDeserialize: any;
   private idMap = new Map<number, number>();
+  private spriteMap = new Map<number, GameObjects.Sprite | GameObjects.Rope>();
 
   private physicsSystems!: Pipeline;
 
@@ -84,7 +81,7 @@ export class VersusModeScene extends Scene {
     // initialize systems
     this.physicsSystems = pipeline([
       createDrawCollisionSystem(this.world, this),
-      createSpriteSystem(this.world, this, this.playerType),
+      createSpriteSystem(this.world, this, this.spriteMap, this.playerType),
       createDrawSpellEffectSystem(this.world, this),
       createHealthSystem(),
       createHealthBarSystem(this.world, this),
