@@ -42,6 +42,7 @@ import {
   Health,
   getStatComponentByName,
   StatName,
+  MaxHealth,
 } from "@necro-crown/shared";
 import {
   initializeCrownMouseControls,
@@ -185,6 +186,12 @@ export class PlaygroundScene extends Scene {
           }
           component.current[inspector.eid] = value;
           component.base[inspector.eid] = value;
+          if (component === MaxHealth) {
+            const diff =
+              MaxHealth.current[inspector.eid] - Health.max[inspector.eid];
+            Health.max[inspector.eid] = MaxHealth.current[inspector.eid];
+            Health.current[inspector.eid] += diff;
+          }
         });
     });
 
