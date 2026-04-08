@@ -1,5 +1,4 @@
-import { StatName } from "../../components";
-import { UnitName } from "../../types";
+import { UnitName, StatName } from "../../types";
 
 export type StatUpgradeRange = { min: number; max: number };
 

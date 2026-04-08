@@ -12,13 +12,10 @@ import {
   Input,
   SpellEffect,
   Position,
-  SpellState,
   Bones,
   Behavior,
-  Behaviors,
   Necro,
   Health,
-  SpellName,
   SpellCooldown,
   ResolveSpell,
   Damage,
@@ -26,7 +23,13 @@ import {
 } from "../../components";
 import { createUnitEntity } from "../../entities";
 import { checkIfWithinDistance, getPositionFromEid } from "../../utils";
-import { UnitName, type World } from "../../types";
+import {
+  Behaviors,
+  SpellName,
+  SpellState,
+  UnitName,
+  type World,
+} from "../../types";
 
 export const createSpellcastingSystem = () => {
   const spellcasterQuery = (world: World) =>

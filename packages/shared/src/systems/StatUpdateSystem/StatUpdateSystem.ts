@@ -7,12 +7,11 @@ import {
 } from "bitecs";
 
 import {
-  StatName,
   UpdateStatsRequest,
   UnitMeta,
   getStatComponentByName,
 } from "../../components";
-import { StatUpdate, UnitName } from "../../types";
+import { StatUpdate, UnitName, StatName } from "../../types";
 
 /**
  * updates the stats for all unit entities with the given `UnitName`

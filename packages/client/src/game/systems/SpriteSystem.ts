@@ -7,11 +7,11 @@ import {
   Sprite,
   SpriteType,
   Transform,
-  TextureNames,
   type World,
   MAP_HEIGHT_PIXELS,
   Necro,
   Faction,
+  SpriteTexture,
 } from "@necro-crown/shared";
 
 /**
@@ -55,7 +55,7 @@ export const createSpriteSystem = (
     const spritesEntered = spriteEnterQueue.splice(0);
     for (const eid of spritesEntered) {
       const textureId = Sprite.texture[eid];
-      const texture = TextureNames[textureId];
+      const texture = SpriteTexture[textureId];
       const width = Transform.width[eid];
       const height = Transform.height[eid];
       const rotation = Transform.rotation[eid];

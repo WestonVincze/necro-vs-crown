@@ -1,6 +1,5 @@
 import { addComponent, addEntity } from "bitecs";
-import { SpriteTexture } from "../constants";
-import type { Vector2, World } from "../types";
+import { type Vector2, type World, SpriteTexture, SpriteType } from "../types";
 import {
   Collider,
   CollisionLayers,
@@ -12,7 +11,6 @@ import {
   Position,
   Projectile,
   Sprite,
-  SpriteType,
   Transform,
   Velocity,
 } from "../components";

@@ -8,22 +8,17 @@ import {
   Velocity,
   Health,
   Behavior,
-  Behaviors,
   Transform,
   Collider,
   CollisionLayers,
   Inventory,
   GridCell,
   Spell,
-  SpellState,
-  SpellName,
   AI,
   RangedUnit,
-  SpriteType,
   Level,
   UnitMeta,
   Player,
-  StatName,
   getStatComponentByName,
   ExpReward,
   ItemDrops,
@@ -33,6 +28,12 @@ import {
   SpellCooldown,
 } from "../components";
 import {
+  Behaviors,
+  SpellState,
+  SpellName,
+  SpriteType,
+  StatName,
+  SpriteTexture,
   AIState,
   AIType,
   Faction,
@@ -42,7 +43,7 @@ import {
   type World,
 } from "../types";
 import { Units } from "../data";
-import { SpriteTexture, BASE_EXP } from "../constants";
+import { BASE_EXP } from "../constants";
 import { ProjectileName } from "./Projectiles";
 import { clampToScreenSize, getGridCellFromPosition } from "../utils";
 

@@ -5,7 +5,6 @@ import {
   AttackRange,
   AttackSpeed,
   Behavior,
-  Behaviors,
   Crown,
   Health,
   MaxHealth,
@@ -15,13 +14,11 @@ import {
   Position,
   RangedUnit,
   Sprite,
-  SpriteType,
   Transform,
 } from "../components";
 import { ProjectileName } from "./Projectiles";
-import { SpriteTexture } from "../constants";
 import { createUnitEntity } from "./Unit";
-import { UnitName } from "../types";
+import { Behaviors, SpriteType, SpriteTexture, UnitName } from "../types";
 
 export const createArcherTower = (world: World, x: number, y: number) => {
   const eid = addEntity(world);

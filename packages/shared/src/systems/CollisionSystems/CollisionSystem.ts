@@ -1,7 +1,7 @@
-import { isNested, Not, query, removeEntity } from "bitecs";
+import { addComponent, isNested, Not, query, removeEntity } from "bitecs";
 import { Subject } from "rxjs";
 
-import { Position, Collider, Projectile, Crown } from "../../components";
+import { Position, Collider, Projectile, Crown, Dead } from "../../components";
 import { attackEntity } from "../CombatSystem";
 import { type World } from "../../types";
 /**
@@ -47,7 +47,7 @@ export const createProjectileCollisionSystem = () => {
               Projectile.damage[projectileEid],
             )
           ) {
-            removeEntity(world, projectileEid);
+            addComponent(world, projectileEid, Dead);
             break;
           }
         }
