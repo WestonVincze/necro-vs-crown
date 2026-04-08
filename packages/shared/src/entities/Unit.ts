@@ -19,7 +19,6 @@ import {
   Level,
   UnitMeta,
   Player,
-  getStatComponentByName,
   ExpReward,
   ItemDrops,
   SeparationForce,
@@ -45,7 +44,11 @@ import {
 import { Units } from "../data";
 import { BASE_EXP } from "../constants";
 import { ProjectileName } from "./Projectiles";
-import { clampToScreenSize, getGridCellFromPosition } from "../utils";
+import {
+  getStatComponentByName,
+  clampToScreenSize,
+  getGridCellFromPosition,
+} from "../utils";
 
 const FIRST_ATTACK_DELAY = 1500;
 

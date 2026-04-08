@@ -6,11 +6,8 @@ import {
   removeComponent,
 } from "bitecs";
 
-import {
-  UpdateStatsRequest,
-  UnitMeta,
-  getStatComponentByName,
-} from "../../components";
+import { UpdateStatsRequest, UnitMeta } from "../../components";
+import { getStatComponentByName } from "../../utils";
 import { StatUpdate, UnitName, StatName } from "../../types";
 
 /**
