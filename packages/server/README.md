@@ -1,4 +1,6 @@
-# Welcome to Colyseus!
+# Necro Vs Crown - Server Package
+
+## Technology
 
 This project has been created using [⚔️ `create-colyseus-app`](https://github.com/colyseus/create-colyseus-app/) - an npm init template for kick starting a Colyseus project in TypeScript.
 
@@ -13,8 +15,8 @@ npm start
 ## Structure
 
 - `index.ts`: main entry point, register an empty room handler and attach [`@colyseus/monitor`](https://github.com/colyseus/colyseus-monitor)
-- `src/rooms/MyRoom.ts`: an empty room handler for you to implement your logic
-- `src/rooms/schema/MyRoomState.ts`: an empty schema used on your room's state.
+- `src/rooms/Lobby.ts`: Lobby room - initial connection between clients where players select their role and modify game rules
+- `src/rooms/VersusRoom.ts`: core game room that processes game events, runs systems, and updates client state
 - `loadtest/example.ts`: scriptable client for the loadtest tool (see `npm run loadtest`)
 - `package.json`:
   - `scripts`:
