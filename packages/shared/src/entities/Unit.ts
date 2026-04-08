@@ -62,7 +62,7 @@ export const createUnitEntity = (
   const data: UnitData = Units[name];
   const stats: Stats = { ...data.stats };
 
-  if (world.unitUpgrades[name]) {
+  if (world.unitUpgrades && world.unitUpgrades[name]) {
     Object.entries(world.unitUpgrades[name]).forEach(([key, value]) => {
       const statName = key as unknown as keyof Stats;
       if (stats[statName] !== undefined) {

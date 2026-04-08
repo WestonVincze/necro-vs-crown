@@ -11,8 +11,8 @@ import {
   Spell,
   SpellCooldown,
   SpellEffect,
-  SpellState,
 } from "../../components";
+import { SpellState } from "../../types";
 
 // TODO: add tests for specific spells
 describe("SpellcastingSystems", () => {
@@ -20,6 +20,7 @@ describe("SpellcastingSystems", () => {
   let eid: number;
 
   beforeEach(() => {
+    console.log("createWorld");
     world = createWorld();
     eid = addEntity(world);
   });
@@ -77,6 +78,7 @@ describe("SpellcastingSystems", () => {
   });
 
   describe("SpellResolveSystem", () => {
+    world = createWorld() as World;
     const spellResolveSystem = createSpellEffectSystem(world);
 
     it("increases [SpellEffect] size by growth rate", () => {
