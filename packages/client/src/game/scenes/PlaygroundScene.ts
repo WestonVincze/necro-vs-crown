@@ -48,6 +48,7 @@ import {
   createSteppablePipeline,
   CombatTarget,
   MoveTarget,
+  type SteppableController,
 } from "@necro-crown/shared";
 import * as Components from "@necro-crown/shared/components";
 import {
@@ -74,6 +75,11 @@ export class PlaygroundScene extends Scene {
   // system references
   private tickSystems!: Pipeline;
   private physicsSystems!: Pipeline;
+
+  // steppable pipeline controller & metadata
+  private systemsController?: SteppableController;
+  private systemsInfo?: { name: string; enabled: boolean }[];
+  private systemsDisplay = { currentSystem: "<idle>", stepping: false };
 
   // map of eid to sprite reference
   private spriteMap = new Map<number, GameObjects.Sprite | GameObjects.Rope>();
@@ -197,12 +203,8 @@ export class PlaygroundScene extends Scene {
     );
     const componentOptions = {
       selectedComponent: "NONE",
-      addComponent: () => {
-        // folder add
-      },
-      removeComponent: () => {
-        // remove compon
-      },
+      addComponent: () => {},
+      removeComponent: () => {},
     };
     let componentPropsFolder = modifyComponentFolder.addFolder("Props");
     const componentRefs = new Map(
@@ -214,7 +216,7 @@ export class PlaygroundScene extends Scene {
 
     let statsFolder = entityDetailsFolder.addFolder("Stats");
 
-    let targetingFolder = this.gui.addFolder("Targeting");
+    let targetingFolder = entityDetailsFolder.addFolder("Targeting");
     const targets: {
       moveTarget: number | null;
       combatTarget: number | null;
@@ -394,6 +396,107 @@ export class PlaygroundScene extends Scene {
       };
     };
 
+    const systemEntries: { name: string; fn: (world?: World) => any }[] = [
+      { name: "InputHandler", fn: () => createInputHandlerSystem() },
+      { name: "GridSystem", fn: () => createGridSystem(this.world, map) },
+      {
+        name: "FollowTarget",
+        fn: () => createFollowTargetSystem(this.world, this),
+      },
+      {
+        name: "EmitUpgradeRequest",
+        fn: () => createEmitUpgradeRequestEventSystem(this.world),
+      },
+      { name: "UpgradeSelection", fn: () => createUpgradeSelectionSystem() },
+      {
+        name: "HandleUpgradeSelect",
+        fn: () => createHandleUpgradeSelectEventSystem(),
+      },
+      { name: "LevelUp", fn: () => createLevelUpSystem() },
+      { name: "UnitSpawner", fn: () => createUnitSpawnerSystem() },
+      {
+        name: "DrawCollision",
+        fn: () => createDrawCollisionSystem(this.world, this),
+      },
+      { name: "SeparationForce", fn: () => createSeparationForceSystem() },
+      { name: "Movement", fn: () => createMovementSystem() },
+      { name: "Cooldown", fn: () => createCooldownSystem() },
+      { name: "Combat", fn: () => createCombatSystem() },
+      {
+        name: "ProjectileCollision",
+        fn: () => createProjectileCollisionSystem(),
+      },
+      { name: "Spellcasting", fn: () => createSpellcastingSystem() },
+      { name: "SpellEffect", fn: () => createSpellEffectSystem(this.world) },
+      {
+        name: "DrawSpellEffect",
+        fn: () => createDrawSpellEffectSystem(this.world, this),
+      },
+      { name: "StatUpdate", fn: () => createStatUpdateSystem() },
+      { name: "Health", fn: () => createHealthSystem() },
+      { name: "DestroyAfterDelay", fn: () => createDestroyAfterDelaySystem() },
+      { name: "Death", fn: () => createDeathSystem(this.world, Faction.Necro) },
+      {
+        name: "SpriteSystem",
+        fn: () =>
+          createSpriteSystem(
+            this.world,
+            this,
+            this.spriteMap,
+            Faction.Necro,
+            true,
+          ),
+      },
+      {
+        name: "SpriteInteraction",
+        fn: () => createSpriteInteractionSystem(this.world),
+      },
+      { name: "HealthBar", fn: () => createHealthBarSystem(this.world, this) },
+    ];
+    const systemsFolder = this.gui.addFolder("Systems");
+    systemsFolder
+      .add(this.systemsDisplay, "currentSystem")
+      .name("current")
+      .listen();
+    systemsFolder
+      .add(this.systemsDisplay, "stepping")
+      .name("stepping")
+      .listen()
+      .onChange((v: boolean) => {
+        controller.setStepping(Boolean(v));
+      });
+    systemsFolder.add({ step: () => controller.step() }, "step").name("Step");
+    systemsFolder
+      .add({ step4: () => controller.stepMany(4) }, "step4")
+      .name("Step x4");
+
+    const togglesFolder = systemsFolder.addFolder("Active Systems");
+
+    const systemsInfo = systemEntries.map((e) => ({
+      name: e.name,
+      enabled: true,
+    }));
+
+    const systemFns = systemEntries.map((e, idx) => {
+      const sys = e.fn();
+      // only run enabled systems
+      return (world: World) => {
+        if (systemsInfo[idx].enabled) return sys(world);
+        return world;
+      };
+    });
+    systemsInfo.forEach((si, idx) => {
+      togglesFolder
+        .add(si, "enabled")
+        .name(si.name)
+        .onChange(() => {
+          // reflect stepping flag in GUI display
+          this.systemsDisplay.stepping = controller.stepping;
+        });
+    });
+    togglesFolder.close();
+    systemsFolder.open();
+
     this.events.on("destroy", () => {
       console.log("destroy scene");
       this.gui.destroy();
@@ -401,33 +504,10 @@ export class PlaygroundScene extends Scene {
 
     this.tickSystems = buildTickPipeline();
 
-    const { run, controller } = createSteppablePipeline([
-      createInputHandlerSystem(),
-      createGridSystem(this.world, map),
-      createFollowTargetSystem(this.world, this),
-      createEmitUpgradeRequestEventSystem(this.world),
-      createUpgradeSelectionSystem(),
-      createHandleUpgradeSelectEventSystem(), // subscribes to game events...
-      createLevelUpSystem(),
-      createUnitSpawnerSystem(),
-      createDrawCollisionSystem(this.world, this),
-      createSeparationForceSystem(),
-      createMovementSystem(),
-      createCooldownSystem(),
-      createCombatSystem(),
-      createProjectileCollisionSystem(),
-      createSpellcastingSystem(),
-      createSpellEffectSystem(this.world),
-      createDrawSpellEffectSystem(this.world, this),
-      createStatUpdateSystem(),
-      createHealthSystem(),
-      createDestroyAfterDelaySystem(),
-      createDeathSystem(this.world, Faction.Necro),
-      createSpriteSystem(this.world, this, this.spriteMap, Faction.Necro, true),
-      createSpriteInteractionSystem(this.world),
-      createHealthBarSystem(this.world, this),
-    ]);
+    const { run, controller } = createSteppablePipeline(systemFns);
     this.physicsSystems = run;
+    this.systemsController = controller;
+    this.systemsInfo = systemsInfo;
 
     // reactive systems
     createHitSplatSystem(this.world, this);
@@ -451,6 +531,15 @@ export class PlaygroundScene extends Scene {
       if (GameState.isDebugMode()) profiler.logResults();
     }
     this.physicsSystems(this.world);
+    if (this.systemsController && this.systemsInfo) {
+      const len = this.systemsInfo.length;
+      // last executed is currentIndex - 1 (wrap)
+      const lastIndex =
+        (((this.systemsController.currentIndex - 1) % len) + len) % len;
+      this.systemsDisplay.currentSystem =
+        this.systemsInfo[lastIndex]?.name ?? "<idle>";
+      this.systemsDisplay.stepping = this.systemsController.stepping;
+    }
     profiler.end("FRAME_TIMER");
   }
 }
