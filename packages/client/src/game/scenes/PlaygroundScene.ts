@@ -332,6 +332,7 @@ export class PlaygroundScene extends Scene {
       Object.keys(StatName).forEach((k) => {
         const statName = k as StatName;
         const stat = getStatComponentByName(statName);
+        if (!hasComponent(this.world, eid, stat)) return;
 
         stats[statName as StatName] = stat.current[eid];
 
@@ -531,7 +532,11 @@ export class PlaygroundScene extends Scene {
       if (GameState.isDebugMode()) profiler.logResults();
     }
     this.physicsSystems(this.world);
-    if (this.systemsController && this.systemsInfo) {
+    if (
+      this.systemsController &&
+      this.systemsInfo &&
+      this.systemsController.stepping
+    ) {
       const len = this.systemsInfo.length;
       // last executed is currentIndex - 1 (wrap)
       const lastIndex =
