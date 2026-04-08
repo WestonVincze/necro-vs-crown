@@ -1,13 +1,5 @@
 import { u8, f32 } from "bitecs/serialization";
-export enum SpellState {
-  Ready,
-  Casting,
-}
-
-export enum SpellName {
-  Summon = 1,
-  HolyNova,
-}
+import { SpellName, SpellState } from "../types";
 
 export const Spell = {
   name: [] as SpellName[],

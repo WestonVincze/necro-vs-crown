@@ -1,26 +1,4 @@
-export enum SpriteTexture {
-  /* UNITS */
-  Necromancer,
-  Skeleton,
-  Peasant,
-  Militia,
-  Guard,
-  Paladin,
-  Archer,
-  Doppelsoldner,
-  /* OBJECTS */
-  Bones,
-  /* ITEMS */
-  MedHelm,
-  BucketHelm,
-  GreatSword,
-  Crossbow,
-  /* PROJECTILES */
-  Arrow,
-  /* BUILDINGS */
-  Hut,
-  Tower,
-}
+import { SpriteTexture } from "../types";
 
 export const TextureNames = Object.keys(SpriteTexture)
   .filter((key) => isNaN(Number(key)))

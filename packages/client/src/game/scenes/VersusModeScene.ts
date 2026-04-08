@@ -20,11 +20,9 @@ import {
 import { Grid } from "pathfinding";
 import { type World } from "@necro-crown/shared";
 import {
-  initializeCrownMouseControls,
   createDrawCollisionSystem,
   createDrawSpellEffectSystem,
   createSpriteSystem,
-  initializeNecroMouseControls,
   createHitSplatSystem,
   createHealthBarSystem,
 } from "$game/systems";
@@ -37,6 +35,8 @@ import {
   pendingUpgrade,
 } from "../../stores/GameEventStore";
 import { buildTileMap } from "../../helpers/TileMap";
+import { initializeNecroMouseControls } from "../../input/NecroMouseControls";
+import { initializeCrownControls } from "../../input/CrownControls";
 
 export class VersusModeScene extends Scene {
   constructor() {
@@ -81,9 +81,9 @@ export class VersusModeScene extends Scene {
     // initialize systems
     this.physicsSystems = pipeline([
       createDrawCollisionSystem(this.world, this),
-      createSpriteSystem(this.world, this, this.spriteMap, this.playerType),
       createDrawSpellEffectSystem(this.world, this),
       createHealthSystem(),
+      createSpriteSystem(this.world, this, this.spriteMap, this.playerType),
       createHealthBarSystem(this.world, this),
     ]);
 
@@ -174,7 +174,7 @@ export class VersusModeScene extends Scene {
   }
 
   initializeCrown() {
-    initializeCrownMouseControls(this, (id, x, y) =>
+    initializeCrownControls(this, (id, x, y) =>
       this.room?.send("play_card", {
         id,
         xPos: x,

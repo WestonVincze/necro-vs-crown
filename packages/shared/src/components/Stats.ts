@@ -6,25 +6,9 @@
  * current: base + the current modifications (items, status effects, etc)
  */
 
-const createStat = () => ({ base: [] as number[], current: [] as number[] });
+import { StatName } from "../types";
 
-export enum StatName {
-  MaxHealth = "MaxHealth",
-  Armor = "Armor",
-  HealthRegeneration = "HealthRegeneration",
-  MoveSpeed = "MoveSpeed",
-  MaxMoveSpeed = "MaxMoveSpeed",
-  AttackBonus = "AttackBonus",
-  AttackSpeed = "AttackSpeed",
-  AttackRange = "AttackRange",
-  MaxHit = "MaxHit",
-  DamageBonus = "DamageBonus",
-  CritChance = "CritChance",
-  CritDamage = "CritDamage",
-  CastingSpeed = "CastingSpeed",
-  CastingRange = "CastingRange",
-  Knockback = "Knockback",
-}
+const createStat = () => ({ base: [] as number[], current: [] as number[] });
 
 /**
  *
@@ -122,5 +106,3 @@ const AllStats = {
   CastingRange: [] as number[],
   Knockback: [] as number[],
 };
-
-const BaseStats = { ...AllStats };

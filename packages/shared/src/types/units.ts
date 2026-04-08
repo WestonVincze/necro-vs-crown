@@ -1,22 +1,6 @@
-import { StatName } from "../components";
+import { Faction, StatName } from "../types";
 
 export type Vector2 = { x: number; y: number };
-
-export enum Faction {
-  Necro = "Necro",
-  Crown = "Crown",
-}
-
-export enum UnitName {
-  Peasant = "Peasant",
-  Guard = "Guard",
-  Paladin = "Paladin",
-  Doppelsoldner = "Doppelsoldner",
-  Archer = "Archer",
-  Skeleton = "Skeleton",
-  Necromancer = "Necromancer",
-  Militia = "Militia"
-}
 
 export type UnitData = {
   name?: string;

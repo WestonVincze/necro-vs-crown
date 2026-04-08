@@ -1,4 +1,5 @@
-import { Faction, Stats, UnitName } from "./units";
+import { Faction, UnitName } from "./enums";
+import { type Stats } from "./units";
 
 // Lobby
 export type PlayerConfig = {
