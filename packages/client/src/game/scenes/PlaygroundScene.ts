@@ -7,6 +7,7 @@ import {
   hasComponent,
   observe,
   onAdd,
+  removeComponent,
 } from "bitecs";
 import { GameObjects, Scene } from "phaser";
 import { Grid } from "pathfinding";
@@ -45,12 +46,10 @@ import {
   StatName,
   MaxHealth,
   createSteppablePipeline,
-  AttackCooldown,
   CombatTarget,
   MoveTarget,
 } from "@necro-crown/shared";
 import * as Components from "@necro-crown/shared/components";
-import * as Relations from "@necro-crown/shared/relations";
 import {
   createInputHandlerSystem,
   createHitSplatSystem,
@@ -158,10 +157,15 @@ export class PlaygroundScene extends Scene {
       xPos: 0,
       yPos: 0,
       health: 0,
+      reset: () => inspectEntity(inspector.eid),
     };
 
-    const entityDetailsFolder = this.gui.addFolder("Entity Details").close();
+    const entityDetailsFolder = this.gui
+      .addFolder("Entity Details")
+      .close()
+      .hide();
     entityDetailsFolder.add(inspector, "eid").listen();
+    entityDetailsFolder.add(inspector, "reset");
 
     entityDetailsFolder
       .add(inspector, "health")
@@ -192,11 +196,11 @@ export class PlaygroundScene extends Scene {
       "Add / Remove Components",
     );
     const componentOptions = {
-      selected: "NONE",
-      handleAdd: () => {
+      selectedComponent: "NONE",
+      addComponent: () => {
         // folder add
       },
-      handleRemove: () => {
+      removeComponent: () => {
         // remove compon
       },
     };
@@ -211,6 +215,15 @@ export class PlaygroundScene extends Scene {
     let statsFolder = entityDetailsFolder.addFolder("Stats");
 
     let targetingFolder = this.gui.addFolder("Targeting");
+    const targets: {
+      moveTarget: number | null;
+      combatTarget: number | null;
+    } = {
+      moveTarget: null,
+      combatTarget: null,
+    };
+    let targetSprite: GameObjects.Sprite | GameObjects.Rope | undefined =
+      undefined;
 
     const inspectEntity = (eid: number) => {
       if (!entityExists(this.world, eid)) return;
@@ -220,20 +233,15 @@ export class PlaygroundScene extends Scene {
       inspector.xPos = Position.x[eid];
       inspector.yPos = Position.y[eid];
 
-      entityDetailsFolder.open();
+      entityDetailsFolder.open().show();
 
       /* TARGETING */
       targetingFolder.destroy();
+      targets.moveTarget = null;
+      targets.combatTarget = null;
       targetingFolder = entityDetailsFolder.addFolder("Targets");
-      const targets: {
-        moveTarget: number | null;
-        combatTarget: number | null;
-      } = {
-        moveTarget: null,
-        combatTarget: null,
-      };
-      const inspect = {
-        combatTarget: () =>
+      const targetButtons = {
+        inspectCombatTarget: () =>
           targets.combatTarget && inspectEntity(targets.combatTarget),
       };
       if (hasComponent(this.world, eid, MoveTarget("*"))) {
@@ -246,7 +254,8 @@ export class PlaygroundScene extends Scene {
           eid,
           CombatTarget,
         )[0];
-        const targetSprite = this.spriteMap.get(targets.combatTarget);
+        targetSprite?.setAlpha(1);
+        targetSprite = this.spriteMap.get(targets.combatTarget);
         targetSprite?.setAlpha(0.5);
 
         targetingFolder
@@ -256,7 +265,7 @@ export class PlaygroundScene extends Scene {
             targetSprite?.setAlpha(1);
           });
 
-        targetingFolder.add(inspect, "combatTarget");
+        targetingFolder.add(targetButtons, "inspectCombatTarget");
       }
 
       /** ALL COMPONENTS */
@@ -264,22 +273,54 @@ export class PlaygroundScene extends Scene {
       modifyComponentFolder = entityDetailsFolder.addFolder(
         "Add / Remove Components",
       );
+      componentOptions.selectedComponent = "NONE";
+      componentOptions.addComponent = () => {};
+      componentOptions.removeComponent = () => {};
       modifyComponentFolder
-        .add(componentOptions, "selected", Object.keys(Components))
+        .add(componentOptions, "selectedComponent", Object.keys(Components))
         .onChange((value: string) => {
           if (!inspector.eid) return;
           componentPropsFolder.destroy();
-          componentPropsFolder = modifyComponentFolder.addFolder("Props");
-
           const component: any = componentRefs.get(value);
+          if (!component) return;
+          componentPropsFolder = modifyComponentFolder.addFolder(
+            `${value} Options`,
+          );
 
-          const table: Record<string, any> = {};
-          if (!hasComponent(this.world, inspector.eid, component)) return;
-          Object.keys(component).forEach((k) => {
-            table[k] = component[k][inspector.eid];
-            componentPropsFolder.add(table, k);
-          });
-        });
+          const buildComponentProps = () => {
+            const table: Record<string, any> = {};
+            Object.keys(component).forEach((k) => {
+              // only add if value is valid
+              // if (component[k][inspector.eid] === undefined) return;
+              table[k] = component[k][inspector.eid] || 0;
+              componentPropsFolder.add(table, k).onChange((value: any) => {
+                component[k][inspector.eid] = value;
+              });
+            });
+            componentOptions.removeComponent = () => {
+              removeComponent(this.world, inspector.eid, component);
+              componentOptions.selectedComponent = "NONE";
+              componentPropsFolder.destroy();
+            };
+            componentPropsFolder.add(componentOptions, "removeComponent");
+          };
+
+          if (!hasComponent(this.world, inspector.eid, component)) {
+            componentOptions.addComponent = () => {
+              if (!entityExists(this.world, inspector.eid)) return;
+              componentPropsFolder.destroy();
+              componentPropsFolder = modifyComponentFolder.addFolder(
+                `${value} Options`,
+              );
+              addComponent(this.world, inspector.eid, component);
+              buildComponentProps();
+            };
+            componentPropsFolder.add(componentOptions, "addComponent");
+          } else {
+            buildComponentProps();
+          }
+        })
+        .listen();
 
       /* STATS */
       statsFolder.destroy();
