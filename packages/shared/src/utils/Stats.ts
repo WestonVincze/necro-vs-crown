@@ -9,7 +9,6 @@ import {
   CritDamage,
   DamageBonus,
   HealthRegeneration,
-  Knockback,
   MaxHealth,
   MaxHit,
   MaxMoveSpeed,
@@ -52,7 +51,5 @@ export const getStatComponentByName = (statName: StatName) => {
       return CastingSpeed;
     case StatName.CastingRange:
       return CastingRange;
-    case StatName.Knockback:
-      return Knockback;
   }
 };

@@ -36,7 +36,6 @@ export type Stats = {
   [StatName.CritDamage]?: number;
   [StatName.CastingSpeed]?: number;
   [StatName.CastingRange]?: number;
-  [StatName.Knockback]?: number;
 };
 
 export type NetworkType = "networked" | "offline";

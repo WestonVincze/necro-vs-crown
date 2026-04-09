@@ -1,6 +1,11 @@
-import { query } from "bitecs";
+import { Not, query } from "bitecs";
 import type { Vector2, World } from "../../types";
-import { GridCell, Position, SeparationForce } from "../../components";
+import {
+  ExternalForce,
+  GridCell,
+  Position,
+  SeparationForce,
+} from "../../components";
 import { getGridCellFromEid, getPositionFromEid } from "../../utils";
 
 export const SEPARATION_THRESHOLD = 50;
@@ -33,7 +38,7 @@ const calculateSeparationForce = (
  */
 export const createSeparationForceSystem = () => {
   const separationForceQuery = (world: World) =>
-    query(world, [Position, GridCell, SeparationForce]);
+    query(world, [Position, GridCell, SeparationForce, Not(ExternalForce)]);
 
   return (world: World) => {
     const entities = separationForceQuery(world);

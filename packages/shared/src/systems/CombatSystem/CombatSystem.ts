@@ -23,13 +23,29 @@ import {
   Position,
   Transform,
   RangedUnit,
+  LifeSteal,
+  Heal,
+  Knockback,
+  ExternalForce,
+  Stunned,
 } from "../../components";
-import { checkIfWithinDistance, getPositionFromEid } from "../../utils";
+import {
+  checkIfWithinDistance,
+  getPositionFromEid,
+  normalizeForce,
+} from "../../utils";
 import { CombatTarget } from "../../relations";
 import { createProjectileEntity, ProjectileName } from "../../entities";
 import { rollDamage, rollToHit } from "../../utils";
 import { type World } from "../../types";
 
+/**
+ * TODO: break down in more isolated systems
+ * * AttackIntentSystem - checks cooldowns / attack speed and emits DamageEvent (with attack stats snapshotted)
+ * * HitResolutionSystem - reads damageEvent, evaluates hit
+ * * EffectSystem - handles effects and special cases
+ * *
+ */
 export const createCombatSystem = () => {
   const attackerQuery = (world: World) =>
     query(world, [
@@ -85,7 +101,36 @@ export const createCombatSystem = () => {
         );
         wasAttackMade = true;
       } else {
-        wasAttackMade = attackEntity(world, targetEid, attackBonus, damage);
+        const amount = attackEntity(world, targetEid, attackBonus, damage);
+
+        wasAttackMade = !(amount === -1);
+
+        /** EFFECTS */
+        /* LifeSteal */
+        if (amount > 0 && hasComponent(world, eid, LifeSteal)) {
+          addComponent(world, eid, Heal);
+          Heal.amount[eid] = LifeSteal.amount[eid] * amount;
+        }
+
+        /* Knockback */
+        if (
+          amount > 0 &&
+          hasComponent(world, eid, Knockback) &&
+          !hasComponent(world, targetEid, ExternalForce)
+        ) {
+          const duration = 100;
+          const force = normalizeForce({
+            x: targetPosition.x - attackerPosition.x,
+            y: targetPosition.y - attackerPosition.y,
+          });
+          addComponent(world, targetEid, ExternalForce);
+          ExternalForce.duration[targetEid] = duration;
+          ExternalForce.x[targetEid] = force.x * Knockback.force[eid];
+          ExternalForce.y[targetEid] = force.y * Knockback.force[eid];
+
+          addComponent(world, targetEid, Stunned);
+          Stunned.duration[targetEid] = duration;
+        }
       }
 
       if (!wasAttackMade) continue;
@@ -108,10 +153,10 @@ export const attackEntity = (
   targetEid: number,
   attackBonus: number,
   damage: number,
-): boolean => {
+): number => {
   if (!entityExists(world, targetEid)) {
     console.warn(`Attack Failed: Target ${targetEid} does not exist.`);
-    return false;
+    return -1;
   }
 
   // TODO: consider using a "targetQuery" to check for Armor and Health, then use targets.includes(targetEid) (potentially better performance)
@@ -123,13 +168,17 @@ export const attackEntity = (
     console.warn(
       `Attack Failed: Target ${targetEid} is missing Health or Armor.`,
     );
-    return false;
+    return -1;
   }
 
   const amount = rollToHit(Armor.current[targetEid], attackBonus) ? damage : 0;
 
-  addComponent(world, targetEid, Damage);
-  Damage.amount[targetEid] = amount;
+  if (hasComponent(world, targetEid, Damage)) {
+    Damage.amount[targetEid] += amount;
+  } else {
+    addComponent(world, targetEid, Damage);
+    Damage.amount[targetEid] = amount;
+  }
 
-  return true;
+  return amount;
 };

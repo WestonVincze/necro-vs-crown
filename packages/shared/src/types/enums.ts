@@ -80,5 +80,4 @@ export enum StatName {
   CritDamage = "CritDamage",
   CastingSpeed = "CastingSpeed",
   CastingRange = "CastingRange",
-  Knockback = "Knockback",
 }

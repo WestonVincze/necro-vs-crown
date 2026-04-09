@@ -25,7 +25,6 @@ export const CritChance = createStat();
 export const CritDamage = createStat();
 export const CastingSpeed = createStat();
 export const CastingRange = createStat();
-export const Knockback = createStat();
 
 /**
  * updates only the current value of a stat until `timeUntilReset` reaches 0, at which point the stat reverts to its base value
@@ -64,5 +63,4 @@ const AllStats = {
   CritDamage: [] as number[],
   CastingSpeed: [] as number[],
   CastingRange: [] as number[],
-  Knockback: [] as number[],
 };
