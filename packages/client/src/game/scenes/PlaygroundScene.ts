@@ -151,11 +151,12 @@ export class PlaygroundScene extends Scene {
 
     /** SPAWN UNITS */
     const unitFolder = this.gui.addFolder("Unit Spawn");
-    unitFolder.add(unitToSpawnParams, "name", Object.keys(Units));
-    unitFolder.add(unitToSpawnParams, "x");
-    unitFolder.add(unitToSpawnParams, "y");
-    unitFolder.add(unitToSpawnParams, "spawnOnClick");
-    unitFolder.add(buttons, "spawnUnit");
+    unitFolder
+      .add(unitToSpawnParams, "name", Object.keys(Units))
+      .name("Unit name");
+    unitFolder
+      .add(unitToSpawnParams, "spawnOnClick")
+      .name("Enable spawn on click");
 
     /** INSPECT UNIT */
     const inspector = {
@@ -170,8 +171,8 @@ export class PlaygroundScene extends Scene {
       .addFolder("Entity Details")
       .close()
       .hide();
-    entityDetailsFolder.add(inspector, "eid").listen();
     entityDetailsFolder.add(inspector, "reset");
+    entityDetailsFolder.add(inspector, "eid").listen();
 
     entityDetailsFolder
       .add(inspector, "health")

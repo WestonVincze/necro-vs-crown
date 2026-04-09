@@ -42,26 +42,26 @@ export enum SpriteType {
 
 export enum SpriteTexture {
   /* UNITS */
-  Necromancer = "Necromancer",
-  Skeleton = "Skeleton",
-  Peasant = "Peasant",
-  Militia = "Militia",
-  Guard = "Guard",
-  Paladin = "Paladin",
-  Archer = "Archer",
-  Doppelsoldner = "Doppelsoldner",
+  Necromancer,
+  Skeleton,
+  Peasant,
+  Militia,
+  Guard,
+  Paladin,
+  Archer,
+  Doppelsoldner,
   /* OBJECTS */
-  Bones = "Bones",
+  Bones,
   /* ITEMS */
-  MedHelm = "MedHelm",
-  BucketHelm = "BucketHelm",
-  GreatSword = "GreatSword",
-  Crossbow = "Crossbow",
+  MedHelm,
+  BucketHelm,
+  GreatSword,
+  Crossbow,
   /* PROJECTILES */
-  Arrow = "Arrow",
+  Arrow,
   /* BUILDINGS */
-  Hut = "Hut",
-  Tower = "Tower",
+  Hut,
+  Tower,
 }
 
 // stats
