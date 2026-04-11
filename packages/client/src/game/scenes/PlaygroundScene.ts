@@ -49,6 +49,7 @@ import {
   CombatTarget,
   MoveTarget,
   type SteppableController,
+  createExternalForceSystem,
 } from "@necro-crown/shared";
 import * as Components from "@necro-crown/shared/components";
 import {
@@ -419,6 +420,10 @@ export class PlaygroundScene extends Scene {
       {
         name: "DrawCollision",
         fn: () => createDrawCollisionSystem(this.world, this),
+      },
+      {
+        name: "ExternalForceSystem",
+        fn: () => createExternalForceSystem(),
       },
       { name: "SeparationForce", fn: () => createSeparationForceSystem() },
       { name: "Movement", fn: () => createMovementSystem() },
