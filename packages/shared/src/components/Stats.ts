@@ -6,65 +6,9 @@
  * current: base + the current modifications (items, status effects, etc)
  */
 
+import { StatName } from "../types";
+
 const createStat = () => ({ base: [] as number[], current: [] as number[] });
-
-export enum StatName {
-  MaxHealth = "MaxHealth",
-  Armor = "Armor",
-  HealthRegeneration = "HealthRegeneration",
-  MoveSpeed = "MoveSpeed",
-  MaxMoveSpeed = "MaxMoveSpeed",
-  AttackBonus = "AttackBonus",
-  AttackSpeed = "AttackSpeed",
-  AttackRange = "AttackRange",
-  MaxHit = "MaxHit",
-  DamageBonus = "DamageBonus",
-  CritChance = "CritChance",
-  CritDamage = "CritDamage",
-  CastingSpeed = "CastingSpeed",
-  CastingRange = "CastingRange",
-  Knockback = "Knockback",
-}
-
-/**
- *
- * @param statName the name of the desired stat
- * @returns the related Stat component
- */
-export const getStatComponentByName = (statName: StatName) => {
-  switch (statName) {
-    case StatName.MaxHealth:
-      return MaxHealth;
-    case StatName.Armor:
-      return Armor;
-    case StatName.HealthRegeneration:
-      return HealthRegeneration;
-    case StatName.MoveSpeed:
-      return MoveSpeed;
-    case StatName.MaxMoveSpeed:
-      return MaxMoveSpeed;
-    case StatName.AttackBonus:
-      return AttackBonus;
-    case StatName.AttackSpeed:
-      return AttackSpeed;
-    case StatName.AttackRange:
-      return AttackRange;
-    case StatName.MaxHit:
-      return MaxHit;
-    case StatName.DamageBonus:
-      return DamageBonus;
-    case StatName.CritChance:
-      return CritChance;
-    case StatName.CritDamage:
-      return CritDamage;
-    case StatName.CastingSpeed:
-      return CastingSpeed;
-    case StatName.CastingRange:
-      return CastingRange;
-    case StatName.Knockback:
-      return Knockback;
-  }
-};
 
 /** Stat Components **/
 export const MaxHealth = createStat();
@@ -81,7 +25,6 @@ export const CritChance = createStat();
 export const CritDamage = createStat();
 export const CastingSpeed = createStat();
 export const CastingRange = createStat();
-export const Knockback = createStat();
 
 /**
  * updates only the current value of a stat until `timeUntilReset` reaches 0, at which point the stat reverts to its base value
@@ -120,7 +63,4 @@ const AllStats = {
   CritDamage: [] as number[],
   CastingSpeed: [] as number[],
   CastingRange: [] as number[],
-  Knockback: [] as number[],
 };
-
-const BaseStats = { ...AllStats };

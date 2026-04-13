@@ -64,7 +64,7 @@ type RoomSettings = {
   players: Record<string, Faction>;
 } & GameSettings;
 
-export class MyRoom extends Room {
+export class VersusRoom extends Room {
   private world!: World;
 
   // serializers

@@ -12,7 +12,7 @@ import {
   createSpellcastingSystem,
   createSpellEffectSystem,
   createStatUpdateSystem,
-  createTimeSystem,
+  updateWorldTime,
   createUnitSpawnerSystem,
   createUpgradeSelectionSystem,
   pipeline,
@@ -48,7 +48,7 @@ export const buildPhysicsPipeline = ({
     createDrawCollisionSystem(world, scene),
     createSeparationForceSystem(),
     createMovementSystem(),
-    createSpriteSystem(world, scene, faction),
+    // createSpriteSystem(world, scene, faction),
     // createFollowTargetSystem(scene),
     createCooldownSystem(),
     createCombatSystem(),
@@ -62,10 +62,5 @@ export const buildPhysicsPipeline = ({
     createHealthBarSystem(world, scene),
     createDestroyAfterDelaySystem(),
   ];
-  return pipeline([
-    ...pre,
-    ...corePhysicsSystems,
-    ...post,
-    createTimeSystem(), // time should always be last
-  ]);
+  return pipeline([...pre, ...corePhysicsSystems, ...post]);
 };

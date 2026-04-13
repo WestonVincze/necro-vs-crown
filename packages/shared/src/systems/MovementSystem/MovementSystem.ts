@@ -1,4 +1,4 @@
-import { query, hasComponent } from "bitecs";
+import { query, hasComponent, Not } from "bitecs";
 import {
   Position,
   Velocity,
@@ -7,11 +7,12 @@ import {
   MaxMoveSpeed,
   SeparationForce,
   Transform,
+  ExternalForce,
 } from "../../components";
 import { clampToScreenSize, normalizeForce } from "../../utils";
 import { type World } from "../../types";
 
-const FRICTION = 0.05;
+const FRICTION = 0.25;
 
 /**
  * Creates a movement system that updates the position and velocity of entities based on their input and movement speed.
@@ -27,6 +28,7 @@ export const createMovementSystem = () => {
       Velocity,
       MoveSpeed,
       MaxMoveSpeed,
+      Not(ExternalForce),
     ]);
     for (let i = 0; i < entities.length; i++) {
       const eid = entities[i];
@@ -82,8 +84,9 @@ export const createMovementSystem = () => {
       }
       */
 
-      Velocity.x[eid] = newVelocity.x;
-      Velocity.y[eid] = newVelocity.y;
+      // const dt = world.time.delta;
+      Velocity.x[eid] = newVelocity.x; // * dt;
+      Velocity.y[eid] = newVelocity.y; // * dt;
 
       Position.x[eid] += Velocity.x[eid];
       Position.y[eid] += Velocity.y[eid];

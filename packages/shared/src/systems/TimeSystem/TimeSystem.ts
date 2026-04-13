@@ -1,14 +1,8 @@
 import { type World } from "../../types";
 
-export const createTimeSystem = () => {
-  return (world: World) => {
-    const { time } = world;
-    const now = performance.now();
-    const delta = now - time.then;
-    time.delta = delta;
-    time.elapsed += delta;
-    time.then = now;
-
-    return world;
-  };
+export const updateWorldTime = (world: World) => {
+  const now = performance.now();
+  world.time.delta = now - world.time.then;
+  world.time.elapsed += world.time.delta;
+  world.time.then = now;
 };

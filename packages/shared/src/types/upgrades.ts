@@ -1,5 +1,4 @@
-import { StatName } from "../components";
-import { UnitName } from "./units";
+import { StatName, UnitName } from "./enums";
 
 export type StatUpdate = {
   name: StatName;

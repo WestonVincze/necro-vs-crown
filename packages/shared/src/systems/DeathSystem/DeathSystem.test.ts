@@ -21,7 +21,7 @@ import {
   Position,
 } from "../../components";
 import { createDeathSystem } from "./DeathSystem";
-import { Faction } from "types";
+import { Faction } from "../../types";
 
 describe("DeathSystem", () => {
   let world: World;
@@ -88,7 +88,7 @@ describe("DeathSystem", () => {
     deathSystem(world);
 
     for (const eid of entities) {
-      expect(!entityExists(world, eid))
+      expect(!entityExists(world, eid));
     }
     expect(Experience.amount[player]).toBe(1000);
   });

@@ -1,12 +1,8 @@
-import { Scene } from "phaser";
+import { GameObjects, Scene } from "phaser";
 import { Room } from "@colyseus/sdk";
 import {
   Faction,
   GameEvents,
-  MAP_X_MAX,
-  MAP_X_MIN,
-  MAP_Y_MAX,
-  MAP_Y_MIN,
   Networked,
   createHealthSystem,
   networkSyncComponents,
@@ -24,11 +20,9 @@ import {
 import { Grid } from "pathfinding";
 import { type World } from "@necro-crown/shared";
 import {
-  initializeCrownMouseControls,
   createDrawCollisionSystem,
   createDrawSpellEffectSystem,
   createSpriteSystem,
-  initializeNecroMouseControls,
   createHitSplatSystem,
   createHealthBarSystem,
 } from "$game/systems";
@@ -41,6 +35,8 @@ import {
   pendingUpgrade,
 } from "../../stores/GameEventStore";
 import { buildTileMap } from "../../helpers/TileMap";
+import { initializeNecroMouseControls } from "../../input/NecroMouseControls";
+import { initializeCrownControls } from "../../input/CrownControls";
 
 export class VersusModeScene extends Scene {
   constructor() {
@@ -57,6 +53,7 @@ export class VersusModeScene extends Scene {
   private soaDeserialize: any;
   private observerDeserialize: any;
   private idMap = new Map<number, number>();
+  private spriteMap = new Map<number, GameObjects.Sprite | GameObjects.Rope>();
 
   private physicsSystems!: Pipeline;
 
@@ -84,9 +81,9 @@ export class VersusModeScene extends Scene {
     // initialize systems
     this.physicsSystems = pipeline([
       createDrawCollisionSystem(this.world, this),
-      createSpriteSystem(this.world, this, this.playerType),
       createDrawSpellEffectSystem(this.world, this),
       createHealthSystem(),
+      createSpriteSystem(this.world, this, this.spriteMap, this.playerType),
       createHealthBarSystem(this.world, this),
     ]);
 
@@ -177,7 +174,7 @@ export class VersusModeScene extends Scene {
   }
 
   initializeCrown() {
-    initializeCrownMouseControls(this, (id, x, y) =>
+    initializeCrownControls(this, (id, x, y) =>
       this.room?.send("play_card", {
         id,
         xPos: x,

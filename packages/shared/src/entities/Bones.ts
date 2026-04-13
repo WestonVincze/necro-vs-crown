@@ -5,12 +5,10 @@ import {
   Networked,
   Position,
   Sprite,
-  SpriteType,
   Transform,
 } from "../components";
-import { SpriteTexture } from "../constants";
 import { clampToScreenSize, getGridCellFromPosition } from "../utils";
-import { type World } from "../types";
+import { type World, SpriteTexture, SpriteType } from "../types";
 
 const BONE_LIFETIME = 15000;
 

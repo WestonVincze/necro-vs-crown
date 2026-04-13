@@ -47,13 +47,15 @@ describe("UnitSpawnerSystems", () => {
 
     it("can spawn a unit", () => {
       addComponent(world, target, Position);
+      Position.x[target] = 0;
+      Position.y[target] = 0;
 
       Spawner.timeUntilSpawn[eid] = 1;
 
-      expect(getAllEntities(world).length).toBe(2);
+      const entityCount = getAllEntities(world).length;
 
       unitSpawnerSystem(world);
-      expect(getAllEntities(world).length).toBe(3);
+      expect(getAllEntities(world).length).toBe(entityCount + 1);
     });
 
     it("sets timeUntilSpawn after spawning", () => {
@@ -104,6 +106,9 @@ describe("UnitSpawnerSystems", () => {
   describe("SpawnAtBuildingSystem", () => {
     beforeEach(() => {
       addComponent(world, eid, BuildingSpawner);
+      addComponent(world, eid, Position);
+      Position.x[eid] = 0;
+      Position.y[eid] = 0;
     });
 
     it("can spawn a unit", () => {

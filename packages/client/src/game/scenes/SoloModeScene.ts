@@ -1,5 +1,5 @@
 import { addComponent, addEntity, createWorld } from "bitecs";
-import { Scene } from "phaser";
+import { GameObjects, Scene } from "phaser";
 import { Grid } from "pathfinding";
 import {
   type System,
@@ -26,19 +26,40 @@ import {
   getGridCellFromPosition,
   CrownStateStore,
   generateMockCards,
+  createEmitUpgradeRequestEventSystem,
+  createUpgradeSelectionSystem,
+  createHandleUpgradeSelectEventSystem,
+  createLevelUpSystem,
+  createUnitSpawnerSystem,
+  createSeparationForceSystem,
+  createMovementSystem,
+  createCooldownSystem,
+  createCombatSystem,
+  createProjectileCollisionSystem,
+  createSpellcastingSystem,
+  createSpellEffectSystem,
+  createStatUpdateSystem,
+  createHealthSystem,
+  createDestroyAfterDelaySystem,
+  pipeline,
+  updateWorldTime,
 } from "@necro-crown/shared";
 import {
-  initializeNecroMouseControls,
-  initializeCrownMouseControls,
   createInputHandlerSystem,
   createHitSplatSystem,
   createGridSystem,
   createFollowTargetSystem,
+  createDrawCollisionSystem,
+  createSpriteSystem,
+  createDrawSpellEffectSystem,
+  createHealthBarSystem,
 } from "$game/systems";
 import { GameState } from "$game/managers";
-import { buildPhysicsPipeline, buildTickPipeline } from "$game/pipelines";
+import { buildTickPipeline } from "$game/pipelines";
 import { crownClientState } from "$game/Crown";
 import { buildTileMap } from "../../helpers/TileMap";
+import { initializeCrownControls } from "../../input/CrownControls";
+import { initializeNecroMouseControls } from "../../input/NecroMouseControls";
 
 export class SoloModeScene extends Scene {
   private playerType!: Faction;
@@ -51,6 +72,7 @@ export class SoloModeScene extends Scene {
   private tickSystems!: Pipeline;
   private physicsSystems!: Pipeline;
 
+  private spriteMap = new Map<number, GameObjects.Sprite | GameObjects.Rope>();
   private timeSinceLastTick: number = 0;
 
   constructor() {
@@ -159,7 +181,7 @@ export class SoloModeScene extends Scene {
         crownState.drawCard();
         crownState.drawCard();
         crownState.drawCard();
-        initializeCrownMouseControls(this, (id, x, y) => {
+        initializeCrownControls(this, (id, x, y) => {
           crownState.playCard(id, (name) =>
             createUnitEntity(this.world, name, x, y),
           );
@@ -210,14 +232,29 @@ export class SoloModeScene extends Scene {
         break;
     }
 
-    // initialize systems with overrides
-    this.physicsSystems = buildPhysicsPipeline({
-      world: this.world,
-      scene: this,
-      pre: physicsSystems.pre,
-      post: physicsSystems.post,
-      faction: this.playerType,
-    });
+    this.physicsSystems = pipeline([
+      ...physicsSystems.pre,
+      createEmitUpgradeRequestEventSystem(this.world),
+      createUpgradeSelectionSystem(),
+      createHandleUpgradeSelectEventSystem(), // subscribes to game events...
+      createLevelUpSystem(),
+      createUnitSpawnerSystem(),
+      createDrawCollisionSystem(this.world, this),
+      createSeparationForceSystem(),
+      createMovementSystem(),
+      createCooldownSystem(),
+      createCombatSystem(),
+      createProjectileCollisionSystem(),
+      createSpellcastingSystem(),
+      createSpellEffectSystem(this.world),
+      createDrawSpellEffectSystem(this.world, this),
+      createStatUpdateSystem(),
+      createHealthSystem(),
+      createDestroyAfterDelaySystem(),
+      createSpriteSystem(this.world, this, this.spriteMap, this.playerType),
+      createHealthBarSystem(this.world, this),
+      ...physicsSystems.post,
+    ]);
 
     this.tickSystems = buildTickPipeline();
 
@@ -232,6 +269,7 @@ export class SoloModeScene extends Scene {
 
   /** RUN PHYSICS SYSTEMS */
   update(time: number, delta: number): void {
+    updateWorldTime(this.world);
     if (GameState.isPaused()) return;
     profiler.start("FRAME_TIMER");
     this.timeSinceLastTick += delta;

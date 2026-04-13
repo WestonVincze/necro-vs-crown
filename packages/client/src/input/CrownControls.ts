@@ -1,10 +1,10 @@
 import { Scene } from "phaser";
-import { defineAction } from "../../input/Actions";
+import { defineAction } from "./Actions";
 import { crownClientState } from "$game/Crown";
-import { createMouseManager } from "../../input";
+import { createMouseManager } from ".";
 
 // TODO: this isn't a system, let's move it elsewhere
-export const initializeCrownMouseControls = (
+export const initializeCrownControls = (
   scene: Scene,
   handleOnPlay: (cardId: number, x: number, y: number) => void,
 ) => {

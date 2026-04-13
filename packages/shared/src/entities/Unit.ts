@@ -8,23 +8,17 @@ import {
   Velocity,
   Health,
   Behavior,
-  Behaviors,
   Transform,
   Collider,
   CollisionLayers,
   Inventory,
   GridCell,
   Spell,
-  SpellState,
-  SpellName,
   AI,
   RangedUnit,
-  SpriteType,
   Level,
   UnitMeta,
   Player,
-  StatName,
-  getStatComponentByName,
   ExpReward,
   ItemDrops,
   SeparationForce,
@@ -33,6 +27,12 @@ import {
   SpellCooldown,
 } from "../components";
 import {
+  Behaviors,
+  SpellState,
+  SpellName,
+  SpriteType,
+  StatName,
+  SpriteTexture,
   AIState,
   AIType,
   Faction,
@@ -42,9 +42,13 @@ import {
   type World,
 } from "../types";
 import { Units } from "../data";
-import { SpriteTexture, BASE_EXP } from "../constants";
+import { BASE_EXP } from "../constants";
 import { ProjectileName } from "./Projectiles";
-import { clampToScreenSize, getGridCellFromPosition } from "../utils";
+import {
+  getStatComponentByName,
+  clampToScreenSize,
+  getGridCellFromPosition,
+} from "../utils";
 
 const FIRST_ATTACK_DELAY = 1500;
 
@@ -58,7 +62,7 @@ export const createUnitEntity = (
   const data: UnitData = Units[name];
   const stats: Stats = { ...data.stats };
 
-  if (world.unitUpgrades[name]) {
+  if (world.unitUpgrades && world.unitUpgrades[name]) {
     Object.entries(world.unitUpgrades[name]).forEach(([key, value]) => {
       const statName = key as unknown as keyof Stats;
       if (stats[statName] !== undefined) {

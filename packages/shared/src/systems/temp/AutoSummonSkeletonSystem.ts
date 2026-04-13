@@ -1,7 +1,7 @@
 import { addComponent, query } from "bitecs";
-import { Behavior, Behaviors, Bones, Dead, Position } from "../../components";
+import { Behavior, Bones, Dead, Position } from "../../components";
 import { createUnitEntity } from "../../entities";
-import { UnitName } from "../../types";
+import { UnitName, Behaviors } from "../../types";
 
 /**
  * used for testing Solo Crown Mode

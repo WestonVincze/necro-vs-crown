@@ -5,11 +5,15 @@ import {
   Spawner,
   SpawnTarget,
   Sprite,
-  SpriteType,
   Transform,
 } from "../components";
-import type { UnitName, Vector2, World } from "../types";
-import { SpriteTexture } from "../constants";
+import {
+  type UnitName,
+  type Vector2,
+  type World,
+  SpriteTexture,
+  SpriteType,
+} from "../types";
 
 export const createTargetSpawnerEntity = (world: World, targetEid: number) => {
   const eid = addEntity(world);

@@ -7,11 +7,11 @@ import {
   Sprite,
   SpriteType,
   Transform,
-  TextureNames,
   type World,
   MAP_HEIGHT_PIXELS,
   Necro,
   Faction,
+  SpriteTexture,
 } from "@necro-crown/shared";
 
 /**
@@ -20,10 +20,13 @@ import {
 export const createSpriteSystem = (
   world: World,
   scene: Scene,
+  spriteById: Map<number, GameObjects.Sprite | GameObjects.Rope>,
   faction?: Faction,
+  isInteractive?: boolean,
 ) => {
+  // internal map used to track rope animation time
   const countById = new Map<number, number>();
-  const spriteById = new Map<number, GameObjects.Sprite | GameObjects.Rope>();
+  // const spriteById = new Map<number, GameObjects.Sprite | GameObjects.Rope>();
 
   const spriteQuery = (world: World) => query(world, [Position, Sprite]);
 
@@ -52,12 +55,17 @@ export const createSpriteSystem = (
     const spritesEntered = spriteEnterQueue.splice(0);
     for (const eid of spritesEntered) {
       const textureId = Sprite.texture[eid];
-      const texture = TextureNames[textureId];
+      const texture = SpriteTexture[textureId];
       const width = Transform.width[eid];
       const height = Transform.height[eid];
       const rotation = Transform.rotation[eid];
 
       let sprite: GameObjects.Sprite | GameObjects.Rope;
+
+      // Rope gameobjects don't have an easy interactive mode...
+      if (isInteractive) {
+        Sprite.type[eid] = SpriteType.Sprite;
+      }
 
       switch (Sprite.type[eid]) {
         case SpriteType.Rope:
@@ -72,6 +80,9 @@ export const createSpriteSystem = (
           break;
       }
 
+      if (isInteractive) {
+        sprite.setInteractive();
+      }
       sprite.x = Position.x[eid];
       sprite.y = Position.y[eid] - Transform.height[eid] / 2;
       sprite.width = width;

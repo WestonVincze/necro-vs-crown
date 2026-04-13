@@ -52,7 +52,7 @@
       .filter(Boolean)
   );
 
-  $: playerCount = Object.values(otherPlayers).length + 1;
+  $: playerCount = Object.values($otherPlayers).length;
   const crownUnits = [
     UnitName.Peasant,
     UnitName.Militia,
@@ -240,7 +240,7 @@
 
     <!-- Players -->
     <section class="panel players-panel">
-      <h2 class="panel-label">Players ({playerCount} / 2)</h2>
+      <h2 class="panel-label">Players ({playerCount + 1} / 2)</h2>
       <div class="player-list">
         <!-- Self -->
         <div class="player-row self" class:necro={$myPlayer?.faction === Faction.Necro} class:crown={$myPlayer?.faction === Faction.Crown}>

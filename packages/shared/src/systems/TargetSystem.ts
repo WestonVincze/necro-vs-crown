@@ -8,17 +8,10 @@ import {
   removeComponent,
   entityExists,
 } from "bitecs";
-import {
-  Crown,
-  Necro,
-  Position,
-  Behavior,
-  Behaviors,
-  Cursor,
-} from "../components";
+import { Crown, Necro, Position, Behavior, Cursor } from "../components";
 import { MoveTarget, CombatTarget } from "../relations";
 import { getDistanceSquared, getPositionFromEid } from "../utils";
-import { type World } from "../types";
+import { type World, Behaviors } from "../types";
 
 // THOUGHT: we could change this system to be reactive or include some dirty/clean flags to skip over target search when not required
 export const createTargetingSystem = () => {

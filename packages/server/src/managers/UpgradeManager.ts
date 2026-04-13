@@ -1,13 +1,13 @@
 import {
   CardData,
   Card,
-  StatUpdate,
-  StatUpgradeRange,
+  type StatUpdate,
+  type StatUpgradeRange,
   UnitMeta,
   UnitName,
   updateStatByEid,
   updateUnitBaseStats,
-  Upgrade,
+  type Upgrade,
   validStatsByUnitType,
   World,
 } from "@necro-crown/shared";

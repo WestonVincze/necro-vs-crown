@@ -9,12 +9,12 @@ import {
 /**
  * Import your Room files
  */
-import { MyRoom } from "./rooms/MyRoom";
+import { VersusRoom } from "./rooms/VersusRoom";
 import { GameLobby } from "./rooms/Lobby";
 
 const server = defineServer({
   rooms: {
-    my_room: defineRoom(MyRoom),
+    my_room: defineRoom(VersusRoom),
     lobby: defineRoom(GameLobby).enableRealtimeListing(),
     lobbies: defineRoom(LobbyRoom),
   },
