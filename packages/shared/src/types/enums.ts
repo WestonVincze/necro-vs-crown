@@ -14,6 +14,8 @@ export enum UnitName {
   Skeleton = "Skeleton",
   Necromancer = "Necromancer",
   Militia = "Militia",
+  Berserker = "Berserker",
+  Priest = "Priest",
 }
 
 // AI behaviors
@@ -50,6 +52,8 @@ export enum SpriteTexture {
   Paladin,
   Archer,
   Doppelsoldner,
+  Berserker,
+  Priest,
   /* OBJECTS */
   Bones,
   /* ITEMS */

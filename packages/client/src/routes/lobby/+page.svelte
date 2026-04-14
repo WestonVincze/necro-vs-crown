@@ -60,6 +60,8 @@
     UnitName.Paladin,
     UnitName.Archer,
     UnitName.Doppelsoldner,
+    UnitName.Berserker,
+    UnitName.Priest,
   ]
   $: startingCards = Object.keys($lobbyState.startingCards) as UnitName[];
 
