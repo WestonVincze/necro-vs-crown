@@ -34,6 +34,7 @@ export enum SpellState {
 export enum SpellName {
   Summon = 1,
   HolyNova,
+  DivineLight,
 }
 
 // sprites
