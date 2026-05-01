@@ -20,6 +20,8 @@ import {
   ResolveSpell,
   Damage,
   Dead,
+  Crown,
+  Heal,
 } from "../../components";
 import { createUnitEntity } from "../../entities";
 import { checkIfWithinDistance, getPositionFromEid } from "../../utils";
@@ -74,7 +76,10 @@ export const createSpellEffectSystem = (world: World) => {
           SpellEffect.maxSize[eid],
           SpellEffect.growthRate[eid],
         );
-      } else if (SpellEffect.name[eid] === SpellName.HolyNova) {
+      } else if (
+        SpellEffect.name[eid] === SpellName.HolyNova ||
+        SpellEffect.name[eid] === SpellName.DivineLight
+      ) {
         // TODO: generalize this for auto-resolving spell effects
         addComponent(world, eid, ResolveSpell);
         Spell.state[eid] = SpellState.Ready;
@@ -130,6 +135,27 @@ export const createSpellEffectSystem = (world: World) => {
               addComponent(world, necroEid, Damage);
               // TODO: change to a roll
               Damage.amount[necroEid] = 50;
+            }
+          }
+          break;
+        case SpellName.DivineLight:
+          SpellCooldown.timeUntilReady[eid] = 6000;
+          for (const crownEid of query(
+            world,
+            [Crown, Position, Health],
+            isNested,
+          )) {
+            const crownPosition = getPositionFromEid(crownEid);
+            if (
+              checkIfWithinDistance(
+                position,
+                crownPosition,
+                SpellEffect.size[eid], // do we need this bonus? + 25,
+              )
+            ) {
+              addComponent(world, crownEid, Heal);
+              // TODO: change to a roll
+              Heal.amount[crownEid] = 25;
             }
           }
           break;
