@@ -20,7 +20,13 @@ export const CardData: Partial<Record<UnitName, CardData>> = {
   [UnitName.Doppelsoldner]: {
     cost: 5,
   },
+  [UnitName.Berserker]: {
+    cost: 6,
+  },
+  [UnitName.Priest]: {
+    cost: 7,
+  },
   [UnitName.Paladin]: {
-    cost: 8,
+    cost: 7,
   },
 };

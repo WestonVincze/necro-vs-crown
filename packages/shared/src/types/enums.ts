@@ -14,6 +14,8 @@ export enum UnitName {
   Skeleton = "Skeleton",
   Necromancer = "Necromancer",
   Militia = "Militia",
+  Berserker = "Berserker",
+  Priest = "Priest",
 }
 
 // AI behaviors
@@ -32,6 +34,7 @@ export enum SpellState {
 export enum SpellName {
   Summon = 1,
   HolyNova,
+  DivineLight,
 }
 
 // sprites
@@ -50,6 +53,8 @@ export enum SpriteTexture {
   Paladin,
   Archer,
   Doppelsoldner,
+  Berserker,
+  Priest,
   /* OBJECTS */
   Bones,
   /* ITEMS */

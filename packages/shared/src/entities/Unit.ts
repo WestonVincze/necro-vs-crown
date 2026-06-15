@@ -148,7 +148,15 @@ export const createUnitEntity = (
     Spell.name[eid] = SpellName.HolyNova;
     Input.castingSpell[eid] = 1;
     addComponent(world, eid, SpellCooldown);
-    SpellCooldown.timeUntilReady[eid] = 3000;
+    SpellCooldown.timeUntilReady[eid] = 5000;
+  }
+  if (name === UnitName.Priest) {
+    addComponent(world, eid, Spell);
+    Spell.state[eid] = SpellState.Ready;
+    Spell.name[eid] = SpellName.DivineLight;
+    Input.castingSpell[eid] = 1;
+    addComponent(world, eid, SpellCooldown);
+    SpellCooldown.timeUntilReady[eid] = 5000;
   }
 
   addComponent(world, eid, Position);

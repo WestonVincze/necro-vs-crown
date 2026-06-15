@@ -65,7 +65,7 @@ export const Units: Record<UnitName, UnitData> = {
     type: Faction.Crown,
     url: "militia.png",
     width: 75,
-    height: 126,
+    height: 110,
     expReward: 10,
     stats: {
       [StatName.MaxHealth]: 80,
@@ -158,6 +158,30 @@ export const Units: Record<UnitName, UnitData> = {
       common: ["crossbow"],
     },
   },
+  [UnitName.Berserker]: {
+    name: "Berserker",
+    type: Faction.Crown,
+    url: "berserker.png",
+    width: 75,
+    height: 110,
+    expReward: 22,
+    stats: {
+      [StatName.MaxHealth]: 200,
+      [StatName.Armor]: 12,
+      [StatName.AttackBonus]: 8,
+      [StatName.AttackSpeed]: 2,
+      [StatName.AttackRange]: 30,
+      [StatName.MaxHit]: 30,
+      [StatName.DamageBonus]: 8,
+      [StatName.MoveSpeed]: 0.7,
+      [StatName.MaxMoveSpeed]: 0.9,
+      [StatName.CritChance]: 35,
+      [StatName.CritDamage]: 1.25,
+    },
+    dropTable: {
+      always: ["bones"],
+    },
+  },
   [UnitName.Paladin]: {
     name: "Paladin",
     type: Faction.Crown,
@@ -181,6 +205,23 @@ export const Units: Record<UnitName, UnitData> = {
     dropTable: {
       always: ["bones"],
       common: ["bucket_helm"],
+    },
+  },
+  [UnitName.Priest]: {
+    name: "Priest",
+    type: Faction.Crown,
+    url: "paladin.png",
+    width: 75,
+    height: 110,
+    expReward: 25,
+    stats: {
+      [StatName.MaxHealth]: 250,
+      [StatName.Armor]: 10,
+      [StatName.MoveSpeed]: 0.4,
+      [StatName.MaxMoveSpeed]: 0.65,
+    },
+    dropTable: {
+      always: ["bones"],
     },
   },
 };
