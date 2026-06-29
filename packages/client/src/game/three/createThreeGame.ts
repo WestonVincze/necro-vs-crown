@@ -26,14 +26,16 @@ import {
   MAP_HEIGHT_TILES,
   type World,
   createBonesEntity,
-  Behavior,
-  Behaviors,
   Faction,
+  createTargetSpawnerEntity,
+  createUnitSpawnerSystem,
 } from "@necro-crown/shared";
 import { createModelSystem } from "$game/systems/ModelSystem";
 import { createInputHandlerSystem } from "$game/systems/InputHandlerSystem";
 import { createThreeScene } from "./ThreeSetup";
 import { initializeNecroThreeControls } from "./NecroThreeControls";
+import { createHealthBarSystem } from "./HealthBarSystem";
+import { createHitSplatSystem } from "./HitSplatSystem";
 
 export const createThreeGame = (container: HTMLElement): (() => void) => {
   const ctx = createThreeScene(container);
@@ -61,6 +63,7 @@ export const createThreeGame = (container: HTMLElement): (() => void) => {
   const physicsSystems = pipeline([
     createGridSystemNew(world),
     createInputHandlerSystem(),
+    createUnitSpawnerSystem(),
     createFollowTargetSystemNew(world),
     createSeparationForceSystem(),
     createMovementSystem(),
@@ -71,6 +74,8 @@ export const createThreeGame = (container: HTMLElement): (() => void) => {
     createSpellEffectSystem(world),
     createStatUpdateSystem(),
     createHealthSystem(),
+    createHealthBarSystem(world, scene),
+    createHitSplatSystem(world, scene),
     createDestroyAfterDelaySystem(),
     modelSystem,
     createDeathSystem(world, Faction.Necro),
@@ -81,17 +86,18 @@ export const createThreeGame = (container: HTMLElement): (() => void) => {
     createAssignFollowTargetSystem(),
   ]);
 
-  createUnitEntity(world, UnitName.Necromancer, 0, 0);
-  const skeletonPositions = [
+  const necro = createUnitEntity(world, UnitName.Necromancer, 0, 0);
+  createTargetSpawnerEntity(world, necro);
+
+  const bonePositions = [
     { x: -100, y: -100 },
     { x: 100, y: -120 },
     { x: -80, y: 100 },
   ];
-  for (const pos of skeletonPositions) {
-    const eid = createUnitEntity(world, UnitName.Skeleton, pos.x, pos.y);
-    Behavior.type[eid] = Behaviors.FollowCursor;
+
+  for (const pos of bonePositions) {
+    createBonesEntity(world, pos.x, pos.y);
   }
-  createBonesEntity(world, 100, 100);
 
   const disposeControls = initializeNecroThreeControls(
     renderer.domElement,
