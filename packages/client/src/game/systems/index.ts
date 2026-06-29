@@ -1,4 +1,5 @@
 export * from "./InputHandlerSystem";
+export * from "./ModelSystem";
 export * from "./SpriteSystem";
 export * from "./DrawCollisionSystem";
 export * from "./DrawSpellEffectSystem";
