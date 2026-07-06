@@ -95,6 +95,11 @@ export const createMovementSystem = () => {
       if (hasComponent(world, eid, Transform)) {
         bounds.width = Transform.width[eid];
         bounds.height = Transform.height[eid];
+        const vx = Velocity.x[eid];
+        const vy = Velocity.y[eid];
+        if (Math.abs(vx) > 0.01 || Math.abs(vy) > 0.01) {
+          Transform.rotation[eid] = Math.atan2(vy, vx);
+        }
       }
 
       const position = clampToScreenSize(

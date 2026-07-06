@@ -174,6 +174,7 @@ export const createUnitEntity = (
   Transform.width[eid] = data.width;
   Transform.height[eid] = data.height;
   Transform.rotation[eid] = 0;
+  Transform.rotationSpeed[eid] = 8;
   addComponent(world, eid, Velocity);
   Velocity.x[eid] = 0;
   Velocity.y[eid] = 0;

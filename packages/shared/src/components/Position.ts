@@ -10,4 +10,5 @@ export const Transform = {
   width: f32([]),
   height: f32([]),
   rotation: f32([]),
+  rotationSpeed: f32([]),
 };
