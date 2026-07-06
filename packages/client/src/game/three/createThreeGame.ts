@@ -37,7 +37,11 @@ import { initializeNecroThreeControls } from "./NecroThreeControls";
 import { createHealthBarSystem } from "./HealthBarSystem";
 import { createHitSplatSystem } from "./HitSplatSystem";
 
-export const createThreeGame = (container: HTMLElement): (() => void) => {
+import { modelBank } from "./ModelBank";
+
+export const createThreeGame = async (
+  container: HTMLElement,
+): Promise<() => void> => {
   const ctx = createThreeScene(container);
   const { scene, camera, renderer, groundPlane, resize, dispose } = ctx;
 
@@ -59,6 +63,8 @@ export const createThreeGame = (container: HTMLElement): (() => void) => {
   world.grid = new Grid(gridData);
 
   const modelSystem = createModelSystem(world, scene);
+
+  await modelBank.ready;
 
   const physicsSystems = pipeline([
     createGridSystemNew(world),

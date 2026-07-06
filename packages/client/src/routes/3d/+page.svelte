@@ -6,7 +6,7 @@
 
   onMount(async () => {
     const { createThreeGame } = await import("$game/three/createThreeGame");
-    tearDown = createThreeGame(container);
+    tearDown = await createThreeGame(container);
   });
 
   onDestroy(() => tearDown?.());
