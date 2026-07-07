@@ -32,6 +32,28 @@ const smoothRotate = (
   }
 };
 
+const clipFinished = (action: THREE.AnimationAction) =>
+  action.time >= action.getClip().duration - 0.01;
+
+const startSpellAnim = (
+  entry: ModelEntry,
+  action: THREE.AnimationAction,
+  loopOnce: boolean,
+) => {
+  if (entry.currentSpellAction) {
+    entry.currentSpellAction.setEffectiveWeight(0);
+  }
+  entry.currentSpellAction = action;
+  action.reset();
+  action.setEffectiveWeight(1);
+  action.setLoop(
+    loopOnce ? THREE.LoopOnce : THREE.LoopRepeat,
+    loopOnce ? 1 : Infinity,
+  );
+  if (loopOnce) action.clampWhenFinished = true;
+  action.play();
+};
+
 const TEXTURE_COLORS: Partial<Record<SpriteTexture, number>> = {
   [SpriteTexture.Necromancer]: 0x9b59b6,
   [SpriteTexture.Skeleton]: 0xecf0f1,
@@ -53,22 +75,26 @@ const TEXTURE_COLORS: Partial<Record<SpriteTexture, number>> = {
   [SpriteTexture.Tower]: 0x808080,
 };
 
-interface PillEntry {
+export interface PillEntry {
   type: "pill";
   mesh: THREE.Mesh;
+  eid: number;
 }
 
-interface ModelEntry {
+export interface ModelEntry {
   type: "model";
+  eid: number;
   group: THREE.Group;
   mixer: THREE.AnimationMixer;
   idleAction: THREE.AnimationAction | null;
   walkActions: THREE.AnimationAction[] | null;
   spellActions: Map<string, THREE.AnimationAction>;
   currentSpellAction: THREE.AnimationAction | null;
+  spellAnimState: "none" | "Start" | "Hold" | "End";
+  currentSpellKey: string;
 }
 
-type Entry = PillEntry | ModelEntry;
+export type Entry = PillEntry | ModelEntry;
 
 export const createModelSystem = (world: World, scene: THREE.Scene) => {
   const entries = new Map<number, Entry>();
@@ -83,7 +109,7 @@ export const createModelSystem = (world: World, scene: THREE.Scene) => {
   const exitQueue: number[] = [];
   observe(world, onRemove(Sprite), (eid) => exitQueue.push(eid));
 
-  return (world: World) => {
+  const run = (world: World) => {
     const exited = exitQueue.splice(0);
     for (const eid of exited) {
       const entry = entries.get(eid);
@@ -204,6 +230,7 @@ export const createModelSystem = (world: World, scene: THREE.Scene) => {
               walkActions[action].setEffectiveWeight(0);
             }
           }
+          // TODO: not all otherClips are spells...
           for (const clip of otherClips) {
             const action = mixer.clipAction(clip);
             action.play();
@@ -214,12 +241,15 @@ export const createModelSystem = (world: World, scene: THREE.Scene) => {
 
         entries.set(eid, {
           type: "model",
+          eid,
           group,
           mixer,
           idleAction,
           walkActions,
           spellActions,
           currentSpellAction: null,
+          spellAnimState: "none",
+          currentSpellKey: "",
         });
       } else {
         const width = Math.max(Transform.width[eid], 1);
@@ -247,7 +277,7 @@ export const createModelSystem = (world: World, scene: THREE.Scene) => {
         mesh.userData.entityId = eid;
 
         scene.add(mesh);
-        entries.set(eid, { type: "pill", mesh });
+        entries.set(eid, { type: "pill", eid, mesh });
       }
     }
 
@@ -293,27 +323,103 @@ export const createModelSystem = (world: World, scene: THREE.Scene) => {
           world.time.delta / 1000,
         );
 
-        // spell animation
-        if (hasComponent(world, eid, SpellEffect)) {
-          const spellNameStr =
-            SpellName[SpellEffect.name[eid] as SpellName]?.toLowerCase() ?? "";
-          const spellAction = entry.spellActions.get(spellNameStr) ?? null;
+        // spell animation state machine
+        const hasSpellEffect = hasComponent(world, eid, SpellEffect);
+        const spellNameStr =
+          SpellName[SpellEffect.name[eid] as SpellName]?.toLowerCase() ?? "";
 
-          if (spellAction && entry.currentSpellAction !== spellAction) {
-            spellAction.reset().setEffectiveWeight(1);
-            if (entry.idleAction) entry.idleAction.setEffectiveWeight(0);
-            if (entry.walkActions)
-              entry.walkActions.forEach((a) => a.setEffectiveWeight(0));
-            entry.currentSpellAction = spellAction;
+        if (hasSpellEffect) {
+          switch (entry.spellAnimState) {
+            case "none":
+              entry.currentSpellKey = spellNameStr;
+              // try start → hold → single fallback
+              if (entry.spellActions.has(`${spellNameStr}.Start`)) {
+                startSpellAnim(
+                  entry,
+                  entry.spellActions.get(`${spellNameStr}.Start`)!,
+                  true,
+                );
+                entry.spellAnimState = "Start";
+              } else if (entry.spellActions.has(`${spellNameStr}.Hold`)) {
+                startSpellAnim(
+                  entry,
+                  entry.spellActions.get(`${spellNameStr}.Hold`)!,
+                  false,
+                );
+                entry.spellAnimState = "Hold";
+              } else if (entry.spellActions.has(spellNameStr)) {
+                startSpellAnim(
+                  entry,
+                  entry.spellActions.get(spellNameStr)!,
+                  false,
+                );
+                entry.spellAnimState = "Hold";
+              }
+              break;
+            case "Start":
+              if (
+                entry.currentSpellAction &&
+                clipFinished(entry.currentSpellAction)
+              ) {
+                if (entry.spellActions.has(`${spellNameStr}.Hold`)) {
+                  startSpellAnim(
+                    entry,
+                    entry.spellActions.get(`${spellNameStr}.Hold`)!,
+                    false,
+                  );
+                } else {
+                  entry.currentSpellAction.setEffectiveWeight(0);
+                  entry.currentSpellAction = null;
+                }
+                entry.spellAnimState = "Hold";
+              }
+              break;
+            case "End":
+              // spell reactivated mid-end, restart
+              entry.currentSpellKey = spellNameStr;
+              if (entry.spellActions.has(`${spellNameStr}.Start`)) {
+                startSpellAnim(
+                  entry,
+                  entry.spellActions.get(`${spellNameStr}.Start`)!,
+                  true,
+                );
+                entry.spellAnimState = "Start";
+              } else {
+                entry.currentSpellAction?.setEffectiveWeight(0);
+                entry.currentSpellAction = null;
+                entry.spellAnimState = "none";
+              }
+              break;
           }
-        } else if (entry.currentSpellAction) {
-          entry.currentSpellAction.setEffectiveWeight(0);
-          entry.currentSpellAction = null;
+        } else {
+          if (
+            entry.spellAnimState === "Start" ||
+            entry.spellAnimState === "Hold"
+          ) {
+            const endKey = `${entry.currentSpellKey}.end`;
+            if (entry.spellActions.has(endKey)) {
+              startSpellAnim(entry, entry.spellActions.get(endKey)!, true);
+              entry.spellAnimState = "End";
+            } else {
+              entry.currentSpellAction?.setEffectiveWeight(0);
+              entry.currentSpellAction = null;
+              entry.spellAnimState = "none";
+            }
+          } else if (entry.spellAnimState === "End") {
+            if (
+              !entry.currentSpellAction ||
+              clipFinished(entry.currentSpellAction)
+            ) {
+              entry.currentSpellAction?.setEffectiveWeight(0);
+              entry.currentSpellAction = null;
+              entry.spellAnimState = "none";
+            }
+          }
         }
 
-        // animate (idle/walk blend)
+        // idle/walk blend (only when no spell animation is active)
         if (
-          !entry.currentSpellAction &&
+          entry.spellAnimState === "none" &&
           entry.walkActions &&
           entry.idleAction
         ) {
@@ -336,4 +442,6 @@ export const createModelSystem = (world: World, scene: THREE.Scene) => {
 
     return world;
   };
+
+  return { run, entries };
 };

@@ -30,13 +30,15 @@ import {
   createTargetSpawnerEntity,
   createUnitSpawnerSystem,
 } from "@necro-crown/shared";
-import { createModelSystem } from "$game/systems/ModelSystem";
+import { createModelSystem, type Entry } from "$game/systems/ModelSystem";
 import { createInputHandlerSystem } from "$game/systems/InputHandlerSystem";
 import { createThreeScene } from "./ThreeSetup";
 import { initializeNecroThreeControls } from "./NecroThreeControls";
 import { createHealthBarSystem } from "./HealthBarSystem";
 import { createHitSplatSystem } from "./HitSplatSystem";
 import { createDrawSpellEffectSystem } from "./DrawSpellEffectSystem";
+import { createDevToolsPanel } from "$game/devtools/createDevToolsPanel";
+import { createGodModeSystem } from "$game/devtools/createGodModeSystem";
 
 import { modelBank } from "./ModelBank";
 
@@ -52,6 +54,7 @@ export const createThreeGame = async (
   world.networkType = "offline";
   world.unitUpgrades = {};
   world.experience = 0;
+  world.paused = false;
 
   const gridData: number[][] = [];
   for (let y = 0; y < MAP_HEIGHT_TILES; y++) {
@@ -66,6 +69,8 @@ export const createThreeGame = async (
   const modelSystem = createModelSystem(world, scene);
 
   await modelBank.ready;
+
+  let getGodMode: () => boolean = () => false;
 
   const physicsSystems = pipeline([
     createGridSystemNew(world),
@@ -82,10 +87,11 @@ export const createThreeGame = async (
     createDrawSpellEffectSystem(world, scene),
     createStatUpdateSystem(),
     createHealthSystem(),
+    createGodModeSystem(world, () => getGodMode()),
     createHealthBarSystem(world, scene),
     createHitSplatSystem(world, scene),
     createDestroyAfterDelaySystem(),
-    modelSystem,
+    modelSystem.run,
     createDeathSystem(world, Faction.Necro),
   ]);
 
@@ -116,9 +122,61 @@ export const createThreeGame = async (
 
   let animFrameId: number;
   let timeSinceLastTick = 0;
+  let wasPaused = false;
+
+  const updateInspector = () => {
+    const inspector = devTools.inspectorState;
+    let entry: Entry | undefined = modelSystem.entries.get(inspector.selectedEid);
+    if (!entry && modelSystem.entries.size > 0) {
+      entry = modelSystem.entries.values().next().value;
+      if (entry) inspector.selectedEid = entry.eid;
+    }
+    if (entry) {
+      inspector.hasModel = entry.type === "model";
+      if (entry.type === "model") {
+        inspector.animState = entry.spellAnimState;
+        inspector.currentAnim = entry.currentSpellAction?.getClip().name ?? "(none)";
+        inspector.posX = Math.round(entry.group.position.x);
+        inspector.posY = Math.round(entry.group.position.z);
+      } else {
+        inspector.animState = "N/A";
+        inspector.currentAnim = "N/A";
+        inspector.posX = Math.round(entry.mesh.position.x);
+        inspector.posY = Math.round(entry.mesh.position.z);
+      }
+    } else {
+      inspector.hasModel = false;
+      inspector.animState = "N/A";
+      inspector.currentAnim = "N/A";
+      inspector.posX = 0;
+      inspector.posY = 0;
+    }
+  };
+
+  const stepFrame = () => {
+    world.time.then = performance.now() - 16;
+    updateWorldTime(world);
+    physicsSystems(world);
+    updateInspector();
+    renderer.render(scene, camera);
+  };
+
+  const stepTick = () => {
+    tickSystems(world);
+  };
 
   const animate = () => {
     animFrameId = requestAnimationFrame(animate);
+
+    if (world.paused) {
+      wasPaused = true;
+      return;
+    }
+
+    if (wasPaused) {
+      world.time.then = performance.now();
+      wasPaused = false;
+    }
 
     updateWorldTime(world);
 
@@ -130,6 +188,7 @@ export const createThreeGame = async (
     }
 
     physicsSystems(world);
+    updateInspector();
 
     renderer.render(scene, camera);
   };
@@ -138,8 +197,17 @@ export const createThreeGame = async (
 
   window.addEventListener("resize", resize);
 
+  const devTools = createDevToolsPanel({
+    world,
+    camera,
+    onStepFrame: stepFrame,
+    onStepTick: stepTick,
+  });
+  getGodMode = () => devTools.state.godMode;
+
   return () => {
     cancelAnimationFrame(animFrameId);
+    devTools.destroy();
     disposeControls();
     window.removeEventListener("resize", resize);
     dispose();
