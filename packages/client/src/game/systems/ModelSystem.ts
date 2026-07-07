@@ -7,6 +7,8 @@ import {
   Transform,
   Velocity,
   MaxMoveSpeed,
+  SpellEffect,
+  SpellName,
   type World,
   SpriteTexture,
 } from "@necro-crown/shared";
@@ -62,6 +64,8 @@ interface ModelEntry {
   mixer: THREE.AnimationMixer;
   idleAction: THREE.AnimationAction | null;
   walkActions: THREE.AnimationAction[] | null;
+  spellActions: Map<string, THREE.AnimationAction>;
+  currentSpellAction: THREE.AnimationAction | null;
 }
 
 type Entry = PillEntry | ModelEntry;
@@ -149,6 +153,7 @@ export const createModelSystem = (world: World, scene: THREE.Scene) => {
         const mixer = new THREE.AnimationMixer(group);
         let idleAction: THREE.AnimationAction | null = null;
         let walkActions: THREE.AnimationAction[] | null = null;
+        const spellActions = new Map<string, THREE.AnimationAction>();
 
         const meshInfo: string[] = [];
         group.traverse((child) => {
@@ -182,6 +187,9 @@ export const createModelSystem = (world: World, scene: THREE.Scene) => {
           const walkClip = modelData.animations.filter((a) =>
             /walk|run/i.test(a.name),
           );
+          const otherClips = modelData.animations.filter(
+            (a) => a !== idleClip && !walkClip.includes(a),
+          );
 
           if (idleClip) {
             idleAction = mixer.clipAction(idleClip);
@@ -196,6 +204,12 @@ export const createModelSystem = (world: World, scene: THREE.Scene) => {
               walkActions[action].setEffectiveWeight(0);
             }
           }
+          for (const clip of otherClips) {
+            const action = mixer.clipAction(clip);
+            action.play();
+            action.setEffectiveWeight(0);
+            spellActions.set(clip.name.toLowerCase(), action);
+          }
         }
 
         entries.set(eid, {
@@ -204,6 +218,8 @@ export const createModelSystem = (world: World, scene: THREE.Scene) => {
           mixer,
           idleAction,
           walkActions,
+          spellActions,
+          currentSpellAction: null,
         });
       } else {
         const width = Math.max(Transform.width[eid], 1);
@@ -277,8 +293,30 @@ export const createModelSystem = (world: World, scene: THREE.Scene) => {
           world.time.delta / 1000,
         );
 
-        // animate
-        if (entry.walkActions && entry.idleAction) {
+        // spell animation
+        if (hasComponent(world, eid, SpellEffect)) {
+          const spellNameStr =
+            SpellName[SpellEffect.name[eid] as SpellName]?.toLowerCase() ?? "";
+          const spellAction = entry.spellActions.get(spellNameStr) ?? null;
+
+          if (spellAction && entry.currentSpellAction !== spellAction) {
+            spellAction.reset().setEffectiveWeight(1);
+            if (entry.idleAction) entry.idleAction.setEffectiveWeight(0);
+            if (entry.walkActions)
+              entry.walkActions.forEach((a) => a.setEffectiveWeight(0));
+            entry.currentSpellAction = spellAction;
+          }
+        } else if (entry.currentSpellAction) {
+          entry.currentSpellAction.setEffectiveWeight(0);
+          entry.currentSpellAction = null;
+        }
+
+        // animate (idle/walk blend)
+        if (
+          !entry.currentSpellAction &&
+          entry.walkActions &&
+          entry.idleAction
+        ) {
           const vx = Velocity.x[eid] ?? 0;
           const vy = Velocity.y[eid] ?? 0;
           const speed = Math.sqrt(vx * vx + vy * vy);

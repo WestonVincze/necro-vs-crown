@@ -36,6 +36,7 @@ import { createThreeScene } from "./ThreeSetup";
 import { initializeNecroThreeControls } from "./NecroThreeControls";
 import { createHealthBarSystem } from "./HealthBarSystem";
 import { createHitSplatSystem } from "./HitSplatSystem";
+import { createDrawSpellEffectSystem } from "./DrawSpellEffectSystem";
 
 import { modelBank } from "./ModelBank";
 
@@ -78,6 +79,7 @@ export const createThreeGame = async (
     createProjectileCollisionSystem(),
     createSpellcastingSystem(),
     createSpellEffectSystem(world),
+    createDrawSpellEffectSystem(world, scene),
     createStatUpdateSystem(),
     createHealthSystem(),
     createHealthBarSystem(world, scene),
