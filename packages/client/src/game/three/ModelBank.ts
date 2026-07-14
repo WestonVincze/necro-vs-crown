@@ -59,6 +59,12 @@ class ModelBank {
     const entry = this.cache.get(textureId);
     return entry !== undefined && entry !== null;
   }
+
+  forEach(fn: (textureId: SpriteTexture, data: ModelData) => void): void {
+    this.cache.forEach((data, textureId) => {
+      if (data) fn(textureId, data);
+    });
+  }
 }
 
 export const modelBank = new ModelBank();

@@ -5,14 +5,11 @@ import {
   Position,
   Sprite,
   Transform,
-  Velocity,
-  MaxMoveSpeed,
-  SpellEffect,
-  SpellName,
   type World,
   SpriteTexture,
 } from "@necro-crown/shared";
 import { modelBank } from "$game/three/ModelBank";
+import { AnimatorStore } from "$game/animation";
 
 const smoothRotate = (
   obj: THREE.Object3D,
@@ -30,28 +27,6 @@ const smoothRotate = (
   } else {
     obj.rotation.y += Math.sign(shortest) * maxStep;
   }
-};
-
-const clipFinished = (action: THREE.AnimationAction) =>
-  action.time >= action.getClip().duration - 0.01;
-
-const startSpellAnim = (
-  entry: ModelEntry,
-  action: THREE.AnimationAction,
-  loopOnce: boolean,
-) => {
-  if (entry.currentSpellAction) {
-    entry.currentSpellAction.setEffectiveWeight(0);
-  }
-  entry.currentSpellAction = action;
-  action.reset();
-  action.setEffectiveWeight(1);
-  action.setLoop(
-    loopOnce ? THREE.LoopOnce : THREE.LoopRepeat,
-    loopOnce ? 1 : Infinity,
-  );
-  if (loopOnce) action.clampWhenFinished = true;
-  action.play();
 };
 
 const TEXTURE_COLORS: Partial<Record<SpriteTexture, number>> = {
@@ -85,18 +60,11 @@ export interface ModelEntry {
   type: "model";
   eid: number;
   group: THREE.Group;
-  mixer: THREE.AnimationMixer;
-  idleAction: THREE.AnimationAction | null;
-  walkActions: THREE.AnimationAction[] | null;
-  spellActions: Map<string, THREE.AnimationAction>;
-  currentSpellAction: THREE.AnimationAction | null;
-  spellAnimState: "none" | "Start" | "Hold" | "End";
-  currentSpellKey: string;
 }
 
 export type Entry = PillEntry | ModelEntry;
 
-export const createModelSystem = (world: World, scene: THREE.Scene) => {
+export const createModelSystem = (world: World, scene: THREE.Scene, store: AnimatorStore) => {
   const entries = new Map<number, Entry>();
 
   const modelQuery = (world: World) => query(world, [Position, Sprite]);
@@ -119,7 +87,7 @@ export const createModelSystem = (world: World, scene: THREE.Scene) => {
           entry.mesh.geometry.dispose();
           (entry.mesh.material as THREE.Material).dispose();
         } else {
-          entry.mixer.stopAllAction();
+          store.detach(eid);
           entry.group.traverse((child) => {
             if (child instanceof THREE.Mesh) {
               child.geometry.dispose();
@@ -156,7 +124,6 @@ export const createModelSystem = (world: World, scene: THREE.Scene) => {
             }
             if (child instanceof THREE.SkinnedMesh) {
               child.normalizeSkinWeights();
-              // Remap skeleton bones to cloned bone instances
               const boneMap = new Map<string, THREE.Bone>();
               group.traverse((node) => {
                 if (node instanceof THREE.Bone) {
@@ -176,80 +143,13 @@ export const createModelSystem = (world: World, scene: THREE.Scene) => {
         });
         scene.add(group);
 
-        const mixer = new THREE.AnimationMixer(group);
-        let idleAction: THREE.AnimationAction | null = null;
-        let walkActions: THREE.AnimationAction[] | null = null;
-        const spellActions = new Map<string, THREE.AnimationAction>();
-
-        const meshInfo: string[] = [];
-        group.traverse((child) => {
-          if (child instanceof THREE.Mesh) {
-            const mat = child.material;
-            const matName =
-              mat instanceof THREE.Material
-                ? (mat as THREE.Material).name || "unnamed"
-                : "array";
-            const typeName =
-              child instanceof THREE.SkinnedMesh ? "SkinnedMesh" : "Mesh";
-            const sideName =
-              mat instanceof THREE.Material
-                ? (mat as THREE.Material).side
-                : "?";
-            meshInfo.push(
-              `${child.name} (${typeName}, side=${sideName}, verts=${child.geometry.attributes.position.count}, mat="${matName}")`,
-            );
-          }
-        });
-        console.log("[ModelSystem] model meshes:", meshInfo);
-        console.log(
-          "[ModelSystem] animations:",
-          modelData.animations.map((a) => a.name),
-        );
-
-        if (modelData.animations.length > 0) {
-          const idleClip = modelData.animations.find((a) =>
-            /idle/i.test(a.name),
-          );
-          const walkClip = modelData.animations.filter((a) =>
-            /walk|run/i.test(a.name),
-          );
-          const otherClips = modelData.animations.filter(
-            (a) => a !== idleClip && !walkClip.includes(a),
-          );
-
-          if (idleClip) {
-            idleAction = mixer.clipAction(idleClip);
-            idleAction.play();
-            idleAction.setEffectiveWeight(1);
-          }
-          if (walkClip) {
-            walkActions = [];
-            for (const action in walkClip) {
-              walkActions.push(mixer.clipAction(walkClip[action]));
-              walkActions[action].play();
-              walkActions[action].setEffectiveWeight(0);
-            }
-          }
-          // TODO: not all otherClips are spells...
-          for (const clip of otherClips) {
-            const action = mixer.clipAction(clip);
-            action.play();
-            action.setEffectiveWeight(0);
-            spellActions.set(clip.name.toLowerCase(), action);
-          }
-        }
+        const textureKey = SpriteTexture[textureId] ?? "Unknown";
+        store.attach(eid, group, textureKey);
 
         entries.set(eid, {
           type: "model",
           eid,
           group,
-          mixer,
-          idleAction,
-          walkActions,
-          spellActions,
-          currentSpellAction: null,
-          spellAnimState: "none",
-          currentSpellKey: "",
         });
       } else {
         const width = Math.max(Transform.width[eid], 1);
@@ -322,121 +222,6 @@ export const createModelSystem = (world: World, scene: THREE.Scene) => {
           Transform.rotationSpeed[eid] ?? 8,
           world.time.delta / 1000,
         );
-
-        // spell animation state machine
-        const hasSpellEffect = hasComponent(world, eid, SpellEffect);
-        const spellNameStr =
-          SpellName[SpellEffect.name[eid] as SpellName]?.toLowerCase() ?? "";
-
-        if (hasSpellEffect) {
-          switch (entry.spellAnimState) {
-            case "none":
-              entry.currentSpellKey = spellNameStr;
-              // try start → hold → single fallback
-              if (entry.spellActions.has(`${spellNameStr}.Start`)) {
-                startSpellAnim(
-                  entry,
-                  entry.spellActions.get(`${spellNameStr}.Start`)!,
-                  true,
-                );
-                entry.spellAnimState = "Start";
-              } else if (entry.spellActions.has(`${spellNameStr}.Hold`)) {
-                startSpellAnim(
-                  entry,
-                  entry.spellActions.get(`${spellNameStr}.Hold`)!,
-                  false,
-                );
-                entry.spellAnimState = "Hold";
-              } else if (entry.spellActions.has(spellNameStr)) {
-                startSpellAnim(
-                  entry,
-                  entry.spellActions.get(spellNameStr)!,
-                  false,
-                );
-                entry.spellAnimState = "Hold";
-              }
-              break;
-            case "Start":
-              if (
-                entry.currentSpellAction &&
-                clipFinished(entry.currentSpellAction)
-              ) {
-                if (entry.spellActions.has(`${spellNameStr}.Hold`)) {
-                  startSpellAnim(
-                    entry,
-                    entry.spellActions.get(`${spellNameStr}.Hold`)!,
-                    false,
-                  );
-                } else {
-                  entry.currentSpellAction.setEffectiveWeight(0);
-                  entry.currentSpellAction = null;
-                }
-                entry.spellAnimState = "Hold";
-              }
-              break;
-            case "End":
-              // spell reactivated mid-end, restart
-              entry.currentSpellKey = spellNameStr;
-              if (entry.spellActions.has(`${spellNameStr}.Start`)) {
-                startSpellAnim(
-                  entry,
-                  entry.spellActions.get(`${spellNameStr}.Start`)!,
-                  true,
-                );
-                entry.spellAnimState = "Start";
-              } else {
-                entry.currentSpellAction?.setEffectiveWeight(0);
-                entry.currentSpellAction = null;
-                entry.spellAnimState = "none";
-              }
-              break;
-          }
-        } else {
-          if (
-            entry.spellAnimState === "Start" ||
-            entry.spellAnimState === "Hold"
-          ) {
-            const endKey = `${entry.currentSpellKey}.end`;
-            if (entry.spellActions.has(endKey)) {
-              startSpellAnim(entry, entry.spellActions.get(endKey)!, true);
-              entry.spellAnimState = "End";
-            } else {
-              entry.currentSpellAction?.setEffectiveWeight(0);
-              entry.currentSpellAction = null;
-              entry.spellAnimState = "none";
-            }
-          } else if (entry.spellAnimState === "End") {
-            if (
-              !entry.currentSpellAction ||
-              clipFinished(entry.currentSpellAction)
-            ) {
-              entry.currentSpellAction?.setEffectiveWeight(0);
-              entry.currentSpellAction = null;
-              entry.spellAnimState = "none";
-            }
-          }
-        }
-
-        // idle/walk blend (only when no spell animation is active)
-        if (
-          entry.spellAnimState === "none" &&
-          entry.walkActions &&
-          entry.idleAction
-        ) {
-          const vx = Velocity.x[eid] ?? 0;
-          const vy = Velocity.y[eid] ?? 0;
-          const speed = Math.sqrt(vx * vx + vy * vy);
-          const maxSpeed = MaxMoveSpeed.current[eid] ?? 1;
-          const blend = Math.min(speed / maxSpeed, 1);
-
-          entry.idleAction.setEffectiveWeight(1 - blend);
-          for (const action of entry.walkActions) {
-            action.setEffectiveWeight(blend);
-          }
-        }
-
-        const delta = world.time.delta / 1000;
-        entry.mixer.update(delta);
       }
     }
 

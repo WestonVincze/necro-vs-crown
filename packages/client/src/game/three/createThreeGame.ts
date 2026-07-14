@@ -1,6 +1,6 @@
 import { createWorld } from "bitecs";
 import { Grid } from "pathfinding";
-// const { Grid } = pkg;
+import { hasComponent } from "bitecs";
 import {
   createUnitEntity,
   UnitName,
@@ -29,6 +29,10 @@ import {
   Faction,
   createTargetSpawnerEntity,
   createUnitSpawnerSystem,
+  SpellEffect,
+  SpellName,
+  SpriteTexture,
+  Velocity,
 } from "@necro-crown/shared";
 import { createModelSystem, type Entry } from "$game/systems/ModelSystem";
 import { createInputHandlerSystem } from "$game/systems/InputHandlerSystem";
@@ -39,8 +43,15 @@ import { createHitSplatSystem } from "./HitSplatSystem";
 import { createDrawSpellEffectSystem } from "./DrawSpellEffectSystem";
 import { createDevToolsPanel } from "$game/devtools/createDevToolsPanel";
 import { createGodModeSystem } from "$game/devtools/createGodModeSystem";
-
 import { modelBank } from "./ModelBank";
+import {
+  AnimatorStore,
+  ActionState,
+  ActionKind,
+  CastPhase,
+  registerSpell,
+  type Intent,
+} from "$game/animation";
 
 export const createThreeGame = async (
   container: HTMLElement,
@@ -66,11 +77,57 @@ export const createThreeGame = async (
   }
   world.grid = new Grid(gridData);
 
-  const modelSystem = createModelSystem(world, scene);
-
   await modelBank.ready;
 
+  const animStore = new AnimatorStore();
+
+  modelBank.forEach((textureId, data) => {
+    const key = SpriteTexture[textureId]!;
+    animStore.registerArchetype(key, data.animations);
+  });
+
+  for (const name of Object.values(SpellName).filter(
+    (v): v is string => typeof v === "string",
+  )) {
+    registerSpell(name.toLowerCase());
+  }
+
+  const modelSystem = createModelSystem(world, scene, animStore);
+
   let getGodMode: () => boolean = () => false;
+
+  const animQuery = (): number[] => {
+    const result: number[] = [];
+    for (const [eid, entry] of modelSystem.entries) {
+      if (entry.type === "model" && animStore.get(eid)) result.push(eid);
+    }
+    return result;
+  };
+
+  const animSystem = (world: World) => {
+    const dt = world.time.delta / 1000;
+    for (const eid of animQuery()) {
+      let intent: Intent;
+      if (hasComponent(world, eid, SpellEffect)) {
+        const spellName = SpellName[SpellEffect.name[eid] as SpellName] ?? "";
+        intent = {
+          kind: ActionKind.Casting,
+          spell: spellName,
+          phase: CastPhase.Hold,
+        };
+      } else {
+        const speedSq = Velocity.x[eid] ** 2 + Velocity.y[eid] ** 2;
+        intent =
+          speedSq > 1e-4
+            ? { kind: ActionKind.Moving }
+            : { kind: ActionKind.Idle };
+      }
+      const animator = animStore.get(eid)!;
+      animator.update(intent, dt);
+      ActionState.kind[eid] = intent.kind;
+    }
+    return world;
+  };
 
   const physicsSystems = pipeline([
     createGridSystemNew(world),
@@ -92,6 +149,7 @@ export const createThreeGame = async (
     createHitSplatSystem(world, scene),
     createDestroyAfterDelaySystem(),
     modelSystem.run,
+    animSystem,
     createDeathSystem(world, Faction.Necro),
   ]);
 
@@ -101,7 +159,6 @@ export const createThreeGame = async (
   ]);
 
   const necro = createUnitEntity(world, UnitName.Necromancer, 0, 0);
-  createTargetSpawnerEntity(world, necro);
 
   const bonePositions = [
     { x: -100, y: -100 },
@@ -126,7 +183,9 @@ export const createThreeGame = async (
 
   const updateInspector = () => {
     const inspector = devTools.inspectorState;
-    let entry: Entry | undefined = modelSystem.entries.get(inspector.selectedEid);
+    let entry: Entry | undefined = modelSystem.entries.get(
+      inspector.selectedEid,
+    );
     if (!entry && modelSystem.entries.size > 0) {
       entry = modelSystem.entries.values().next().value;
       if (entry) inspector.selectedEid = entry.eid;
@@ -134,8 +193,13 @@ export const createThreeGame = async (
     if (entry) {
       inspector.hasModel = entry.type === "model";
       if (entry.type === "model") {
-        inspector.animState = entry.spellAnimState;
-        inspector.currentAnim = entry.currentSpellAction?.getClip().name ?? "(none)";
+        const anim = animStore.get(entry.eid);
+        const kind = ActionState.kind[entry.eid];
+        inspector.animState =
+          kind !== undefined
+            ? (ActionKind[kind as ActionKind] ?? "unknown")
+            : "N/A";
+        inspector.currentAnim = anim?.currentClip ?? "(none)";
         inspector.posX = Math.round(entry.group.position.x);
         inspector.posY = Math.round(entry.group.position.z);
       } else {

@@ -1,10 +1,6 @@
 import { observe, onAdd, onRemove, hasComponent } from "bitecs";
 import * as THREE from "three";
-import {
-  Position,
-  SpellEffect,
-  type World,
-} from "@necro-crown/shared";
+import { Position, SpellEffect, type World } from "@necro-crown/shared";
 
 const PARTICLE_COUNT = 150;
 
@@ -43,10 +39,7 @@ const createParticleTexture = (): THREE.CanvasTexture => {
 
 const particleTexture = createParticleTexture();
 
-const spawnParticles = (
-  cx: number,
-  cy: number,
-): SpellParticleEffect => {
+const spawnParticles = (cx: number, cy: number): SpellParticleEffect => {
   const particles: Particle[] = [];
   const positions = new Float32Array(PARTICLE_COUNT * 3);
   const sizes = new Float32Array(PARTICLE_COUNT);
