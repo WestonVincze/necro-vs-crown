@@ -57,29 +57,15 @@ export const createDevToolsPanel = (
   if (options.camera) {
     const camera = options.camera;
     const camState = {
-      x: camera.position.x,
-      y: camera.position.y,
-      z: camera.position.z,
       zoom: camera.top * 2,
-      lookX: 0,
-      lookY: 0,
-      lookZ: 0,
     };
 
     const camFolder = gui.addFolder("Camera");
-    camFolder.add(camState, "x", -3000, 3000, 1).name("Position X").onChange(updateCamera);
-    camFolder.add(camState, "y", 50, 3000, 1).name("Position Y").onChange(updateCamera);
-    camFolder.add(camState, "z", -3000, 3000, 1).name("Position Z").onChange(updateCamera);
-    camFolder.add(camState, "zoom", 100, 5000, 1).name("Zoom").onChange(updateZoom);
-    camFolder.add(camState, "lookX", -2000, 2000, 1).name("LookAt X").onChange(updateCamera);
-    camFolder.add(camState, "lookY", -500, 500, 1).name("LookAt Y").onChange(updateCamera);
-    camFolder.add(camState, "lookZ", -2000, 2000, 1).name("LookAt Z").onChange(updateCamera);
+    camFolder
+      .add(camState, "zoom", 100, 5000, 1)
+      .name("Zoom")
+      .onChange(updateZoom);
     camFolder.open();
-
-    function updateCamera() {
-      camera.position.set(camState.x, camState.y, camState.z);
-      camera.lookAt(camState.lookX, camState.lookY, camState.lookZ);
-    }
 
     function updateZoom(v: number) {
       const aspect = camera.right / camera.top;
@@ -92,13 +78,9 @@ export const createDevToolsPanel = (
     }
   }
 
-  const inspectorFolder = gui.addFolder("Inspector");
-  inspectorFolder.add(inspectorState, "selectedEid", 0, 100, 1).name("Entity ID").listen();
-  inspectorFolder.add(inspectorState, "hasModel").name("Has Model").listen();
+  const inspectorFolder = gui.addFolder("Animation");
   inspectorFolder.add(inspectorState, "animState").name("Anim State").listen();
   inspectorFolder.add(inspectorState, "currentAnim").name("Animation").listen();
-  inspectorFolder.add(inspectorState, "posX").name("Pos X").listen();
-  inspectorFolder.add(inspectorState, "posY").name("Pos Y").listen();
   inspectorFolder.open();
 
   return {
