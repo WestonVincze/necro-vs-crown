@@ -10,6 +10,7 @@
   import { StatOverrides } from "$UI/StatOverrides";
   import { Logo } from "$UI/Logo";
   import { Navbar } from "$UI/Navbar";
+  import { getCookie } from "../../utils/cookie";
 
   type LobbyState = {
     players: Record<string, PlayerConfig>;
@@ -89,7 +90,10 @@
 
         gameRoom.onMessage("session:init", ({ faction }) => {
           pendingGameSession.set({ room: gameRoom, faction });
-          goto("/versus");
+          const target = getCookie("3d_migration")
+            ? "/3d/versus"
+            : "/versus";
+          goto(target);
         });
       });
 
