@@ -3,7 +3,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { SpriteTexture } from "@necro-crown/shared";
 
 const MODEL_REGISTRY: Partial<Record<SpriteTexture, string>> = {
-  [SpriteTexture.Necromancer]: "models/necro.glb",
+  [SpriteTexture.Necromancer]: "/models/necro.glb",
 };
 
 interface ModelData {

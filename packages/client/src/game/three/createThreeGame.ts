@@ -1,6 +1,4 @@
-import { addComponent, addEntity, createWorld } from "bitecs";
-import { Grid } from "pathfinding";
-import { hasComponent } from "bitecs";
+import { addComponent, addEntity } from "bitecs";
 import {
   createUnitEntity,
   UnitName,
@@ -14,9 +12,8 @@ import {
   CrownStateStore,
   generateMockCards,
   createDeathSystem,
-  GameEvents,
-  pipeline,
-  updateWorldTime,
+  createUnitSpawnerSystem,
+  createFollowTargetSystemNew,
   createSeparationForceSystem,
   createMovementSystem,
   createCooldownSystem,
@@ -28,42 +25,29 @@ import {
   createHealthSystem,
   createDestroyAfterDelaySystem,
   createGridSystemNew,
-  createFollowTargetSystemNew,
   createTargetingSystem,
   createAssignFollowTargetSystem,
-  MAP_WIDTH_TILES,
-  MAP_HEIGHT_TILES,
-  type World,
   createBonesEntity,
   Faction,
-  createTargetSpawnerEntity,
-  createUnitSpawnerSystem,
   Position,
-  SpellEffect,
-  SpellName,
-  SpriteTexture,
-  Velocity,
+  updateWorldTime,
+  type World,
 } from "@necro-crown/shared";
-import { createModelSystem, type Entry } from "$game/systems/ModelSystem";
 import { createInputHandlerSystem } from "$game/systems/InputHandlerSystem";
+import { createCameraFollowSystem, createCameraFollowEntity, setCameraTarget } from "$game/systems/CameraFollowSystem";
 import { createThreeScene } from "./ThreeSetup";
 import { initializeNecroThreeControls } from "./NecroThreeControls";
 import { initializeCrownThreeControls } from "./CrownThreeControls";
 import { crownClientState } from "$game/Crown";
-import { createHealthBarSystem } from "./HealthBarSystem";
-import { createHitSplatSystem } from "./HitSplatSystem";
-import { createDrawSpellEffectSystem } from "./DrawSpellEffectSystem";
-import { createDevToolsPanel } from "$game/devtools/createDevToolsPanel";
 import { createGodModeSystem } from "$game/devtools/createGodModeSystem";
-import { modelBank } from "./ModelBank";
+import { createDevToolsPanel } from "$game/devtools/createDevToolsPanel";
 import {
-  AnimatorStore,
-  ActionState,
-  ActionKind,
-  CastPhase,
-  registerSpell,
-  type Intent,
-} from "$game/animation";
+  createBaseWorld,
+  initAnimationSystems,
+  createRenderSystems,
+  updateInspector,
+  type AnimSystemBundle,
+} from "./createThreeGameBase";
 
 export const createThreeGame = async (
   container: HTMLElement,
@@ -72,111 +56,75 @@ export const createThreeGame = async (
   const ctx = createThreeScene(container);
   const { scene, camera, renderer, groundPlane, resize, dispose } = ctx;
 
-  const world = createWorld() as World;
-  world.time = { delta: 0, elapsed: 0, then: performance.now() };
-  world.gameEvents = new GameEvents();
+  const world = createBaseWorld();
   world.networkType = "offline";
-  world.unitUpgrades = {};
-  world.experience = 0;
-  world.paused = false;
 
-  const gridData: number[][] = [];
-  for (let y = 0; y < MAP_HEIGHT_TILES; y++) {
-    const row: number[] = [];
-    for (let x = 0; x < MAP_WIDTH_TILES; x++) {
-      row.push(0);
-    }
-    gridData.push(row);
-  }
-  world.grid = new Grid(gridData);
+  const animBundle: AnimSystemBundle = await initAnimationSystems(
+    world,
+    scene,
+  );
 
-  await modelBank.ready;
-
-  const animStore = new AnimatorStore();
-
-  modelBank.forEach((textureId, data) => {
-    const key = SpriteTexture[textureId]!;
-    animStore.registerArchetype(key, data.animations);
-  });
-
-  for (const name of Object.values(SpellName).filter(
-    (v): v is string => typeof v === "string",
-  )) {
-    registerSpell(name.toLowerCase());
-  }
-
-  const modelSystem = createModelSystem(world, scene, animStore);
+  const renderSystems = createRenderSystems(world, scene, animBundle);
 
   let getGodMode: () => boolean = () => false;
 
-  const animQuery = (): number[] => {
-    const result: number[] = [];
-    for (const [eid, entry] of modelSystem.entries) {
-      if (entry.type === "model" && animStore.get(eid)) result.push(eid);
-    }
-    return result;
+  // --- pre-create all system closures (called once) ---
+  const gridSystem = createGridSystemNew(world);
+  const inputHandler = faction === Faction.Necro ? createInputHandlerSystem() : null;
+  const unitSpawner = createUnitSpawnerSystem();
+  const followTarget = createFollowTargetSystemNew(world);
+  const separationForce = createSeparationForceSystem();
+  const movement = createMovementSystem();
+  const cooldown = createCooldownSystem();
+  const combat = createCombatSystem();
+  const projectileCollision = createProjectileCollisionSystem();
+  const spellcasting = createSpellcastingSystem();
+  const spellEffect = createSpellEffectSystem(world);
+  const statUpdate = createStatUpdateSystem();
+  const health = createHealthSystem();
+  const godMode = createGodModeSystem(world, () => getGodMode());
+  const destroyAfterDelay = createDestroyAfterDelaySystem();
+  const death = createDeathSystem(world, faction);
+  const cameraFollow = createCameraFollowSystem(camera);
+  const targeting = createTargetingSystem();
+  const assignFollowTarget = createAssignFollowTargetSystem();
+
+  const physicsSystems = (w: World) => {
+    gridSystem(w);
+    if (inputHandler) inputHandler(w);
+    unitSpawner(w);
+    followTarget(w);
+    separationForce(w);
+    movement(w);
+    cooldown(w);
+    combat(w);
+    projectileCollision(w);
+    spellcasting(w);
+    spellEffect(w);
+    statUpdate(w);
+    health(w);
+    godMode(w);
+    destroyAfterDelay(w);
+    renderSystems(w);
+    death(w);
+    cameraFollow(w);
+    return w;
   };
 
-  const animSystem = (world: World) => {
-    const dt = world.time.delta / 1000;
-    for (const eid of animQuery()) {
-      let intent: Intent;
-      if (hasComponent(world, eid, SpellEffect)) {
-        const spellName = SpellName[SpellEffect.name[eid] as SpellName] ?? "";
-        intent = {
-          kind: ActionKind.Casting,
-          spell: spellName,
-          phase: CastPhase.Hold,
-        };
-      } else {
-        const speedSq = Velocity.x[eid] ** 2 + Velocity.y[eid] ** 2;
-        intent =
-          speedSq > 1e-4
-            ? { kind: ActionKind.Moving }
-            : { kind: ActionKind.Idle };
-      }
-      const animator = animStore.get(eid)!;
-      animator.update(intent, dt);
-      ActionState.kind[eid] = intent.kind;
-    }
-    return world;
+  const tickSystems = (w: World) => {
+    targeting(w);
+    assignFollowTarget(w);
+    return w;
   };
-
-  const physicsSystems = pipeline([
-    createGridSystemNew(world),
-    ...(faction === Faction.Necro ? [createInputHandlerSystem()] : []),
-    createUnitSpawnerSystem(),
-    createFollowTargetSystemNew(world),
-    createSeparationForceSystem(),
-    createMovementSystem(),
-    createCooldownSystem(),
-    createCombatSystem(),
-    createProjectileCollisionSystem(),
-    createSpellcastingSystem(),
-    createSpellEffectSystem(world),
-    createDrawSpellEffectSystem(world, scene),
-    createStatUpdateSystem(),
-    createHealthSystem(),
-    createGodModeSystem(world, () => getGodMode()),
-    createHealthBarSystem(world, scene),
-    createHitSplatSystem(world, scene),
-    createDestroyAfterDelaySystem(),
-    modelSystem.run,
-    animSystem,
-    createDeathSystem(world, faction),
-  ]);
-
-  const tickSystems = pipeline([
-    createTargetingSystem(),
-    createAssignFollowTargetSystem(),
-  ]);
 
   let playerEid: number;
+  let cameraEid: number | undefined;
   let disposeControls: () => void;
   let crownState: CrownStateStore | null = null;
 
   if (faction === Faction.Necro) {
     playerEid = createUnitEntity(world, UnitName.Necromancer, 0, 0);
+    cameraEid = createCameraFollowEntity(world, playerEid);
 
     const bonePositions = [
       { x: -100, y: -100 },
@@ -240,7 +188,6 @@ export const createThreeGame = async (
       camera,
       groundPlane,
       (x, y) => {
-        console.log("playing card");
         const selected = crownClientState.getSelectedCard();
         if (crownState && selected && selected.id !== undefined) {
           crownState.playCard(selected.id, (name) =>
@@ -253,66 +200,26 @@ export const createThreeGame = async (
     );
   }
 
+  const devTools = createDevToolsPanel({
+    world,
+    camera,
+    onStepFrame: () => {
+      world.time.then = performance.now() - 16;
+      updateWorldTime(world);
+      physicsSystems(world);
+      const info = updateInspector(animBundle, devTools.inspectorState.selectedEid);
+      Object.assign(devTools.inspectorState, info);
+      renderer.render(scene, camera);
+    },
+    onStepTick: () => {
+      tickSystems(world);
+    },
+  });
+  getGodMode = () => devTools.state.godMode;
+
   let animFrameId: number;
   let timeSinceLastTick = 0;
   let wasPaused = false;
-
-  const updateInspector = () => {
-    const inspector = devTools.inspectorState;
-    let entry: Entry | undefined = modelSystem.entries.get(
-      inspector.selectedEid,
-    );
-    if (!entry && modelSystem.entries.size > 0) {
-      entry = modelSystem.entries.values().next().value;
-      if (entry) inspector.selectedEid = entry.eid;
-    }
-    if (entry) {
-      inspector.hasModel = entry.type === "model";
-      if (entry.type === "model") {
-        const anim = animStore.get(entry.eid);
-        const kind = ActionState.kind[entry.eid];
-        inspector.animState =
-          kind !== undefined
-            ? (ActionKind[kind as ActionKind] ?? "unknown")
-            : "N/A";
-        inspector.currentAnim = anim?.currentClip ?? "(none)";
-        inspector.posX = Math.round(entry.group.position.x);
-        inspector.posY = Math.round(entry.group.position.z);
-      } else {
-        inspector.animState = "N/A";
-        inspector.currentAnim = "N/A";
-        inspector.posX = Math.round(entry.mesh.position.x);
-        inspector.posY = Math.round(entry.mesh.position.z);
-      }
-    } else {
-      inspector.hasModel = false;
-      inspector.animState = "N/A";
-      inspector.currentAnim = "N/A";
-      inspector.posX = 0;
-      inspector.posY = 0;
-    }
-  };
-
-  const followPlayer = () => {
-    if (faction !== Faction.Necro) return;
-    const px = Position.x[playerEid];
-    const py = Position.y[playerEid];
-    camera.position.set(px, 1000, py + 1000);
-    camera.lookAt(px, 0, py);
-  };
-
-  const stepFrame = () => {
-    world.time.then = performance.now() - 16;
-    updateWorldTime(world);
-    physicsSystems(world);
-    updateInspector();
-    followPlayer();
-    renderer.render(scene, camera);
-  };
-
-  const stepTick = () => {
-    tickSystems(world);
-  };
 
   const animate = () => {
     animFrameId = requestAnimationFrame(animate);
@@ -337,9 +244,9 @@ export const createThreeGame = async (
     }
 
     physicsSystems(world);
-    updateInspector();
 
-    followPlayer();
+    const info = updateInspector(animBundle, devTools.inspectorState.selectedEid);
+    Object.assign(devTools.inspectorState, info);
 
     renderer.render(scene, camera);
   };
@@ -347,14 +254,6 @@ export const createThreeGame = async (
   animFrameId = requestAnimationFrame(animate);
 
   window.addEventListener("resize", resize);
-
-  const devTools = createDevToolsPanel({
-    world,
-    camera,
-    onStepFrame: stepFrame,
-    onStepTick: stepTick,
-  });
-  getGodMode = () => devTools.state.godMode;
 
   return () => {
     cancelAnimationFrame(animFrameId);

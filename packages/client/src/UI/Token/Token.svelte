@@ -16,7 +16,7 @@
   <div class="cost">
     <CoinPurse value={cost} />
   </div>
-  <img src={unitData?.url} alt={unitData?.name} draggable="false" />
+  <img src={`/${unitData?.url}`} alt={unitData?.name} draggable="false" />
 </div>
 
 <style>
