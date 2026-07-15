@@ -39,7 +39,6 @@
   onDestroy(() => {
     window.removeEventListener("keydown", handleKeyDown);
   });
-
 </script>
 
   <div class="actions">
@@ -49,15 +48,16 @@
       <CoinPurse value={$coins} width={42} height={51} />
     </div>
     <div class="tokens">
-      {#each $hand as card (card.id)}
+      {#each $hand as card, i (card.id)}
         <span
+          draggable={true}
           class="card-wrapper"
           class:not-playable={$coins < card.cost}
           class:selected={crownClientState.getSelectedCard()?.id === card.id}
           on:mousedown={() => card.id && crownClientState.selectCard(card.id)}
           role="button"
           tabindex={0}
-          on:keydown={() => {}}
+          data-card-id={card.id}
         >
           <Token cost={card.cost} unitID={card.name} />
         </span>

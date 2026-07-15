@@ -1,9 +1,18 @@
-import { createWorld } from "bitecs";
+import { addComponent, addEntity, createWorld } from "bitecs";
 import { Grid } from "pathfinding";
 import { hasComponent } from "bitecs";
 import {
   createUnitEntity,
   UnitName,
+  Behavior,
+  Behaviors,
+  Player,
+  Level,
+  Coin,
+  CoinAccumulator,
+  BASE_EXP,
+  CrownStateStore,
+  generateMockCards,
   createDeathSystem,
   GameEvents,
   pipeline,
@@ -29,6 +38,7 @@ import {
   Faction,
   createTargetSpawnerEntity,
   createUnitSpawnerSystem,
+  Position,
   SpellEffect,
   SpellName,
   SpriteTexture,
@@ -38,6 +48,8 @@ import { createModelSystem, type Entry } from "$game/systems/ModelSystem";
 import { createInputHandlerSystem } from "$game/systems/InputHandlerSystem";
 import { createThreeScene } from "./ThreeSetup";
 import { initializeNecroThreeControls } from "./NecroThreeControls";
+import { initializeCrownThreeControls } from "./CrownThreeControls";
+import { crownClientState } from "$game/Crown";
 import { createHealthBarSystem } from "./HealthBarSystem";
 import { createHitSplatSystem } from "./HitSplatSystem";
 import { createDrawSpellEffectSystem } from "./DrawSpellEffectSystem";
@@ -55,6 +67,7 @@ import {
 
 export const createThreeGame = async (
   container: HTMLElement,
+  faction: Faction = Faction.Necro,
 ): Promise<() => void> => {
   const ctx = createThreeScene(container);
   const { scene, camera, renderer, groundPlane, resize, dispose } = ctx;
@@ -131,7 +144,7 @@ export const createThreeGame = async (
 
   const physicsSystems = pipeline([
     createGridSystemNew(world),
-    createInputHandlerSystem(),
+    ...(faction === Faction.Necro ? [createInputHandlerSystem()] : []),
     createUnitSpawnerSystem(),
     createFollowTargetSystemNew(world),
     createSeparationForceSystem(),
@@ -150,7 +163,7 @@ export const createThreeGame = async (
     createDestroyAfterDelaySystem(),
     modelSystem.run,
     animSystem,
-    createDeathSystem(world, Faction.Necro),
+    createDeathSystem(world, faction),
   ]);
 
   const tickSystems = pipeline([
@@ -158,24 +171,87 @@ export const createThreeGame = async (
     createAssignFollowTargetSystem(),
   ]);
 
-  const necro = createUnitEntity(world, UnitName.Necromancer, 0, 0);
+  let playerEid: number;
+  let disposeControls: () => void;
+  let crownState: CrownStateStore | null = null;
 
-  const bonePositions = [
-    { x: -100, y: -100 },
-    { x: 100, y: -120 },
-    { x: -80, y: 100 },
-  ];
+  if (faction === Faction.Necro) {
+    playerEid = createUnitEntity(world, UnitName.Necromancer, 0, 0);
 
-  for (const pos of bonePositions) {
-    createBonesEntity(world, pos.x, pos.y);
+    const bonePositions = [
+      { x: -100, y: -100 },
+      { x: 100, y: -120 },
+      { x: -80, y: 100 },
+    ];
+    for (const pos of bonePositions) {
+      createBonesEntity(world, pos.x, pos.y);
+    }
+
+    disposeControls = initializeNecroThreeControls(
+      renderer.domElement,
+      camera,
+      groundPlane,
+      world,
+    );
+  } else {
+    playerEid = addEntity(world);
+    addComponent(world, playerEid, Player);
+    addComponent(world, playerEid, Level);
+    Level.currentLevel[playerEid] = 0;
+    Level.currentExp[playerEid] = 0;
+    Level.expToNextLevel[playerEid] = BASE_EXP;
+    addComponent(world, playerEid, Coin);
+    addComponent(world, playerEid, CoinAccumulator);
+    Coin.current[playerEid] = 0;
+    Coin.max[playerEid] = 10;
+    CoinAccumulator.amount[playerEid] = 1;
+    CoinAccumulator.frequency[playerEid] = 1000;
+
+    for (let i = 0; i < 5; i++) {
+      const eid = createUnitEntity(
+        world,
+        UnitName.Skeleton,
+        Math.random() * 750,
+        Math.random() * 750,
+      );
+      addComponent(world, eid, Behavior);
+      Behavior.type[eid] = Behaviors.AutoTarget;
+    }
+
+    crownState = new CrownStateStore();
+    crownState.start();
+    crownState.hand$.subscribe((hand) =>
+      crownClientState.applyHandUpdate(hand),
+    );
+    crownState.discard$.subscribe((discard) =>
+      crownClientState.applyDiscardUpdate(discard),
+    );
+    crownState.coins$.subscribe((coins) =>
+      crownClientState.applyCoinsUpdate(coins),
+    );
+    crownState.addCards(generateMockCards(8));
+    crownState.drawCard();
+    crownState.drawCard();
+    crownState.drawCard();
+    crownState.drawCard();
+
+    disposeControls = initializeCrownThreeControls(
+      renderer.domElement,
+      camera,
+      groundPlane,
+      (x, y) => {
+        console.log("playing card");
+        const selected = crownClientState.getSelectedCard();
+        if (crownState && selected && selected.id !== undefined) {
+          crownState.playCard(selected.id, (name) =>
+            createUnitEntity(world, name, x, y),
+          );
+          crownClientState.deselectCard();
+        }
+      },
+      scene,
+    );
   }
-
-  const disposeControls = initializeNecroThreeControls(
-    renderer.domElement,
-    camera,
-    groundPlane,
-    world,
-  );
 
   let animFrameId: number;
   let timeSinceLastTick = 0;
@@ -217,11 +293,20 @@ export const createThreeGame = async (
     }
   };
 
+  const followPlayer = () => {
+    if (faction !== Faction.Necro) return;
+    const px = Position.x[playerEid];
+    const py = Position.y[playerEid];
+    camera.position.set(px, 1000, py + 1000);
+    camera.lookAt(px, 0, py);
+  };
+
   const stepFrame = () => {
     world.time.then = performance.now() - 16;
     updateWorldTime(world);
     physicsSystems(world);
     updateInspector();
+    followPlayer();
     renderer.render(scene, camera);
   };
 
@@ -254,6 +339,8 @@ export const createThreeGame = async (
     physicsSystems(world);
     updateInspector();
 
+    followPlayer();
+
     renderer.render(scene, camera);
   };
 
@@ -273,6 +360,7 @@ export const createThreeGame = async (
     cancelAnimationFrame(animFrameId);
     devTools.destroy();
     disposeControls();
+    crownState?.destroy();
     window.removeEventListener("resize", resize);
     dispose();
   };
