@@ -29,12 +29,15 @@ import {
   createAssignFollowTargetSystem,
   createBonesEntity,
   Faction,
-  Position,
   updateWorldTime,
   type World,
+  createTargetSpawnerEntity,
 } from "@necro-crown/shared";
 import { createInputHandlerSystem } from "$game/systems/InputHandlerSystem";
-import { createCameraFollowSystem, createCameraFollowEntity, setCameraTarget } from "$game/systems/CameraFollowSystem";
+import {
+  createCameraFollowSystem,
+  createCameraFollowEntity,
+} from "$game/systems/CameraFollowSystem";
 import { createThreeScene } from "./ThreeSetup";
 import { initializeNecroThreeControls } from "./NecroThreeControls";
 import { initializeCrownThreeControls } from "./CrownThreeControls";
@@ -59,10 +62,7 @@ export const createThreeGame = async (
   const world = createBaseWorld();
   world.networkType = "offline";
 
-  const animBundle: AnimSystemBundle = await initAnimationSystems(
-    world,
-    scene,
-  );
+  const animBundle: AnimSystemBundle = await initAnimationSystems(world, scene);
 
   const renderSystems = createRenderSystems(world, scene, animBundle);
 
@@ -70,7 +70,8 @@ export const createThreeGame = async (
 
   // --- pre-create all system closures (called once) ---
   const gridSystem = createGridSystemNew(world);
-  const inputHandler = faction === Faction.Necro ? createInputHandlerSystem() : null;
+  const inputHandler =
+    faction === Faction.Necro ? createInputHandlerSystem() : null;
   const unitSpawner = createUnitSpawnerSystem();
   const followTarget = createFollowTargetSystemNew(world);
   const separationForce = createSeparationForceSystem();
@@ -134,6 +135,8 @@ export const createThreeGame = async (
     for (const pos of bonePositions) {
       createBonesEntity(world, pos.x, pos.y);
     }
+
+    createTargetSpawnerEntity(world, playerEid);
 
     disposeControls = initializeNecroThreeControls(
       renderer.domElement,
@@ -207,7 +210,10 @@ export const createThreeGame = async (
       world.time.then = performance.now() - 16;
       updateWorldTime(world);
       physicsSystems(world);
-      const info = updateInspector(animBundle, devTools.inspectorState.selectedEid);
+      const info = updateInspector(
+        animBundle,
+        devTools.inspectorState.selectedEid,
+      );
       Object.assign(devTools.inspectorState, info);
       renderer.render(scene, camera);
     },
@@ -245,7 +251,10 @@ export const createThreeGame = async (
 
     physicsSystems(world);
 
-    const info = updateInspector(animBundle, devTools.inspectorState.selectedEid);
+    const info = updateInspector(
+      animBundle,
+      devTools.inspectorState.selectedEid,
+    );
     Object.assign(devTools.inspectorState, info);
 
     renderer.render(scene, camera);

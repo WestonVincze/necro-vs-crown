@@ -126,11 +126,12 @@ export const createRenderSystems = (
 ) => {
   const drawSpellFx = createDrawSpellEffectSystem(world, scene);
   const healthBars = createHealthBarSystem(world, scene);
-  createHitSplatSystem(world, scene);
+  const hitSplats = createHitSplatSystem(world, scene);
 
   return (w: World) => {
     drawSpellFx(w);
     healthBars(w);
+    hitSplats(w);
     animBundle.modelSystem.run(w);
     animBundle.animSystem(w);
     return w;
@@ -141,9 +142,8 @@ export const updateInspector = (
   animBundle: AnimSystemBundle,
   selectedEid: number,
 ) => {
-  let entry: Entry | undefined = animBundle.modelSystem.entries.get(
-    selectedEid,
-  );
+  let entry: Entry | undefined =
+    animBundle.modelSystem.entries.get(selectedEid);
   if (!entry && animBundle.modelSystem.entries.size > 0) {
     entry = animBundle.modelSystem.entries.values().next().value;
   }
@@ -169,5 +169,11 @@ export const updateInspector = (
     }
     return { hasModel, animState, currentAnim, posX, posY };
   }
-  return { hasModel: false, animState: "N/A", currentAnim: "N/A", posX: 0, posY: 0 };
+  return {
+    hasModel: false,
+    animState: "N/A",
+    currentAnim: "N/A",
+    posX: 0,
+    posY: 0,
+  };
 };
