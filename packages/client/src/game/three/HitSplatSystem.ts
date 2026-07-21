@@ -1,11 +1,11 @@
 import * as THREE from "three";
 import type { World } from "@necro-crown/shared";
 
-const HIT_SPLAT_DURATION = 500;
+const HIT_SPLAT_DURATION = 750;
 
 interface HitSplatEntry {
   sprite: THREE.Sprite;
-  texture: THREE.CanvasTexture;
+  texture: THREE.Texture;
   createdAt: number;
   startX: number;
   startY: number;
@@ -17,8 +17,57 @@ const colors = {
   red: { miss: "#ff9191", hit: "#ff5555", crit: "#ed2424" },
 };
 
+const CANVAS_SIZE = 128;
+const STAR_POINTS = 12;
+const STAR_OUTER_R = 48;
+const STAR_INNER_R = 30;
+
+const drawHitSplat = (
+  ctx: CanvasRenderingContext2D,
+  color: string,
+  fontSize: string,
+  label: string,
+) => {
+  const w = CANVAS_SIZE;
+  const h = CANVAS_SIZE;
+  ctx.clearRect(0, 0, w, h);
+
+  const cx = w / 2;
+  const cy = h / 2;
+
+  // star shape
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  for (let i = 0; i < STAR_POINTS * 2; i++) {
+    const r = i % 2 === 0 ? STAR_OUTER_R : STAR_INNER_R;
+    const angle = (Math.PI * i) / STAR_POINTS - Math.PI / 2;
+    const px = cx + Math.cos(angle) * r;
+    const py = cy + Math.sin(angle) * r;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.fill();
+
+  // damage number
+  ctx.fillStyle = "#FFF";
+  ctx.font = `bold ${fontSize} Wellfleet, monospace`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(label, cx, cy);
+};
+
 export const createHitSplatSystem = (world: World, scene: THREE.Scene) => {
   const active: HitSplatEntry[] = [];
+
+  const canvas = document.createElement("canvas");
+  canvas.width = CANVAS_SIZE;
+  canvas.height = CANVAS_SIZE;
+  const ctx = canvas.getContext("2d")!;
+
+  const sourceTexture = new THREE.CanvasTexture(canvas);
+  sourceTexture.minFilter = THREE.NearestFilter;
+  sourceTexture.magFilter = THREE.NearestFilter;
 
   world.gameEvents.hitSplat$.subscribe(
     ({ amount, isCrit, position, colorSet }) => {
@@ -26,56 +75,27 @@ export const createHitSplatSystem = (world: World, scene: THREE.Scene) => {
       const palette = colors[colorSet];
 
       let color: string;
-      let fontSize = "16px";
+      let fontSize = "36px";
       let label = String(Math.abs(amount).toFixed(0));
 
       if (amount === 0) {
         color = palette.miss;
       } else if (isCrit) {
         color = palette.crit;
-        fontSize = "20px";
+        fontSize = "48px";
         label += "!";
       } else {
         color = palette.hit;
       }
 
+      drawHitSplat(ctx, color, fontSize, label);
+      sourceTexture.needsUpdate = true;
+
+      const texture = sourceTexture.clone();
+      texture.needsUpdate = true;
+
       const xVariance = Math.random() * 30 - 15;
       const yVariance = Math.random() * 30 - 15;
-
-      const canvas = document.createElement("canvas");
-      canvas.width = 128;
-      canvas.height = 32;
-      const ctx = canvas.getContext("2d")!;
-
-      // star shape behind the text
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      const cx = 64;
-      const cy = 16;
-      const spikes = 6;
-      const outerR = 12;
-      const innerR = 5;
-      for (let i = 0; i < spikes * 2; i++) {
-        const r = i % 2 === 0 ? outerR : innerR;
-        const a = (Math.PI * i) / spikes - Math.PI / 2;
-        const px = cx + Math.cos(a) * r;
-        const py = cy + Math.sin(a) * r;
-        if (i === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
-      }
-      ctx.closePath();
-      ctx.fill();
-
-      // damage number
-      ctx.fillStyle = "#FFF";
-      ctx.font = `bold ${fontSize} Wellfleet, monospace`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(label, 64, 16);
-
-      const texture = new THREE.CanvasTexture(canvas);
-      texture.minFilter = THREE.NearestFilter;
-      texture.magFilter = THREE.NearestFilter;
 
       const material = new THREE.SpriteMaterial({
         map: texture,
@@ -88,7 +108,7 @@ export const createHitSplatSystem = (world: World, scene: THREE.Scene) => {
       const worldX = x + xVariance;
       const worldZ = y + yVariance;
       sprite.position.set(worldX, 60, worldZ);
-      sprite.scale.set(32, 8, 1);
+      sprite.scale.set(24, 24, 1);
 
       scene.add(sprite);
 
@@ -118,8 +138,9 @@ export const createHitSplatSystem = (world: World, scene: THREE.Scene) => {
         continue;
       }
 
-      const floatUp = t * 15;
-      const s = 1.3 - t * 0.5;
+      const ease = 1 - (1 - t) * (1 - t);
+      const floatUp = ease * 15;
+      const s = 1.3 - ease * 0.5;
       const alpha = 1 - t;
 
       entry.sprite.position.set(
@@ -127,7 +148,7 @@ export const createHitSplatSystem = (world: World, scene: THREE.Scene) => {
         entry.startY + floatUp,
         entry.startZ,
       );
-      entry.sprite.scale.set(32 * s, 8 * s, 1);
+      entry.sprite.scale.set(64 * s, 64 * s, 1);
       (entry.sprite.material as THREE.SpriteMaterial).opacity = alpha;
     }
 
