@@ -14,6 +14,31 @@ interface ModelData {
   animations: THREE.AnimationClip[];
 }
 
+// Animation can swing limbs outside the bind-pose bounds, so pad the
+// sphere rather than tracking it per frame.
+const BOUNDING_SPHERE_PADDING = 1.5;
+
+/**
+ * Gives every skinned mesh an explicit bounding sphere.
+ *
+ * three.js computes a SkinnedMesh's bounding sphere lazily on the first frame
+ * it renders, and that computation transforms every vertex by its bones —
+ * ~105ms for a 125k-vertex model, which surfaces as a freeze on every spawn.
+ * Deriving it once from the (much cheaper) geometry bounds avoids that, and
+ * since SkinnedMesh.copy() clones the sphere, every spawned clone inherits it.
+ */
+const primeBoundingSpheres = (root: THREE.Object3D): void => {
+  root.traverse((obj) => {
+    const mesh = obj as THREE.SkinnedMesh;
+    if (!mesh.isSkinnedMesh) return;
+    const { geometry } = mesh;
+    if (!geometry.boundingSphere) geometry.computeBoundingSphere();
+    if (!geometry.boundingSphere) return;
+    mesh.boundingSphere = geometry.boundingSphere.clone();
+    mesh.boundingSphere.radius *= BOUNDING_SPHERE_PADDING;
+  });
+};
+
 class ModelBank {
   private loader = new GLTFLoader();
   private cache = new Map<SpriteTexture, ModelData | null>();
@@ -39,6 +64,8 @@ class ModelBank {
             }
           });
           applyToonEffect(model);
+          // After applyToonEffect so the outline hulls are covered too.
+          primeBoundingSpheres(model);
           this.cache.set(textureId, {
             scene: model,
             animations: gltf.animations,

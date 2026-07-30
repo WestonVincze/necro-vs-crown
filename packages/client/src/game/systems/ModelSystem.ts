@@ -112,7 +112,7 @@ export const createModelSystem = (
       if (modelData) {
         const group = modelData.scene.clone(true);
         group.position.set(Position.x[eid], 0, Position.y[eid]);
-        group.scale.set(100, 100, 100);
+        group.scale.set(50, 50, 50);
         group.userData.entityId = eid;
         group.traverse((child) => {
           if (child instanceof THREE.Mesh) {
