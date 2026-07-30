@@ -3,16 +3,12 @@ export { ClipLibrary } from "./ClipLibrary";
 export { Animator } from "./Animator";
 export {
   ActionState,
-  Casting,
   Attacking,
   Spawning,
   Dying,
   AnimatorStore,
-  createActionStateSystem,
   createAnimationSystem,
   deriveIntent,
-  registerSpell,
-  spellIdOf,
-  spellNameOf,
+  type CastingInfo,
   type IntentSources,
 } from "./systems";

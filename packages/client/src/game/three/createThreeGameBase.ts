@@ -22,9 +22,12 @@ import {
   ActionKind,
   ActionState,
   AnimatorStore,
+  Attacking,
   CastPhase,
-  registerSpell,
-  type Intent,
+  Dying,
+  Spawning,
+  createAnimationSystem,
+  type IntentSources,
 } from "$game/animation";
 
 type ModelSystemBundle = {
@@ -74,12 +77,6 @@ export const initAnimationSystems = async (
     animStore.registerArchetype(key, data.animations);
   });
 
-  for (const name of Object.values(SpellName).filter(
-    (v): v is string => typeof v === "string",
-  )) {
-    registerSpell(name.toLowerCase());
-  }
-
   const { createModelSystem } = await import("$game/systems/ModelSystem");
   const modelSystem = createModelSystem(world, scene, animStore);
 
@@ -91,30 +88,26 @@ export const initAnimationSystems = async (
     return result;
   };
 
-  const animSystem = (w: World) => {
-    const dt = w.time.delta / 1000;
-    for (const eid of animQuery()) {
-      let intent: Intent;
-      if (hasComponent(w, eid, SpellEffect)) {
-        const spellName = SpellName[SpellEffect.name[eid] as SpellName] ?? "";
-        intent = {
-          kind: ActionKind.Casting,
-          spell: spellName,
-          phase: CastPhase.Hold,
-        };
-      } else {
-        const speedSq = Velocity.x[eid] ** 2 + Velocity.y[eid] ** 2;
-        intent =
-          speedSq > 1e-4
-            ? { kind: ActionKind.Moving }
-            : { kind: ActionKind.Idle };
-      }
-      const animator = animStore.get(eid)!;
-      animator.update(intent, dt);
-      ActionState.kind[eid] = intent.kind;
-    }
-    return w;
+  const intentSources: IntentSources = {
+    getSpeedSq: (eid) => Velocity.x[eid] ** 2 + Velocity.y[eid] ** 2,
+    getCasting: (eid) =>
+      hasComponent(world, eid, SpellEffect)
+        ? {
+            spell: SpellName[SpellEffect.name[eid] as SpellName] ?? "",
+            phase: CastPhase.Hold,
+          }
+        : null,
+    isAttacking: (eid) => hasComponent(world, eid, Attacking),
+    isSpawning: (eid) => hasComponent(world, eid, Spawning),
+    isDying: (eid) => hasComponent(world, eid, Dying),
   };
+
+  const animSystem = createAnimationSystem<World>(
+    animStore,
+    intentSources,
+    animQuery,
+    () => world.time.delta / 1000,
+  );
 
   return { animStore, modelSystem, animQuery, animSystem };
 };
