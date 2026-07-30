@@ -8,6 +8,10 @@ import {
   Cursor,
   getGridCellFromPosition,
 } from "@necro-crown/shared";
+import { createGroundRaycaster } from "./GroundRaycaster";
+
+const MIN_ZOOM = 0.84;
+const MAX_ZOOM = 2;
 
 export const initializeNecroThreeControls = (
   canvas: HTMLCanvasElement,
@@ -15,8 +19,7 @@ export const initializeNecroThreeControls = (
   groundPlane: THREE.Plane,
   world: World,
 ): (() => void) => {
-  const raycaster = new THREE.Raycaster();
-  const mouse = new THREE.Vector2();
+  const getGroundPoint = createGroundRaycaster(canvas, camera, groundPlane);
 
   const cursorEid = addEntity(world);
   addComponent(world, cursorEid, Cursor);
@@ -28,6 +31,8 @@ export const initializeNecroThreeControls = (
 
   const tapThresholdMs = 300;
   const tapMoveThresholdPx = 25;
+
+  const cleanup: (() => void)[] = [];
 
   const pointerSub: Subscription = pointerDown$
     .pipe(
@@ -48,17 +53,10 @@ export const initializeNecroThreeControls = (
       const moved = Math.hypot(dx, dy);
 
       if (dt <= tapThresholdMs && moved <= tapMoveThresholdPx) {
-        const rect = canvas.getBoundingClientRect();
-        mouse.x = ((up.clientX - rect.left) / rect.width) * 2 - 1;
-        mouse.y = -((up.clientY - rect.top) / rect.height) * 2 + 1;
-
-        raycaster.setFromCamera(mouse, camera);
-        const target = new THREE.Vector3();
-        const hit = raycaster.ray.intersectPlane(groundPlane, target);
-
+        const hit = getGroundPoint(up.clientX, up.clientY);
         if (hit) {
-          const gameX = target.x;
-          const gameY = target.z;
+          const gameX = hit.x;
+          const gameY = hit.z;
           Position.x[cursorEid] = gameX;
           Position.y[cursorEid] = gameY;
           const gridCellPosition = getGridCellFromPosition({
@@ -70,8 +68,36 @@ export const initializeNecroThreeControls = (
         }
       }
     });
+  cleanup.push(() => pointerSub.unsubscribe());
+
+  // --- scroll-wheel zoom (keep pointer under the same world point) ---
+  const onWheel = (ev: WheelEvent) => {
+    ev.preventDefault();
+    const worldBefore = getGroundPoint(ev.clientX, ev.clientY);
+    if (!worldBefore) return;
+
+    const oldZoom = camera.zoom;
+    const newZoom = THREE.MathUtils.clamp(
+      oldZoom - oldZoom * 0.001 * ev.deltaY,
+      MIN_ZOOM,
+      MAX_ZOOM,
+    );
+
+    camera.zoom = newZoom;
+    camera.updateProjectionMatrix();
+
+    const worldAfter = getGroundPoint(ev.clientX, ev.clientY);
+    if (worldAfter) {
+      const dx = worldBefore.x - worldAfter.x;
+      const dz = worldBefore.z - worldAfter.z;
+      camera.position.x += dx;
+      camera.position.z += dz;
+    }
+  };
+  canvas.addEventListener("wheel", onWheel, { passive: false });
+  cleanup.push(() => canvas.removeEventListener("wheel", onWheel));
 
   return () => {
-    pointerSub.unsubscribe();
+    for (const fn of cleanup) fn();
   };
 };

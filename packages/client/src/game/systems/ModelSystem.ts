@@ -9,6 +9,7 @@ import {
   SpriteTexture,
 } from "@necro-crown/shared";
 import { modelBank } from "$game/three/ModelBank";
+import { addOutline, createToonMaterial } from "$game/three/ToonShading";
 import { AnimatorStore } from "$game/animation";
 
 const smoothRotate = (
@@ -64,7 +65,11 @@ export interface ModelEntry {
 
 export type Entry = PillEntry | ModelEntry;
 
-export const createModelSystem = (world: World, scene: THREE.Scene, store: AnimatorStore) => {
+export const createModelSystem = (
+  world: World,
+  scene: THREE.Scene,
+  store: AnimatorStore,
+) => {
   const entries = new Map<number, Entry>();
 
   const modelQuery = (world: World) => query(world, [Position, Sprite]);
@@ -82,23 +87,19 @@ export const createModelSystem = (world: World, scene: THREE.Scene, store: Anima
     for (const eid of exited) {
       const entry = entries.get(eid);
       if (entry) {
-        scene.remove(entry.type === "pill" ? entry.mesh : entry.group);
-        if (entry.type === "pill") {
-          entry.mesh.geometry.dispose();
-          (entry.mesh.material as THREE.Material).dispose();
-        } else {
-          store.detach(eid);
-          entry.group.traverse((child) => {
-            if (child instanceof THREE.Mesh) {
-              child.geometry.dispose();
-              if (Array.isArray(child.material)) {
-                child.material.forEach((m) => m.dispose());
-              } else {
-                child.material.dispose();
-              }
+        const obj = entry.type === "pill" ? entry.mesh : entry.group;
+        scene.remove(obj);
+        if (entry.type === "model") store.detach(eid);
+        obj.traverse((child) => {
+          if (child instanceof THREE.Mesh) {
+            child.geometry.dispose();
+            if (Array.isArray(child.material)) {
+              child.material.forEach((m) => m.dispose());
+            } else {
+              child.material.dispose();
             }
-          });
-        }
+          }
+        });
       }
       entries.delete(eid);
     }
@@ -111,13 +112,16 @@ export const createModelSystem = (world: World, scene: THREE.Scene, store: Anima
       if (modelData) {
         const group = modelData.scene.clone(true);
         group.position.set(Position.x[eid], 0, Position.y[eid]);
-        group.scale.set(15, 15, 15);
+        group.scale.set(100, 100, 100);
         group.userData.entityId = eid;
         group.traverse((child) => {
           if (child instanceof THREE.Mesh) {
             child.frustumCulled = false;
             child.matrixAutoUpdate = true;
-            if (child.material instanceof THREE.Material) {
+            // Outline hulls must stay BackSide or the effect vanishes.
+            if (child.userData.isOutline) {
+              // skip material overrides
+            } else if (child.material instanceof THREE.Material) {
               (child.material as THREE.Material).side = THREE.DoubleSide;
             } else if (Array.isArray(child.material)) {
               child.material.forEach((m) => (m.side = THREE.DoubleSide));
@@ -165,16 +169,13 @@ export const createModelSystem = (world: World, scene: THREE.Scene, store: Anima
           geometry = new THREE.SphereGeometry(width / 2, 12, 8);
         }
 
-        const material = new THREE.MeshStandardMaterial({
-          color,
-          roughness: 0.6,
-          metalness: 0.1,
-        });
+        const material = createToonMaterial({ color });
         const mesh = new THREE.Mesh(geometry, material);
         mesh.castShadow = true;
         mesh.receiveShadow = true;
         mesh.position.set(Position.x[eid], height / 2, Position.y[eid]);
         mesh.userData.entityId = eid;
+        addOutline(mesh);
 
         scene.add(mesh);
         entries.set(eid, { type: "pill", eid, mesh });

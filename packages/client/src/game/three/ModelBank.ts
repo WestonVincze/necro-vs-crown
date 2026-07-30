@@ -1,9 +1,12 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { SpriteTexture } from "@necro-crown/shared";
+import { applyToonEffect } from "./ToonShading";
 
 const MODEL_REGISTRY: Partial<Record<SpriteTexture, string>> = {
   [SpriteTexture.Necromancer]: "/models/necro.glb",
+  [SpriteTexture.Peasant]: "/models/peasant.glb",
+  [SpriteTexture.Skeleton]: "/models/skeleton.glb",
 };
 
 interface ModelData {
@@ -28,7 +31,6 @@ class ModelBank {
         try {
           const gltf = await this.loader.loadAsync(path);
           const model = gltf.scene;
-          console.log(gltf.scene);
           model.traverse((obj) => {
             if ((obj as THREE.Mesh).isMesh) {
               obj.castShadow = true;
@@ -36,6 +38,7 @@ class ModelBank {
               obj.frustumCulled = true;
             }
           });
+          applyToonEffect(model);
           this.cache.set(textureId, {
             scene: model,
             animations: gltf.animations,

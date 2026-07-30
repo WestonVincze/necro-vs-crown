@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { crownClientState } from "$game/Crown";
+import { createGroundRaycaster } from "./GroundRaycaster";
 
 const MIN_ZOOM = 0.84;
 const MAX_ZOOM = 2;
@@ -12,9 +13,7 @@ export const initializeCrownThreeControls = (
   handlePlayCard: (x: number, y: number) => void,
   scene?: THREE.Scene,
 ): (() => void) => {
-  const raycaster = new THREE.Raycaster();
-  const mouse = new THREE.Vector2();
-  const target = new THREE.Vector3();
+  const getGroundPoint = createGroundRaycaster(canvas, camera, groundPlane);
 
   let pointerIsDown = false;
   let wasdActive = false;
@@ -32,18 +31,6 @@ export const initializeCrownThreeControls = (
   let previewMesh: THREE.Mesh | null = null;
   let isDraggingCard = false;
   let dragCardId: number | undefined;
-
-  const getGroundPoint = (
-    clientX: number,
-    clientY: number,
-  ): THREE.Vector3 | null => {
-    const rect = canvas.getBoundingClientRect();
-    mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
-    raycaster.setFromCamera(mouse, camera);
-    const hit = raycaster.ray.intersectPlane(groundPlane, target);
-    return hit ? target.clone() : null;
-  };
 
   const showPreview = (x: number, z: number) => {
     if (!scene) return;
