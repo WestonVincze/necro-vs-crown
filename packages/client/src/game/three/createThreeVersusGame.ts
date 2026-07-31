@@ -18,7 +18,6 @@ import {
   networkSyncComponents,
   type HitSplatEvent,
   type GameOverEvent,
-  updateWorldTime,
   type World,
 } from "@necro-crown/shared";
 import { createThreeScene } from "./ThreeSetup";
@@ -34,8 +33,10 @@ import {
   createBaseWorld,
   initAnimationSystems,
   createRenderSystems,
+  startGameLoop,
   updateInspector,
   type AnimSystemBundle,
+  type GameLoop,
 } from "./createThreeGameBase";
 import {
   createCameraFollowSystem,
@@ -282,59 +283,34 @@ export const createThreeVersusGame = async (
   room.send("loaded");
 
   // --- dev tools ---
+  let loop!: GameLoop;
+
   const devTools = createDevToolsPanel({
     world,
     camera,
-    onStepFrame: () => {
-      world.time.then = performance.now() - 16;
-      updateWorldTime(world);
-      versusSystems(world);
+    onStepFrame: () => loop.stepFrame(),
+  });
+
+  // --- game loop ---
+  loop = startGameLoop({
+    world,
+    renderer,
+    scene,
+    camera,
+    simulate: versusSystems,
+    onBeforeRender: () => {
       const info = updateInspector(
         animBundle,
         devTools.inspectorState.selectedEid,
       );
       Object.assign(devTools.inspectorState, info);
-      renderer.render(scene, camera);
     },
-    onStepTick: () => {},
   });
-
-  // --- game loop ---
-  let animFrameId: number;
-  let wasPaused = false;
-
-  const animate = () => {
-    animFrameId = requestAnimationFrame(animate);
-
-    if (world.paused) {
-      wasPaused = true;
-      return;
-    }
-
-    if (wasPaused) {
-      world.time.then = performance.now();
-      wasPaused = false;
-    }
-
-    updateWorldTime(world);
-
-    versusSystems(world);
-
-    const info = updateInspector(
-      animBundle,
-      devTools.inspectorState.selectedEid,
-    );
-    Object.assign(devTools.inspectorState, info);
-
-    renderer.render(scene, camera);
-  };
-
-  animFrameId = requestAnimationFrame(animate);
 
   window.addEventListener("resize", resize);
 
   return () => {
-    cancelAnimationFrame(animFrameId);
+    loop.stop();
     devTools.destroy();
     disposeControls();
     window.removeEventListener("resize", resize);

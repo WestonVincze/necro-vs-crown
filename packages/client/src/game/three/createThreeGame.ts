@@ -29,7 +29,6 @@ import {
   createAssignFollowTargetSystem,
   createBonesEntity,
   Faction,
-  updateWorldTime,
   type World,
   createTargetSpawnerEntity,
 } from "@necro-crown/shared";
@@ -48,8 +47,10 @@ import {
   createBaseWorld,
   initAnimationSystems,
   createRenderSystems,
+  startGameLoop,
   updateInspector,
   type AnimSystemBundle,
+  type GameLoop,
 } from "./createThreeGameBase";
 
 export const createThreeGame = async (
@@ -203,69 +204,36 @@ export const createThreeGame = async (
     );
   }
 
+  let loop!: GameLoop;
+
   const devTools = createDevToolsPanel({
     world,
     camera,
-    onStepFrame: () => {
-      world.time.then = performance.now() - 16;
-      updateWorldTime(world);
-      physicsSystems(world);
+    onStepFrame: () => loop.stepFrame(),
+    onStepTick: () => loop.stepTick(),
+  });
+  getGodMode = () => devTools.state.godMode;
+
+  loop = startGameLoop({
+    world,
+    renderer,
+    scene,
+    camera,
+    simulate: physicsSystems,
+    tick: tickSystems,
+    onBeforeRender: () => {
       const info = updateInspector(
         animBundle,
         devTools.inspectorState.selectedEid,
       );
       Object.assign(devTools.inspectorState, info);
-      renderer.render(scene, camera);
-    },
-    onStepTick: () => {
-      tickSystems(world);
     },
   });
-  getGodMode = () => devTools.state.godMode;
-
-  let animFrameId: number;
-  let timeSinceLastTick = 0;
-  let wasPaused = false;
-
-  const animate = () => {
-    animFrameId = requestAnimationFrame(animate);
-
-    if (world.paused) {
-      wasPaused = true;
-      return;
-    }
-
-    if (wasPaused) {
-      world.time.then = performance.now();
-      wasPaused = false;
-    }
-
-    updateWorldTime(world);
-
-    timeSinceLastTick += world.time.delta;
-
-    if (timeSinceLastTick > 200) {
-      tickSystems(world);
-      timeSinceLastTick = 0;
-    }
-
-    physicsSystems(world);
-
-    const info = updateInspector(
-      animBundle,
-      devTools.inspectorState.selectedEid,
-    );
-    Object.assign(devTools.inspectorState, info);
-
-    renderer.render(scene, camera);
-  };
-
-  animFrameId = requestAnimationFrame(animate);
 
   window.addEventListener("resize", resize);
 
   return () => {
-    cancelAnimationFrame(animFrameId);
+    loop.stop();
     devTools.destroy();
     disposeControls();
     crownState?.destroy();

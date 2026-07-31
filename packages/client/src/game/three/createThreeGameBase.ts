@@ -10,7 +10,6 @@ import {
   SpellName,
   SpriteTexture,
   Velocity,
-  updateWorldTime,
   type World,
 } from "@necro-crown/shared";
 import type { Entry } from "$game/systems/ModelSystem";
@@ -128,6 +127,105 @@ export const createRenderSystems = (
     animBundle.modelSystem.run(w);
     animBundle.animSystem(w);
     return w;
+  };
+};
+
+/** Simulation rate. Gameplay advances in steps of this size, never by real frame time. */
+export const FIXED_TIMESTEP_MS = 1000 / 60;
+
+/**
+ * Upper bound on catch-up steps in a single frame. Without it, one long stall
+ * (tab switch, GC pause, breakpoint) queues up enough steps that each frame
+ * takes longer than the time it simulates, and the loop never catches up.
+ */
+const MAX_STEPS_PER_FRAME = 5;
+
+export interface GameLoopOptions {
+  world: World;
+  renderer: THREE.WebGLRenderer;
+  scene: THREE.Scene;
+  camera: THREE.Camera;
+  /** Gameplay systems. Runs once per fixed step, so `world.time.delta` is constant. */
+  simulate: (world: World) => void;
+  /** Low-frequency systems (targeting, follow assignment). */
+  tick?: (world: World) => void;
+  tickIntervalMs?: number;
+  /** Runs once per rendered frame, just before the draw call. */
+  onBeforeRender?: () => void;
+}
+
+export interface GameLoop {
+  stop: () => void;
+  /** Advance exactly one fixed step and redraw — used by the dev tools while paused. */
+  stepFrame: () => void;
+  stepTick: () => void;
+}
+
+export const startGameLoop = ({
+  world,
+  renderer,
+  scene,
+  camera,
+  simulate,
+  tick,
+  tickIntervalMs = 200,
+  onBeforeRender,
+}: GameLoopOptions): GameLoop => {
+  let rafId = 0;
+  let accumulator = 0;
+  let tickAccumulator = 0;
+  let lastTime = performance.now();
+
+  const step = () => {
+    world.time.delta = FIXED_TIMESTEP_MS;
+    world.time.elapsed += FIXED_TIMESTEP_MS;
+    world.time.then = performance.now();
+
+    simulate(world);
+
+    if (tick) {
+      tickAccumulator += FIXED_TIMESTEP_MS;
+      if (tickAccumulator >= tickIntervalMs) {
+        tick(world);
+        tickAccumulator = 0;
+      }
+    }
+  };
+
+  const draw = () => {
+    onBeforeRender?.();
+    renderer.render(scene, camera);
+  };
+
+  const frame = () => {
+    rafId = requestAnimationFrame(frame);
+
+    const now = performance.now();
+    const frameTime = now - lastTime;
+    lastTime = now;
+
+    // Time spent paused is discarded rather than simulated on resume.
+    if (world.paused) return;
+
+    accumulator += Math.min(frameTime, MAX_STEPS_PER_FRAME * FIXED_TIMESTEP_MS);
+
+    while (accumulator >= FIXED_TIMESTEP_MS) {
+      step();
+      accumulator -= FIXED_TIMESTEP_MS;
+    }
+
+    draw();
+  };
+
+  rafId = requestAnimationFrame(frame);
+
+  return {
+    stop: () => cancelAnimationFrame(rafId),
+    stepFrame: () => {
+      step();
+      draw();
+    },
+    stepTick: () => tick?.(world),
   };
 };
 
