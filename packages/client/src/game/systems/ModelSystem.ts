@@ -114,6 +114,32 @@ export const createModelSystem = (
         group.position.set(Position.x[eid], 0, Position.y[eid]);
         group.scale.set(50, 50, 50);
         group.userData.entityId = eid;
+
+        // Map this clone's bones once; rebuilding it per skinned mesh made
+        // spawning quadratic in a model's mesh count.
+        const boneMap = new Map<string, THREE.Bone>();
+        group.traverse((node) => {
+          if (node instanceof THREE.Bone) boneMap.set(node.name, node);
+        });
+
+        // Every skinned mesh in a source model shares one skeleton (outline
+        // hulls included). Preserve that sharing in the clone, otherwise each
+        // mesh gets its own skeleton and three.js recomputes the same bone
+        // matrices — and re-uploads the same bone texture — once per mesh
+        // per frame instead of once per unit.
+        const clonedSkeletons = new Map<THREE.Skeleton, THREE.Skeleton>();
+        const cloneSkeleton = (source: THREE.Skeleton): THREE.Skeleton => {
+          let cloned = clonedSkeletons.get(source);
+          if (!cloned) {
+            const bones = source.bones.map(
+              (bone) => boneMap.get(bone.name) ?? bone,
+            );
+            cloned = new THREE.Skeleton(bones, source.boneInverses);
+            clonedSkeletons.set(source, cloned);
+          }
+          return cloned;
+        };
+
         group.traverse((child) => {
           if (child instanceof THREE.Mesh) {
             child.frustumCulled = false;
@@ -128,20 +154,7 @@ export const createModelSystem = (
             }
             if (child instanceof THREE.SkinnedMesh) {
               child.normalizeSkinWeights();
-              const boneMap = new Map<string, THREE.Bone>();
-              group.traverse((node) => {
-                if (node instanceof THREE.Bone) {
-                  boneMap.set(node.name, node);
-                }
-              });
-              const clonedBones = child.skeleton.bones.map(
-                (bone) => boneMap.get(bone.name) ?? bone,
-              );
-              const clonedSkeleton = new THREE.Skeleton(
-                clonedBones,
-                child.skeleton.boneInverses,
-              );
-              child.bind(clonedSkeleton, child.bindMatrix);
+              child.bind(cloneSkeleton(child.skeleton), child.bindMatrix);
             }
           }
         });
