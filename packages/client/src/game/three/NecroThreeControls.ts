@@ -10,7 +10,7 @@ import {
 } from "@necro-crown/shared";
 import { createGroundRaycaster } from "./GroundRaycaster";
 
-const MIN_ZOOM = 0.84;
+const MIN_ZOOM = 1.2;
 const MAX_ZOOM = 2;
 
 export const initializeNecroThreeControls = (

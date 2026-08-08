@@ -1,10 +1,16 @@
 import GUI from "lil-gui";
 import * as THREE from "three";
 import type { World } from "@necro-crown/shared";
+import {
+  applyCameraRig,
+  cameraRig,
+  MAX_PITCH_DEG,
+} from "$game/three/CameraRig";
 
 export interface DevToolsOptions {
   world: World;
   camera?: THREE.OrthographicCamera;
+  gridHelper?: THREE.Object3D;
   onStepFrame?: () => void;
   onStepTick?: () => void;
 }
@@ -56,26 +62,28 @@ export const createDevToolsPanel = (
 
   if (options.camera) {
     const camera = options.camera;
-    const camState = {
-      zoom: camera.top * 2,
-    };
 
     const camFolder = gui.addFolder("Camera");
     camFolder
-      .add(camState, "zoom", 100, 5000, 1)
+      .add(cameraRig, "pitchDeg", 5, MAX_PITCH_DEG, 1)
+      .name("Pitch (°)")
+      .onChange(() => applyCameraRig(camera));
+    camFolder
+      .add(camera, "zoom", 0.25, 4, 0.05)
       .name("Zoom")
-      .onChange(updateZoom);
+      .onChange(() => camera.updateProjectionMatrix())
+      .listen();
     camFolder.open();
+  }
 
-    function updateZoom(v: number) {
-      const aspect = camera.right / camera.top;
-      camera.left = (v * aspect) / -2;
-      camera.right = (v * aspect) / 2;
-      camera.top = v / 2;
-      camera.bottom = v / -2;
-      camera.updateProjectionMatrix();
-      camState.zoom = v;
-    }
+  if (options.gridHelper) {
+    const grid = options.gridHelper;
+    worldFolder
+      .add({ showGrid: grid.visible }, "showGrid")
+      .name("Show Grid")
+      .onChange((v: boolean) => {
+        grid.visible = v;
+      });
   }
 
   const inspectorFolder = gui.addFolder("Animation");

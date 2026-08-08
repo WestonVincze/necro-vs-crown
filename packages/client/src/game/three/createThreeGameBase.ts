@@ -133,11 +133,6 @@ export const createRenderSystems = (
 /** Simulation rate. Gameplay advances in steps of this size, never by real frame time. */
 export const FIXED_TIMESTEP_MS = 1000 / 60;
 
-/**
- * Upper bound on catch-up steps in a single frame. Without it, one long stall
- * (tab switch, GC pause, breakpoint) queues up enough steps that each frame
- * takes longer than the time it simulates, and the loop never catches up.
- */
 const MAX_STEPS_PER_FRAME = 5;
 
 export interface GameLoopOptions {

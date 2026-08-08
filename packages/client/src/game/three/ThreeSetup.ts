@@ -1,10 +1,12 @@
 import * as THREE from "three";
+import { applyCameraRig, registerShadowLight } from "./CameraRig";
 
 export interface ThreeContext {
   scene: THREE.Scene;
   camera: THREE.OrthographicCamera;
   renderer: THREE.WebGLRenderer;
   groundPlane: THREE.Plane;
+  gridHelper: THREE.GridHelper;
   resize: () => void;
   dispose: () => void;
 }
@@ -23,8 +25,8 @@ export const createThreeScene = (container: HTMLElement): ThreeContext => {
     0.1,
     5000,
   );
-  camera.position.set(0, 1000, 1000);
-  camera.lookAt(0, 0, 0);
+  camera.zoom = 1.5;
+  camera.updateProjectionMatrix();
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(container.clientWidth, container.clientHeight);
@@ -43,11 +45,16 @@ export const createThreeScene = (container: HTMLElement): ThreeContext => {
   directionalLight.shadow.mapSize.height = 2048;
   directionalLight.shadow.camera.near = 0.5;
   directionalLight.shadow.camera.far = 3000;
-  directionalLight.shadow.camera.left = -2000;
-  directionalLight.shadow.camera.right = 2000;
-  directionalLight.shadow.camera.top = 2000;
-  directionalLight.shadow.camera.bottom = -2000;
+  directionalLight.shadow.camera.left = -800;
+  directionalLight.shadow.camera.right = 800;
+  directionalLight.shadow.camera.top = 800;
+  directionalLight.shadow.camera.bottom = -800;
+  directionalLight.shadow.normalBias = 1;
   scene.add(directionalLight);
+  scene.add(directionalLight.target);
+  registerShadowLight(directionalLight);
+
+  applyCameraRig(camera, 0, 0);
 
   const fillLight = new THREE.DirectionalLight(0x8888ff, 0.4);
   fillLight.position.set(-300, 500, -300);
@@ -67,6 +74,7 @@ export const createThreeScene = (container: HTMLElement): ThreeContext => {
 
   const gridHelper = new THREE.GridHelper(4000, 64, 0x444444, 0x333333);
   gridHelper.position.set(0, 0.5, 2048 / 2);
+  gridHelper.visible = false;
   scene.add(gridHelper);
 
   const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
@@ -90,5 +98,5 @@ export const createThreeScene = (container: HTMLElement): ThreeContext => {
     scene.clear();
   };
 
-  return { scene, camera, renderer, groundPlane, resize, dispose };
+  return { scene, camera, renderer, groundPlane, gridHelper, resize, dispose };
 };

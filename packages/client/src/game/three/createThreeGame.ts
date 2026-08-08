@@ -58,7 +58,8 @@ export const createThreeGame = async (
   faction: Faction = Faction.Necro,
 ): Promise<() => void> => {
   const ctx = createThreeScene(container);
-  const { scene, camera, renderer, groundPlane, resize, dispose } = ctx;
+  const { scene, camera, renderer, groundPlane, gridHelper, resize, dispose } =
+    ctx;
 
   const world = createBaseWorld();
   world.networkType = "offline";
@@ -209,6 +210,7 @@ export const createThreeGame = async (
   const devTools = createDevToolsPanel({
     world,
     camera,
+    gridHelper,
     onStepFrame: () => loop.stepFrame(),
     onStepTick: () => loop.stepTick(),
   });

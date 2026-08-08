@@ -1,6 +1,7 @@
 import { addComponent, addEntity, query } from "bitecs";
 import * as THREE from "three";
 import { Position, type World } from "@necro-crown/shared";
+import { applyCameraRig } from "$game/three/CameraRig";
 
 export const CameraFollow = {
   targetEid: [] as number[],
@@ -20,11 +21,7 @@ export const setCameraTarget = (cameraEid: number, targetEid: number) => {
   CameraFollow.targetEid[cameraEid] = targetEid;
 };
 
-export const createCameraFollowSystem = (
-  camera: THREE.OrthographicCamera,
-  offsetY = 1000,
-  offsetZ = 1000,
-) => {
+export const createCameraFollowSystem = (camera: THREE.OrthographicCamera) => {
   return (world: World) => {
     for (const eid of query(world, [CameraFollow])) {
       const targetEid = CameraFollow.targetEid[eid];
@@ -32,8 +29,7 @@ export const createCameraFollowSystem = (
       const px = Position.x[targetEid];
       const py = Position.y[targetEid];
       if (px === undefined || py === undefined) continue;
-      camera.position.set(px, offsetY, py + offsetZ);
-      camera.lookAt(px, 0, py);
+      applyCameraRig(camera, px, py);
     }
     return world;
   };

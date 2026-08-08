@@ -155,7 +155,8 @@ export const createThreeVersusGame = async (
   faction: Faction,
 ): Promise<() => void> => {
   const ctx = createThreeScene(container);
-  const { scene, camera, renderer, groundPlane, resize, dispose } = ctx;
+  const { scene, camera, renderer, groundPlane, gridHelper, resize, dispose } =
+    ctx;
 
   const world = createBaseWorld();
   world.networkType = "networked";
@@ -288,6 +289,7 @@ export const createThreeVersusGame = async (
   const devTools = createDevToolsPanel({
     world,
     camera,
+    gridHelper,
     onStepFrame: () => loop.stepFrame(),
   });
 
